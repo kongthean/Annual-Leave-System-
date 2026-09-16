@@ -386,7 +386,8 @@
                 </div>
                 <div class="form-group">
                     <label data-i18n="lblEmpId">Employee ID</label>
-                    <input type="text" id="chkEmpId" placeholder="e.g. 200001" value="200001">
+                    <!-- FIXED HERE: Removed value="200001" so input is blank by default -->
+                    <input type="text" id="chkEmpId" placeholder="e.g. 200001">
                 </div>
                 <div class="form-group">
                     <label data-i18n="lblTodayHours">Today's Hours (Optional)</label>
@@ -1050,6 +1051,11 @@
         const id = document.getElementById('chkEmpId').value.trim();
         const queryDateStr = document.getElementById('chkDate').value;
         const todayHrs = parseFloat(document.getElementById('chkHours').value) || 0;
+
+        if(!id) {
+            alert('Please enter an Employee ID!');
+            return;
+        }
 
         const emp = employees.find(e => e.id === id);
         if(!emp) {
