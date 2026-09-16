@@ -3,1350 +3,857 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Annual Leave Management System - Cambodia Insight</title>
-    <!-- XLSX Library for Exporting to Excel -->
+    <title>Cambodia Insight - Annual Leave Management System</title>
+    <!-- Tailwind CSS for modern, responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SheetJS (xlsx) for Excel Export functionality -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- FontAwesome for clean icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
-        body { background: #f8fafc; color: #1e293b; padding: 10px; font-size: 13px; }
-        .container { max-width: 1350px; margin: 0 auto; filter: blur(0px); transition: filter 0.3s; }
-        
-        /* LOGIN MODAL OVERLAY */
-        .login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(15, 23, 42, 0.95);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .login-card {
-            background: #ffffff;
-            padding: 30px 24px;
-            border-radius: 10px;
-            width: 100%;
-            max-width: 360px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-        .login-card h2 {
-            font-size: 20px;
-            color: #0f172a;
-            margin-bottom: 4px;
-        }
-        .login-card p {
-            font-size: 12px;
-            color: #64748b;
-            margin-bottom: 20px;
-        }
-        .login-card .form-group {
-            text-align: left;
-            margin-bottom: 12px;
-        }
-        .login-card label {
-            display: block;
-            font-weight: 600;
-            font-size: 11px;
-            color: #334155;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-        }
-        .login-card input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 13px;
-        }
-        .login-card input:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-        }
-        .login-btn {
-            width: 100%;
-            padding: 10px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.2s;
-        }
-        .login-btn:hover {
-            background: #1d4ed8;
-        }
-        .login-error {
-            color: #dc2626;
-            font-size: 12px;
-            margin-top: 10px;
-            display: none;
-            font-weight: 600;
-        }
-
-        /* Header & Navigation */
-        .header { background: #0f172a; color: white; padding: 12px 16px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
-        .header h2 { font-size: 18px; font-weight: 600; }
-        .header-right { display: flex; align-items: center; gap: 12px; }
-        .header-brand { font-size: 12px; color: #94a3b8; font-weight: 500; }
-
-        /* Custom Language Switcher Dropdown */
-        .lang-dropdown { position: relative; display: inline-block; }
-        .lang-btn {
-            background: #1e293b;
-            border: 1px solid #334155;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #f8fafc;
-            font-size: 12px;
-            transition: background 0.2s;
-        }
-        .lang-btn:hover { background: #334155; }
-        .flag-icon { width: 22px; height: 14px; border-radius: 2px; object-fit: cover; display: inline-block; box-shadow: 0 0 1px rgba(0,0,0,0.5); }
-
-        .lang-menu {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 110%;
-            background: #ffffff;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            min-width: 130px;
-            z-index: 200;
-            overflow: hidden;
-        }
-        .lang-menu.show { display: block; }
-        .lang-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            color: #1e293b;
-            text-decoration: none;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        .lang-option:hover { background: #f1f5f9; }
-        .lang-option.active { font-weight: bold; background: #e2e8f0; }
-
-        nav { display: flex; background: #1e293b; border-radius: 0 0 8px 8px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
-        nav button { flex: 1; padding: 10px 12px; border: none; background: transparent; color: #94a3b8; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px; transition: all 0.2s; }
-        nav button.active { background: #2563eb; color: white; }
-        nav button:hover:not(.active) { color: white; background: #334155; }
-
-        /* Tab Panels */
-        .tab-panel { display: none; background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
-        .tab-panel.active { display: block; }
-
-        /* Dashboard Styles */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
-        .stat-card { background: #f1f5f9; padding: 12px 16px; border-radius: 6px; border-left: 4px solid #2563eb; }
-        .stat-card h4 { color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
-        .stat-card div { font-size: 20px; font-weight: 700; color: #0f172a; }
-
-        .dash-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; margin-bottom: 16px; }
-        .dash-card h4 { font-size: 14px; color: #0f172a; margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
-
-        .quick-actions { display: flex; gap: 10px; margin-bottom: 16px; }
-        .quick-btn { padding: 8px 14px; background: #2563eb; color: white; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; }
-        .quick-btn.green { background: #16a34a; }
-        .quick-btn.slate { background: #475569; }
-
-        /* SYSTEM REMINDER BOX */
-        .system-reminder-card {
-            background-color: #f8fafc;
-            border: 1px solid #cbd5e1;
-            border-left: 5px solid #2563eb;
-            border-radius: 8px;
-            padding: 16px 20px;
-            margin-top: 16px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-        }
-        .reminder-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-            color: #0f172a;
-        }
-        .reminder-title {
-            font-weight: 700;
-            font-size: 14px;
-        }
-        .reminder-icon {
-            stroke: #2563eb;
-        }
-        .reminder-body ul {
-            list-style: none;
-            padding-left: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .reminder-body li {
-            font-size: 13px;
-            color: #334155;
-            line-height: 1.5;
-            padding: 6px 10px;
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 5px;
-        }
-
-        /* Forms & Inputs */
-        .form-group { margin-bottom: 8px; }
-        label { display: block; font-weight: 600; margin-bottom: 3px; font-size: 12px; color: #334155; }
-        input, select, textarea { width: 100%; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 12px; background: #fff; }
-        input:focus, select:focus { outline: none; border-color: #2563eb; }
-        .btn-submit { width: 100%; padding: 8px 12px; background: #2563eb; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 6px; }
-
-        /* Search Box Bar for Master Sheet */
-        .search-bar-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #f1f5f9;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid #cbd5e1;
-            margin-bottom: 10px;
-        }
-        .search-bar-wrapper input {
-            max-width: 320px;
-            border: 1px solid #cbd5e1;
-            padding: 6px 10px;
-            font-size: 12px;
-            border-radius: 4px;
-        }
-
-        /* Inline Banner Notification */
-        .toast-msg {
-            display: none;
-            background: #dcfce7;
-            color: #15803d;
-            border: 1px solid #86efac;
-            padding: 8px 12px;
-            border-radius: 5px;
-            margin-bottom: 12px;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        /* Master Table */
-        .table-responsive { overflow-x: auto; margin-top: 10px; }
-        table.master-tbl { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 1200px; }
-        table.master-tbl th, table.master-tbl td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: center; white-space: nowrap; }
-        table.master-tbl th { background: #f8fafc; color: #334155; font-weight: 700; font-size: 11px; text-transform: uppercase; }
-        tr:hover { background-color: #f8fafc; }
-        .btn-edit { background: none; border: none; cursor: pointer; font-size: 14px; color: #2563eb; padding: 2px 4px; }
-        .btn-delete { background: none; border: none; cursor: pointer; font-size: 14px; color: #dc2626; padding: 2px 4px; }
-
-        /* CHECK ELIGIBILITY: COMPACT LAYOUT WITH REMARK CARD */
-        .eligibility-container { display: flex; gap: 16px; align-items: flex-start; }
-        .query-box-small { width: 260px; flex-shrink: 0; background: #f8fafc; padding: 14px; border-radius: 6px; border: 1px solid #e2e8f0; }
-        .query-box-small h4 { font-size: 14px; margin-bottom: 10px; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
-        
-        .query-results-wrapper { flex-grow: 1; display: flex; flex-direction: column; gap: 12px; }
-        .results-grid-2col { display: flex; gap: 12px; width: 100%; }
-        .result-col { flex: 1; border-collapse: collapse; width: 50%; }
-        .result-col table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .result-col td { border: 1px solid #cbd5e1; padding: 6px 10px; }
-        .result-col td.label { background: #f1f5f9; font-weight: 600; width: 55%; color: #334155; }
-        .result-col td.value { background: #ffffff; text-align: right; font-weight: 500; }
-        
-        /* Query Remarks Display Box */
-        .query-remark-box {
-            background: #fef3c7;
-            border: 1px solid #fde68a;
-            border-left: 5px solid #d97706;
-            padding: 10px 14px;
-            border-radius: 6px;
-            font-size: 13px;
-            color: #78350f;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .query-remark-box.empty {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-left: 5px solid #94a3b8;
-            color: #64748b;
-        }
-
-        .highlight-blue { background: #e0f2fe !important; color: #0369a1 !important; font-weight: bold !important; }
-        .bg-green { background: #dcfce7 !important; color: #15803d !important; font-weight: bold !important; }
-        .bg-red { background: #fee2e2 !important; color: #b91c1c !important; font-weight: bold !important; }
-
-        /* Edit Modal Popup */
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 18px; border-radius: 8px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #64748b; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Kantumruy+Pro:wght@300;400;500;700&display=swap');
+        body { font-family: 'Inter', 'Kantumruy Pro', sans-serif; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-<!-- LOGIN OVERLAY LOCK SCREEN -->
-<div id="loginOverlay" class="login-overlay">
-    <div class="login-card">
-        <h2>System Login</h2>
-        <p>Cambodia Insight Leave System</p>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="loginUser">Username</label>
-                <input type="text" id="loginUser" placeholder="Enter username" required autocomplete="off">
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 border border-slate-100">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mb-4 text-2xl font-bold">
+                    <i class="fa-solid fa-tree"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-slate-900">Cambodia Insight</h1>
+                <p class="text-sm text-slate-500 mt-1">Leave Management System Portal</p>
             </div>
-            <div class="form-group">
-                <label for="loginPass">Password</label>
-                <input type="password" id="loginPass" placeholder="Enter password" required>
-            </div>
-            <button type="submit" class="login-btn">Log In</button>
-            <div id="loginError" class="login-error">Invalid Username or Password!</div>
-        </form>
-    </div>
-</div>
-
-<div class="container">
-    <div class="header">
-        <h2 data-i18n="appTitle">Annual Leave Management System</h2>
-        <div class="header-right">
-            <span class="header-brand">Cambodia Insight</span>
-            
-            <!-- Language Dropdown -->
-            <div class="lang-dropdown">
-                <button class="lang-btn" onclick="toggleLangMenu(event)">
-                    <img id="currentFlag" class="flag-icon" src="https://flagcdn.com/w40/us.png" alt="US Flag">
-                    <span id="currentLangName">EN</span> ▼
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Username / ID</label>
+                    <input type="text" id="login-user" required class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm" placeholder="Enter your username">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Password</label>
+                    <input type="password" id="login-pass" required class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm" placeholder="••••••••">
+                </div>
+                <div id="login-error" class="hidden text-rose-500 text-xs font-medium text-center"></div>
+                <button type="submit" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-md transition duration-200">
+                    Sign In
                 </button>
-                <div class="lang-menu" id="langMenu">
-                    <div class="lang-option" onclick="setLanguage('km')">
-                        <img class="flag-icon" src="https://flagcdn.com/w40/kh.png" alt="Khmer"> ភាសាខ្មែរ
-                    </div>
-                    <div class="lang-option active" onclick="setLanguage('en')">
-                        <img class="flag-icon" src="https://flagcdn.com/w40/us.png" alt="English"> English
-                    </div>
-                    <div class="lang-option" onclick="setLanguage('zh')">
-                        <img class="flag-icon" src="https://flagcdn.com/w40/cn.png" alt="Chinese"> 中文
-                    </div>
-                </div>
-            </div>
-            <button onclick="lockSystem()" style="background:#dc2626; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold;">Lock System</button>
-        </div>
-    </div>
-    
-    <!-- Navigation Menu -->
-    <nav>
-        <button id="nav-home" class="active" onclick="switchTab('tab-home', this)" data-i18n="navDashboard">Dashboard</button>
-        <button id="nav-master" onclick="switchTab('tab-master', this)" data-i18n="navMaster">Master Sheet</button>
-        <button id="nav-att" onclick="switchTab('tab-att', this)" data-i18n="navAttendance">Daily Attendance</button>
-        <button id="nav-query" onclick="switchTab('tab-query', this)" data-i18n="navEligibility">Check Eligibility</button>
-        <button id="nav-add" onclick="switchTab('tab-add', this)" data-i18n="navAddEmployee">+ Add Employee</button>
-    </nav>
-
-    <!-- TAB 1: DASHBOARD -->
-    <div id="tab-home" class="tab-panel active">
-        <h3 style="margin-bottom: 12px; color: #0f172a;" data-i18n="dashOverview">Overview Dashboard</h3>
-        
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h4 data-i18n="statTotalStaff">Total Employees</h4>
-                <div id="statTotalStaff">0</div>
-            </div>
-            <div class="stat-card" style="border-color: #16a34a;">
-                <h4 data-i18n="statTotalUsed">Total Leave Used (Hrs)</h4>
-                <div id="statTotalUsed">0</div>
-            </div>
-            <div class="stat-card" style="border-color: #0284c7;">
-                <h4 data-i18n="statCurrentMonth">This Month Used (Hrs)</h4>
-                <div id="statCurrentMonth">0</div>
-            </div>
-            <div class="stat-card" style="border-color: #dc2626;">
-                <h4 data-i18n="statExceeded">Exceeded Limits</h4>
-                <div id="statExceeded">0</div>
-            </div>
-        </div>
-
-        <h4 style="margin-bottom: 8px; color: #334155;" data-i18n="quickActions">Quick Actions</h4>
-        <div class="quick-actions">
-            <button class="quick-btn" onclick="triggerNav('tab-att', 'nav-att')" data-i18n="btnLogAtt">✏️ Log Attendance</button>
-            <button class="quick-btn green" onclick="triggerNav('tab-query', 'nav-query')" data-i18n="btnCheckElig">🔍 Check Eligibility</button>
-            <button class="quick-btn slate" onclick="triggerNav('tab-add', 'nav-add')" data-i18n="btnRegStaff">👤 Register Staff</button>
-        </div>
-
-        <div class="dash-card">
-            <h4 data-i18n="dashTableTitle">Leave Usage Overview (Roster Summary)</h4>
-            <div class="table-responsive">
-                <table class="master-tbl" id="dashSummaryTable">
-                    <thead>
-                        <tr>
-                            <th data-i18n="tblId">ID</th>
-                            <th data-i18n="tblName">Name</th>
-                            <th data-i18n="tblJoin">Join Date</th>
-                            <th data-i18n="tblEntitled">Entitled Hours</th>
-                            <th data-i18n="tblUsed">Used (Hrs)</th>
-                            <th data-i18n="tblRemaining">Remaining Hours</th>
-                            <th data-i18n="tblStatus">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="system-reminder-card">
-            <div class="reminder-header">
-                <svg class="reminder-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                <span class="reminder-title" data-i18n="dashNoticesTitle">System Reminders & Announcements</span>
-            </div>
-            <div class="reminder-body">
-                <ul>
-                    <li data-i18n="notice1">
-                        📌 <b>Monthly Reset:</b> Current month leave hours carry over as recorded unless manually updated.
-                    </li>
-                    <li data-i18n="notice2">
-                        📌 <b>Exporting:</b> Use the Excel export button in Master Sheet before printing monthly reports.
-                    </li>
-                </ul>
+            </form>
+            <div class="mt-6 text-center text-xs text-slate-400">
+                Protected Portal • Auto-locks after 1 hour of inactivity
             </div>
         </div>
     </div>
 
-    <!-- TAB 2: MASTER SHEET WITH SEARCH BOX -->
-    <div id="tab-master" class="tab-panel">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <div>
-                <h3 data-i18n="masterTitle">Master Annual Leave Roster</h3>
-                <p style="font-size:11px; color:#64748b;" data-i18n="masterSub">Complete employee leave ledger</p>
-            </div>
-            <button class="quick-btn green" onclick="exportToExcel()" data-i18n="btnExport">📊 Export to Excel (.xlsx)</button>
-        </div>
-
-        <!-- SEARCH BAR -->
-        <div class="search-bar-wrapper">
-            <label style="margin:0; font-weight:bold; color:#0f172a;" data-i18n="lblSearch">🔍 Search Employee:</label>
-            <input type="text" id="masterSearchInput" onkeyup="filterMasterTable()" placeholder="Enter ID or Name (e.g. 200001)...">
-        </div>
-
-        <div class="table-responsive">
-            <table class="master-tbl" id="masterTable">
-                <thead>
-                    <tr>
-                        <th data-i18n="tblActions">Actions</th>
-                        <th data-i18n="tblId">ID</th>
-                        <th data-i18n="tblName">Name</th>
-                        <th data-i18n="tblJoin">Join Date</th>
-                        <th data-i18n="tblYears">Years of Work</th>
-                        <th data-i18n="tblEntitled">Entitled Hours</th>
-                        <th data-i18n="tblStart">Start Date</th>
-                        <th data-i18n="tblEnd">End Date</th>
-                        <th data-i18n="tblRenewed">Renewed At (Months Left)</th>
-                        <th data-i18n="tblTotalAL">Total AL</th>
-                        <th data-i18n="tblPrevUsed">Prev Month Used</th>
-                        <th data-i18n="tblMonthUsed">Current Month Used</th>
-                        <th data-i18n="tblTotalUsed">Total Used Hours</th>
-                        <th data-i18n="tblRemaining">Remaining Hours</th>
-                        <th data-i18n="tblCarried">Carried Forward</th>
-                        <th data-i18n="tblYearRange">Year Range</th>
-                        <th data-i18n="tblExceeded">Exceeded Hours</th>
-                        <th data-i18n="tblRemarks">Remarks</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- TAB 3: DAILY ATTENDANCE -->
-    <div id="tab-att" class="tab-panel">
-        <h3 data-i18n="attTitle">Log Daily Attendance</h3>
-        <form id="attForm" style="max-width: 400px; margin-top:10px;">
-            <div class="form-group">
-                <label data-i18n="lblEmpId">Employee ID</label>
-                <input type="text" id="attId" placeholder="e.g. 200001" required>
-            </div>
-            <div class="form-group">
-                <label data-i18n="lblLeaveDate">Leave Date</label>
-                <input type="date" id="attDate" required>
-            </div>
-            <div class="form-group">
-                <label data-i18n="lblHoursTaken">Hours Taken</label>
-                <input type="number" id="attHours" value="8" step="0.5" required>
-            </div>
-            <button type="submit" class="btn-submit" style="background:#16a34a;" data-i18n="btnSubmitAtt">Submit Attendance Record</button>
-        </form>
-    </div>
-
-    <!-- TAB 4: CHECK ELIGIBILITY -->
-    <div id="tab-query" class="tab-panel">
-        <div class="eligibility-container">
-            <div class="query-box-small">
-                <h4 data-i18n="queryParams">Query Parameters</h4>
-                <div class="form-group">
-                    <label data-i18n="lblQueryDate">Query Date</label>
-                    <input type="date" id="chkDate">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="lblEmpId">Employee ID</label>
-                    <input type="text" id="chkEmpId" placeholder="e.g. 200001">
-                </div>
-                <div class="form-group">
-                    <label data-i18n="lblTodayHours">Today's Hours (Optional)</label>
-                    <input type="number" id="chkHours" value="0">
-                </div>
-                <button onclick="runExcelQuery()" class="btn-submit" data-i18n="btnRunCalc">Run Calculation Query</button>
-            </div>
-
-            <div class="query-results-wrapper">
-                <div class="results-grid-2col" id="queryResult" style="display:none; flex-direction:column;">
-                    <div style="display: flex; gap: 12px; width: 100%;">
-                        <div class="result-col">
-                            <table>
-                                <tr><td class="label" data-i18n="tblName">Name</td><td class="value" id="qName">-</td></tr>
-                                <tr><td class="label" data-i18n="tblJoin">Join Date</td><td class="value" id="qJoin">-</td></tr>
-                                <tr><td class="label" data-i18n="tblYears">Years of Work</td><td class="value" id="qYears">-</td></tr>
-                                <tr><td class="label" data-i18n="tblEntitled">Entitled Days/Hours</td><td class="value" id="qEntitled">-</td></tr>
-                                <tr><td class="label" data-i18n="tblStart">Leave Start Date</td><td class="value" id="qStart">-</td></tr>
-                                <tr><td class="label" data-i18n="tblEnd">Leave End Date</td><td class="value" id="qEnd">-</td></tr>
-                                <tr><td class="label" data-i18n="tblRenewed">Renewed At (Months Left)</td><td class="value" id="qRenewal">-</td></tr>
-                                <tr><td class="label" data-i18n="lblMonthsService">Months of Service</td><td class="value" id="qMonths">-</td></tr>
-                                <tr><td class="label" data-i18n="tblTotalAL">Total Annual Leave</td><td class="value" id="qTotalAL">-</td></tr>
-                            </table>
-                        </div>
-
-                        <div class="result-col">
-                            <table>
-                                <tr><td class="label" data-i18n="tblTotalUsed">Total Hours Used</td><td class="value" id="qTotalUsed">-</td></tr>
-                                <tr><td class="label" data-i18n="tblMonthUsed">Current Month Used</td><td class="value" id="qCurrentMonthUsed">-</td></tr>
-                                <tr><td class="label" data-i18n="tblRemaining">Total Remaining Hours</td><td class="value" id="qRemainingTotal">-</td></tr>
-                                <tr><td class="label" data-i18n="tblCarried" style="background:#fee2e2; color:#991b1b;">Carried Forward Balance</td><td class="value" id="qCarried" style="background:#fee2e2;">0</td></tr>
-                                <tr><td class="label highlight-blue" data-i18n="lblAllowedThisMonth">Allowed Available This Month</td><td class="value highlight-blue" id="qAllowedThisMonth">-</td></tr>
-                                <tr><td class="label highlight-blue" data-i18n="lblRemAfterToday">Remaining Balance After Today</td><td class="value highlight-blue" id="qRemAfterToday">-</td></tr>
-                                <tr><td class="label" data-i18n="lblIsStarted">Is Leave Start Date Reached?</td><td class="value" id="qIsStarted">-</td></tr>
-                                <tr><td class="label" data-i18n="lblIsExceeded">Exceeds Entitled Hours?</td><td class="value" id="qIsExceeded">-</td></tr>
-                                <tr><td class="label highlight-blue" data-i18n="tblYearRange">Year Range</td><td class="value highlight-blue" id="qYearRange">-</td></tr>
-                            </table>
-                        </div>
+    <!-- MAIN APP INTERFACE (Hidden initially) -->
+    <div id="app-container" class="hidden flex-1 flex flex-col">
+        <!-- Top Navigation Header -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-tree"></i>
                     </div>
+                    <div>
+                        <span class="font-bold text-slate-900 text-lg">Cambodia Insight</span>
+                        <span class="hidden sm:inline-block ml-2 text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-medium">Leave System</span>
+                    </div>
+                </div>
 
-                    <!-- REMARK ALERT BOX -->
-                    <div id="qRemarkContainer" class="query-remark-box">
-                        <b data-i18n="lblRemarksHeading">Master Remarks / Notes:</b> 
-                        <span id="qRemarksText">-</span>
+                <!-- Navigation Controls -->
+                <div class="flex items-center space-x-4">
+                    <!-- Language Selector -->
+                    <select id="lang-select" onchange="switchLanguage(this.value)" class="bg-slate-100 border border-slate-200 text-slate-700 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none font-medium">
+                        <option value="en">English</option>
+                        <option value="km">ភាសាខ្មែរ</option>
+                        <option value="zh">中文</option>
+                    </select>
+
+                    <!-- User Profile & Logout -->
+                    <div class="flex items-center space-x-2 border-l border-slate-200 pl-4">
+                        <span id="user-display" class="text-xs font-semibold text-slate-700"></span>
+                        <button onclick="logout()" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg transition" title="Logout">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </header>
 
-    <!-- TAB 5: ADD EMPLOYEE -->
-    <div id="tab-add" class="tab-panel">
-        <h3 data-i18n="addTitle">Register New Employee</h3>
-        <div style="max-width: 400px; margin-top:10px;">
-            <div class="toast-msg" id="addToast">✓ Employee saved successfully! You can add the next one.</div>
+        <!-- Sub Navigation Tabs -->
+        <div class="bg-white border-b border-slate-200 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-8 overflow-x-auto">
+                <button onclick="switchTab('master')" id="tab-master" class="tab-btn py-4 px-1 border-b-2 border-emerald-600 font-semibold text-sm text-emerald-600 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-users-gear"></i> <span data-i18n="navMaster">Master Sheet</span>
+                </button>
+                <button onclick="switchTab('attendance')" id="tab-attendance" class="tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-slate-500 hover:text-slate-700 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-calendar-check"></i> <span data-i18n="navAttendance">Attendance Logging</span>
+                </button>
+                <button onclick="switchTab('eligibility')" id="tab-eligibility" class="tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-slate-500 hover:text-slate-700 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-clipboard-check"></i> <span data-i18n="navEligibility">Eligibility & Requests</span>
+                </button>
+                <button onclick="switchTab('export')" id="tab-export" class="tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-slate-500 hover:text-slate-700 flex items-center space-x-2 whitespace-nowrap">
+                    <i class="fa-solid fa-file-excel"></i> <span data-i18n="navExport">XLSX Export Hub</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
             
-            <form id="addEmpForm">
-                <div class="form-group">
-                    <label data-i18n="lblEmpId">Employee ID</label>
-                    <input type="text" id="newId" placeholder="e.g. 200001" required>
+            <!-- SECTION 1: MASTER SHEET -->
+            <section id="section-master" class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900" data-i18n="masterTitle">Employee Master & Leave Balances</h2>
+                        <p class="text-sm text-slate-500" data-i18n="masterSubtitle">Manage staff records, annual quotas, and accruals.</p>
+                    </div>
+                    <button onclick="openEmployeeModal()" class="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow transition">
+                        <i class="fa-solid fa-user-plus mr-2"></i> <span data-i18n="addEmployeeBtn">Add New Employee</span>
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label data-i18n="lblFullName">Full Name</label>
-                    <input type="text" id="newName" placeholder="e.g. Sok Heng" required>
+
+                <!-- Search and Filters Bar -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                    <div class="relative w-full sm:w-96">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="master-search" oninput="renderMasterTable()" placeholder="Search by name, ID, or department..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div class="text-xs text-slate-500" id="employee-count-display">Showing 0 records</div>
                 </div>
-                <div class="form-group">
-                    <label data-i18n="tblJoin">Join Date</label>
-                    <input type="date" id="newJoinDate" required>
+
+                <!-- Master Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                                    <th class="p-4" data-i18n="thID">ID</th>
+                                    <th class="p-4" data-i18n="thName">Name</th>
+                                    <th class="p-4" data-i18n="thDept">Department</th>
+                                    <th class="p-4" data-i18n="thJoin">Join Date</th>
+                                    <th class="p-4 text-center" data-i18n="thEntitlement">Annual Quota</th>
+                                    <th class="p-4 text-center" data-i18n="thUsed">Taken</th>
+                                    <th class="p-4 text-center" data-i18n="thBalance">Balance</th>
+                                    <th class="p-4 text-right" data-i18n="thActions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="master-table-body" class="divide-y divide-slate-100">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label data-i18n="tblEntitled">Entitled Hours</label>
-                    <input type="number" id="newEntitled" value="160" required>
+            </section>
+
+            <!-- SECTION 2: ATTENDANCE LOGGING -->
+            <section id="section-attendance" class="hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900" data-i18n="attendanceTitle">Daily Attendance & Leave Logs</h2>
+                    <p class="text-sm text-slate-500" data-i18n="attendanceSubtitle">Record absences, public holidays, and operational leave tracking.</p>
                 </div>
-                <div class="form-group">
-                    <label data-i18n="tblRemarks">Remarks</label>
-                    <input type="text" id="newRemarks">
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Quick Log Form -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                        <h3 class="font-bold text-slate-800 text-base border-b pb-3" data-i18n="logNewEntry">Log New Attendance / Leave</h3>
+                        <form id="attendance-form" onsubmit="handleAttendanceSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1" data-i18n="selEmployee">Select Employee</label>
+                                <select id="att-employee" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1" data-i18n="selDate">Date</label>
+                                <input type="date" id="att-date" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1" data-i18n="selStatus">Status / Type</label>
+                                <select id="att-status" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                    <option value="Present">Present (Full Day)</option>
+                                    <option value="Annual Leave">Annual Leave</option>
+                                    <option value="Sick Leave">Sick Leave</option>
+                                    <option value="Special Leave">Special / Compassionate Leave</option>
+                                    <option value="Public Holiday">Public Holiday</option>
+                                    <option value="Unexcused Absence">Unexcused Absence</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1" data-i18n="selRemarks">Remarks / Notes</label>
+                                <textarea id="att-remarks" rows="2" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Optional notes..."></textarea>
+                            </div>
+                            <button type="submit" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow transition text-sm">
+                                <span data-i18n="saveLogBtn">Save Log Entry</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Attendance Log History View -->
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                        <div class="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                            <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider" data-i18n="recentLogs">Recent Attendance & Leave Activity</h3>
+                            <span class="text-xs text-slate-500" id="attendance-count">0 entries logged</span>
+                        </div>
+                        <div class="overflow-x-auto flex-1">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider bg-slate-50/50">
+                                        <th class="p-3">Date</th>
+                                        <th class="p-3">Employee</th>
+                                        <th class="p-3">Status</th>
+                                        <th class="p-3">Remarks</th>
+                                        <th class="p-3 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-table-body" class="divide-y divide-slate-100">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="btn-submit" data-i18n="btnSaveEmp">Save Employee</button>
+            </section>
+
+            <!-- SECTION 3: ELIGIBILITY & REQUESTS -->
+            <section id="section-eligibility" class="hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900" data-i18n="eligibilityTitle">Leave Eligibility & Request Validation</h2>
+                    <p class="text-sm text-slate-500" data-i18n="eligibilitySubtitle">Review policy compliance, check accrued balances, and process requests.</p>
+                </div>
+
+                <!-- Eligibility Checker Widget -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1" data-i18n="checkEmp">Select Employee for Check</label>
+                        <select id="elig-employee" onchange="runEligibilityCheck()" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1" data-i18n="checkDaysRequested">Requested Days</label>
+                        <input type="number" id="elig-days" value="1" min="1" max="30" onchange="runEligibilityCheck()" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="runEligibilityCheck()" class="w-full py-2 px-4 bg-slate-800 hover:bg-slate-900 text-white font-medium rounded-lg text-sm transition">
+                            <i class="fa-solid fa-calculator mr-2"></i> <span data-i18n="recomputeBtn">Recompute Validation</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Query Remarks / Validation Result Card -->
+                <div id="eligibility-result-card" class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex items-start space-x-4">
+                        <div id="elig-icon-wrapper" class="w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0">
+                            <i class="fa-solid fa-circle-question"></i>
+                        </div>
+                        <div class="flex-1 space-y-2">
+                            <h3 id="elig-title" class="font-bold text-lg text-slate-800">Select an employee to run policy validation</h3>
+                            <p id="elig-desc" class="text-sm text-slate-600">The query engine checks statutory tenure rules, current remaining leave balances, and pending overlap conditions.</p>
+                            <div id="elig-remarks-box" class="hidden mt-4 p-4 rounded-lg bg-slate-50 border border-slate-200 text-xs font-mono space-y-1">
+                                <!-- Detailed query breakdown -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: XLSX EXPORT HUB -->
+            <section id="section-export" class="hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900" data-i18n="exportTitle">XLSX Export & Reporting Hub</h2>
+                    <p class="text-sm text-slate-500" data-i18n="exportSubtitle">Generate professionally formatted spreadsheets for record keeping and audits.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Master Sheet Export Card -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between space-y-4">
+                        <div class="space-y-2">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-lg">
+                                <i class="fa-solid fa-file-excel"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-base" data-i18n="expMasterTitle">Export Employee Master Sheet</h3>
+                            <p class="text-xs text-slate-500" data-i18n="expMasterDesc">Downloads complete employee rosters including join dates, annual quotas, taken leaves, and current balances.</p>
+                        </div>
+                        <button onclick="exportMasterToExcel()" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow transition text-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-download"></i> <span data-i18n="downloadMasterXlsx">Download Master Excel (.xlsx)</span>
+                        </button>
+                    </div>
+
+                    <!-- Attendance Log Export Card -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between space-y-4">
+                        <div class="space-y-2">
+                            <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
+                                <i class="fa-solid fa-table-list"></i>
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-base" data-i18n="expLogTitle">Export Attendance & Leave Logs</h3>
+                            <p class="text-xs text-slate-500" data-i18n="expLogDesc">Downloads all recorded daily attendances, leave statuses, and operational remarks into an organized spreadsheet.</p>
+                        </div>
+                        <button onclick="exportAttendanceToExcel()" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow transition text-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-download"></i> <span data-i18n="downloadLogXlsx">Download Logs Excel (.xlsx)</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL: ADD / EDIT EMPLOYEE -->
+    <div id="employee-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 border border-slate-100 space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 id="modal-title" class="font-bold text-lg text-slate-900">Add New Employee</h3>
+                <button onclick="closeEmployeeModal()" class="text-slate-400 hover:text-slate-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="employee-form" onsubmit="handleEmployeeSave(event)" class="space-y-4">
+                <input type="hidden" id="emp-edit-id">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1" data-i18n="modalEmpID">Employee ID</label>
+                        <input type="text" id="emp-id" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="e.g. CI-105">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1" data-i18n="modalDept">Department</label>
+                        <input type="text" id="emp-dept" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="e.g. Operations">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1" data-i18n="modalFullName">Full Name</label>
+                    <input type="text" id="emp-name" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="e.g. Sok Dara">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1" data-i18n="modalJoinDate">Join Date</label>
+                        <input type="date" id="emp-join" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1" data-i18n="modalQuota">Annual Quota (Days)</label>
+                        <input type="number" id="emp-quota" value="18" min="0" max="365" required class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" onclick="closeEmployeeModal()" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition" data-i18n="cancelBtn">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition shadow" data-i18n="saveBtn">Save Record</button>
+                </div>
             </form>
         </div>
     </div>
-</div>
 
-<!-- EDIT MODAL -->
-<div class="modal" id="editModal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h4 data-i18n="modalEditTitle">Edit Employee Master Record</h4>
-            <button class="modal-close" onclick="closeModal()">&times;</button>
-        </div>
-        <form id="editForm">
-            <input type="hidden" id="editIndex">
-            <div class="grid-2">
-                <div class="form-group"><label data-i18n="lblEmpId">Employee ID</label><input type="text" id="editId" placeholder="e.g. 200001"></div>
-                <div class="form-group"><label data-i18n="lblFullName">Full Name</label><input type="text" id="editName" placeholder="e.g. Sok Heng" required></div>
-            </div>
-            <div class="grid-2">
-                <div class="form-group"><label data-i18n="lblJoinFormat">Join Date (YYYY.MM.DD)</label><input type="text" id="editJoinDate" required></div>
-                <div class="form-group"><label data-i18n="tblEntitled">Total AL (Entitled)</label><input type="number" id="editEntitled" step="0.5" required></div>
-            </div>
-            <div class="grid-2">
-                <div class="form-group"><label data-i18n="tblStart">Start Date (YYYY.MM.DD)</label><input type="text" id="editStartDate"></div>
-                <div class="form-group"><label data-i18n="tblEnd">End Date (YYYY.MM.DD)</label><input type="text" id="editEndDate"></div>
-            </div>
-            <div class="grid-2">
-                <div class="form-group"><label data-i18n="tblPrevUsed">Prev Month Used (Hrs)</label><input type="number" id="editPrevUsed" step="0.5" required></div>
-                <div class="form-group"><label data-i18n="tblMonthUsed">Current Month Used (Hrs)</label><input type="number" id="editMonthUsed" step="0.5" required></div>
-            </div>
-            <div class="grid-2">
-                <div class="form-group"><label data-i18n="tblCarried">Carried From Last Year</label><input type="number" id="editCarried" step="0.5" required></div>
-                <div class="form-group"><label data-i18n="tblExceeded">Exceeded Hours</label><input type="number" id="editExceeded" step="0.5" required></div>
-            </div>
-            <div class="grid-2">
-                <div class="form-group"><label data-i18n="tblYearRange">Year Range</label><input type="text" id="editYearRange"></div>
-                <div class="form-group"><label data-i18n="tblRemarks">Remarks</label><input type="text" id="editRemarks"></div>
-            </div>
-            <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:10px;" data-i18n="btnSaveChanges">Save Changes</button>
-        </form>
-    </div>
-</div>
+    <!-- JAVASCRIPT APPLICATION CORE -->
+    <script>
+        // Multi-Language Dictionary
+        const translations = {
+            en: {
+                navMaster: "Master Sheet",
+                navAttendance: "Attendance Logging",
+                navEligibility: "Eligibility & Requests",
+                navExport: "XLSX Export Hub",
+                masterTitle: "Employee Master & Leave Balances",
+                masterSubtitle: "Manage staff records, annual quotas, and accruals.",
+                addEmployeeBtn: "Add New Employee",
+                thID: "ID",
+                thName: "Name",
+                thDept: "Department",
+                thJoin: "Join Date",
+                thEntitlement: "Annual Quota",
+                thUsed: "Taken",
+                thBalance: "Balance",
+                thActions: "Actions",
+                attendanceTitle: "Daily Attendance & Leave Logs",
+                attendanceSubtitle: "Record absences, public holidays, and operational leave tracking.",
+                logNewEntry: "Log New Attendance / Leave",
+                selEmployee: "Select Employee",
+                selDate: "Date",
+                selStatus: "Status / Type",
+                selRemarks: "Remarks / Notes",
+                saveLogBtn: "Save Log Entry",
+                recentLogs: "Recent Attendance & Leave Activity",
+                eligibilityTitle: "Leave Eligibility & Request Validation",
+                eligibilitySubtitle: "Review policy compliance, check accrued balances, and process requests.",
+                checkEmp: "Select Employee for Check",
+                checkDaysRequested: "Requested Days",
+                recomputeBtn: "Recompute Validation",
+                exportTitle: "XLSX Export & Reporting Hub",
+                exportSubtitle: "Generate professionally formatted spreadsheets for record keeping and audits.",
+                expMasterTitle: "Export Employee Master Sheet",
+                expMasterDesc: "Downloads complete employee rosters including join dates, annual quotas, taken leaves, and current balances.",
+                downloadMasterXlsx: "Download Master Excel (.xlsx)",
+                expLogTitle: "Export Attendance & Leave Logs",
+                expLogDesc: "Downloads all recorded daily attendances, leave statuses, and operational remarks into an organized spreadsheet.",
+                downloadLogXlsx: "Download Logs Excel (.xlsx)",
+                modalEmpID: "Employee ID",
+                modalDept: "Department",
+                modalFullName: "Full Name",
+                modalJoinDate: "Join Date",
+                modalQuota: "Annual Quota (Days)",
+                cancelBtn: "Cancel",
+                saveBtn: "Save Record"
+            },
+            km: {
+                navMaster: "តារាងមេបុគ្គលិក",
+                navAttendance: "ការកត់ត្រាវត្តមាន",
+                navEligibility: "សិទ្ធិ និងសំណើច្បាប់",
+                navExport: "កន្លែងទាញយក Excel",
+                masterTitle: "បញ្ជីបុគ្គលិក និងសមតុល្យច្បាប់សម្រាក",
+                masterSubtitle: "គ្រប់គ្រងកំណត់ត្រាបុគ្គលិក កូតាប្រចាំឆ្នាំ និងការកកស្ទះ.",
+                addEmployeeBtn: "បន្ថែមបុគ្គលិកថ្មី",
+                thID: "អត្តលេខ",
+                thName: "ឈ្មោះ",
+                thDept: "ដេប៉ាតឺម៉ង់",
+                thJoin: "ថ្ងៃចូលធ្វើការ",
+                thEntitlement: "កូតាឆ្នាំ",
+                thUsed: "បានប្រើ",
+                thBalance: "នៅសល់",
+                thActions: "សកម្មភាព",
+                attendanceTitle: "កត់ត្រាវត្តមាន និងច្បាប់សម្រាកប្រចាំថ្ងៃ",
+                attendanceSubtitle: "កត់ត្រាអវត្តមាន បុណ្យជាតិ និងការតាមដានប្រតិបត្តិការ.",
+                logNewEntry: "កត់ត្រាវត្តមាន / ច្បាប់ថ្មី",
+                selEmployee: "ជ្រើសរើសបុគ្គលិក",
+                selDate: "កាលបរិច្ឆេទ",
+                selStatus: "ស្ថានភាព",
+                selRemarks: "ចំណាំ / មតិយោបល់",
+                saveLogBtn: "រក្សាទុកកំណត់ត្រា",
+                recentLogs: "សកម្មភាពវត្តមាន និងច្បាប់សម្រាកថ្មីៗ",
+                eligibilityTitle: "ការផ្ទៀងផ្ទាត់សិទ្ធិ និងសំណើច្បាប់",
+                eligibilitySubtitle: "ពិនិត្យការអនុលោមតាមគោលការណ៍ សមតុល្យ និងសំណើ.",
+                checkEmp: "ជ្រើសរើសបុគ្គលិកដើម្បីពិនិត្យ",
+                checkDaysRequested: "ចំនួនថ្ងៃស្នើសុំ",
+                recomputeBtn: "គណនាឡើងវិញ",
+                exportTitle: "មជ្ឈមណ្ឌលនាំចេញ XLSX",
+                exportSubtitle: "បង្កើតតារាង Excel ដែលមានទម្រង់ត្រឹមត្រូវសម្រាប់ការពិនិត្យ.",
+                expMasterTitle: "ទាញយកតារាងមេបុគ្គលិក",
+                expMasterDesc: "ទាញយកបញ្ជីបុគ្គលិកពេញលេញ រួមទាំងកូតា និងសមតុល្យ.",
+                downloadMasterXlsx: "ទាញយក Excel តារាងមេ (.xlsx)",
+                expLogTitle: "ទាញយកកំណត់ត្រាវត្តមាន",
+                expLogDesc: "ទាញយកការកត់ត្រាវត្តមាន និងច្បាប់សម្រាកទាំងអស់.",
+                downloadLogXlsx: "ទាញយក Excel កំណត់ត្រា (.xlsx)",
+                modalEmpID: "អត្តលេខបុគ្គលិក",
+                modalDept: "ដេប៉ាតឺម៉ង់",
+                modalFullName: "ឈ្មោះពេញ",
+                modalJoinDate: "កាលបរិច្ឆេទចូលធ្វើការ",
+                modalQuota: "កូតាប្រចាំឆ្នាំ (ថ្ងៃ)",
+                cancelBtn: "បោះបង់",
+                saveBtn: "រក្សាទុក"
+            },
+            zh: {
+                navMaster: "员工主表",
+                navAttendance: "考勤日志",
+                navEligibility: "休假资格与验证",
+                navExport: "XLSX 导出中心",
+                masterTitle: "员工主表与休假余额",
+                masterSubtitle: "管理员工档案、年度休假额度及累计情况。",
+                addEmployeeBtn: "添加新员工",
+                thID: "工号",
+                thName: "姓名",
+                thDept: "部门",
+                thJoin: "入职日期",
+                thEntitlement: "年度额度",
+                thUsed: "已休",
+                thBalance: "剩余余额",
+                thActions: "操作",
+                attendanceTitle: "每日考勤与休假日志",
+                attendanceSubtitle: "记录缺勤、公共假期及运营假勤追踪。",
+                logNewEntry: "记录新考勤/休假",
+                selEmployee: "选择员工",
+                selDate: "日期",
+                selStatus: "状态/类型",
+                selRemarks: "备注/说明",
+                saveLogBtn: "保存日志条目",
+                recentLogs: "近期考勤与休假活动",
+                eligibilityTitle: "休假资格与请求验证",
+                eligibilitySubtitle: "审查政策合规性、检查累计余额及审批请求。",
+                checkEmp: "选择审查员工",
+                checkDaysRequested: "申请天数",
+                recomputeBtn: "重新验证计算",
+                exportTitle: "XLSX 导出与报表中心",
+                exportSubtitle: "生成规范排版的电子表格以用于存档和审计。",
+                expMasterTitle: "导出员工主表",
+                expMasterDesc: "下载包含入职日期、年度额度、已休天数及当前余额的完整员工名册。",
+                downloadMasterXlsx: "下载主表 Excel (.xlsx)",
+                expLogTitle: "导出考勤与休假日志",
+                expLogDesc: "下载所有记录的每日考勤、休假状态及运营备注的整理表格。",
+                downloadLogXlsx: "下载日志 Excel (.xlsx)",
+                modalEmpID: "员工工号",
+                modalDept: "所属部门",
+                modalFullName: "员工全名",
+                modalJoinDate: "入职日期",
+                modalQuota: "年度配额 (天)",
+                cancelBtn: "取消",
+                saveBtn: "保存记录"
+            }
+        };
 
-<script>
-    /* AUTHENTICATION & INACTIVITY TIMER SETUP */
-    const AUTH_USER = "kongthean";
-    const AUTH_PASS = "203203";
-    const INACTIVITY_TIMEOUT = 60 * 60 * 1000; // 1 Hour in Milliseconds
-    let inactivityTimer = null;
+        let currentLang = 'en';
 
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const userIn = document.getElementById('loginUser').value.trim();
-        const passIn = document.getElementById('loginPass').value.trim();
-        const errorDiv = document.getElementById('loginError');
-
-        if (userIn === AUTH_USER && passIn === AUTH_PASS) {
-            document.getElementById('loginOverlay').style.display = 'none';
-            document.querySelector('.container').style.filter = 'none';
-            errorDiv.style.display = 'none';
-            document.getElementById('loginPass').value = '';
-            resetInactivityTimer();
-        } else {
-            errorDiv.style.display = 'block';
+        function switchLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerText = translations[lang][key];
+                }
+            });
         }
-    });
 
-    function lockSystem() {
-        document.getElementById('loginOverlay').style.display = 'flex';
-        document.querySelector('.container').style.filter = 'blur(4px)';
-        document.getElementById('loginUser').focus();
-        if (inactivityTimer) clearTimeout(inactivityTimer);
-    }
+        // Mock State Data
+        let employees = [
+            { id: "CI-101", name: "Kong Thean", dept: "Operations", joinDate: "2025-01-15", quota: 18 },
+            { id: "CI-102", name: "Sok Dara", dept: "Administration", joinDate: "2024-06-01", quota: 18 },
+            { id: "CI-103", name: "Chan Vanny", dept: "Logistics", joinDate: "2025-03-10", quota: 15 },
+            { id: "CI-104", name: "Lim Piseth", dept: "Farmhouse Management", joinDate: "2024-11-20", quota: 18 }
+        ];
 
-    function resetInactivityTimer() {
-        if (document.getElementById('loginOverlay').style.display === 'none') {
-            if (inactivityTimer) clearTimeout(inactivityTimer);
+        let attendanceLogs = [
+            { id: 1, empId: "CI-101", date: "2026-09-01", status: "Annual Leave", remarks: "Family commitment" },
+            { id: 2, empId: "CI-102", date: "2026-09-02", status: "Sick Leave", remarks: "Medical rest" },
+            { id: 3, empId: "CI-103", date: "2026-09-10", status: "Public Holiday", remarks: "Pchum Ben Day" }
+        ];
+
+        // Security & Inactivity Lock (1 Hour)
+        let inactivityTimer;
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
             inactivityTimer = setTimeout(() => {
-                alert("Session expired due to 1 hour of inactivity. Please log in again.");
-                lockSystem();
-            }, INACTIVITY_TIMEOUT);
+                logout();
+                alert("Session locked due to 1 hour of inactivity.");
+            }, 3600000); // 1 hour
         }
-    }
 
-    ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'].forEach(eventName => {
-        window.addEventListener(eventName, resetInactivityTimer, true);
-    });
-
-    /* TRANSLATIONS */
-    const translations = {
-        en: {
-            appTitle: "Annual Leave Management System",
-            navDashboard: "Dashboard",
-            navMaster: "Master Sheet",
-            navAttendance: "Daily Attendance",
-            navEligibility: "Check Eligibility",
-            navAddEmployee: "+ Add Employee",
-            dashOverview: "Overview Dashboard",
-            statTotalStaff: "Total Employees",
-            statTotalUsed: "Total Leave Used (Hrs)",
-            statCurrentMonth: "This Month Used (Hrs)",
-            statExceeded: "Exceeded Limits",
-            quickActions: "Quick Actions",
-            btnLogAtt: "✏️ Log Attendance",
-            btnCheckElig: "🔍 Check Eligibility",
-            btnRegStaff: "👤 Register Staff",
-            dashTableTitle: "Leave Usage Overview (Roster Summary)",
-            dashNoticesTitle: "System Reminders & Announcements",
-            notice1: "📌 <b>Monthly Reset:</b> Current month leave hours carry over as recorded unless manually updated.",
-            notice2: "📌 <b>Exporting:</b> Use the Excel export button in Master Sheet before printing monthly reports.",
-            masterTitle: "Master Annual Leave Roster",
-            masterSub: "Complete employee leave ledger",
-            lblSearch: "🔍 Search Employee:",
-            btnExport: "📊 Export to Excel (.xlsx)",
-            tblActions: "Actions",
-            tblId: "ID",
-            tblName: "Name",
-            tblJoin: "Join Date",
-            tblYears: "Years of Work",
-            tblEntitled: "Entitled Hours",
-            tblStart: "Start Date",
-            tblEnd: "End Date",
-            tblRenewed: "Renewed At (Months Left)",
-            tblTotalAL: "Total AL",
-            tblPrevUsed: "Prev Month Used",
-            tblMonthUsed: "Current Month Used",
-            tblTotalUsed: "Total Used Hours",
-            tblRemaining: "Remaining Hours",
-            tblCarried: "Carried Forward",
-            tblYearRange: "Year Range",
-            tblExceeded: "Exceeded Hours",
-            tblRemarks: "Remarks",
-            lblRemarksHeading: "Master Remarks / Notes:",
-            noRemarksText: "No specific remarks or notes logged for this employee.",
-            tblStatus: "Status",
-            attTitle: "Log Daily Attendance",
-            lblEmpId: "Employee ID",
-            lblLeaveDate: "Leave Date",
-            lblHoursTaken: "Hours Taken",
-            btnSubmitAtt: "Submit Attendance Record",
-            queryParams: "Query Parameters",
-            lblQueryDate: "Query Date",
-            lblTodayHours: "Today's Hours (Optional)",
-            btnRunCalc: "Run Calculation Query",
-            lblMonthsService: "Months of Service",
-            lblAllowedThisMonth: "Allowed Available This Month",
-            lblRemAfterToday: "Remaining Balance After Today",
-            lblIsStarted: "Is Leave Start Date Reached?",
-            lblIsExceeded: "Exceeds Entitled Hours?",
-            addTitle: "Register New Employee",
-            lblFullName: "Full Name",
-            btnSaveEmp: "Save Employee",
-            modalEditTitle: "Edit Employee Master Record",
-            lblJoinFormat: "Join Date (YYYY.MM.DD)",
-            btnSaveChanges: "Save Changes",
-            normal: "Normal",
-            exceeded: "Exceeded"
-        },
-        km: {
-            appTitle: "ប្រព័ន្ធគ្រប់គ្រងការឈប់សម្រាកប្រចាំឆ្នាំ",
-            navDashboard: "ផ្ទាំងព័ត៌មាន",
-            navMaster: "បញ្ជីចម្បង",
-            navAttendance: "វត្តមានប្រចាំថ្ងៃ",
-            navEligibility: "ពិនិត្យសិទ្ធិឈប់សម្រាក",
-            navAddEmployee: "+ បន្ថែមបុគ្គលិក",
-            dashOverview: "ផ្ទាំងព័ត៌មានទូទៅ",
-            statTotalStaff: "បុគ្គលិកសរុប",
-            statTotalUsed: "ច្បាប់ប្រៀបប្រើសរុប (ម៉ោង)",
-            statCurrentMonth: "ប្រើក្នុងខែនេះ (ម៉ោង)",
-            statExceeded: "លើសកម្រិតកំណត់",
-            quickActions: "សកម្មភាពរហ័ស",
-            btnLogAtt: "✏️ កត់ត្រាវត្តមាន",
-            btnCheckElig: "🔍 ពិនិត្យសិទ្ធិ",
-            btnRegStaff: "👤 ចុះឈ្មោះបុគ្គលិក",
-            dashTableTitle: "សង្ខេបការប្រើប្រាស់ការឈប់សម្រាក",
-            dashNoticesTitle: "ការរំលឹក និងការជូនដំណឹងប្រព័ន្ធ",
-            notice1: "📌 <b>ការកំណត់ប្រចាំខែ:</b> ម៉ោងឈប់សម្រាកខែបច្ចុប្បន្នត្រូវបានរក្សាទុករហូតដល់មានការធ្វើបច្ចុប្បន្នភាព។",
-            notice2: "📌 <b>ការនាំចេញ:</b> ប្រើប្រាស់ប៊ូតុង Export Excel ក្នុងទំព័របញ្ជីចម្បងមុនពេលបោះពុម្ព។",
-            masterTitle: "បញ្ជីឈប់សម្រាកប្រចាំឆ្នាំចម្បង",
-            masterSub: "កំណត់ត្រាការឈប់សម្រាកបុគ្គលិកទាំងស្រុង",
-            lblSearch: "🔍 ស្វែងរកបុគ្គលិក:",
-            btnExport: "📊 នាំចេញជា Excel (.xlsx)",
-            tblActions: "សកម្មភាព",
-            tblId: "អត្តលេខ",
-            tblName: "ឈ្មោះ",
-            tblJoin: "ថ្ងៃចូលធ្វើការ",
-            tblYears: "អតីតភាព (ឆ្នាំ)",
-            tblEntitled: "ម៉ោងទទួលបាន",
-            tblStart: "ថ្ងៃចាប់ផ្តើម",
-            tblEnd: "ថ្ងៃបញ្ចប់",
-            tblRenewed: "ខែនៅសល់រហូតដល់ផុតកំណត់",
-            tblTotalAL: "ច្បាប់សរុប",
-            tblPrevUsed: "ខែមុនប្រើ",
-            tblMonthUsed: "ខែនេះប្រើ",
-            tblTotalUsed: "ម៉ោងប្រើសរុប",
-            tblRemaining: "ម៉ោងនៅសល់",
-            tblCarried: "បង្វិលមកពីឆ្នាំមុន",
-            tblYearRange: "រង្វង់ឆ្នាំ",
-            tblExceeded: "ម៉ោងប្រើលើស",
-            tblRemarks: "កំណត់សម្គាល់",
-            lblRemarksHeading: "កំណត់សម្គាល់ចម្បង:",
-            noRemarksText: "គ្មានកំណត់សម្គាល់សម្រាប់បុគ្គលិកនេះទេ។",
-            tblStatus: "ស្ថានភាព",
-            attTitle: "កត់ត្រាវត្តមានប្រចាំថ្ងៃ",
-            lblEmpId: "អត្តលេខបុគ្គលិក",
-            lblLeaveDate: "កាលបរិច្ឆេទឈប់សម្រាក",
-            lblHoursTaken: "ចំនួនម៉ោងឈប់",
-            btnSubmitAtt: "រក្សាទុកកំណត់ត្រាវត្តមាន",
-            queryParams: "ប៉ារ៉ាម៉ែត្រសួរព័ត៌មាន",
-            lblQueryDate: "កាលបរិច្ឆេទសួរ",
-            lblTodayHours: "ម៉ោងថ្ងៃនេះ (ជម្រើស)",
-            btnRunCalc: "គណនាសិទ្ធិឈប់សម្រាក",
-            lblMonthsService: "ចំនួនខែធ្វើការ",
-            lblAllowedThisMonth: "សិទ្ធិអាចប្រើក្នុងខែនេះ",
-            lblRemAfterToday: "សមតុល្យនៅសល់ក្រោយថ្ងៃនេះ",
-            lblIsStarted: "ដល់ថ្ងៃចាប់ផ្តើមច្បាប់?",
-            lblIsExceeded: "ប្រើប្រាស់លើសកំណត់?",
-            addTitle: "ចុះឈ្មោះបុគ្គលិកថ្មី",
-            lblFullName: "ឈ្មោះពេញ",
-            btnSaveEmp: "រក្សាទុកបុគ្គលិក",
-            modalEditTitle: "កែប្រែកំណត់ត្រាបុគ្គលិក",
-            lblJoinFormat: "ថ្ងៃចូលធ្វើការ (YYYY.MM.DD)",
-            btnSaveChanges: "រក្សាទុកការផ្លាស់ប្តូរ",
-            normal: "ធម្មតា",
-            exceeded: "លើសកំណត់"
-        },
-        zh: {
-            appTitle: "年假管理系统",
-            navDashboard: "仪表板",
-            navMaster: "主控表",
-            navAttendance: "每日考勤",
-            navEligibility: "查询年假资格",
-            navAddEmployee: "+ 添加员工",
-            dashOverview: "概览仪表板",
-            statTotalStaff: "总员工数",
-            statTotalUsed: "已用年假总时数",
-            statCurrentMonth: "本月已用 (小时)",
-            statExceeded: "超出限额人数",
-            quickActions: "快捷操作",
-            btnLogAtt: "✏️ 记录考勤",
-            btnCheckElig: "🔍 查询资格",
-            btnRegStaff: "👤 注册员工",
-            dashTableTitle: "年假使用概览 (花名册摘要)",
-            dashNoticesTitle: "系统提醒与公告",
-            notice1: "📌 <b>每月重置:</b> 当前月份的休假小时数将自动累计，除非手动更新。",
-            notice2: "📌 <b>导出数据:</b> 打印月度报告前，请使用主控表中的 Excel 导出功能。",
-            masterTitle: "主年假花名册",
-            masterSub: "完整的员工休假分类账",
-            lblSearch: "🔍 搜索员工:",
-            btnExport: "📊 导出为 Excel (.xlsx)",
-            tblActions: "操作",
-            tblId: "工号",
-            tblName: "姓名",
-            tblJoin: "入职日期",
-            tblYears: "工龄 (年)",
-            tblEntitled: "应享小时数",
-            tblStart: "开始日期",
-            tblEnd: "结束日期",
-            tblRenewed: "到期剩余月数",
-            tblTotalAL: "年假总数",
-            tblPrevUsed: "上月已用",
-            tblMonthUsed: "本月已用",
-            tblTotalUsed: "已用总小时数",
-            tblRemaining: "剩余小时数",
-            tblCarried: "上年结转",
-            tblYearRange: "年份范围",
-            tblExceeded: "超出小时数",
-            tblRemarks: "备注",
-            lblRemarksHeading: "主控表备注/说明:",
-            noRemarksText: "该员工无特定备注或说明。",
-            tblStatus: "状态",
-            attTitle: "记录每日考勤",
-            lblEmpId: "员工工号",
-            lblLeaveDate: "请假日期",
-            lblHoursTaken: "请假小时数",
-            btnSubmitAtt: "提交考勤记录",
-            queryParams: "查询参数",
-            lblQueryDate: "查询日期",
-            lblTodayHours: "今日请假 (可选)",
-            btnRunCalc: "运行计算查询",
-            lblMonthsService: "服务月数",
-            lblAllowedThisMonth: "本月可用额度",
-            lblRemAfterToday: "今日后剩余余额",
-            lblIsStarted: "是否已到请假开始日?",
-            lblIsExceeded: "是否超出应享额度?",
-            addTitle: "注册新员工",
-            lblFullName: "全名",
-            btnSaveEmp: "保存员工",
-            modalEditTitle: "编辑员工主记录",
-            lblJoinFormat: "入职日期 (YYYY.MM.DD)",
-            btnSaveChanges: "保存更改",
-            normal: "正常",
-            exceeded: "已超出"
-        }
-    };
-
-    let currentLang = 'en';
-
-    const langFlags = {
-        en: "https://flagcdn.com/w40/us.png",
-        km: "https://flagcdn.com/w40/kh.png",
-        zh: "https://flagcdn.com/w40/cn.png"
-    };
-
-    const langNames = {
-        en: "EN",
-        km: "KM",
-        zh: "ZH"
-    };
-
-    function toggleLangMenu(e) {
-        e.stopPropagation();
-        document.getElementById('langMenu').classList.toggle('show');
-    }
-
-    document.addEventListener('click', () => {
-        document.getElementById('langMenu').classList.remove('show');
-    });
-
-    function setLanguage(lang) {
-        currentLang = lang;
-        document.getElementById('currentFlag').src = langFlags[lang];
-        document.getElementById('currentLangName').innerText = langNames[lang];
-        
-        document.querySelectorAll('.lang-option').forEach(opt => opt.classList.remove('active'));
-        if(lang === 'km') document.querySelectorAll('.lang-option')[0].classList.add('active');
-        if(lang === 'en') document.querySelectorAll('.lang-option')[1].classList.add('active');
-        if(lang === 'zh') document.querySelectorAll('.lang-option')[2].classList.add('active');
-
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (translations[lang] && translations[lang][key]) {
-                el.innerHTML = translations[lang][key];
-            }
+        ['mousemove', 'keydown', 'click', 'scroll'].forEach(evt => {
+            window.addEventListener(evt, resetInactivityTimer);
         });
 
-        updateDashboardStats();
-        renderMaster();
-    }
-
-    function getRemainingCycleMonths(startDateStr, endDateStr, refDate = new Date()) {
-        const startParts = startDateStr.split('.');
-        const endParts = endDateStr.split('.');
-        
-        const startDay = parseInt(startParts[2], 10);
-        const endYear = parseInt(endParts[0], 10);
-        const endMonth = parseInt(endParts[1], 10) - 1;
-
-        let months = (endYear - refDate.getFullYear()) * 12 + (endMonth - refDate.getMonth());
-        
-        if (refDate.getDate() < startDay) {
-            months += 1;
-        }
-
-        return Math.max(0, months);
-    }
-
-    function computeLeaveCycle(joinDateStr, refDate = new Date()) {
-        const parts = joinDateStr.split('.');
-        if (parts.length !== 3) return { startStr: '', endStr: '', yearRangeStr: '' };
-
-        const joinMonth = parseInt(parts[1], 10) - 1;
-        const joinDay = parseInt(parts[2], 10);
-
-        const refYear = refDate.getFullYear();
-        const refMonth = refDate.getMonth();
-        const refDay = refDate.getDate();
-
-        let startYear = refYear;
-        if (refMonth < joinMonth || (refMonth === joinMonth && refDay < joinDay)) {
-            startYear = refYear - 1;
-        }
-
-        const startStr = `${startYear}.${String(joinMonth + 1).padStart(2, '0')}.${String(joinDay).padStart(2, '0')}`;
-        
-        const startDateObj = new Date(startYear, joinMonth, joinDay);
-        const endDateObj = new Date(startYear + 1, joinMonth, joinDay - 1);
-        
-        const endYear = endDateObj.getFullYear();
-        const endMonthStr = String(endDateObj.getMonth() + 1).padStart(2, '0');
-        const endDayStr = String(endDateObj.getDate()).padStart(2, '0');
-        const endStr = `${endYear}.${endMonthStr}.${endDayStr}`;
-
-        const yearRangeStr = `${startYear}-${endYear}`;
-
-        return { startStr, endStr, yearRangeStr };
-    }
-
-    let employees = JSON.parse(localStorage.getItem('al_db_custom_v5')) || [
-        {
-            id: "200001", name: "Sok Heng", joinDate: "2018.04.18", entitled: 160,
-            startDate: "2026.04.18", endDate: "2027.04.17",
-            prevUsed: 114.0, monthUsed: 0, carried: 0, yearRange: "2026-2027", exceeded: 0, remarks: ""
-        },
-        {
-            id: "200226", name: "Chan Leakhena", joinDate: "2020.08.12", entitled: 160,
-            startDate: "2026.08.22", endDate: "2027.08.21",
-            prevUsed: 20.0, monthUsed: 8.0, carried: 0, yearRange: "2026-2027", exceeded: 0, remarks: "Allowed to exceed limit due to special leave request"
-        }
-    ];
-
-    document.getElementById('chkDate').valueAsDate = new Date();
-    document.getElementById('attDate').valueAsDate = new Date();
-    updateDashboardStats();
-
-    function switchTab(tabId, btn) {
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        if(btn) btn.classList.add('active');
-        
-        if(tabId === 'tab-master') renderMaster();
-        if(tabId === 'tab-home') updateDashboardStats();
-        if(tabId === 'tab-add') document.getElementById('newId').focus();
-    }
-
-    function triggerNav(tabId, navBtnId) {
-        switchTab(tabId, document.getElementById(navBtnId));
-    }
-
-    function updateDashboardStats() {
-        document.getElementById('statTotalStaff').innerText = employees.length;
-        let totalUsed = 0, currentMonth = 0, exceededCount = 0;
-        const dashBody = document.querySelector('#dashSummaryTable tbody');
-        dashBody.innerHTML = '';
-
-        const txtNormal = translations[currentLang].normal;
-        const txtExceeded = translations[currentLang].exceeded;
-
-        employees.forEach(e => {
-            const used = (e.prevUsed + e.monthUsed) - (e.exceeded || 0);
-            totalUsed += used;
-            currentMonth += e.monthUsed;
-            const remaining = (e.entitled - used) + (e.carried || 0);
-            if(remaining < 0) exceededCount++;
-
-            dashBody.innerHTML += `
-                <tr>
-                    <td><b>${e.id}</b></td>
-                    <td>${e.name}</td>
-                    <td>${e.joinDate}</td>
-                    <td>${e.entitled}</td>
-                    <td>${used.toFixed(1)}</td>
-                    <td style="color:${remaining < 0 ? '#dc2626':'#15803d'}; font-weight:bold;">${remaining.toFixed(2)}</td>
-                    <td><span class="${remaining < 0 ? 'bg-red' : 'bg-green'}" style="padding:2px 6px; border-radius:4px;">${remaining < 0 ? txtExceeded : txtNormal}</span></td>
-                </tr>
-            `;
-        });
-
-        document.getElementById('statTotalUsed').innerText = totalUsed.toFixed(1);
-        document.getElementById('statCurrentMonth').innerText = currentMonth.toFixed(1);
-        document.getElementById('statExceeded').innerText = exceededCount;
-    }
-
-    function renderMaster() {
-        const tbody = document.querySelector('#masterTable tbody');
-        tbody.innerHTML = '';
-
-        employees.forEach((emp, index) => {
-            const parts = emp.joinDate.split('.');
-            const join = new Date(parts[0], parts[1]-1, parts[2]);
-            const now = new Date();
+        // Authentication Handler
+        function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value;
             
-            const totalWorkMonths = (now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth());
-            const workYears = Math.floor(totalWorkMonths / 12);
-            
-            const computedCycle = computeLeaveCycle(emp.joinDate, now);
-            const startStr = emp.startDate || computedCycle.startStr;
-            const endStr = emp.endDate || computedCycle.endStr;
-            const yearRangeStr = emp.yearRange || computedCycle.yearRangeStr;
-
-            const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
-
-            const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
-            const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
-
-            tbody.innerHTML += `
-                <tr>
-                    <td>
-                        <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">✏️</button>
-                        <button class="btn-delete" onclick="deleteEmployee(${index})" title="Delete Employee">🗑️</button>
-                    </td>
-                    <td><b>${emp.id}</b></td>
-                    <td>${emp.name}</td>
-                    <td>${emp.joinDate}</td>
-                    <td>${workYears}</td>
-                    <td>${emp.entitled}</td>
-                    <td>${startStr}</td>
-                    <td>${endStr}</td>
-                    <td><b>${remainingMonthsCycle}</b></td>
-                    <td>${emp.entitled}</td>
-                    <td>${emp.prevUsed}</td>
-                    <td>${emp.monthUsed}</td>
-                    <td><b>${totalUsed.toFixed(1)}</b></td>
-                    <td style="color:${remaining < 0 ? '#dc2626':'#15803d'}; font-weight:bold;">${remaining.toFixed(2)}</td>
-                    <td>${emp.carried || 0}</td>
-                    <td>${yearRangeStr}</td>
-                    <td style="color:${emp.exceeded > 0 ? '#dc2626':'#64748b'}; font-weight:bold;">${emp.exceeded || 0}</td>
-                    <td>${emp.remarks || '-'}</td>
-                </tr>
-            `;
-        });
-
-        filterMasterTable();
-    }
-
-    function filterMasterTable() {
-        const input = document.getElementById('masterSearchInput').value.toLowerCase();
-        const rows = document.querySelectorAll('#masterTable tbody tr');
-
-        rows.forEach(row => {
-            const idCell = row.cells[1] ? row.cells[1].innerText.toLowerCase() : '';
-            const nameCell = row.cells[2] ? row.cells[2].innerText.toLowerCase() : '';
-            
-            if (idCell.includes(input) || nameCell.includes(input)) {
-                row.style.display = '';
+            // Simple credential check for demo environment
+            if(user && pass) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                document.getElementById('user-display').innerText = user;
+                initApp();
+                resetInactivityTimer();
             } else {
-                row.style.display = 'none';
+                const err = document.getElementById('login-error');
+                err.innerText = "Please enter valid credentials.";
+                err.classList.remove('hidden');
             }
-        });
-    }
-
-    function deleteEmployee(index) {
-        const emp = employees[index];
-        if (confirm(`Are you sure you want to delete employee ${emp.name} (ID: ${emp.id})?`)) {
-            employees.splice(index, 1);
-            localStorage.setItem('al_db_custom_v5', JSON.stringify(employees));
-            renderMaster();
-            updateDashboardStats();
-            alert('Employee removed from database.');
         }
-    }
 
-    function exportToExcel() {
-        const data = employees.map(emp => {
-            const parts = emp.joinDate.split('.');
-            const join = new Date(parts[0], parts[1]-1, parts[2]);
-            const now = new Date();
-            const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
-            
-            const computedCycle = computeLeaveCycle(emp.joinDate, now);
-            const startStr = emp.startDate || computedCycle.startStr;
-            const endStr = emp.endDate || computedCycle.endStr;
-            const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
+        function logout() {
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('login-user').value = '';
+            document.getElementById('login-pass').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+        }
 
-            const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
-            const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+        // Tab Switcher
+        function switchTab(tabId) {
+            ['master', 'attendance', 'eligibility', 'export'].forEach(t => {
+                document.getElementById(`section-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('border-emerald-600', 'text-emerald-600', 'font-semibold');
+                document.getElementById(`tab-${t}`).classList.add('border-transparent', 'text-slate-500', 'font-medium');
+            });
+            document.getElementById(`section-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).classList.add('border-emerald-600', 'text-emerald-600', 'font-semibold');
+            document.getElementById(`tab-${tabId}`).classList.remove('border-transparent', 'text-slate-500', 'font-medium');
 
-            return {
-                "Employee ID": emp.id,
-                "Name": emp.name,
-                "Join Date": emp.joinDate,
-                "Years of Work": workYears,
-                "Entitled Hours": emp.entitled,
-                "Start Date": startStr,
-                "End Date": endStr,
-                "Renewed At (Months Left)": remainingMonthsCycle,
-                "Total AL": emp.entitled,
-                "Prev Month Used": emp.prevUsed,
-                "Current Month Used": emp.monthUsed,
-                "Total Used Hours": totalUsed,
-                "Remaining Hours": remaining,
-                "Carried Forward": emp.carried || 0,
-                "Year Range": emp.yearRange || computedCycle.yearRangeStr,
-                "Exceeded Hours": emp.exceeded || 0,
-                "Remarks": emp.remarks || ""
+            if(tabId === 'eligibility') runEligibilityCheck();
+        }
+
+        // App Initialization
+        function initApp() {
+            renderMasterTable();
+            populateEmployeeDropdowns();
+            renderAttendanceLogs();
+            document.getElementById('att-date').valueAsDate = new Date();
+        }
+
+        // Calculate used leave days per employee
+        function getUsedLeaves(empId) {
+            return attendanceLogs
+                .filter(log => log.empId === empId && log.status === 'Annual Leave')
+                .length;
+        }
+
+        // Render Master Table
+        function renderMasterTable() {
+            const query = document.getElementById('master-search').value.toLowerCase();
+            const tbody = document.getElementById('master-table-body');
+            tbody.innerHTML = '';
+
+            const filtered = employees.filter(e => 
+                e.name.toLowerCase().includes(query) || 
+                e.id.toLowerCase().includes(query) || 
+                e.dept.toLowerCase().includes(query)
+            );
+
+            document.getElementById('employee-count-display').innerText = `Showing ${filtered.length} of ${employees.length} records`;
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">No employee records found.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(emp => {
+                const used = getUsedLeaves(emp.id);
+                const balance = emp.quota - used;
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition";
+                tr.innerHTML = `
+                    <td class="p-4 font-mono font-medium text-slate-700">${emp.id}</td>
+                    <td class="p-4 font-semibold text-slate-900">${emp.name}</td>
+                    <td class="p-4 text-slate-600">${emp.dept}</td>
+                    <td class="p-4 text-slate-500 text-xs">${emp.joinDate}</td>
+                    <td class="p-4 text-center font-medium">${emp.quota}</td>
+                    <td class="p-4 text-center text-amber-600 font-medium">${used}</td>
+                    <td class="p-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${balance > 3 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${balance} days</span></td>
+                    <td class="p-4 text-right space-x-2">
+                        <button onclick="editEmployee('${emp.id}')" class="text-slate-400 hover:text-blue-600 transition" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteEmployee('${emp.id}')" class="text-slate-400 hover:text-rose-600 transition" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Employee Modal Control
+        function openEmployeeModal(editId = null) {
+            document.getElementById('employee-modal').classList.remove('hidden');
+            if(editId) {
+                document.getElementById('modal-title').innerText = "Edit Employee Record";
+                const emp = employees.find(e => e.id === editId);
+                document.getElementById('emp-edit-id').value = emp.id;
+                document.getElementById('emp-id').value = emp.id;
+                document.getElementById('emp-id').disabled = true;
+                document.getElementById('emp-name').value = emp.name;
+                document.getElementById('emp-dept').value = emp.dept;
+                document.getElementById('emp-join').value = emp.joinDate;
+                document.getElementById('emp-quota').value = emp.quota;
+            } else {
+                document.getElementById('modal-title').innerText = "Add New Employee";
+                document.getElementById('employee-form').reset();
+                document.getElementById('emp-edit-id').value = '';
+                document.getElementById('emp-id').disabled = false;
+                document.getElementById('emp-join').valueAsDate = new Date();
+            }
+        }
+
+        function closeEmployeeModal() {
+            document.getElementById('employee-modal').classList.add('hidden');
+        }
+
+        function editEmployee(id) {
+            openEmployeeModal(id);
+        }
+
+        function deleteEmployee(id) {
+            if(confirm("Are you sure you want to remove this employee record?")) {
+                employees = employees.filter(e => e.id !== id);
+                initApp();
+            }
+        }
+
+        function handleEmployeeSave(e) {
+            e.preventDefault();
+            const editId = document.getElementById('emp-edit-id').value;
+            const id = document.getElementById('emp-id').value.trim();
+            const name = document.getElementById('emp-name').value.trim();
+            const dept = document.getElementById('emp-dept').value.trim();
+            const joinDate = document.getElementById('emp-join').value;
+            const quota = parseInt(document.getElementById('emp-quota').value);
+
+            if(editId) {
+                const emp = employees.find(x => x.id === editId);
+                emp.name = name;
+                emp.dept = dept;
+                emp.joinDate = joinDate;
+                emp.quota = quota;
+            } else {
+                if(employees.some(x => x.id === id)) {
+                    alert("Employee ID already exists!");
+                    return;
+                }
+                employees.push({ id, name, dept, joinDate, quota });
+            }
+
+            closeEmployeeModal();
+            initApp();
+        }
+
+        // Populate Select Dropdowns
+        function populateEmployeeDropdowns() {
+            const attSelect = document.getElementById('att-employee');
+            const eligSelect = document.getElementById('elig-employee');
+            attSelect.innerHTML = '';
+            eligSelect.innerHTML = '';
+
+            employees.forEach(emp => {
+                const opt1 = document.createElement('option');
+                opt1.value = emp.id;
+                opt1.text = `${emp.name} (${emp.id} - ${emp.dept})`;
+                attSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = emp.id;
+                opt2.text = `${emp.name} (${emp.id})`;
+                eligSelect.appendChild(opt2);
+            });
+        }
+
+        // Attendance Form Submission
+        function handleAttendanceSubmit(e) {
+            e.preventDefault();
+            const empId = document.getElementById('att-employee').value;
+            const date = document.getElementById('att-date').value;
+            const status = document.getElementById('att-status').value;
+            const remarks = document.getElementById('att-remarks').value.trim();
+
+            const newLog = {
+                id: attendanceLogs.length ? attendanceLogs[attendanceLogs.length - 1].id + 1 : 1,
+                empId,
+                date,
+                status,
+                remarks
             };
-        });
 
-        const worksheet = XLSX.utils.json_to_sheet(data);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Master Annual Leave");
-        XLSX.writeFile(workbook, `Annual_Leave_Master_${new Date().toISOString().slice(0,10)}.xlsx`);
-    }
-
-    function openEditModal(index) {
-        const emp = employees[index];
-        document.getElementById('editIndex').value = index;
-        document.getElementById('editId').value = emp.id;
-        document.getElementById('editName').value = emp.name;
-        document.getElementById('editJoinDate').value = emp.joinDate;
-        document.getElementById('editEntitled').value = emp.entitled;
-        document.getElementById('editStartDate').value = emp.startDate || "";
-        document.getElementById('editEndDate').value = emp.endDate || "";
-        document.getElementById('editPrevUsed').value = emp.prevUsed;
-        document.getElementById('editMonthUsed').value = emp.monthUsed;
-        document.getElementById('editCarried').value = emp.carried || 0;
-        document.getElementById('editExceeded').value = emp.exceeded || 0;
-        document.getElementById('editYearRange').value = emp.yearRange || "";
-        document.getElementById('editRemarks').value = emp.remarks || "";
-        
-        document.getElementById('editModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('editModal').style.display = 'none';
-    }
-
-    document.getElementById('editForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const index = document.getElementById('editIndex').value;
-        const joinDateInput = document.getElementById('editJoinDate').value.trim();
-        const computedCycle = computeLeaveCycle(joinDateInput);
-
-        employees[index] = {
-            id: document.getElementById('editId').value,
-            name: document.getElementById('editName').value,
-            joinDate: joinDateInput,
-            entitled: parseFloat(document.getElementById('editEntitled').value),
-            startDate: document.getElementById('editStartDate').value.trim() || computedCycle.startStr,
-            endDate: document.getElementById('editEndDate').value.trim() || computedCycle.endStr,
-            prevUsed: parseFloat(document.getElementById('editPrevUsed').value),
-            monthUsed: parseFloat(document.getElementById('editMonthUsed').value),
-            carried: parseFloat(document.getElementById('editCarried').value),
-            exceeded: parseFloat(document.getElementById('editExceeded').value),
-            yearRange: document.getElementById('editYearRange').value.trim() || computedCycle.yearRangeStr,
-            remarks: document.getElementById('editRemarks').value
-        };
-        
-        localStorage.setItem('al_db_custom_v5', JSON.stringify(employees));
-        closeModal();
-        renderMaster();
-        updateDashboardStats();
-        alert('Master record updated!');
-    });
-
-    document.getElementById('addEmpForm').addEventListener('submit', function(e){
-        e.preventDefault();
-        const joinInput = document.getElementById('newJoinDate').value.replace(/-/g, '.');
-        const newEmpId = document.getElementById('newId').value.trim();
-        const newEmpName = document.getElementById('newName').value.trim();
-
-        const computedCycle = computeLeaveCycle(joinInput);
-
-        const emp = {
-            id: newEmpId,
-            name: newEmpName,
-            joinDate: joinInput,
-            entitled: parseFloat(document.getElementById('newEntitled').value),
-            startDate: computedCycle.startStr,
-            endDate: computedCycle.endStr,
-            yearRange: computedCycle.yearRangeStr,
-            prevUsed: 0, monthUsed: 0, carried: 0, exceeded: 0,
-            remarks: document.getElementById('newRemarks').value.trim()
-        };
-
-        employees.push(emp);
-        localStorage.setItem('al_db_custom_v5', JSON.stringify(employees));
-        
-        this.reset();
-        document.getElementById('newEntitled').value = "160";
-        document.getElementById('newId').focus();
-
-        const toast = document.getElementById('addToast');
-        toast.innerText = `✓ Saved ${newEmpName} (${newEmpId})! Ready for next entry.`;
-        toast.style.display = 'block';
-        setTimeout(() => { toast.style.display = 'none'; }, 4000);
-    });
-
-    document.getElementById('attForm').addEventListener('submit', function(e){
-        e.preventDefault();
-        const id = document.getElementById('attId').value.trim();
-        const hrs = parseFloat(document.getElementById('attHours').value);
-        let emp = employees.find(e => e.id === id);
-        if(emp) {
-            emp.monthUsed += hrs;
-            localStorage.setItem('al_db_custom_v5', JSON.stringify(employees));
-            alert(`Logged! ${emp.name} added ${hrs} hrs.`);
-            this.reset();
-        } else {
-            alert('Employee ID not found!');
-        }
-    });
-
-    function runExcelQuery() {
-        const id = document.getElementById('chkEmpId').value.trim();
-        const queryDateStr = document.getElementById('chkDate').value;
-        const todayHrs = parseFloat(document.getElementById('chkHours').value) || 0;
-
-        if(!id) {
-            alert('Please enter an Employee ID!');
-            return;
+            attendanceLogs.unshift(newLog);
+            document.getElementById('att-remarks').value = '';
+            renderAttendanceLogs();
+            renderMasterTable();
+            alert("Attendance / Leave logged successfully.");
         }
 
-        const emp = employees.find(e => e.id === id);
-        if(!emp) {
-            alert('Employee ID not found!');
-            return;
+        function renderAttendanceLogs() {
+            const tbody = document.getElementById('attendance-table-body');
+            tbody.innerHTML = '';
+            document.getElementById('attendance-count').innerText = `${attendanceLogs.length} entries logged`;
+
+            if(attendanceLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">No attendance logs recorded.</td></tr>`;
+                return;
+            }
+
+            attendanceLogs.forEach(log => {
+                const emp = employees.find(e => e.id === log.empId) || { name: log.empId };
+                const badgeColor = log.status === 'Annual Leave' ? 'bg-amber-100 text-amber-800' :
+                                   log.status === 'Sick Leave' ? 'bg-purple-100 text-purple-800' :
+                                   log.status === 'Public Holiday' ? 'bg-blue-100 text-blue-800' :
+                                   log.status === 'Present' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800';
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition text-xs";
+                tr.innerHTML = `
+                    <td class="p-3 font-mono text-slate-600">${log.date}</td>
+                    <td class="p-3 font-semibold text-slate-900">${emp.name}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded-full font-medium ${badgeColor}">${log.status}</span></td>
+                    <td class="p-3 text-slate-500">${log.remarks || '-'}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteAttendanceLog(${log.id})" class="text-slate-400 hover:text-rose-600 transition" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
-        const queryDate = new Date(queryDateStr);
-        const joinParts = emp.joinDate.split('.');
-        const joinDate = new Date(joinParts[0], joinParts[1]-1, joinParts[2]);
-
-        const computedCycle = computeLeaveCycle(emp.joinDate, queryDate);
-        const startDateStr = emp.startDate || computedCycle.startStr;
-        const endDateStr = emp.endDate || computedCycle.endStr;
-
-        const startParts = startDateStr.split('.');
-        const lStartDate = new Date(startParts[0], startParts[1]-1, startParts[2]);
-        
-        let serviceMonths = (queryDate.getFullYear() - lStartDate.getFullYear()) * 12 + (queryDate.getMonth() - lStartDate.getMonth()) + 1;
-        if (serviceMonths < 1) serviceMonths = 1;
-
-        const totalWorkMonths = (queryDate.getFullYear() - joinDate.getFullYear()) * 12 + (queryDate.getMonth() - joinDate.getMonth());
-        const workYears = Math.floor(totalWorkMonths / 12);
-
-        const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
-        const remainingTotal = (emp.entitled - totalUsed) + (emp.carried || 0);
-        
-        const carriedForward = emp.carried || 0;
-        const allowedThisMonth = (1.5 * serviceMonths * 8) + carriedForward - totalUsed;
-        const remAfterToday = allowedThisMonth - todayHrs;
-
-        const isStarted = queryDate >= lStartDate ? "Start Date Reached" : "Start Date Not Reached";
-        const isExceeded = remAfterToday < 0 ? "Exceeded Limit" : "Within Limit";
-
-        const remainingMonthsCycle = getRemainingCycleMonths(startDateStr, endDateStr, queryDate);
-
-        document.getElementById('qName').innerText = emp.name;
-        document.getElementById('qJoin').innerText = emp.joinDate;
-        document.getElementById('qYears').innerText = workYears;
-        document.getElementById('qEntitled').innerText = emp.entitled;
-        document.getElementById('qStart').innerText = startDateStr;
-        document.getElementById('qEnd').innerText = endDateStr;
-        document.getElementById('qRenewal').innerText = remainingMonthsCycle;
-        document.getElementById('qMonths').innerText = serviceMonths;
-        document.getElementById('qTotalAL').innerText = emp.entitled;
-
-        document.getElementById('qTotalUsed').innerText = totalUsed.toFixed(1);
-        document.getElementById('qCurrentMonthUsed').innerText = emp.monthUsed;
-        document.getElementById('qRemainingTotal').innerText = remainingTotal.toFixed(2);
-        document.getElementById('qCarried').innerText = carriedForward;
-        document.getElementById('qAllowedThisMonth').innerText = allowedThisMonth.toFixed(2);
-        document.getElementById('qRemAfterToday').innerText = remAfterToday.toFixed(2);
-
-        const elStarted = document.getElementById('qIsStarted');
-        elStarted.innerText = isStarted;
-        elStarted.className = `value ${queryDate >= lStartDate ? 'bg-green' : 'bg-red'}`;
-
-        const elExceeded = document.getElementById('qIsExceeded');
-        elExceeded.innerText = isExceeded;
-        elExceeded.className = `value ${remAfterToday < 0 ? 'bg-red' : 'bg-green'}`;
-
-        document.getElementById('qYearRange').innerText = emp.yearRange || computedCycle.yearRangeStr;
-        
-        // Render Remarks Box
-        const remarkBox = document.getElementById('qRemarkContainer');
-        const remarkTextEl = document.getElementById('qRemarksText');
-        
-        if (emp.remarks && emp.remarks.trim() !== '') {
-            remarkTextEl.innerText = emp.remarks;
-            remarkBox.className = 'query-remark-box';
-        } else {
-            const noRemarksMsg = translations[currentLang].noRemarksText || 'No specific remarks or notes logged for this employee.';
-            remarkTextEl.innerText = noRemarksMsg;
-            remarkBox.className = 'query-remark-box empty';
+        function deleteAttendanceLog(id) {
+            if(confirm("Delete this log entry?")) {
+                attendanceLogs = attendanceLogs.filter(l => l.id !== id);
+                renderAttendanceLogs();
+                renderMasterTable();
+            }
         }
 
-        document.getElementById('queryResult').style.display = 'flex';
-    }
-</script>
+        // Eligibility Check & Query Remarks
+        function runEligibilityCheck() {
+            const empId = document.getElementById('elig-employee').value;
+            const requestedDays = parseInt(document.getElementById('elig-days').value) || 1;
+            const emp = employees.find(e => e.id === empId);
+            
+            if(!emp) return;
+
+            const used = getUsedLeaves(emp.id);
+            const balance = emp.quota - used;
+            const isEligible = balance >= requestedDays;
+
+            const iconWrapper = document.getElementById('elig-icon-wrapper');
+            const titleEl = document.getElementById('elig-title');
+            const descEl = document.getElementById('elig-desc');
+            const remarksBox = document.getElementById('elig-remarks-box');
+
+            remarksBox.classList.remove('hidden');
+            
+            let queryRemarksHTML = `
+                <div><span class="text-slate-400">[QUERY ENGINE]</span> Evaluating employee tenure and statutory balance...</div>
+                <div><span class="text-slate-400">[TENURE CHECK]</span> Join Date: ${emp.joinDate} -> Active status verified.</div>
+                <div><span class="text-slate-400">[QUOTA CHECK]</span> Annual Entitlement: ${emp.quota} days | Taken: ${used} days.</div>
+                <div><span class="text-slate-400">[REMAINING BALANCE]</span> Current Balance: ${balance} days available.</div>
+                <div><span class="text-slate-400">[REQUEST EVAL]</span> Requested: ${requestedDays} days -> Outcome: ${isEligible ? 'APPROVED' : 'INSUFFICIENT BALANCE'}.</div>
+            `;
+            remarksBox.innerHTML = queryRemarksHTML;
+
+            if(isEligible) {
+                iconWrapper.className = "w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl shrink-0";
+                iconWrapper.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+                titleEl.innerText = `Eligible for Leave: ${emp.name}`;
+                descEl.innerText = `The employee has sufficient annual leave balance (${balance} days remaining) to cover the requested ${requestedDays} day(s). Request complies with internal policy guidelines.`;
+            } else {
+                iconWrapper.className = "w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xl shrink-0";
+                iconWrapper.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+                titleEl.innerText = `Ineligible / Insufficient Balance: ${emp.name}`;
+                descEl.innerText = `The requested duration (${requestedDays} days) exceeds the remaining available annual quota (${balance} days). Additional days must be treated as Unpaid Leave or carried forward.`;
+            }
+        }
+
+        // XLSX Export Hub Functions
+        function exportMasterToExcel() {
+            const dataToExport = employees.map(emp => {
+                const used = getUsedLeaves(emp.id);
+                return {
+                    "Employee ID": emp.id,
+                    "Full Name": emp.name,
+                    "Department": emp.dept,
+                    "Join Date": emp.joinDate,
+                    "Annual Quota": emp.quota,
+                    "Days Taken": used,
+                    "Remaining Balance": emp.quota - used
+                };
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Employee Master");
+            XLSX.writeFile(workbook, "Cambodia_Insight_Employee_Master.xlsx");
+        }
+
+        function exportAttendanceToExcel() {
+            const dataToExport = attendanceLogs.map(log => {
+                const emp = employees.find(e => e.id === log.empId) || { name: log.empId };
+                return {
+                    "Log ID": log.id,
+                    "Date": log.date,
+                    "Employee ID": log.empId,
+                    "Employee Name": emp.name,
+                    "Status / Type": log.status,
+                    "Remarks": log.remarks || ""
+                };
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance Logs");
+            XLSX.writeFile(workbook, "Cambodia_Insight_Attendance_Logs.xlsx");
+        }
+    </script>
 </body>
 </html>
