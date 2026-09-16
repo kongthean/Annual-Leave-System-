@@ -1,98 +1,156 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>年假管理系统 - Cambodia Insight</title>
+    <title>Annual Leave Management System - Cambodia Insight</title>
     <style>
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
-        body { background: #f4f6f9; padding: 15px; color: #333; }
-        .container { max-width: 1000px; margin: 0 auto; }
+        body { background: #f8fafc; color: #1e293b; padding: 15px; }
+        .container { max-width: 1200px; margin: 0 auto; }
         
         /* Header & Navigation */
-        .header { background: #1e293b; color: white; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; }
-        nav { display: flex; background: #334155; overflow-x: auto; border-radius: 0 0 8px 8px; margin-bottom: 20px; }
-        nav button { flex: 1; padding: 12px 10px; border: none; background: transparent; color: #cbd5e1; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 14px; }
-        nav button.active { background: #2563eb; color: white; }
+        .header { background: #0f172a; color: white; padding: 18px 20px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .header h2 { font-size: 20px; font-weight: 600; }
+        .header span { font-size: 13px; color: #94a3b8; }
         
+        nav { display: flex; background: #1e293b; overflow-x: auto; border-radius: 0 0 10px 10px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        nav button { flex: 1; padding: 14px 16px; border: none; background: transparent; color: #94a3b8; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 14px; transition: all 0.2s; }
+        nav button.active { background: #2563eb; color: white; }
+        nav button:hover:not(.active) { color: white; background: #334155; }
+
         /* Tab Panels */
-        .tab-panel { display: none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .tab-panel { display: none; background: white; padding: 24px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
         .tab-panel.active { display: block; }
 
-        /* Form Inputs */
-        .form-group { margin-bottom: 12px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #475569; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
-        .btn-action { width: 100%; padding: 12px; background: #16a34a; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 10px; }
+        /* Dashboard Styles */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: #f1f5f9; padding: 18px; border-radius: 8px; border-left: 4px solid #2563eb; }
+        .stat-card h4 { color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px; }
+        .stat-card div { font-size: 24px; font-weight: 700; color: #0f172a; }
+
+        .quick-actions { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+        .quick-btn { padding: 10px 18px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; }
+        .quick-btn.green { background: #16a34a; }
+        .quick-btn.slate { background: #475569; }
+
+        /* Forms */
+        .form-group { margin-bottom: 14px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #334155; }
+        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background: #fff; }
+        input:focus, select:focus { outline: none; border-color: #2563eb; ring: 2px #bfdbfe; }
+        .btn-submit { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 10px; }
 
         /* Tables */
         .table-responsive { overflow-x: auto; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
-        th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
-        th { background: #f1f5f9; color: #1e293b; font-weight: bold; }
-        
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1200px; }
+        th, td { border: 1px solid #e2e8f0; padding: 10px 8px; text-align: center; white-space: nowrap; }
+        th { background: #f8fafc; color: #334155; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+        tr:hover { background-color: #f8fafc; }
+        .btn-edit { background: none; border: none; cursor: pointer; font-size: 16px; color: #2563eb; padding: 2px 6px; border-radius: 4px; }
+        .btn-edit:hover { background: #e0f2fe; }
+
         /* Excel Query Sheet Layout */
-        .excel-table { width: 100%; max-width: 500px; margin: 20px auto 0; border-collapse: collapse; font-size: 14px; }
-        .excel-table td { border: 1px solid #b0bec5; padding: 8px 12px; }
-        .excel-table td.label { background: #f8fafc; font-weight: bold; width: 55%; text-align: left; color: #334155; }
+        .excel-table { width: 100%; max-width: 550px; margin: 20px auto 0; border-collapse: collapse; font-size: 14px; }
+        .excel-table td { border: 1px solid #cbd5e1; padding: 9px 14px; }
+        .excel-table td.label { background: #f8fafc; font-weight: 600; width: 55%; text-align: left; color: #334155; }
         .excel-table td.value { background: #ffffff; text-align: right; font-weight: 500; }
         .excel-table td.highlight-blue { background: #e0f2fe; color: #0369a1; font-weight: bold; }
         .excel-table td.bg-green { background: #dcfce7; color: #15803d; font-weight: bold; }
         .excel-table td.bg-red { background: #fee2e2; color: #b91c1c; font-weight: bold; }
+
+        /* Modal Popup */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 24px; border-radius: 10px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h2>年假管理系统 (Annual Leave System)</h2>
-        <p style="font-size:12px; color:#94a3b8; margin-top:4px;">cambodiainsight.net</p>
+        <h2>Annual Leave Management System</h2>
+        <span>Cambodia Insight</span>
     </div>
     
-    <!-- Navigation Options -->
+    <!-- Top Navigation Menu -->
     <nav>
-        <button class="active" onclick="switchTab('tab-1', this)">1. 首页 (Add Employee)</button>
-        <button onclick="switchTab('tab-2', this)">2. 平均年假 (Master)</button>
-        <button onclick="switchTab('tab-3', this)">3. 每日考勤 (Attendance)</button>
-        <button onclick="switchTab('tab-4', this)">4. 查询 (Check Leave)</button>
+        <button id="nav-home" class="active" onclick="switchTab('tab-home', this)">Dashboard</button>
+        <button id="nav-master" onclick="switchTab('tab-master', this)">Master Sheet</button>
+        <button id="nav-att" onclick="switchTab('tab-att', this)">Daily Attendance</button>
+        <button id="nav-query" onclick="switchTab('tab-query', this)">Check Eligibility</button>
+        <button id="nav-add" onclick="switchTab('tab-add', this)">+ Add Employee</button>
     </nav>
 
-    <!-- OPTION 1: HOME (ADD EMPLOYEE) -->
-    <div id="tab-1" class="tab-panel active">
-        <h3>添加新员工 (Add New Employee)</h3>
-        <form id="addEmpForm" style="margin-top:15px;">
-            <div class="form-group">
-                <label>工号 (Employee ID)</label>
-                <input type="text" id="newId" placeholder="例如: 200090" required>
+    <!-- TAB 1: DASHBOARD HOME -->
+    <div id="tab-home" class="tab-panel active">
+        <h3 style="margin-bottom: 16px; color: #0f172a;">Overview & Dashboard</h3>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4>Total Employees</h4>
+                <div id="statTotalStaff">0</div>
             </div>
-            <div class="form-group">
-                <label>姓名 (Name)</label>
-                <input type="text" id="newName" placeholder="例如: Sok Heng" required>
+            <div class="stat-card" style="border-color: #16a34a;">
+                <h4>Total Leave Used (Hrs)</h4>
+                <div id="statTotalUsed">0</div>
             </div>
-            <div class="form-group">
-                <label>进场日期 (Join Date)</label>
-                <input type="date" id="newJoinDate" required>
+            <div class="stat-card" style="border-color: #0284c7;">
+                <h4>This Month Used (Hrs)</h4>
+                <div id="statCurrentMonth">0</div>
             </div>
-            <div class="form-group">
-                <label>年假应有时数 (Annual Leave Hours)</label>
-                <input type="number" id="newEntitled" value="160" required>
+            <div class="stat-card" style="border-color: #dc2626;">
+                <h4>Exceeded Limits</h4>
+                <div id="statExceeded">0</div>
             </div>
-            <button type="submit" class="btn-action">保存新员工 (Save Employee)</button>
-        </form>
+        </div>
+
+        <h4 style="margin-bottom: 12px; color: #334155;">Quick Actions</h4>
+        <div class="quick-actions">
+            <button class="quick-btn" onclick="triggerNav('tab-att', 'nav-att')">✏️ Log Attendance</button>
+            <button class="quick-btn green" onclick="triggerNav('tab-query', 'nav-query')">🔍 Run Leave Query</button>
+            <button class="quick-btn slate" onclick="triggerNav('tab-add', 'nav-add')">👤 Register New Staff</button>
+        </div>
+
+        <h4 style="margin-bottom: 12px; color: #334155; margin-top: 10px;">Recent System Activity</h4>
+        <ul id="activityLog" style="list-style: none; color: #64748b; font-size: 13px; line-height: 1.8;">
+            <li>• System active for current payroll cycle.</li>
+            <li>• Local database synchronized successfully.</li>
+        </ul>
     </div>
 
-    <!-- OPTION 2: AVERAGE ANNUAL (MASTER ROSTER) -->
-    <div id="tab-2" class="tab-panel">
-        <h3>平均年假 Master Sheet</h3>
-        <p style="font-size:12px; color:#64748b;">自动汇总并连接每月考勤数据 (Synced with monthly logs)</p>
+    <!-- TAB 2: MASTER SHEET -->
+    <div id="tab-master" class="tab-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <div>
+                <h3>Master Annual Leave Roster</h3>
+                <p style="font-size:12px; color:#64748b;">Complete record of employee service, entitlement, and balance</p>
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table id="masterTable">
                 <thead>
                     <tr>
-                        <th>工号</th><th>姓名</th><th>进场日期</th><th>工作年数</th><th>年假应有</th>
-                        <th>开始日期</th><th>结束日期</th><th>续期于</th><th>年假总额</th>
-                        <th>上个月已用</th><th>本月已用</th><th>已用总时数</th><th>年假剩余</th>
-                        <th>上年结转</th><th>年度</th><th>备注</th>
+                        <th>Edit</th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Join Date</th>
+                        <th>Years of Work</th>
+                        <th>Entitled Hours</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Renewed At</th>
+                        <th>Total AL</th>
+                        <th>Prev Month Used</th>
+                        <th>Current Month Used</th>
+                        <th>Total Used Hours</th>
+                        <th>Remaining Hours</th>
+                        <th>Carried Forward</th>
+                        <th>Year Range</th>
+                        <th>Exceeded Hours</th>
+                        <th>Remarks</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -100,73 +158,149 @@
         </div>
     </div>
 
-    <!-- OPTION 3: DAILY ATTENDANCE -->
-    <div id="tab-3" class="tab-panel">
-        <h3>每日考勤录入 (Daily Attendance - 2026-9)</h3>
-        <p style="font-size:12px; color:#64748b;">录入昨日请假员工的时数 (Record yesterday's leave hours)</p>
-        <form id="attForm" style="margin-top:15px;">
+    <!-- TAB 3: DAILY ATTENDANCE -->
+    <div id="tab-att" class="tab-panel">
+        <h3>Log Daily Attendance</h3>
+        <p style="font-size:12px; color:#64748b; margin-bottom:15px;">Record leave hours taken by staff for the current month</p>
+        
+        <form id="attForm" style="max-width: 500px;">
             <div class="form-group">
-                <label>工号 (Employee ID)</label>
-                <input type="text" id="attId" placeholder="输入员工工号" required>
+                <label>Employee ID</label>
+                <input type="text" id="attId" placeholder="e.g. 200090" required>
             </div>
             <div class="form-group">
-                <label>休假日期 (Leave Date)</label>
+                <label>Leave Date</label>
                 <input type="date" id="attDate" required>
             </div>
             <div class="form-group">
-                <label>请假时数 (Hours Taken)</label>
+                <label>Hours Taken</label>
                 <input type="number" id="attHours" value="8" step="0.5" required>
             </div>
-            <button type="submit" class="btn-action" style="background:#2563eb;">提交考勤 (Submit Attendance)</button>
+            <button type="submit" class="btn-submit" style="background:#16a34a;">Submit Attendance Record</button>
         </form>
     </div>
 
-    <!-- OPTION 4: CHECK ANNUAL (EXACT EXCEL QUERY) -->
-    <div id="tab-4" class="tab-panel">
-        <h3>年假资格查询 (查询)</h3>
-        <div style="background:#f8fafc; padding:12px; border-radius:6px; margin-bottom:15px; border:1px solid #e2e8f0;">
+    <!-- TAB 4: CHECK ELIGIBILITY (EXCEL QUERY) -->
+    <div id="tab-query" class="tab-panel">
+        <h3>Annual Leave Eligibility Lookup</h3>
+        <p style="font-size:12px; color:#64748b; margin-bottom:15px;">Calculates accrued allowance and checks if date and hours criteria are met</p>
+
+        <div style="background:#f8fafc; padding:16px; border-radius:8px; margin-bottom:15px; border:1px solid #e2e8f0; max-width: 550px; margin: 0 auto 20px;">
             <div class="form-group">
-                <label>日期 (Date)</label>
+                <label>Query Date</label>
                 <input type="date" id="chkDate">
             </div>
             <div class="form-group">
-                <label>员工ID (Employee ID)</label>
-                <input type="text" id="chkEmpId" placeholder="例如: 200090">
+                <label>Employee ID</label>
+                <input type="text" id="chkEmpId" placeholder="e.g. 200090">
             </div>
             <div class="form-group">
-                <label>今天请假时数 (Optional Hours)</label>
+                <label>Today's Leave Hours (Optional)</label>
                 <input type="number" id="chkHours" value="0">
             </div>
-            <button onclick="runExcelQuery()" class="btn-action" style="background:#0284c7;">执行查询 (Run Check)</button>
+            <button onclick="runExcelQuery()" class="btn-submit">Run Calculation Query</button>
         </div>
 
-        <!-- Exact Excel Query Rows -->
         <table class="excel-table" id="queryResult" style="display:none;">
-            <tr><td class="label">姓名</td><td class="value" id="qName">-</td></tr>
-            <tr><td class="label">进场日期</td><td class="value" id="qJoin">-</td></tr>
-            <tr><td class="label">工作年数</td><td class="value" id="qYears">-</td></tr>
-            <tr><td class="label">年假应有天数</td><td class="value" id="qEntitled">-</td></tr>
-            <tr><td class="label">年假开始日期</td><td class="value" id="qStart">-</td></tr>
-            <tr><td class="label">年假结束日期</td><td class="value" id="qEnd">-</td></tr>
-            <tr><td class="label">*续期于</td><td class="value" id="qRenewal">-</td></tr>
-            <tr><td class="label">*工作月数</td><td class="value" id="qMonths">-</td></tr>
-            <tr><td class="label">年假总额</td><td class="value" id="qTotalAL">-</td></tr>
-            <tr><td class="label">已使用总时数</td><td class="value" id="qTotalUsed">-</td></tr>
-            <tr><td class="label">*本月已使用时数</td><td class="value" id="qCurrentMonthUsed">-</td></tr>
-            <tr><td class="label">*年假剩余总时数</td><td class="value" id="qRemainingTotal">-</td></tr>
-            <tr><td class="label" style="background:#fee2e2; color:#991b1b;">*上年结转余额</td><td class="value" id="qCarried" style="background:#fee2e2;">0</td></tr>
-            <tr><td class="label highlight-blue">*本月可以使用数时</td><td class="value highlight-blue" id="qAllowedThisMonth">-</td></tr>
-            <tr><td class="label highlight-blue">*今天休假后剩余时数</td><td class="value highlight-blue" id="qRemAfterToday">-</td></tr>
-            <tr><td class="label">*是否到开始日期</td><td class="value" id="qIsStarted">-</td></tr>
-            <tr><td class="label">*是否超过时数</td><td class="value" id="qIsExceeded">-</td></tr>
-            <tr><td class="label highlight-blue">*年度</td><td class="value highlight-blue" id="qYearRange">-</td></tr>
+            <tr><td class="label">Name</td><td class="value" id="qName">-</td></tr>
+            <tr><td class="label">Join Date</td><td class="value" id="qJoin">-</td></tr>
+            <tr><td class="label">Years of Work</td><td class="value" id="qYears">-</td></tr>
+            <tr><td class="label">Entitled Days/Hours</td><td class="value" id="qEntitled">-</td></tr>
+            <tr><td class="label">Leave Start Date</td><td class="value" id="qStart">-</td></tr>
+            <tr><td class="label">Leave End Date</td><td class="value" id="qEnd">-</td></tr>
+            <tr><td class="label">* Renewed At</td><td class="value" id="qRenewal">-</td></tr>
+            <tr><td class="label">* Months of Service</td><td class="value" id="qMonths">-</td></tr>
+            <tr><td class="label">Total Annual Leave</td><td class="value" id="qTotalAL">-</td></tr>
+            <tr><td class="label">Total Hours Used</td><td class="value" id="qTotalUsed">-</td></tr>
+            <tr><td class="label">* Current Month Used</td><td class="value" id="qCurrentMonthUsed">-</td></tr>
+            <tr><td class="label">* Total Remaining Hours</td><td class="value" id="qRemainingTotal">-</td></tr>
+            <tr><td class="label" style="background:#fee2e2; color:#991b1b;">* Carried Forward Balance</td><td class="value" id="qCarried" style="background:#fee2e2;">0</td></tr>
+            <tr><td class="label highlight-blue">* Allowed Available This Month</td><td class="value highlight-blue" id="qAllowedThisMonth">-</td></tr>
+            <tr><td class="label highlight-blue">* Remaining Balance After Today</td><td class="value highlight-blue" id="qRemAfterToday">-</td></tr>
+            <tr><td class="label">* Is Leave Start Date Reached?</td><td class="value" id="qIsStarted">-</td></tr>
+            <tr><td class="label">* Exceeds Entitled Hours?</td><td class="value" id="qIsExceeded">-</td></tr>
+            <tr><td class="label highlight-blue">* Year Range</td><td class="value highlight-blue" id="qYearRange">-</td></tr>
         </table>
+    </div>
+
+    <!-- TAB 5: ADD EMPLOYEE -->
+    <div id="tab-add" class="tab-panel">
+        <h3>Register New Employee</h3>
+        <form id="addEmpForm" style="max-width: 500px; margin-top:15px;">
+            <div class="form-group">
+                <label>Employee ID</label>
+                <input type="text" id="newId" placeholder="e.g. 200090" required>
+            </div>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="newName" placeholder="e.g. Sok Heng" required>
+            </div>
+            <div class="form-group">
+                <label>Join Date</label>
+                <input type="date" id="newJoinDate" required>
+            </div>
+            <div class="form-group">
+                <label>Entitled Annual Hours</label>
+                <input type="number" id="newEntitled" value="160" required>
+            </div>
+            <div class="form-group">
+                <label>Remarks</label>
+                <input type="text" id="newRemarks" placeholder="Optional notes">
+            </div>
+            <button type="submit" class="btn-submit">Save Employee to Database</button>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT MODAL (PEN SIGN CLICK ACTION) -->
+<div class="modal" id="editModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4>Edit Employee Details</h4>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="editForm">
+            <input type="hidden" id="editIndex">
+            <div class="form-group">
+                <label>Employee ID</label>
+                <input type="text" id="editId" readonly style="background:#f1f5f9;">
+            </div>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="editName" required>
+            </div>
+            <div class="form-group">
+                <label>Join Date (YYYY.MM.DD)</label>
+                <input type="text" id="editJoinDate" required>
+            </div>
+            <div class="form-group">
+                <label>Entitled Hours</label>
+                <input type="number" id="editEntitled" step="0.5" required>
+            </div>
+            <div class="form-group">
+                <label>Previous Months Used (Hours)</label>
+                <input type="number" id="editPrevUsed" step="0.5" required>
+            </div>
+            <div class="form-group">
+                <label>Current Month Used (Hours)</label>
+                <input type="number" id="editMonthUsed" step="0.5" required>
+            </div>
+            <div class="form-group">
+                <label>Carried Forward Balance</label>
+                <input type="number" id="editCarried" step="0.5" required>
+            </div>
+            <div class="form-group">
+                <label>Remarks</label>
+                <input type="text" id="editRemarks">
+            </div>
+            <button type="submit" class="btn-submit" style="background:#16a34a;">Update Master Sheet</button>
+        </form>
     </div>
 </div>
 
 <script>
-    // Initial Database (Storage)
-    let employees = JSON.parse(localStorage.getItem('al_db_system')) || [
+    // System Database Storage
+    let employees = JSON.parse(localStorage.getItem('al_db_eng_master')) || [
         {
             id: "200090", name: "Sok Heng", joinDate: "2018.04.18", entitled: 160,
             prevUsed: 114.0, monthUsed: 0, carried: 0, remarks: ""
@@ -179,41 +313,53 @@
 
     document.getElementById('chkDate').valueAsDate = new Date();
     document.getElementById('attDate').valueAsDate = new Date();
+    updateDashboardStats();
 
     function switchTab(tabId, btn) {
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        btn.classList.add('active');
-        if(tabId === 'tab-2') renderMaster();
+        if(btn) btn.classList.add('active');
+        
+        if(tabId === 'tab-master') renderMaster();
+        if(tabId === 'tab-home') updateDashboardStats();
     }
 
-    // Option 1: Add Employee
-    document.getElementById('addEmpForm').addEventListener('submit', function(e){
-        e.preventDefault();
-        const joinInput = document.getElementById('newJoinDate').value.replace(/-/g, '.');
-        const emp = {
-            id: document.getElementById('newId').value.trim(),
-            name: document.newName ? document.newName.value : document.getElementById('newName').value,
-            joinDate: joinInput,
-            entitled: parseFloat(document.getElementById('newEntitled').value),
-            prevUsed: 0, monthUsed: 0, carried: 0, remarks: ""
-        };
-        employees.push(emp);
-        localStorage.setItem('al_db_system', JSON.stringify(employees));
-        alert('员工已成功添加! (Employee added)');
-        this.reset();
-    });
+    function triggerNav(tabId, navBtnId) {
+        switchTab(tabId, document.getElementById(navBtnId));
+    }
 
-    // Option 2: Render Master Roster
+    function updateDashboardStats() {
+        document.getElementById('statTotalStaff').innerText = employees.length;
+        let totalUsed = 0;
+        let currentMonth = 0;
+        let exceededCount = 0;
+
+        employees.forEach(e => {
+            const used = e.prevUsed + e.monthUsed;
+            totalUsed += used;
+            currentMonth += e.monthUsed;
+            if((e.entitled - used) < 0) exceededCount++;
+        });
+
+        document.getElementById('statTotalUsed').innerText = totalUsed.toFixed(1);
+        document.getElementById('statCurrentMonth').innerText = currentMonth.toFixed(1);
+        document.getElementById('statExceeded').innerText = exceededCount;
+    }
+
+    // Render Master Sheet with 16 Columns + Edit Action
     function renderMaster() {
         const tbody = document.querySelector('#masterTable tbody');
         tbody.innerHTML = '';
-        employees.forEach(emp => {
+
+        employees.forEach((emp, index) => {
             const parts = emp.joinDate.split('.');
             const join = new Date(parts[0], parts[1]-1, parts[2]);
             const now = new Date();
-            const years = Math.floor((now - join) / (365.25 * 24 * 60 * 60 * 1000));
+            
+            // Work Months & Years
+            const workMonths = (now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth());
+            const years = Math.floor(workMonths / 12);
             
             const startYear = (now.getMonth() < join.getMonth() || (now.getMonth() === join.getMonth() && now.getDate() < join.getDate())) ? now.getFullYear()-1 : now.getFullYear();
             const startStr = `${startYear}.${String(join.getMonth()+1).padStart(2,'0')}.${String(join.getDate()).padStart(2,'0')}`;
@@ -221,20 +367,93 @@
             
             const totalUsed = emp.prevUsed + emp.monthUsed;
             const remaining = emp.entitled - totalUsed;
+            const exceededHours = remaining < 0 ? Math.abs(remaining).toFixed(1) : "0.0";
 
             tbody.innerHTML += `
                 <tr>
-                    <td>${emp.id}</td><td>${emp.name}</td><td>${emp.joinDate}</td><td>${years}</td>
-                    <td>${emp.entitled}</td><td>${startStr}</td><td>${endStr}</td><td>${years}</td>
-                    <td>${emp.entitled}</td><td>${emp.prevUsed}</td><td>${emp.monthUsed}</td>
-                    <td>${totalUsed.toFixed(1)}</td><td>${remaining.toFixed(2)}</td><td>${emp.carried}</td>
-                    <td>${startYear}-${startYear+1}</td><td>${emp.remarks}</td>
+                    <td><button class="btn-edit" onclick="openEditModal(${index})" title="Edit Employee">✏️</button></td>
+                    <td><b>${emp.id}</b></td>
+                    <td>${emp.name}</td>
+                    <td>${emp.joinDate}</td>
+                    <td>${years}</td>
+                    <td>${emp.entitled}</td>
+                    <td>${startStr}</td>
+                    <td>${endStr}</td>
+                    <td>${years}</td>
+                    <td>${emp.entitled}</td>
+                    <td>${emp.prevUsed}</td>
+                    <td>${emp.monthUsed}</td>
+                    <td><b>${totalUsed.toFixed(1)}</b></td>
+                    <td style="color:${remaining < 0 ? '#dc2626':'#15803d'}; font-weight:bold;">${remaining.toFixed(2)}</td>
+                    <td>${emp.carried}</td>
+                    <td>${startYear}-${startYear+1}</td>
+                    <td style="color:${remaining < 0 ? '#dc2626':'#64748b'}; font-weight:bold;">${exceededHours}</td>
+                    <td>${emp.remarks || '-'}</td>
                 </tr>
             `;
         });
     }
 
-    // Option 3: Attendance Entry
+    // Edit Modal Logic (Pen Icon)
+    function openEditModal(index) {
+        const emp = employees[index];
+        document.getElementById('editIndex').value = index;
+        document.getElementById('editId').value = emp.id;
+        document.getElementById('editName').value = emp.name;
+        document.getElementById('editJoinDate').value = emp.joinDate;
+        document.getElementById('editEntitled').value = emp.entitled;
+        document.getElementById('editPrevUsed').value = emp.prevUsed;
+        document.getElementById('editMonthUsed').value = emp.monthUsed;
+        document.getElementById('editCarried').value = emp.carried;
+        document.getElementById('editRemarks').value = emp.remarks || "";
+        
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const index = document.getElementById('editIndex').value;
+        employees[index] = {
+            id: document.getElementById('editId').value,
+            name: document.getElementById('editName').value,
+            joinDate: document.getElementById('editJoinDate').value,
+            entitled: parseFloat(document.getElementById('editEntitled').value),
+            prevUsed: parseFloat(document.getElementById('editPrevUsed').value),
+            monthUsed: parseFloat(document.getElementById('editMonthUsed').value),
+            carried: parseFloat(document.getElementById('editCarried').value),
+            remarks: document.getElementById('editRemarks').value
+        };
+        
+        localStorage.setItem('al_db_eng_master', JSON.stringify(employees));
+        closeModal();
+        renderMaster();
+        alert('Master Sheet updated successfully!');
+    });
+
+    // Register New Employee Form
+    document.getElementById('addEmpForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        const joinInput = document.getElementById('newJoinDate').value.replace(/-/g, '.');
+        const emp = {
+            id: document.getElementById('newId').value.trim(),
+            name: document.getElementById('newName').value.trim(),
+            joinDate: joinInput,
+            entitled: parseFloat(document.getElementById('newEntitled').value),
+            prevUsed: 0, monthUsed: 0, carried: 0,
+            remarks: document.getElementById('newRemarks').value.trim()
+        };
+        employees.push(emp);
+        localStorage.setItem('al_db_eng_master', JSON.stringify(employees));
+        alert('New Employee Added Successfully!');
+        this.reset();
+        switchTab('tab-master', document.getElementById('nav-master'));
+    });
+
+    // Attendance Log Form
     document.getElementById('attForm').addEventListener('submit', function(e){
         e.preventDefault();
         const id = document.getElementById('attId').value.trim();
@@ -242,15 +461,15 @@
         let emp = employees.find(e => e.id === id);
         if(emp) {
             emp.monthUsed += hrs;
-            localStorage.setItem('al_db_system', JSON.stringify(employees));
-            alert(`已更新考勤！${emp.name} 本月已使用时数: ${emp.monthUsed} 小时`);
+            localStorage.setItem('al_db_eng_master', JSON.stringify(employees));
+            alert(`Attendance Updated! ${emp.name} logged ${hrs} hrs. Total Month Used: ${emp.monthUsed} hrs.`);
             this.reset();
         } else {
-            alert('未找到该员工工号！');
+            alert('Employee ID not found!');
         }
     });
 
-    // Option 4: Full Excel Query Calculator
+    // Eligibility Calculation Query
     function runExcelQuery() {
         const id = document.getElementById('chkEmpId').value.trim();
         const queryDateStr = document.getElementById('chkDate').value;
@@ -258,7 +477,7 @@
 
         const emp = employees.find(e => e.id === id);
         if(!emp) {
-            alert('未找到该员工 ID');
+            alert('Employee ID not found in database!');
             return;
         }
 
@@ -266,7 +485,6 @@
         const parts = emp.joinDate.split('.');
         const joinDate = new Date(parts[0], parts[1]-1, parts[2]);
 
-        // Excel Months of Service: (YEAR(TODAY()) - YEAR(Join)) * 12 + (MONTH(TODAY()) - MONTH(Join))
         const workMonths = (queryDate.getFullYear() - joinDate.getFullYear()) * 12 + (queryDate.getMonth() - joinDate.getMonth());
         const workYears = Math.floor(workMonths / 12);
 
@@ -281,8 +499,8 @@
         const remAfterToday = allowedThisMonth - todayHrs;
 
         const startDateObj = new Date(startYear, joinDate.getMonth(), joinDate.getDate());
-        const isStarted = queryDate >= startDateObj ? "已经到开始日期" : "未到开始日期";
-        const isExceeded = remAfterToday < 0 ? "已经超过" : "未超过";
+        const isStarted = queryDate >= startDateObj ? "Start Date Reached" : "Start Date Not Reached";
+        const isExceeded = remAfterToday < 0 ? "Exceeded Limit" : "Within Limit";
 
         document.getElementById('qName').innerText = emp.name;
         document.getElementById('qJoin').innerText = emp.joinDate;
