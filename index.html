@@ -86,7 +86,7 @@
         .quick-btn.green { background: #16a34a; }
         .quick-btn.slate { background: #475569; }
 
-        /* SYSTEM REMINDER BOX (Full-Width Below Table) */
+        /* SYSTEM REMINDER BOX */
         .system-reminder-card {
             background-color: #f8fafc;
             border: 1px solid #cbd5e1;
@@ -134,6 +134,19 @@
         input:focus, select:focus { outline: none; border-color: #2563eb; }
         .btn-submit { width: 100%; padding: 8px 12px; background: #2563eb; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 6px; }
 
+        /* Inline Banner Notification */
+        .toast-msg {
+            display: none;
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
         /* Master Table */
         .table-responsive { overflow-x: auto; margin-top: 10px; }
         table.master-tbl { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 1200px; }
@@ -176,14 +189,13 @@
         <div class="header-right">
             <span class="header-brand">Cambodia Insight</span>
             
-            <!-- Language Dropdown with SVG Rectangular Flags -->
+            <!-- Language Dropdown -->
             <div class="lang-dropdown">
                 <button class="lang-btn" onclick="toggleLangMenu(event)">
                     <img id="currentFlag" class="flag-icon" src="https://flagcdn.com/w40/us.png" alt="US Flag">
                     <span id="currentLangName">EN</span> ▼
                 </button>
                 <div class="lang-menu" id="langMenu">
-                    <!-- Khmer is first, English is default -->
                     <div class="lang-option" onclick="setLanguage('km')">
                         <img class="flag-icon" src="https://flagcdn.com/w40/kh.png" alt="Khmer"> ភាសាខ្មែរ
                     </div>
@@ -211,7 +223,6 @@
     <div id="tab-home" class="tab-panel active">
         <h3 style="margin-bottom: 12px; color: #0f172a;" data-i18n="dashOverview">Overview Dashboard</h3>
         
-        <!-- Summary Cards -->
         <div class="stats-grid">
             <div class="stat-card">
                 <h4 data-i18n="statTotalStaff">Total Employees</h4>
@@ -238,7 +249,6 @@
             <button class="quick-btn slate" onclick="triggerNav('tab-add', 'nav-add')" data-i18n="btnRegStaff">👤 Register Staff</button>
         </div>
 
-        <!-- Roster Summary Table Box -->
         <div class="dash-card">
             <h4 data-i18n="dashTableTitle">Leave Usage Overview (Roster Summary)</h4>
             <div class="table-responsive">
@@ -259,7 +269,6 @@
             </div>
         </div>
 
-        <!-- LIVE SYSTEM REMINDER BANNER (Placing inside the requested red box area) -->
         <div class="system-reminder-card">
             <div class="reminder-header">
                 <svg class="reminder-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -289,7 +298,6 @@
                 <h3 data-i18n="masterTitle">Master Annual Leave Roster</h3>
                 <p style="font-size:11px; color:#64748b;" data-i18n="masterSub">Complete employee leave ledger</p>
             </div>
-            <!-- Export to Excel Button -->
             <button class="quick-btn green" onclick="exportToExcel()" data-i18n="btnExport">📊 Export to Excel (.xlsx)</button>
         </div>
 
@@ -345,8 +353,6 @@
     <!-- TAB 4: CHECK ELIGIBILITY -->
     <div id="tab-query" class="tab-panel">
         <div class="eligibility-container">
-            
-            <!-- Compact Small Form Box -->
             <div class="query-box-small">
                 <h4 data-i18n="queryParams">Query Parameters</h4>
                 <div class="form-group">
@@ -364,11 +370,8 @@
                 <button onclick="runExcelQuery()" class="btn-submit" data-i18n="btnRunCalc">Run Calculation Query</button>
             </div>
 
-            <!-- 2-Column Results Grid -->
             <div class="query-results-wrapper">
                 <div class="results-grid-2col" id="queryResult" style="display:none;">
-                    
-                    <!-- Left Column Table -->
                     <div class="result-col">
                         <table>
                             <tr><td class="label" data-i18n="tblName">Name</td><td class="value" id="qName">-</td></tr>
@@ -383,7 +386,6 @@
                         </table>
                     </div>
 
-                    <!-- Right Column Table -->
                     <div class="result-col">
                         <table>
                             <tr><td class="label" data-i18n="tblTotalUsed">Total Hours Used</td><td class="value" id="qTotalUsed">-</td></tr>
@@ -397,39 +399,43 @@
                             <tr><td class="label highlight-blue" data-i18n="tblYearRange">Year Range</td><td class="value highlight-blue" id="qYearRange">-</td></tr>
                         </table>
                     </div>
-
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- TAB 5: ADD EMPLOYEE -->
+    <!-- TAB 5: ADD EMPLOYEE (NO TAB JUMPING) -->
     <div id="tab-add" class="tab-panel">
         <h3 data-i18n="addTitle">Register New Employee</h3>
-        <form id="addEmpForm" style="max-width: 400px; margin-top:10px;">
-            <div class="form-group">
-                <label data-i18n="lblEmpId">Employee ID</label>
-                <input type="text" id="newId" placeholder="e.g. 200000" required>
-            </div>
-            <div class="form-group">
-                <label data-i18n="lblFullName">Full Name</label>
-                <input type="text" id="newName" placeholder="e.g. Sok Heng" required>
-            </div>
-            <div class="form-group">
-                <label data-i18n="tblJoin">Join Date</label>
-                <input type="date" id="newJoinDate" required>
-            </div>
-            <div class="form-group">
-                <label data-i18n="tblEntitled">Entitled Hours</label>
-                <input type="number" id="newEntitled" value="160" required>
-            </div>
-            <div class="form-group">
-                <label data-i18n="tblRemarks">Remarks</label>
-                <input type="text" id="newRemarks">
-            </div>
-            <button type="submit" class="btn-submit" data-i18n="btnSaveEmp">Save Employee</button>
-        </form>
+        <div style="max-width: 400px; margin-top:10px;">
+            
+            <!-- Toast message when employee saved -->
+            <div class="toast-msg" id="addToast">✓ Employee saved successfully! You can add the next one.</div>
+            
+            <form id="addEmpForm">
+                <div class="form-group">
+                    <label data-i18n="lblEmpId">Employee ID</label>
+                    <input type="text" id="newId" placeholder="e.g. 200000" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="lblFullName">Full Name</label>
+                    <input type="text" id="newName" placeholder="e.g. Sok Heng" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="tblJoin">Join Date</label>
+                    <input type="date" id="newJoinDate" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="tblEntitled">Entitled Hours</label>
+                    <input type="number" id="newEntitled" value="160" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="tblRemarks">Remarks</label>
+                    <input type="text" id="newRemarks">
+                </div>
+                <button type="submit" class="btn-submit" data-i18n="btnSaveEmp">Save Employee</button>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -472,7 +478,6 @@
 </div>
 
 <script>
-    // TRANSLATIONS DICTIONARY (EN, KM, ZH)
     const translations = {
         en: {
             appTitle: "Annual Leave Management System",
@@ -740,6 +745,7 @@
         
         if(tabId === 'tab-master') renderMaster();
         if(tabId === 'tab-home') updateDashboardStats();
+        if(tabId === 'tab-add') document.getElementById('newId').focus();
     }
 
     function triggerNav(tabId, navBtnId) {
@@ -923,22 +929,37 @@
         alert('Master record updated!');
     });
 
+    /* UPDATED: NO LONGER SWITCHES TAB ON SAVE */
     document.getElementById('addEmpForm').addEventListener('submit', function(e){
         e.preventDefault();
         const joinInput = document.getElementById('newJoinDate').value.replace(/-/g, '.');
+        const newEmpId = document.getElementById('newId').value.trim();
+        const newEmpName = document.getElementById('newName').value.trim();
+
         const emp = {
-            id: document.getElementById('newId').value.trim(),
-            name: document.getElementById('newName').value.trim(),
+            id: newEmpId,
+            name: newEmpName,
             joinDate: joinInput,
             entitled: parseFloat(document.getElementById('newEntitled').value),
             prevUsed: 0, monthUsed: 0, carried: 0, exceeded: 0,
             remarks: document.getElementById('newRemarks').value.trim()
         };
+
         employees.push(emp);
         localStorage.setItem('al_db_custom_v5', JSON.stringify(employees));
-        alert('Employee Added!');
+        
+        // Reset form inputs for next entry
         this.reset();
-        switchTab('tab-master', document.getElementById('nav-master'));
+        document.getElementById('newEntitled').value = "160"; // Restore default entitled hours
+        
+        // Focus directly on Employee ID input field for continuous fast typing
+        document.getElementById('newId').focus();
+
+        // Show inline banner notification
+        const toast = document.getElementById('addToast');
+        toast.innerText = `✓ Saved ${newEmpName} (${newEmpId})! Ready for next entry.`;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 4000);
     });
 
     document.getElementById('attForm').addEventListener('submit', function(e){
