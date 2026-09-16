@@ -78,14 +78,54 @@
         .stat-card h4 { color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
         .stat-card div { font-size: 20px; font-weight: 700; color: #0f172a; }
 
-        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-top: 16px; }
-        .dash-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; }
+        .dash-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; margin-bottom: 16px; }
         .dash-card h4 { font-size: 14px; color: #0f172a; margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
 
         .quick-actions { display: flex; gap: 10px; margin-bottom: 16px; }
         .quick-btn { padding: 8px 14px; background: #2563eb; color: white; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; }
         .quick-btn.green { background: #16a34a; }
         .quick-btn.slate { background: #475569; }
+
+        /* SYSTEM REMINDER BOX (Full-Width Below Table) */
+        .system-reminder-card {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: 5px solid #2563eb;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-top: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+        .reminder-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            color: #0f172a;
+        }
+        .reminder-title {
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .reminder-icon {
+            stroke: #2563eb;
+        }
+        .reminder-body ul {
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .reminder-body li {
+            font-size: 13px;
+            color: #334155;
+            line-height: 1.5;
+            padding: 6px 10px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+        }
 
         /* Forms & Inputs */
         .form-group { margin-bottom: 8px; }
@@ -198,35 +238,43 @@
             <button class="quick-btn slate" onclick="triggerNav('tab-add', 'nav-add')" data-i18n="btnRegStaff">👤 Register Staff</button>
         </div>
 
-        <!-- Extra Information Panels to Fill Screen Space -->
-        <div class="dashboard-grid">
-            <div class="dash-card">
-                <h4 data-i18n="dashTableTitle">Leave Usage Overview (Roster Summary)</h4>
-                <div class="table-responsive">
-                    <table class="master-tbl" id="dashSummaryTable">
-                        <thead>
-                            <tr>
-                                <th data-i18n="tblId">ID</th>
-                                <th data-i18n="tblName">Name</th>
-                                <th data-i18n="tblJoin">Join Date</th>
-                                <th data-i18n="tblEntitled">Entitled (Hrs)</th>
-                                <th data-i18n="tblUsed">Used (Hrs)</th>
-                                <th data-i18n="tblRemaining">Remaining (Hrs)</th>
-                                <th data-i18n="tblStatus">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+        <!-- Roster Summary Table Box -->
+        <div class="dash-card">
+            <h4 data-i18n="dashTableTitle">Leave Usage Overview (Roster Summary)</h4>
+            <div class="table-responsive">
+                <table class="master-tbl" id="dashSummaryTable">
+                    <thead>
+                        <tr>
+                            <th data-i18n="tblId">ID</th>
+                            <th data-i18n="tblName">Name</th>
+                            <th data-i18n="tblJoin">Join Date</th>
+                            <th data-i18n="tblEntitled">Entitled Hours</th>
+                            <th data-i18n="tblUsed">Used (Hrs)</th>
+                            <th data-i18n="tblRemaining">Remaining Hours</th>
+                            <th data-i18n="tblStatus">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
+        </div>
 
-            <div class="dash-card">
-                <h4 data-i18n="dashNoticesTitle">System Notices & Reminders</h4>
-                <ul id="dashNotices" style="list-style: none; line-height: 1.8; color: #475569; font-size: 12px;">
-                    <li style="padding: 6px; background: #f8fafc; border-radius: 4px; margin-bottom: 6px;" data-i18n="notice1">
+        <!-- LIVE SYSTEM REMINDER BANNER (Placing inside the requested red box area) -->
+        <div class="system-reminder-card">
+            <div class="reminder-header">
+                <svg class="reminder-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span class="reminder-title" data-i18n="dashNoticesTitle">System Reminders & Announcements</span>
+            </div>
+            <div class="reminder-body">
+                <ul>
+                    <li data-i18n="notice1">
                         📌 <b>Monthly Reset:</b> Current month leave hours carry over as recorded unless manually updated.
                     </li>
-                    <li style="padding: 6px; background: #f8fafc; border-radius: 4px; margin-bottom: 6px;" data-i18n="notice2">
+                    <li data-i18n="notice2">
                         📌 <b>Exporting:</b> Use the Excel export button in Master Sheet before printing monthly reports.
                     </li>
                 </ul>
@@ -280,7 +328,7 @@
         <form id="attForm" style="max-width: 400px; margin-top:10px;">
             <div class="form-group">
                 <label data-i18n="lblEmpId">Employee ID</label>
-                <input type="text" id="attId" placeholder="e.g. 200090" required>
+                <input type="text" id="attId" placeholder="e.g. 200000" required>
             </div>
             <div class="form-group">
                 <label data-i18n="lblLeaveDate">Leave Date</label>
@@ -307,7 +355,7 @@
                 </div>
                 <div class="form-group">
                     <label data-i18n="lblEmpId">Employee ID</label>
-                    <input type="text" id="chkEmpId" placeholder="e.g. 200090" value="200090">
+                    <input type="text" id="chkEmpId" placeholder="e.g. 200000" value="200000">
                 </div>
                 <div class="form-group">
                     <label data-i18n="lblTodayHours">Today's Hours (Optional)</label>
@@ -362,7 +410,7 @@
         <form id="addEmpForm" style="max-width: 400px; margin-top:10px;">
             <div class="form-group">
                 <label data-i18n="lblEmpId">Employee ID</label>
-                <input type="text" id="newId" placeholder="e.g. 200090" required>
+                <input type="text" id="newId" placeholder="e.g. 200000" required>
             </div>
             <div class="form-group">
                 <label data-i18n="lblFullName">Full Name</label>
@@ -395,8 +443,8 @@
         <form id="editForm">
             <input type="hidden" id="editIndex">
             <div class="grid-2">
-                <div class="form-group"><label data-i18n="lblEmpId">Employee ID</label><input type="text" id="editId"></div>
-                <div class="form-group"><label data-i18n="lblFullName">Full Name</label><input type="text" id="editName" required></div>
+                <div class="form-group"><label data-i18n="lblEmpId">Employee ID</label><input type="text" id="editId" placeholder="e.g. 200000"></div>
+                <div class="form-group"><label data-i18n="lblFullName">Full Name</label><input type="text" id="editName" placeholder="e.g. Sok Heng" required></div>
             </div>
             <div class="grid-2">
                 <div class="form-group"><label data-i18n="lblJoinFormat">Join Date (YYYY.MM.DD)</label><input type="text" id="editJoinDate" required></div>
@@ -443,7 +491,7 @@
             btnCheckElig: "🔍 Check Eligibility",
             btnRegStaff: "👤 Register Staff",
             dashTableTitle: "Leave Usage Overview (Roster Summary)",
-            dashNoticesTitle: "System Notices & Reminders",
+            dashNoticesTitle: "System Reminders & Announcements",
             notice1: "📌 <b>Monthly Reset:</b> Current month leave hours carry over as recorded unless manually updated.",
             notice2: "📌 <b>Exporting:</b> Use the Excel export button in Master Sheet before printing monthly reports.",
             masterTitle: "Master Annual Leave Roster",
@@ -508,7 +556,7 @@
             btnCheckElig: "🔍 ពិនិត្យសិទ្ធិ",
             btnRegStaff: "👤 ចុះឈ្មោះបុគ្គលិក",
             dashTableTitle: "សង្ខេបការប្រើប្រាស់ការឈប់សម្រាក",
-            dashNoticesTitle: "ការជូនដំណឹងនិងការរំលឹក",
+            dashNoticesTitle: "ការរំលឹក និងការជូនដំណឹងប្រព័ន្ធ",
             notice1: "📌 <b>ការកំណត់ប្រចាំខែ:</b> ម៉ោងឈប់សម្រាកខែបច្ចុប្បន្នត្រូវបានរក្សាទុករហូតដល់មានការធ្វើបច្ចុប្បន្នភាព។",
             notice2: "📌 <b>ការនាំចេញ:</b> ប្រើប្រាស់ប៊ូតុង Export Excel ក្នុងទំព័របញ្ជីចម្បងមុនពេលបោះពុម្ព។",
             masterTitle: "បញ្ជីឈប់សម្រាកប្រចាំឆ្នាំចម្បង",
@@ -573,7 +621,7 @@
             btnCheckElig: "🔍 查询资格",
             btnRegStaff: "👤 注册员工",
             dashTableTitle: "年假使用概览 (花名册摘要)",
-            dashNoticesTitle: "系统通知与提醒",
+            dashNoticesTitle: "系统提醒与公告",
             notice1: "📌 <b>每月重置:</b> 当前月份的休假小时数将自动累计，除非手动更新。",
             notice2: "📌 <b>导出数据:</b> 打印月度报告前，请使用主控表中的 Excel 导出功能。",
             masterTitle: "主年假花名册",
@@ -623,7 +671,7 @@
         }
     };
 
-    let currentLang = 'en'; // Default language
+    let currentLang = 'en';
 
     const langFlags = {
         en: "https://flagcdn.com/w40/us.png",
@@ -651,13 +699,11 @@
         document.getElementById('currentFlag').src = langFlags[lang];
         document.getElementById('currentLangName').innerText = langNames[lang];
         
-        // Active class on dropdown items
         document.querySelectorAll('.lang-option').forEach(opt => opt.classList.remove('active'));
         if(lang === 'km') document.querySelectorAll('.lang-option')[0].classList.add('active');
         if(lang === 'en') document.querySelectorAll('.lang-option')[1].classList.add('active');
         if(lang === 'zh') document.querySelectorAll('.lang-option')[2].classList.add('active');
 
-        // Translate text elements with data-i18n attributes
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             if (translations[lang] && translations[lang][key]) {
@@ -665,14 +711,13 @@
             }
         });
 
-        // Re-render components to update dynamic text
         updateDashboardStats();
         renderMaster();
     }
 
     let employees = JSON.parse(localStorage.getItem('al_db_custom_v5')) || [
         {
-            id: "200090", name: "Sok Heng", joinDate: "2018.04.18", entitled: 160,
+            id: "200000", name: "Sok Heng", joinDate: "2018.04.18", entitled: 160,
             startDate: "2026.04.18", endDate: "2027.04.17",
             prevUsed: 114.0, monthUsed: 0, carried: 0, yearRange: "2026-2027", exceeded: 0, remarks: ""
         },
