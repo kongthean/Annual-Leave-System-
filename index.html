@@ -134,6 +134,25 @@
         input:focus, select:focus { outline: none; border-color: #2563eb; }
         .btn-submit { width: 100%; padding: 8px 12px; background: #2563eb; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 6px; }
 
+        /* Search Box Bar for Master Sheet */
+        .search-bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f1f5f9;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 10px;
+        }
+        .search-bar-wrapper input {
+            max-width: 320px;
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
         /* Inline Banner Notification */
         .toast-msg {
             display: none;
@@ -291,7 +310,7 @@
         </div>
     </div>
 
-    <!-- TAB 2: MASTER SHEET -->
+    <!-- TAB 2: MASTER SHEET WITH SEARCH BOX -->
     <div id="tab-master" class="tab-panel">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <div>
@@ -299,6 +318,12 @@
                 <p style="font-size:11px; color:#64748b;" data-i18n="masterSub">Complete employee leave ledger</p>
             </div>
             <button class="quick-btn green" onclick="exportToExcel()" data-i18n="btnExport">📊 Export to Excel (.xlsx)</button>
+        </div>
+
+        <!-- SEARCH BAR -->
+        <div class="search-bar-wrapper">
+            <label style="margin:0; font-weight:bold; color:#0f172a;" data-i18n="lblSearch">🔍 Search Employee:</label>
+            <input type="text" id="masterSearchInput" onkeyup="filterMasterTable()" placeholder="Enter ID or Name (e.g. 200000)...">
         </div>
 
         <div class="table-responsive">
@@ -404,12 +429,10 @@
         </div>
     </div>
 
-    <!-- TAB 5: ADD EMPLOYEE (NO TAB JUMPING) -->
+    <!-- TAB 5: ADD EMPLOYEE -->
     <div id="tab-add" class="tab-panel">
         <h3 data-i18n="addTitle">Register New Employee</h3>
         <div style="max-width: 400px; margin-top:10px;">
-            
-            <!-- Toast message when employee saved -->
             <div class="toast-msg" id="addToast">✓ Employee saved successfully! You can add the next one.</div>
             
             <form id="addEmpForm">
@@ -501,6 +524,7 @@
             notice2: "📌 <b>Exporting:</b> Use the Excel export button in Master Sheet before printing monthly reports.",
             masterTitle: "Master Annual Leave Roster",
             masterSub: "Complete employee leave ledger",
+            lblSearch: "🔍 Search Employee:",
             btnExport: "📊 Export to Excel (.xlsx)",
             tblActions: "Actions",
             tblId: "ID",
@@ -566,6 +590,7 @@
             notice2: "📌 <b>ការនាំចេញ:</b> ប្រើប្រាស់ប៊ូតុង Export Excel ក្នុងទំព័របញ្ជីចម្បងមុនពេលបោះពុម្ព។",
             masterTitle: "បញ្ជីឈប់សម្រាកប្រចាំឆ្នាំចម្បង",
             masterSub: "កំណត់ត្រាការឈប់សម្រាកបុគ្គលិកទាំងស្រុង",
+            lblSearch: "🔍 ស្វែងរកបុគ្គលិក:",
             btnExport: "📊 នាំចេញជា Excel (.xlsx)",
             tblActions: "សកម្មភាព",
             tblId: "អត្តលេខ",
@@ -631,6 +656,7 @@
             notice2: "📌 <b>导出数据:</b> 打印月度报告前，请使用主控表中的 Excel 导出功能。",
             masterTitle: "主年假花名册",
             masterSub: "完整的员工休假分类账",
+            lblSearch: "🔍 搜索员工:",
             btnExport: "📊 导出为 Excel (.xlsx)",
             tblActions: "操作",
             tblId: "工号",
@@ -832,6 +858,26 @@
                 </tr>
             `;
         });
+
+        // Re-apply filter if user already typed in search box
+        filterMasterTable();
+    }
+
+    /* REAL-TIME FILTER FOR SEARCH BOX */
+    function filterMasterTable() {
+        const input = document.getElementById('masterSearchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#masterTable tbody tr');
+
+        rows.forEach(row => {
+            const idCell = row.cells[1] ? row.cells[1].innerText.toLowerCase() : '';
+            const nameCell = row.cells[2] ? row.cells[2].innerText.toLowerCase() : '';
+            
+            if (idCell.includes(input) || nameCell.includes(input)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
     }
 
     function deleteEmployee(index) {
@@ -929,7 +975,6 @@
         alert('Master record updated!');
     });
 
-    /* UPDATED: NO LONGER SWITCHES TAB ON SAVE */
     document.getElementById('addEmpForm').addEventListener('submit', function(e){
         e.preventDefault();
         const joinInput = document.getElementById('newJoinDate').value.replace(/-/g, '.');
@@ -948,14 +993,10 @@
         employees.push(emp);
         localStorage.setItem('al_db_custom_v5', JSON.stringify(employees));
         
-        // Reset form inputs for next entry
         this.reset();
-        document.getElementById('newEntitled').value = "160"; // Restore default entitled hours
-        
-        // Focus directly on Employee ID input field for continuous fast typing
+        document.getElementById('newEntitled').value = "160";
         document.getElementById('newId').focus();
 
-        // Show inline banner notification
         const toast = document.getElementById('addToast');
         toast.innerText = `✓ Saved ${newEmpName} (${newEmpId})! Ready for next entry.`;
         toast.style.display = 'block';
