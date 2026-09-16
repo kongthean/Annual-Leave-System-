@@ -255,12 +255,12 @@
         .btn-edit { background: none; border: none; cursor: pointer; font-size: 14px; color: #2563eb; padding: 2px 4px; }
         .btn-delete { background: none; border: none; cursor: pointer; font-size: 14px; color: #dc2626; padding: 2px 4px; }
 
-        /* CHECK ELIGIBILITY: COMPACT SINGLE PAGE 2-COLUMN LAYOUT */
+        /* CHECK ELIGIBILITY: COMPACT LAYOUT WITH REMARK CARD */
         .eligibility-container { display: flex; gap: 16px; align-items: flex-start; }
         .query-box-small { width: 260px; flex-shrink: 0; background: #f8fafc; padding: 14px; border-radius: 6px; border: 1px solid #e2e8f0; }
         .query-box-small h4 { font-size: 14px; margin-bottom: 10px; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
         
-        .query-results-wrapper { flex-grow: 1; }
+        .query-results-wrapper { flex-grow: 1; display: flex; flex-direction: column; gap: 12px; }
         .results-grid-2col { display: flex; gap: 12px; width: 100%; }
         .result-col { flex: 1; border-collapse: collapse; width: 50%; }
         .result-col table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -268,6 +268,26 @@
         .result-col td.label { background: #f1f5f9; font-weight: 600; width: 55%; color: #334155; }
         .result-col td.value { background: #ffffff; text-align: right; font-weight: 500; }
         
+        /* Query Remarks Display Box */
+        .query-remark-box {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-left: 5px solid #d97706;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #78350f;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .query-remark-box.empty {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid #94a3b8;
+            color: #64748b;
+        }
+
         .highlight-blue { background: #e0f2fe !important; color: #0369a1 !important; font-weight: bold !important; }
         .bg-green { background: #dcfce7 !important; color: #15803d !important; font-weight: bold !important; }
         .bg-red { background: #fee2e2 !important; color: #b91c1c !important; font-weight: bold !important; }
@@ -497,33 +517,41 @@
             </div>
 
             <div class="query-results-wrapper">
-                <div class="results-grid-2col" id="queryResult" style="display:none;">
-                    <div class="result-col">
-                        <table>
-                            <tr><td class="label" data-i18n="tblName">Name</td><td class="value" id="qName">-</td></tr>
-                            <tr><td class="label" data-i18n="tblJoin">Join Date</td><td class="value" id="qJoin">-</td></tr>
-                            <tr><td class="label" data-i18n="tblYears">Years of Work</td><td class="value" id="qYears">-</td></tr>
-                            <tr><td class="label" data-i18n="tblEntitled">Entitled Days/Hours</td><td class="value" id="qEntitled">-</td></tr>
-                            <tr><td class="label" data-i18n="tblStart">Leave Start Date</td><td class="value" id="qStart">-</td></tr>
-                            <tr><td class="label" data-i18n="tblEnd">Leave End Date</td><td class="value" id="qEnd">-</td></tr>
-                            <tr><td class="label" data-i18n="tblRenewed">Renewed At (Months Left)</td><td class="value" id="qRenewal">-</td></tr>
-                            <tr><td class="label" data-i18n="lblMonthsService">Months of Service</td><td class="value" id="qMonths">-</td></tr>
-                            <tr><td class="label" data-i18n="tblTotalAL">Total Annual Leave</td><td class="value" id="qTotalAL">-</td></tr>
-                        </table>
+                <div class="results-grid-2col" id="queryResult" style="display:none; flex-direction:column;">
+                    <div style="display: flex; gap: 12px; width: 100%;">
+                        <div class="result-col">
+                            <table>
+                                <tr><td class="label" data-i18n="tblName">Name</td><td class="value" id="qName">-</td></tr>
+                                <tr><td class="label" data-i18n="tblJoin">Join Date</td><td class="value" id="qJoin">-</td></tr>
+                                <tr><td class="label" data-i18n="tblYears">Years of Work</td><td class="value" id="qYears">-</td></tr>
+                                <tr><td class="label" data-i18n="tblEntitled">Entitled Days/Hours</td><td class="value" id="qEntitled">-</td></tr>
+                                <tr><td class="label" data-i18n="tblStart">Leave Start Date</td><td class="value" id="qStart">-</td></tr>
+                                <tr><td class="label" data-i18n="tblEnd">Leave End Date</td><td class="value" id="qEnd">-</td></tr>
+                                <tr><td class="label" data-i18n="tblRenewed">Renewed At (Months Left)</td><td class="value" id="qRenewal">-</td></tr>
+                                <tr><td class="label" data-i18n="lblMonthsService">Months of Service</td><td class="value" id="qMonths">-</td></tr>
+                                <tr><td class="label" data-i18n="tblTotalAL">Total Annual Leave</td><td class="value" id="qTotalAL">-</td></tr>
+                            </table>
+                        </div>
+
+                        <div class="result-col">
+                            <table>
+                                <tr><td class="label" data-i18n="tblTotalUsed">Total Hours Used</td><td class="value" id="qTotalUsed">-</td></tr>
+                                <tr><td class="label" data-i18n="tblMonthUsed">Current Month Used</td><td class="value" id="qCurrentMonthUsed">-</td></tr>
+                                <tr><td class="label" data-i18n="tblRemaining">Total Remaining Hours</td><td class="value" id="qRemainingTotal">-</td></tr>
+                                <tr><td class="label" data-i18n="tblCarried" style="background:#fee2e2; color:#991b1b;">Carried Forward Balance</td><td class="value" id="qCarried" style="background:#fee2e2;">0</td></tr>
+                                <tr><td class="label highlight-blue" data-i18n="lblAllowedThisMonth">Allowed Available This Month</td><td class="value highlight-blue" id="qAllowedThisMonth">-</td></tr>
+                                <tr><td class="label highlight-blue" data-i18n="lblRemAfterToday">Remaining Balance After Today</td><td class="value highlight-blue" id="qRemAfterToday">-</td></tr>
+                                <tr><td class="label" data-i18n="lblIsStarted">Is Leave Start Date Reached?</td><td class="value" id="qIsStarted">-</td></tr>
+                                <tr><td class="label" data-i18n="lblIsExceeded">Exceeds Entitled Hours?</td><td class="value" id="qIsExceeded">-</td></tr>
+                                <tr><td class="label highlight-blue" data-i18n="tblYearRange">Year Range</td><td class="value highlight-blue" id="qYearRange">-</td></tr>
+                            </table>
+                        </div>
                     </div>
 
-                    <div class="result-col">
-                        <table>
-                            <tr><td class="label" data-i18n="tblTotalUsed">Total Hours Used</td><td class="value" id="qTotalUsed">-</td></tr>
-                            <tr><td class="label" data-i18n="tblMonthUsed">Current Month Used</td><td class="value" id="qCurrentMonthUsed">-</td></tr>
-                            <tr><td class="label" data-i18n="tblRemaining">Total Remaining Hours</td><td class="value" id="qRemainingTotal">-</td></tr>
-                            <tr><td class="label" data-i18n="tblCarried" style="background:#fee2e2; color:#991b1b;">Carried Forward Balance</td><td class="value" id="qCarried" style="background:#fee2e2;">0</td></tr>
-                            <tr><td class="label highlight-blue" data-i18n="lblAllowedThisMonth">Allowed Available This Month</td><td class="value highlight-blue" id="qAllowedThisMonth">-</td></tr>
-                            <tr><td class="label highlight-blue" data-i18n="lblRemAfterToday">Remaining Balance After Today</td><td class="value highlight-blue" id="qRemAfterToday">-</td></tr>
-                            <tr><td class="label" data-i18n="lblIsStarted">Is Leave Start Date Reached?</td><td class="value" id="qIsStarted">-</td></tr>
-                            <tr><td class="label" data-i18n="lblIsExceeded">Exceeds Entitled Hours?</td><td class="value" id="qIsExceeded">-</td></tr>
-                            <tr><td class="label highlight-blue" data-i18n="tblYearRange">Year Range</td><td class="value highlight-blue" id="qYearRange">-</td></tr>
-                        </table>
+                    <!-- REMARK ALERT BOX -->
+                    <div id="qRemarkContainer" class="query-remark-box">
+                        <b data-i18n="lblRemarksHeading">Master Remarks / Notes:</b> 
+                        <span id="qRemarksText">-</span>
                     </div>
                 </div>
             </div>
@@ -633,7 +661,6 @@
     }
 
     function resetInactivityTimer() {
-        // Only run timer if currently logged in
         if (document.getElementById('loginOverlay').style.display === 'none') {
             if (inactivityTimer) clearTimeout(inactivityTimer);
             inactivityTimer = setTimeout(() => {
@@ -643,7 +670,6 @@
         }
     }
 
-    // Attach Activity Listeners
     ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'].forEach(eventName => {
         window.addEventListener(eventName, resetInactivityTimer, true);
     });
@@ -692,6 +718,8 @@
             tblYearRange: "Year Range",
             tblExceeded: "Exceeded Hours",
             tblRemarks: "Remarks",
+            lblRemarksHeading: "Master Remarks / Notes:",
+            noRemarksText: "No specific remarks or notes logged for this employee.",
             tblStatus: "Status",
             attTitle: "Log Daily Attendance",
             lblEmpId: "Employee ID",
@@ -758,6 +786,8 @@
             tblYearRange: "រង្វង់ឆ្នាំ",
             tblExceeded: "ម៉ោងប្រើលើស",
             tblRemarks: "កំណត់សម្គាល់",
+            lblRemarksHeading: "កំណត់សម្គាល់ចម្បង:",
+            noRemarksText: "គ្មានកំណត់សម្គាល់សម្រាប់បុគ្គលិកនេះទេ។",
             tblStatus: "ស្ថានភាព",
             attTitle: "កត់ត្រាវត្តមានប្រចាំថ្ងៃ",
             lblEmpId: "អត្តលេខបុគ្គលិក",
@@ -824,6 +854,8 @@
             tblYearRange: "年份范围",
             tblExceeded: "超出小时数",
             tblRemarks: "备注",
+            lblRemarksHeading: "主控表备注/说明:",
+            noRemarksText: "该员工无特定备注或说明。",
             tblStatus: "状态",
             attTitle: "记录每日考勤",
             lblEmpId: "员工工号",
@@ -951,7 +983,7 @@
         {
             id: "200226", name: "Chan Leakhena", joinDate: "2020.08.12", entitled: 160,
             startDate: "2026.08.22", endDate: "2027.08.21",
-            prevUsed: 20.0, monthUsed: 8.0, carried: 0, yearRange: "2026-2027", exceeded: 0, remarks: ""
+            prevUsed: 20.0, monthUsed: 8.0, carried: 0, yearRange: "2026-2027", exceeded: 0, remarks: "Allowed to exceed limit due to special leave request"
         }
     ];
 
@@ -1300,6 +1332,19 @@
 
         document.getElementById('qYearRange').innerText = emp.yearRange || computedCycle.yearRangeStr;
         
+        // Render Remarks Box
+        const remarkBox = document.getElementById('qRemarkContainer');
+        const remarkTextEl = document.getElementById('qRemarksText');
+        
+        if (emp.remarks && emp.remarks.trim() !== '') {
+            remarkTextEl.innerText = emp.remarks;
+            remarkBox.className = 'query-remark-box';
+        } else {
+            const noRemarksMsg = translations[currentLang].noRemarksText || 'No specific remarks or notes logged for this employee.';
+            remarkTextEl.innerText = noRemarksMsg;
+            remarkBox.className = 'query-remark-box empty';
+        }
+
         document.getElementById('queryResult').style.display = 'flex';
     }
 </script>
