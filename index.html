@@ -1,284 +1,1122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Check Eligibility</title>
-  <style>
-    :root {
-      --primary-color: #0066cc;
-      --primary-hover: #0052a3;
-      --bg-color: #f4f6f9;
-      --card-bg: #ffffff;
-      --text-color: #333333;
-      --border-color: #dcdfe6;
-      --error-color: #dc3545;
-      --success-color: #28a745;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annual Leave Management System - Cambodia Insight</title>
+    <!-- XLSX Library for Exporting to Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
+        body { background: #f8fafc; color: #1e293b; padding: 10px; font-size: 13px; }
+        .container { max-width: 1350px; margin: 0 auto; }
+        
+        /* Header & Navigation */
+        .header { background: #0f172a; color: white; padding: 12px 16px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .header h2 { font-size: 18px; font-weight: 600; }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .header-brand { font-size: 12px; color: #94a3b8; font-weight: 500; }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+        /* Custom Language Switcher Dropdown */
+        .lang-dropdown { position: relative; display: inline-block; }
+        .lang-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #f8fafc;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+        .lang-btn:hover { background: #334155; }
+        .flag-icon { width: 22px; height: 14px; border-radius: 2px; object-fit: cover; display: inline-block; box-shadow: 0 0 1px rgba(0,0,0,0.5); }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Kantumruy Pro", "Noto Sans Khmer", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
+        .lang-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 110%;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 130px;
+            z-index: 200;
+            overflow: hidden;
+        }
+        .lang-menu.show { display: block; }
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            color: #1e293b;
+            text-decoration: none;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .lang-option:hover { background: #f1f5f9; }
+        .lang-option.active { font-weight: bold; background: #e2e8f0; }
 
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-      padding: 32px;
-      width: 100%;
-      max-width: 420px;
-    }
+        nav { display: flex; background: #1e293b; border-radius: 0 0 8px 8px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        nav button { flex: 1; padding: 10px 12px; border: none; background: transparent; color: #94a3b8; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px; transition: all 0.2s; }
+        nav button.active { background: #2563eb; color: white; }
+        nav button:hover:not(.active) { color: white; background: #334155; }
 
-    .lang-switcher {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
+        /* Tab Panels */
+        .tab-panel { display: none; background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        .tab-panel.active { display: block; }
 
-    .lang-btn {
-      background: none;
-      border: 1px solid var(--border-color);
-      padding: 4px 8px;
-      font-size: 12px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
+        /* Dashboard Styles */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .stat-card { background: #f1f5f9; padding: 12px 16px; border-radius: 6px; border-left: 4px solid #2563eb; }
+        .stat-card h4 { color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+        .stat-card div { font-size: 20px; font-weight: 700; color: #0f172a; }
 
-    .lang-btn.active {
-      background-color: var(--primary-color);
-      color: #fff;
-      border-color: var(--primary-color);
-    }
+        .dash-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; margin-bottom: 16px; }
+        .dash-card h4 { font-size: 14px; color: #0f172a; margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
 
-    .card-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 20px;
-      color: #111111;
-    }
+        .quick-actions { display: flex; gap: 10px; margin-bottom: 16px; }
+        .quick-btn { padding: 8px 14px; background: #2563eb; color: white; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; }
+        .quick-btn.green { background: #16a34a; }
+        .quick-btn.slate { background: #475569; }
 
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
+        /* SYSTEM REMINDER BOX */
+        .system-reminder-card {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-left: 5px solid #2563eb;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-top: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+        .reminder-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            color: #0f172a;
+        }
+        .reminder-title {
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .reminder-icon {
+            stroke: #2563eb;
+        }
+        .reminder-body ul {
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .reminder-body li {
+            font-size: 13px;
+            color: #334155;
+            line-height: 1.5;
+            padding: 6px 10px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+        }
 
-    label {
-      font-size: 14px;
-      font-weight: 600;
-      color: #555555;
-    }
+        /* Forms & Inputs */
+        .form-group { margin-bottom: 8px; }
+        label { display: block; font-weight: 600; margin-bottom: 3px; font-size: 12px; color: #334155; }
+        input, select, textarea { width: 100%; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 12px; background: #fff; }
+        input:focus, select:focus { outline: none; border-color: #2563eb; }
+        .btn-submit { width: 100%; padding: 8px 12px; background: #2563eb; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 6px; }
 
-    .input-wrapper input {
-      width: 100%;
-      padding: 12px 14px;
-      font-size: 16px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
+        /* Search Box Bar for Master Sheet */
+        .search-bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f1f5f9;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 10px;
+        }
+        .search-bar-wrapper input {
+            max-width: 320px;
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
 
-    .input-wrapper input:focus {
-      border-color: var(--primary-color);
-    }
+        /* Inline Banner Notification */
+        .toast-msg {
+            display: none;
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 13px;
+        }
 
-    /* Placeholder stays visual-only */
-    .input-wrapper input::placeholder {
-      color: #a0aec0;
-      font-style: italic;
-    }
+        /* Master Table */
+        .table-responsive { overflow-x: auto; margin-top: 10px; }
+        table.master-tbl { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 1200px; }
+        table.master-tbl th, table.master-tbl td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: center; white-space: nowrap; }
+        table.master-tbl th { background: #f8fafc; color: #334155; font-weight: 700; font-size: 11px; text-transform: uppercase; }
+        tr:hover { background-color: #f8fafc; }
+        .btn-edit { background: none; border: none; cursor: pointer; font-size: 14px; color: #2563eb; padding: 2px 4px; }
+        .btn-delete { background: none; border: none; cursor: pointer; font-size: 14px; color: #dc2626; padding: 2px 4px; }
 
-    .button-group {
-      display: flex;
-      gap: 10px;
-    }
+        /* CHECK ELIGIBILITY: COMPACT SINGLE PAGE 2-COLUMN LAYOUT */
+        .eligibility-container { display: flex; gap: 16px; align-items: flex-start; }
+        .query-box-small { width: 260px; flex-shrink: 0; background: #f8fafc; padding: 14px; border-radius: 6px; border: 1px solid #e2e8f0; }
+        .query-box-small h4 { font-size: 14px; margin-bottom: 10px; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+        
+        .query-results-wrapper { flex-grow: 1; }
+        .results-grid-2col { display: flex; gap: 12px; width: 100%; }
+        .result-col { flex: 1; border-collapse: collapse; width: 50%; }
+        .result-col table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .result-col td { border: 1px solid #cbd5e1; padding: 6px 10px; }
+        .result-col td.label { background: #f1f5f9; font-weight: 600; width: 55%; color: #334155; }
+        .result-col td.value { background: #ffffff; text-align: right; font-weight: 500; }
+        
+        .highlight-blue { background: #e0f2fe !important; color: #0369a1 !important; font-weight: bold !important; }
+        .bg-green { background: #dcfce7 !important; color: #15803d !important; font-weight: bold !important; }
+        .bg-red { background: #fee2e2 !important; color: #b91c1c !important; font-weight: bold !important; }
 
-    button.btn-submit {
-      flex: 1;
-      padding: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background-color: var(--primary-color);
-      color: #ffffff;
-    }
-
-    button.btn-submit:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .result-box {
-      margin-top: 16px;
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      display: none;
-    }
-
-    .result-box.error {
-      display: block;
-      background-color: #fff5f5;
-      color: var(--error-color);
-      border: 1px solid #feb2b2;
-    }
-
-    .result-box.success {
-      display: block;
-      background-color: #f0fff4;
-      color: var(--success-color);
-      border: 1px solid #9ae6b4;
-    }
-  </style>
+        /* Edit Modal Popup */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 18px; border-radius: 8px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #64748b; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    </style>
 </head>
 <body>
 
-  <div class="card">
-    <!-- Language Switcher Bar -->
-    <div class="lang-switcher">
-      <button type="button" class="lang-btn active" onclick="switchLanguage('en')">EN</button>
-      <button type="button" class="lang-btn" onclick="switchLanguage('km')">ខ្មែរ</button>
-      <button type="button" class="lang-btn" onclick="switchLanguage('zh')">中文</button>
+<div class="container">
+    <div class="header">
+        <h2 data-i18n="appTitle">Annual Leave Management System</h2>
+        <div class="header-right">
+            <span class="header-brand">Cambodia Insight</span>
+            
+            <!-- Language Dropdown -->
+            <div class="lang-dropdown">
+                <button class="lang-btn" onclick="toggleLangMenu(event)">
+                    <img id="currentFlag" class="flag-icon" src="https://flagcdn.com/w40/us.png" alt="US Flag">
+                    <span id="currentLangName">EN</span> ▼
+                </button>
+                <div class="lang-menu" id="langMenu">
+                    <div class="lang-option" onclick="setLanguage('km')">
+                        <img class="flag-icon" src="https://flagcdn.com/w40/kh.png" alt="Khmer"> ភាសាខ្មែរ
+                    </div>
+                    <div class="lang-option active" onclick="setLanguage('en')">
+                        <img class="flag-icon" src="https://flagcdn.com/w40/us.png" alt="English"> English
+                    </div>
+                    <div class="lang-option" onclick="setLanguage('zh')">
+                        <img class="flag-icon" src="https://flagcdn.com/w40/cn.png" alt="Chinese"> 中文
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation Menu -->
+    <nav>
+        <button id="nav-home" class="active" onclick="switchTab('tab-home', this)" data-i18n="navDashboard">Dashboard</button>
+        <button id="nav-master" onclick="switchTab('tab-master', this)" data-i18n="navMaster">Master Sheet</button>
+        <button id="nav-att" onclick="switchTab('tab-att', this)" data-i18n="navAttendance">Daily Attendance</button>
+        <button id="nav-query" onclick="switchTab('tab-query', this)" data-i18n="navEligibility">Check Eligibility</button>
+        <button id="nav-add" onclick="switchTab('tab-add', this)" data-i18n="navAddEmployee">+ Add Employee</button>
+    </nav>
+
+    <!-- TAB 1: DASHBOARD -->
+    <div id="tab-home" class="tab-panel active">
+        <h3 style="margin-bottom: 12px; color: #0f172a;" data-i18n="dashOverview">Overview Dashboard</h3>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4 data-i18n="statTotalStaff">Total Employees</h4>
+                <div id="statTotalStaff">0</div>
+            </div>
+            <div class="stat-card" style="border-color: #16a34a;">
+                <h4 data-i18n="statTotalUsed">Total Leave Used (Hrs)</h4>
+                <div id="statTotalUsed">0</div>
+            </div>
+            <div class="stat-card" style="border-color: #0284c7;">
+                <h4 data-i18n="statCurrentMonth">This Month Used (Hrs)</h4>
+                <div id="statCurrentMonth">0</div>
+            </div>
+            <div class="stat-card" style="border-color: #dc2626;">
+                <h4 data-i18n="statExceeded">Exceeded Limits</h4>
+                <div id="statExceeded">0</div>
+            </div>
+        </div>
+
+        <h4 style="margin-bottom: 8px; color: #334155;" data-i18n="quickActions">Quick Actions</h4>
+        <div class="quick-actions">
+            <button class="quick-btn" onclick="triggerNav('tab-att', 'nav-att')" data-i18n="btnLogAtt">✏️ Log Attendance</button>
+            <button class="quick-btn green" onclick="triggerNav('tab-query', 'nav-query')" data-i18n="btnCheckElig">🔍 Check Eligibility</button>
+            <button class="quick-btn slate" onclick="triggerNav('tab-add', 'nav-add')" data-i18n="btnRegStaff">👤 Register Staff</button>
+        </div>
+
+        <div class="dash-card">
+            <h4 data-i18n="dashTableTitle">Leave Usage Overview (Roster Summary)</h4>
+            <div class="table-responsive">
+                <table class="master-tbl" id="dashSummaryTable">
+                    <thead>
+                        <tr>
+                            <th data-i18n="tblId">ID</th>
+                            <th data-i18n="tblName">Name</th>
+                            <th data-i18n="tblJoin">Join Date</th>
+                            <th data-i18n="tblEntitled">Entitled Hours</th>
+                            <th data-i18n="tblUsed">Used (Hrs)</th>
+                            <th data-i18n="tblRemaining">Remaining Hours</th>
+                            <th data-i18n="tblStatus">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="system-reminder-card">
+            <div class="reminder-header">
+                <svg class="reminder-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span class="reminder-title" data-i18n="dashNoticesTitle">System Reminders & Announcements</span>
+            </div>
+            <div class="reminder-body">
+                <ul>
+                    <li data-i18n="notice1">
+                        📌 <b>Monthly Reset:</b> Current month leave hours carry over as recorded unless manually updated.
+                    </li>
+                    <li data-i18n="notice2">
+                        📌 <b>Exporting:</b> Use the Excel export button in Master Sheet before printing monthly reports.
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
 
-    <h2 class="card-title" id="uiTitle">Check Eligibility</h2>
-
-    <form id="eligibilityForm" onsubmit="event.preventDefault(); processEligibility();">
-      <div class="form-group">
-        <label for="eligibilityAmount" id="uiLabel">Check Eligibility</label>
-        <div class="input-wrapper">
-          <!-- Always empty value, placeholder changes per language -->
-          <input 
-            type="text" 
-            id="eligibilityAmount" 
-            name="eligibility_amount" 
-            placeholder="e.g. 200000" 
-            value="" 
-            autocomplete="off" 
-            oninput="formatInputWithCommas(this)"
-          />
+    <!-- TAB 2: MASTER SHEET WITH SEARCH BOX -->
+    <div id="tab-master" class="tab-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div>
+                <h3 data-i18n="masterTitle">Master Annual Leave Roster</h3>
+                <p style="font-size:11px; color:#64748b;" data-i18n="masterSub">Complete employee leave ledger</p>
+            </div>
+            <button class="quick-btn green" onclick="exportToExcel()" data-i18n="btnExport">📊 Export to Excel (.xlsx)</button>
         </div>
-      </div>
 
-      <div class="button-group">
-        <button type="submit" class="btn-submit" id="uiBtnSubmit">Check Now</button>
-      </div>
-    </form>
+        <!-- SEARCH BAR -->
+        <div class="search-bar-wrapper">
+            <label style="margin:0; font-weight:bold; color:#0f172a;" data-i18n="lblSearch">🔍 Search Employee:</label>
+            <input type="text" id="masterSearchInput" onkeyup="filterMasterTable()" placeholder="Enter ID or Name (e.g. 200001)...">
+        </div>
 
-    <div id="resultBox" class="result-box"></div>
-  </div>
+        <div class="table-responsive">
+            <table class="master-tbl" id="masterTable">
+                <thead>
+                    <tr>
+                        <th data-i18n="tblActions">Actions</th>
+                        <th data-i18n="tblId">ID</th>
+                        <th data-i18n="tblName">Name</th>
+                        <th data-i18n="tblJoin">Join Date</th>
+                        <th data-i18n="tblYears">Years of Work</th>
+                        <th data-i18n="tblEntitled">Entitled Hours</th>
+                        <th data-i18n="tblStart">Start Date</th>
+                        <th data-i18n="tblEnd">End Date</th>
+                        <th data-i18n="tblRenewed">Renewed At (Months Left)</th>
+                        <th data-i18n="tblTotalAL">Total AL</th>
+                        <th data-i18n="tblPrevUsed">Prev Month Used</th>
+                        <th data-i18n="tblMonthUsed">Current Month Used</th>
+                        <th data-i18n="tblTotalUsed">Total Used Hours</th>
+                        <th data-i18n="tblRemaining">Remaining Hours</th>
+                        <th data-i18n="tblCarried">Carried Forward</th>
+                        <th data-i18n="tblYearRange">Year Range</th>
+                        <th data-i18n="tblExceeded">Exceeded Hours</th>
+                        <th data-i18n="tblRemarks">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 
-  <script>
-    // Multilingual Dictionary
-    const i18n = {
-      en: {
-        title: "Check Eligibility",
-        label: "Check Eligibility",
-        placeholder: "e.g. 200000",
-        btnSubmit: "Check Now",
-        errEmpty: "Please enter an amount to check eligibility.",
-        errInvalid: "Please enter a valid amount greater than 0.",
-        successMsg: "Submitted amount: ",
-        checkingMsg: "Checking eligibility..."
-      },
-      km: {
-        title: "ពិនិត្យលក្ខខណ្ឌវិនិច្ឆ័យ",
-        label: "ពិនិត្យលក្ខខណ្ឌវិនិច្ឆ័យ",
-        placeholder: "ឧទាហរណ៍ 200000",
-        btnSubmit: "ពិនិត្យឥឡូវនេះ",
-        errEmpty: "សូមបញ្ចូលចំនួនទឹកប្រាក់ដើម្បីពិនិត្យលក្ខខណ្ឌ។",
-        errInvalid: "សូមបញ្ចូលចំនួនទឹកប្រាក់ដែលត្រឹមត្រូវធំជាង 0។",
-        successMsg: "ចំនួនទឹកប្រាក់ដែលបានបញ្ចូល៖ ",
-        checkingMsg: "កំពុងពិនិត្យលក្ខខណ្ឌ..."
-      },
-      zh: {
-        title: "检查资格",
-        label: "检查资格",
-        placeholder: "例如 200000",
-        btnSubmit: "立即检查",
-        errEmpty: "请输入金额以检查资格。",
-        errInvalid: "请输入大于0的有效金额。",
-        successMsg: "已提交金额：",
-        checkingMsg: "正在检查资格..."
-      }
+    <!-- TAB 3: DAILY ATTENDANCE -->
+    <div id="tab-att" class="tab-panel">
+        <h3 data-i18n="attTitle">Log Daily Attendance</h3>
+        <form id="attForm" style="max-width: 400px; margin-top:10px;">
+            <div class="form-group">
+                <label data-i18n="lblEmpId">Employee ID</label>
+                <input type="text" id="attId" placeholder="e.g. 200001" required>
+            </div>
+            <div class="form-group">
+                <label data-i18n="lblLeaveDate">Leave Date</label>
+                <input type="date" id="attDate" required>
+            </div>
+            <div class="form-group">
+                <label data-i18n="lblHoursTaken">Hours Taken</label>
+                <input type="number" id="attHours" value="8" step="0.5" required>
+            </div>
+            <button type="submit" class="btn-submit" style="background:#16a34a;" data-i18n="btnSubmitAtt">Submit Attendance Record</button>
+        </form>
+    </div>
+
+    <!-- TAB 4: CHECK ELIGIBILITY -->
+    <div id="tab-query" class="tab-panel">
+        <div class="eligibility-container">
+            <div class="query-box-small">
+                <h4 data-i18n="queryParams">Query Parameters</h4>
+                <div class="form-group">
+                    <label data-i18n="lblQueryDate">Query Date</label>
+                    <input type="date" id="chkDate">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="lblEmpId">Employee ID</label>
+                    <input type="text" id="chkEmpId" placeholder="e.g. 200001" value="200001">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="lblTodayHours">Today's Hours (Optional)</label>
+                    <input type="number" id="chkHours" value="0">
+                </div>
+                <button onclick="runExcelQuery()" class="btn-submit" data-i18n="btnRunCalc">Run Calculation Query</button>
+            </div>
+
+            <div class="query-results-wrapper">
+                <div class="results-grid-2col" id="queryResult" style="display:none;">
+                    <div class="result-col">
+                        <table>
+                            <tr><td class="label" data-i18n="tblName">Name</td><td class="value" id="qName">-</td></tr>
+                            <tr><td class="label" data-i18n="tblJoin">Join Date</td><td class="value" id="qJoin">-</td></tr>
+                            <tr><td class="label" data-i18n="tblYears">Years of Work</td><td class="value" id="qYears">-</td></tr>
+                            <tr><td class="label" data-i18n="tblEntitled">Entitled Days/Hours</td><td class="value" id="qEntitled">-</td></tr>
+                            <tr><td class="label" data-i18n="tblStart">Leave Start Date</td><td class="value" id="qStart">-</td></tr>
+                            <tr><td class="label" data-i18n="tblEnd">Leave End Date</td><td class="value" id="qEnd">-</td></tr>
+                            <tr><td class="label" data-i18n="tblRenewed">Renewed At (Months Left)</td><td class="value" id="qRenewal">-</td></tr>
+                            <tr><td class="label" data-i18n="lblMonthsService">Months of Service</td><td class="value" id="qMonths">-</td></tr>
+                            <tr><td class="label" data-i18n="tblTotalAL">Total Annual Leave</td><td class="value" id="qTotalAL">-</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="result-col">
+                        <table>
+                            <tr><td class="label" data-i18n="tblTotalUsed">Total Hours Used</td><td class="value" id="qTotalUsed">-</td></tr>
+                            <tr><td class="label" data-i18n="tblMonthUsed">Current Month Used</td><td class="value" id="qCurrentMonthUsed">-</td></tr>
+                            <tr><td class="label" data-i18n="tblRemaining">Total Remaining Hours</td><td class="value" id="qRemainingTotal">-</td></tr>
+                            <tr><td class="label" data-i18n="tblCarried" style="background:#fee2e2; color:#991b1b;">Carried Forward Balance</td><td class="value" id="qCarried" style="background:#fee2e2;">0</td></tr>
+                            <tr><td class="label highlight-blue" data-i18n="lblAllowedThisMonth">Allowed Available This Month</td><td class="value highlight-blue" id="qAllowedThisMonth">-</td></tr>
+                            <tr><td class="label highlight-blue" data-i18n="lblRemAfterToday">Remaining Balance After Today</td><td class="value highlight-blue" id="qRemAfterToday">-</td></tr>
+                            <tr><td class="label" data-i18n="lblIsStarted">Is Leave Start Date Reached?</td><td class="value" id="qIsStarted">-</td></tr>
+                            <tr><td class="label" data-i18n="lblIsExceeded">Exceeds Entitled Hours?</td><td class="value" id="qIsExceeded">-</td></tr>
+                            <tr><td class="label highlight-blue" data-i18n="tblYearRange">Year Range</td><td class="value highlight-blue" id="qYearRange">-</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 5: ADD EMPLOYEE -->
+    <div id="tab-add" class="tab-panel">
+        <h3 data-i18n="addTitle">Register New Employee</h3>
+        <div style="max-width: 400px; margin-top:10px;">
+            <div class="toast-msg" id="addToast">✓ Employee saved successfully! You can add the next one.</div>
+            
+            <form id="addEmpForm">
+                <div class="form-group">
+                    <label data-i18n="lblEmpId">Employee ID</label>
+                    <input type="text" id="newId" placeholder="e.g. 200001" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="lblFullName">Full Name</label>
+                    <input type="text" id="newName" placeholder="e.g. Sok Heng" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="tblJoin">Join Date</label>
+                    <input type="date" id="newJoinDate" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="tblEntitled">Entitled Hours</label>
+                    <input type="number" id="newEntitled" value="160" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="tblRemarks">Remarks</label>
+                    <input type="text" id="newRemarks">
+                </div>
+                <button type="submit" class="btn-submit" data-i18n="btnSaveEmp">Save Employee</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal" id="editModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 data-i18n="modalEditTitle">Edit Employee Master Record</h4>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="editForm">
+            <input type="hidden" id="editIndex">
+            <div class="grid-2">
+                <div class="form-group"><label data-i18n="lblEmpId">Employee ID</label><input type="text" id="editId" placeholder="e.g. 200001"></div>
+                <div class="form-group"><label data-i18n="lblFullName">Full Name</label><input type="text" id="editName" placeholder="e.g. Sok Heng" required></div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group"><label data-i18n="lblJoinFormat">Join Date (YYYY.MM.DD)</label><input type="text" id="editJoinDate" required></div>
+                <div class="form-group"><label data-i18n="tblEntitled">Total AL (Entitled)</label><input type="number" id="editEntitled" step="0.5" required></div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group"><label data-i18n="tblStart">Start Date (YYYY.MM.DD)</label><input type="text" id="editStartDate"></div>
+                <div class="form-group"><label data-i18n="tblEnd">End Date (YYYY.MM.DD)</label><input type="text" id="editEndDate"></div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group"><label data-i18n="tblPrevUsed">Prev Month Used (Hrs)</label><input type="number" id="editPrevUsed" step="0.5" required></div>
+                <div class="form-group"><label data-i18n="tblMonthUsed">Current Month Used (Hrs)</label><input type="number" id="editMonthUsed" step="0.5" required></div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group"><label data-i18n="tblCarried">Carried From Last Year</label><input type="number" id="editCarried" step="0.5" required></div>
+                <div class="form-group"><label data-i18n="tblExceeded">Exceeded Hours</label><input type="number" id="editExceeded" step="0.5" required></div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group"><label data-i18n="tblYearRange">Year Range</label><input type="text" id="editYearRange"></div>
+                <div class="form-group"><label data-i18n="tblRemarks">Remarks</label><input type="text" id="editRemarks"></div>
+            </div>
+            <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:10px;" data-i18n="btnSaveChanges">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const translations = {
+        en: {
+            appTitle: "Annual Leave Management System",
+            navDashboard: "Dashboard",
+            navMaster: "Master Sheet",
+            navAttendance: "Daily Attendance",
+            navEligibility: "Check Eligibility",
+            navAddEmployee: "+ Add Employee",
+            dashOverview: "Overview Dashboard",
+            statTotalStaff: "Total Employees",
+            statTotalUsed: "Total Leave Used (Hrs)",
+            statCurrentMonth: "This Month Used (Hrs)",
+            statExceeded: "Exceeded Limits",
+            quickActions: "Quick Actions",
+            btnLogAtt: "✏️ Log Attendance",
+            btnCheckElig: "🔍 Check Eligibility",
+            btnRegStaff: "👤 Register Staff",
+            dashTableTitle: "Leave Usage Overview (Roster Summary)",
+            dashNoticesTitle: "System Reminders & Announcements",
+            notice1: "📌 <b>Monthly Reset:</b> Current month leave hours carry over as recorded unless manually updated.",
+            notice2: "📌 <b>Exporting:</b> Use the Excel export button in Master Sheet before printing monthly reports.",
+            masterTitle: "Master Annual Leave Roster",
+            masterSub: "Complete employee leave ledger",
+            lblSearch: "🔍 Search Employee:",
+            btnExport: "📊 Export to Excel (.xlsx)",
+            tblActions: "Actions",
+            tblId: "ID",
+            tblName: "Name",
+            tblJoin: "Join Date",
+            tblYears: "Years of Work",
+            tblEntitled: "Entitled Hours",
+            tblStart: "Start Date",
+            tblEnd: "End Date",
+            tblRenewed: "Renewed At (Months Left)",
+            tblTotalAL: "Total AL",
+            tblPrevUsed: "Prev Month Used",
+            tblMonthUsed: "Current Month Used",
+            tblTotalUsed: "Total Used Hours",
+            tblRemaining: "Remaining Hours",
+            tblCarried: "Carried Forward",
+            tblYearRange: "Year Range",
+            tblExceeded: "Exceeded Hours",
+            tblRemarks: "Remarks",
+            tblStatus: "Status",
+            attTitle: "Log Daily Attendance",
+            lblEmpId: "Employee ID",
+            lblLeaveDate: "Leave Date",
+            lblHoursTaken: "Hours Taken",
+            btnSubmitAtt: "Submit Attendance Record",
+            queryParams: "Query Parameters",
+            lblQueryDate: "Query Date",
+            lblTodayHours: "Today's Hours (Optional)",
+            btnRunCalc: "Run Calculation Query",
+            lblMonthsService: "Months of Service",
+            lblAllowedThisMonth: "Allowed Available This Month",
+            lblRemAfterToday: "Remaining Balance After Today",
+            lblIsStarted: "Is Leave Start Date Reached?",
+            lblIsExceeded: "Exceeds Entitled Hours?",
+            addTitle: "Register New Employee",
+            lblFullName: "Full Name",
+            btnSaveEmp: "Save Employee",
+            modalEditTitle: "Edit Employee Master Record",
+            lblJoinFormat: "Join Date (YYYY.MM.DD)",
+            btnSaveChanges: "Save Changes",
+            normal: "Normal",
+            exceeded: "Exceeded"
+        },
+        km: {
+            appTitle: "ប្រព័ន្ធគ្រប់គ្រងការឈប់សម្រាកប្រចាំឆ្នាំ",
+            navDashboard: "ផ្ទាំងព័ត៌មាន",
+            navMaster: "បញ្ជីចម្បង",
+            navAttendance: "វត្តមានប្រចាំថ្ងៃ",
+            navEligibility: "ពិនិត្យសិទ្ធិឈប់សម្រាក",
+            navAddEmployee: "+ បន្ថែមបុគ្គលិក",
+            dashOverview: "ផ្ទាំងព័ត៌មានទូទៅ",
+            statTotalStaff: "បុគ្គលិកសរុប",
+            statTotalUsed: "ច្បាប់ប្រៀបប្រើសរុប (ម៉ោង)",
+            statCurrentMonth: "ប្រើក្នុងខែនេះ (ម៉ោង)",
+            statExceeded: "លើសកម្រិតកំណត់",
+            quickActions: "សកម្មភាពរហ័ស",
+            btnLogAtt: "✏️ កត់ត្រាវត្តមាន",
+            btnCheckElig: "🔍 ពិនិត្យសិទ្ធិ",
+            btnRegStaff: "👤 ចុះឈ្មោះបុគ្គលិក",
+            dashTableTitle: "សង្ខេបការប្រើប្រាស់ការឈប់សម្រាក",
+            dashNoticesTitle: "ការរំលឹក និងការជូនដំណឹងប្រព័ន្ធ",
+            notice1: "📌 <b>ការកំណត់ប្រចាំខែ:</b> ម៉ោងឈប់សម្រាកខែបច្ចុប្បន្នត្រូវបានរក្សាទុករហូតដល់មានការធ្វើបច្ចុប្បន្នភាព។",
+            notice2: "📌 <b>ការនាំចេញ:</b> ប្រើប្រាស់ប៊ូតុង Export Excel ក្នុងទំព័របញ្ជីចម្បងមុនពេលបោះពុម្ព។",
+            masterTitle: "បញ្ជីឈប់សម្រាកប្រចាំឆ្នាំចម្បង",
+            masterSub: "កំណត់ត្រាការឈប់សម្រាកបុគ្គលិកទាំងស្រុង",
+            lblSearch: "🔍 ស្វែងរកបុគ្គលិក:",
+            btnExport: "📊 នាំចេញជា Excel (.xlsx)",
+            tblActions: "សកម្មភាព",
+            tblId: "អត្តលេខ",
+            tblName: "ឈ្មោះ",
+            tblJoin: "ថ្ងៃចូលធ្វើការ",
+            tblYears: "អតីតភាព (ឆ្នាំ)",
+            tblEntitled: "ម៉ោងទទួលបាន",
+            tblStart: "ថ្ងៃចាប់ផ្តើម",
+            tblEnd: "ថ្ងៃបញ្ចប់",
+            tblRenewed: "ខែនៅសល់រហូតដល់ផុតកំណត់",
+            tblTotalAL: "ច្បាប់សរុប",
+            tblPrevUsed: "ខែមុនប្រើ",
+            tblMonthUsed: "ខែនេះប្រើ",
+            tblTotalUsed: "ម៉ោងប្រើសរុប",
+            tblRemaining: "ម៉ោងនៅសល់",
+            tblCarried: "បង្វិលមកពីឆ្នាំមុន",
+            tblYearRange: "រង្វង់ឆ្នាំ",
+            tblExceeded: "ម៉ោងប្រើលើស",
+            tblRemarks: "កំណត់សម្គាល់",
+            tblStatus: "ស្ថានភាព",
+            attTitle: "កត់ត្រាវត្តមានប្រចាំថ្ងៃ",
+            lblEmpId: "អត្តលេខបុគ្គលិក",
+            lblLeaveDate: "កាលបរិច្ឆេទឈប់សម្រាក",
+            lblHoursTaken: "ចំនួនម៉ោងឈប់",
+            btnSubmitAtt: "រក្សាទុកកំណត់ត្រាវត្តមាន",
+            queryParams: "ប៉ារ៉ាម៉ែត្រសួរព័ត៌មាន",
+            lblQueryDate: "កាលបរិច្ឆេទសួរ",
+            lblTodayHours: "ម៉ោងថ្ងៃនេះ (ជម្រើស)",
+            btnRunCalc: "គណនាសិទ្ធិឈប់សម្រាក",
+            lblMonthsService: "ចំនួនខែធ្វើការ",
+            lblAllowedThisMonth: "សិទ្ធិអាចប្រើក្នុងខែនេះ",
+            lblRemAfterToday: "សមតុល្យនៅសល់ក្រោយថ្ងៃនេះ",
+            lblIsStarted: "ដល់ថ្ងៃចាប់ផ្តើមច្បាប់?",
+            lblIsExceeded: "ប្រើប្រាស់លើសកំណត់?",
+            addTitle: "ចុះឈ្មោះបុគ្គលិកថ្មី",
+            lblFullName: "ឈ្មោះពេញ",
+            btnSaveEmp: "រក្សាទុកបុគ្គលិក",
+            modalEditTitle: "កែប្រែកំណត់ត្រាបុគ្គលិក",
+            lblJoinFormat: "ថ្ងៃចូលធ្វើការ (YYYY.MM.DD)",
+            btnSaveChanges: "រក្សាទុកការផ្លាស់ប្តូរ",
+            normal: "ធម្មតា",
+            exceeded: "លើសកំណត់"
+        },
+        zh: {
+            appTitle: "年假管理系统",
+            navDashboard: "仪表板",
+            navMaster: "主控表",
+            navAttendance: "每日考勤",
+            navEligibility: "查询年假资格",
+            navAddEmployee: "+ 添加员工",
+            dashOverview: "概览仪表板",
+            statTotalStaff: "总员工数",
+            statTotalUsed: "已用年假总时数",
+            statCurrentMonth: "本月已用 (小时)",
+            statExceeded: "超出限额人数",
+            quickActions: "快捷操作",
+            btnLogAtt: "✏️ 记录考勤",
+            btnCheckElig: "🔍 查询资格",
+            btnRegStaff: "👤 注册员工",
+            dashTableTitle: "年假使用概览 (花名册摘要)",
+            dashNoticesTitle: "系统提醒与公告",
+            notice1: "📌 <b>每月重置:</b> 当前月份的休假小时数将自动累计，除非手动更新。",
+            notice2: "📌 <b>导出数据:</b> 打印月度报告前，请使用主控表中的 Excel 导出功能。",
+            masterTitle: "主年假花名册",
+            masterSub: "完整的员工休假分类账",
+            lblSearch: "🔍 搜索员工:",
+            btnExport: "📊 导出为 Excel (.xlsx)",
+            tblActions: "操作",
+            tblId: "工号",
+            tblName: "姓名",
+            tblJoin: "入职日期",
+            tblYears: "工龄 (年)",
+            tblEntitled: "应享小时数",
+            tblStart: "开始日期",
+            tblEnd: "结束日期",
+            tblRenewed: "到期剩余月数",
+            tblTotalAL: "年假总数",
+            tblPrevUsed: "上月已用",
+            tblMonthUsed: "本月已用",
+            tblTotalUsed: "已用总小时数",
+            tblRemaining: "剩余小时数",
+            tblCarried: "上年结转",
+            tblYearRange: "年份范围",
+            tblExceeded: "超出小时数",
+            tblRemarks: "备注",
+            tblStatus: "状态",
+            attTitle: "记录每日考勤",
+            lblEmpId: "员工工号",
+            lblLeaveDate: "请假日期",
+            lblHoursTaken: "请假小时数",
+            btnSubmitAtt: "提交考勤记录",
+            queryParams: "查询参数",
+            lblQueryDate: "查询日期",
+            lblTodayHours: "今日请假 (可选)",
+            btnRunCalc: "运行计算查询",
+            lblMonthsService: "服务月数",
+            lblAllowedThisMonth: "本月可用额度",
+            lblRemAfterToday: "今日后剩余余额",
+            lblIsStarted: "是否已到请假开始日?",
+            lblIsExceeded: "是否超出应享额度?",
+            addTitle: "注册新员工",
+            lblFullName: "全名",
+            btnSaveEmp: "保存员工",
+            modalEditTitle: "编辑员工主记录",
+            lblJoinFormat: "入职日期 (YYYY.MM.DD)",
+            btnSaveChanges: "保存更改",
+            normal: "正常",
+            exceeded: "已超出"
+        }
     };
 
     let currentLang = 'en';
 
-    // Function to switch active language dynamically
-    function switchLanguage(lang) {
-      currentLang = lang;
+    const langFlags = {
+        en: "https://flagcdn.com/w40/us.png",
+        km: "https://flagcdn.com/w40/kh.png",
+        zh: "https://flagcdn.com/w40/cn.png"
+    };
 
-      // Update button active states
-      document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
+    const langNames = {
+        en: "EN",
+        km: "KM",
+        zh: "ZH"
+    };
 
-      // Update Text Elements
-      document.getElementById('uiTitle').textContent = i18n[lang].title;
-      document.getElementById('uiLabel').textContent = i18n[lang].label;
-      document.getElementById('uiBtnSubmit').textContent = i18n[lang].btnSubmit;
-      
-      // Update Placeholder without modifying input value
-      document.getElementById('eligibilityAmount').placeholder = i18n[lang].placeholder;
-      
-      // Clear output message on language change
-      const resultBox = document.getElementById('resultBox');
-      resultBox.style.display = 'none';
+    function toggleLangMenu(e) {
+        e.stopPropagation();
+        document.getElementById('langMenu').classList.toggle('show');
     }
 
-    // Auto-format numbers with commas as user types
-    function formatInputWithCommas(input) {
-      let rawValue = input.value.replace(/\D/g, '');
-      if (rawValue) {
-        input.value = Number(rawValue).toLocaleString('en-US');
-      } else {
-        input.value = '';
-      }
+    document.addEventListener('click', () => {
+        document.getElementById('langMenu').classList.remove('show');
+    });
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        document.getElementById('currentFlag').src = langFlags[lang];
+        document.getElementById('currentLangName').innerText = langNames[lang];
+        
+        document.querySelectorAll('.lang-option').forEach(opt => opt.classList.remove('active'));
+        if(lang === 'km') document.querySelectorAll('.lang-option')[0].classList.add('active');
+        if(lang === 'en') document.querySelectorAll('.lang-option')[1].classList.add('active');
+        if(lang === 'zh') document.querySelectorAll('.lang-option')[2].classList.add('active');
+
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang] && translations[lang][key]) {
+                el.innerHTML = translations[lang][key];
+            }
+        });
+
+        updateDashboardStats();
+        renderMaster();
     }
 
-    // Submission logic
-    function processEligibility() {
-      const input = document.getElementById('eligibilityAmount');
-      const cleanValue = input.value.replace(/,/g, '').trim();
+    /* Helper Function to calculate remaining months cycle (e.g. 12 months if before 22nd) */
+    function getRemainingCycleMonths(startDateStr, endDateStr, refDate = new Date()) {
+        const startParts = startDateStr.split('.');
+        const endParts = endDateStr.split('.');
+        
+        const startDay = parseInt(startParts[2], 10);
+        const endYear = parseInt(endParts[0], 10);
+        const endMonth = parseInt(endParts[1], 10) - 1; // 0-indexed month
 
-      if (!cleanValue) {
-        showResult(i18n[currentLang].errEmpty, 'error');
-        return;
-      }
+        let months = (endYear - refDate.getFullYear()) * 12 + (endMonth - refDate.getMonth());
+        
+        // If refDate is before the cycle start day of the month, increment 1
+        if (refDate.getDate() < startDay) {
+            months += 1;
+        }
 
-      const amount = parseFloat(cleanValue);
-
-      if (isNaN(amount) || amount <= 0) {
-        showResult(i18n[currentLang].errInvalid, 'error');
-        return;
-      }
-
-      showResult(`${i18n[currentLang].successMsg} $${amount.toLocaleString('en-US')}. ${i18n[currentLang].checkingMsg}`, 'success');
+        return Math.max(0, months);
     }
 
-    function showResult(message, type) {
-      const resultBox = document.getElementById('resultBox');
-      resultBox.textContent = message;
-      resultBox.className = `result-box ${type}`;
-    }
-  </script>
+    let employees = JSON.parse(localStorage.getItem('al_db_custom_v5')) || [
+        {
+            id: "200001", name: "Sok Heng", joinDate: "2018.04.18", entitled: 160,
+            startDate: "2026.04.18", endDate: "2027.04.17",
+            prevUsed: 114.0, monthUsed: 0, carried: 0, yearRange: "2026-2027", exceeded: 0, remarks: ""
+        },
+        {
+            id: "200226", name: "Chan Leakhena", joinDate: "2020.08.12", entitled: 160,
+            startDate: "2026.08.22", endDate: "2027.08.21",
+            prevUsed: 20.0, monthUsed: 8.0, carried: 0, yearRange: "2026-2027", exceeded: 0, remarks: ""
+        }
+    ];
 
+    document.getElementById('chkDate').valueAsDate = new Date();
+    document.getElementById('attDate').valueAsDate = new Date();
+    updateDashboardStats();
+
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if(btn) btn.classList.add('active');
+        
+        if(tabId === 'tab-master') renderMaster();
+        if(tabId === 'tab-home') updateDashboardStats();
+        if(tabId === 'tab-add') document.getElementById('newId').focus();
+    }
+
+    function triggerNav(tabId, navBtnId) {
+        switchTab(tabId, document.getElementById(navBtnId));
+    }
+
+    function updateDashboardStats() {
+        document.getElementById('statTotalStaff').innerText = employees.length;
+        let totalUsed = 0, currentMonth = 0, exceededCount = 0;
+        const dashBody = document.querySelector('#dashSummaryTable tbody');
+        dashBody.innerHTML = '';
+
+        const txtNormal = translations[currentLang].normal;
+        const txtExceeded = translations[currentLang].exceeded;
+
+        employees.forEach(e => {
+            const used = (e.prevUsed + e.monthUsed) - (e.exceeded || 0);
+            totalUsed += used;
+            currentMonth += e.monthUsed;
+            const remaining = (e.entitled - used) + (e.carried || 0);
+            if(remaining < 0) exceededCount++;
+
+            dashBody.innerHTML += `
+                <tr>
+                    <td><b>${e.id}</b></td>
+                    <td>${e.name}</td>
+                    <td>${e.joinDate}</td>
+                    <td>${e.entitled}</td>
+                    <td>${used.toFixed(1)}</td>
+                    <td style="color:${remaining < 0 ? '#dc2626':'#15803d'}; font-weight:bold;">${remaining.toFixed(2)}</td>
+                    <td><span class="${remaining < 0 ? 'bg-red' : 'bg-green'}" style="padding:2px 6px; border-radius:4px;">${remaining < 0 ? txtExceeded : txtNormal}</span></td>
+                </tr>
+            `;
+        });
+
+        document.getElementById('statTotalUsed').innerText = totalUsed.toFixed(1);
+        document.getElementById('statCurrentMonth').innerText = currentMonth.toFixed(1);
+        document.getElementById('statExceeded').innerText = exceededCount;
+    }
+
+    function renderMaster() {
+        const tbody = document.querySelector('#masterTable tbody');
+        tbody.innerHTML = '';
+
+        employees.forEach((emp, index) => {
+            const parts = emp.joinDate.split('.');
+            const join = new Date(parts[0], parts[1]-1, parts[2]);
+            const now = new Date();
+            
+            const totalWorkMonths = (now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth());
+            const workYears = Math.floor(totalWorkMonths / 12);
+            
+            const startYear = (now.getMonth() < join.getMonth() || (now.getMonth() === join.getMonth() && now.getDate() < join.getDate())) ? now.getFullYear()-1 : now.getFullYear();
+            const startStr = emp.startDate || `${startYear}.${String(join.getMonth()+1).padStart(2,'0')}.${String(join.getDate()).padStart(2,'0')}`;
+            const endStr = emp.endDate || `${startYear+1}.${String(join.getMonth()+1).padStart(2,'0')}.${String(join.getDate()-1).padStart(2,'0')}`;
+            const yearRangeStr = emp.yearRange || `${startYear}-${startYear+1}`;
+
+            // CALCULATE "RENEWED AT" (MONTHS REMAINING IN CURRENT CYCLE)
+            const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
+
+            const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
+            const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>
+                        <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">✏️</button>
+                        <button class="btn-delete" onclick="deleteEmployee(${index})" title="Delete Employee">🗑️</button>
+                    </td>
+                    <td><b>${emp.id}</b></td>
+                    <td>${emp.name}</td>
+                    <td>${emp.joinDate}</td>
+                    <td>${workYears}</td>
+                    <td>${emp.entitled}</td>
+                    <td>${startStr}</td>
+                    <td>${endStr}</td>
+                    <td><b>${remainingMonthsCycle}</b></td>
+                    <td>${emp.entitled}</td>
+                    <td>${emp.prevUsed}</td>
+                    <td>${emp.monthUsed}</td>
+                    <td><b>${totalUsed.toFixed(1)}</b></td>
+                    <td style="color:${remaining < 0 ? '#dc2626':'#15803d'}; font-weight:bold;">${remaining.toFixed(2)}</td>
+                    <td>${emp.carried || 0}</td>
+                    <td>${yearRangeStr}</td>
+                    <td style="color:${emp.exceeded > 0 ? '#dc2626':'#64748b'}; font-weight:bold;">${emp.exceeded || 0}</td>
+                    <td>${emp.remarks || '-'}</td>
+                </tr>
+            `;
+        });
+
+        // Re-apply filter if user already typed in search box
+        filterMasterTable();
+    }
+
+    /* REAL-TIME FILTER FOR SEARCH BOX */
+    function filterMasterTable() {
+        const input = document.getElementById('masterSearchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#masterTable tbody tr');
+
+        rows.forEach(row => {
+            const idCell = row.cells[1] ? row.cells[1].innerText.toLowerCase() : '';
+            const nameCell = row.cells[2] ? row.cells[2].innerText.toLowerCase() : '';
+            
+            if (idCell.includes(input) || nameCell.includes(input)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function deleteEmployee(index) {
+        const emp = employees[index];
+        if (confirm(`Are you sure you want to delete employee ${emp.name} (ID: ${emp.id})?`)) {
+            employees.splice(index, 1);
+            localStorage.setItem('al_db_custom_v5', JSON.stringify(employees));
+            renderMaster();
+            updateDashboardStats();
+            alert('Employee removed from database.');
+        }
+    }
+
+    function exportToExcel() {
+        const data = employees.map(emp => {
+            const parts = emp.joinDate.split('.');
+            const join = new Date(parts[0], parts[1]-1, parts[2]);
+            const now = new Date();
+            const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
+            
+            const startYear = (now.getMonth() < join.getMonth() || (now.getMonth() === join.getMonth() && now.getDate() < join.getDate())) ? now.getFullYear()-1 : now.getFullYear();
+            const startStr = emp.startDate || `${startYear}.${String(join.getMonth()+1).padStart(2,'0')}.${String(join.getDate()).padStart(2,'0')}`;
+            const endStr = emp.endDate || `${startYear+1}.${String(join.getMonth()+1).padStart(2,'0')}.${String(join.getDate()-1).padStart(2,'0')}`;
+            const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
+
+            const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
+            const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+
+            return {
+                "Employee ID": emp.id,
+                "Name": emp.name,
+                "Join Date": emp.joinDate,
+                "Years of Work": workYears,
+                "Entitled Hours": emp.entitled,
+                "Start Date": startStr,
+                "End Date": endStr,
+                "Renewed At (Months Left)": remainingMonthsCycle,
+                "Total AL": emp.entitled,
+                "Prev Month Used": emp.prevUsed,
+                "Current Month Used": emp.monthUsed,
+                "Total Used Hours": totalUsed,
+                "Remaining Hours": remaining,
+                "Carried Forward": emp.carried || 0,
+                "Year Range": emp.yearRange || "",
+                "Exceeded Hours": emp.exceeded || 0,
+                "Remarks": emp.remarks || ""
+            };
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Master Annual Leave");
+        XLSX.writeFile(workbook, `Annual_Leave_Master_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    function openEditModal(index) {
+        const emp = employees[index];
+        document.getElementById('editIndex').value = index;
+        document.getElementById('editId').value = emp.id;
+        document.getElementById('editName').value = emp.name;
+        document.getElementById('editJoinDate').value = emp.joinDate;
+        document.getElementById('editEntitled').value = emp.entitled;
+        document.getElementById('editStartDate').value = emp.startDate || "";
+        document.getElementById('editEndDate').value = emp.endDate || "";
+        document.getElementById('editPrevUsed').value = emp.prevUsed;
+        document.getElementById('editMonthUsed').value = emp.monthUsed;
+        document.getElementById('editCarried').value = emp.carried || 0;
+        document.getElementById('editExceeded').value = emp.exceeded || 0;
+        document.getElementById('editYearRange').value = emp.yearRange || "";
+        document.getElementById('editRemarks').value = emp.remarks || "";
+        
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const index = document.getElementById('editIndex').value;
+        employees[index] = {
+            id: document.getElementById('editId').value,
+            name: document.getElementById('editName').value,
+            joinDate: document.getElementById('editJoinDate').value,
+            entitled: parseFloat(document.getElementById('editEntitled').value),
+            startDate: document.getElementById('editStartDate').value,
+            endDate: document.getElementById('editEndDate').value,
+            prevUsed: parseFloat(document.getElementById('editPrevUsed').value),
+            monthUsed: parseFloat(document.getElementById('editMonthUsed').value),
+            carried: parseFloat(document.getElementById('editCarried').value),
+            exceeded: parseFloat(document.getElementById('editExceeded').value),
+            yearRange: document.getElementById('editYearRange').value,
+            remarks: document.getElementById('editRemarks').value
+        };
+        
+        localStorage.setItem('al_db_custom_v5', JSON.stringify(employees));
+        closeModal();
+        renderMaster();
+        updateDashboardStats();
+        alert('Master record updated!');
+    });
+
+    document.getElementById('addEmpForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        const joinInput = document.getElementById('newJoinDate').value.replace(/-/g, '.');
+        const newEmpId = document.getElementById('newId').value.trim();
+        const newEmpName = document.getElementById('newName').value.trim();
+
+        const emp = {
+            id: newEmpId,
+            name: newEmpName,
+            joinDate: joinInput,
+            entitled: parseFloat(document.getElementById('newEntitled').value),
+            prevUsed: 0, monthUsed: 0, carried: 0, exceeded: 0,
+            remarks: document.getElementById('newRemarks').value.trim()
+        };
+
+        employees.push(emp);
+        localStorage.setItem('al_db_custom_v5', JSON.stringify(employees));
+        
+        this.reset();
+        document.getElementById('newEntitled').value = "160";
+        document.getElementById('newId').focus();
+
+        const toast = document.getElementById('addToast');
+        toast.innerText = `✓ Saved ${newEmpName} (${newEmpId})! Ready for next entry.`;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    });
+
+    document.getElementById('attForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        const id = document.getElementById('attId').value.trim();
+        const hrs = parseFloat(document.getElementById('attHours').value);
+        let emp = employees.find(e => e.id === id);
+        if(emp) {
+            emp.monthUsed += hrs;
+            localStorage.setItem('al_db_custom_v5', JSON.stringify(employees));
+            alert(`Logged! ${emp.name} added ${hrs} hrs.`);
+            this.reset();
+        } else {
+            alert('Employee ID not found!');
+        }
+    });
+
+    function runExcelQuery() {
+        const id = document.getElementById('chkEmpId').value.trim();
+        const queryDateStr = document.getElementById('chkDate').value;
+        const todayHrs = parseFloat(document.getElementById('chkHours').value) || 0;
+
+        const emp = employees.find(e => e.id === id);
+        if(!emp) {
+            alert('Employee ID not found!');
+            return;
+        }
+
+        const queryDate = new Date(queryDateStr);
+        const joinParts = emp.joinDate.split('.');
+        const joinDate = new Date(joinParts[0], joinParts[1]-1, joinParts[2]);
+
+        const startYear = (queryDate.getMonth() < joinDate.getMonth() || (queryDate.getMonth() === joinDate.getMonth() && queryDate.getDate() < joinDate.getDate())) ? queryDate.getFullYear() - 1 : queryDate.getFullYear();
+        const startDateStr = emp.startDate || `${startYear}.${String(joinDate.getMonth() + 1).padStart(2, '0')}.${String(joinDate.getDate()).padStart(2, '0')}`;
+        const endDateStr = emp.endDate || `${startYear + 1}.${String(joinDate.getMonth() + 1).padStart(2, '0')}.${String(joinDate.getDate() - 1).padStart(2, '0')}`;
+
+        const startParts = startDateStr.split('.');
+        const lStartDate = new Date(startParts[0], startParts[1]-1, startParts[2]);
+        
+        let serviceMonths = (queryDate.getFullYear() - lStartDate.getFullYear()) * 12 + (queryDate.getMonth() - lStartDate.getMonth()) + 1;
+        if (serviceMonths < 1) serviceMonths = 1;
+
+        const totalWorkMonths = (queryDate.getFullYear() - joinDate.getFullYear()) * 12 + (queryDate.getMonth() - joinDate.getMonth());
+        const workYears = Math.floor(totalWorkMonths / 12);
+
+        const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
+        const remainingTotal = (emp.entitled - totalUsed) + (emp.carried || 0);
+        
+        // EXACT USER FORMULA: 1.5 * months of service * 8 + carried forward balance - total hours used
+        const carriedForward = emp.carried || 0;
+        const allowedThisMonth = (1.5 * serviceMonths * 8) + carriedForward - totalUsed;
+        const remAfterToday = allowedThisMonth - todayHrs;
+
+        const isStarted = queryDate >= lStartDate ? "Start Date Reached" : "Start Date Not Reached";
+        const isExceeded = remAfterToday < 0 ? "Exceeded Limit" : "Within Limit";
+
+        // Renewed At (Remaining Cycle Months)
+        const remainingMonthsCycle = getRemainingCycleMonths(startDateStr, endDateStr, queryDate);
+
+        document.getElementById('qName').innerText = emp.name;
+        document.getElementById('qJoin').innerText = emp.joinDate;
+        document.getElementById('qYears').innerText = workYears;
+        document.getElementById('qEntitled').innerText = emp.entitled;
+        document.getElementById('qStart').innerText = startDateStr;
+        document.getElementById('qEnd').innerText = endDateStr;
+        document.getElementById('qRenewal').innerText = remainingMonthsCycle;
+        document.getElementById('qMonths').innerText = serviceMonths;
+        document.getElementById('qTotalAL').innerText = emp.entitled;
+
+        document.getElementById('qTotalUsed').innerText = totalUsed.toFixed(1);
+        document.getElementById('qCurrentMonthUsed').innerText = emp.monthUsed;
+        document.getElementById('qRemainingTotal').innerText = remainingTotal.toFixed(2);
+        document.getElementById('qCarried').innerText = carriedForward;
+        document.getElementById('qAllowedThisMonth').innerText = allowedThisMonth.toFixed(2);
+        document.getElementById('qRemAfterToday').innerText = remAfterToday.toFixed(2);
+
+        const elStarted = document.getElementById('qIsStarted');
+        elStarted.innerText = isStarted;
+        elStarted.className = `value ${queryDate >= lStartDate ? 'bg-green' : 'bg-red'}`;
+
+        const elExceeded = document.getElementById('qIsExceeded');
+        elExceeded.innerText = isExceeded;
+        elExceeded.className = `value ${remAfterToday < 0 ? 'bg-red' : 'bg-green'}`;
+
+        document.getElementById('qYearRange').innerText = emp.yearRange || `${startYear}-${startYear + 1}`;
+        
+        document.getElementById('queryResult').style.display = 'flex';
+    }
+</script>
 </body>
 </html>
