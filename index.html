@@ -338,7 +338,7 @@
                         <th data-i18n="tblEntitled">Entitled Hours</th>
                         <th data-i18n="tblStart">Start Date</th>
                         <th data-i18n="tblEnd">End Date</th>
-                        <th data-i18n="tblRenewed">Renewed At</th>
+                        <th data-i18n="tblRenewed">Renewed At (Months Left)</th>
                         <th data-i18n="tblTotalAL">Total AL</th>
                         <th data-i18n="tblPrevUsed">Prev Month Used</th>
                         <th data-i18n="tblMonthUsed">Current Month Used</th>
@@ -405,7 +405,7 @@
                             <tr><td class="label" data-i18n="tblEntitled">Entitled Days/Hours</td><td class="value" id="qEntitled">-</td></tr>
                             <tr><td class="label" data-i18n="tblStart">Leave Start Date</td><td class="value" id="qStart">-</td></tr>
                             <tr><td class="label" data-i18n="tblEnd">Leave End Date</td><td class="value" id="qEnd">-</td></tr>
-                            <tr><td class="label" data-i18n="tblRenewed">Renewed At</td><td class="value" id="qRenewal">-</td></tr>
+                            <tr><td class="label" data-i18n="tblRenewed">Renewed At (Months Left)</td><td class="value" id="qRenewal">-</td></tr>
                             <tr><td class="label" data-i18n="lblMonthsService">Months of Service</td><td class="value" id="qMonths">-</td></tr>
                             <tr><td class="label" data-i18n="tblTotalAL">Total Annual Leave</td><td class="value" id="qTotalAL">-</td></tr>
                         </table>
@@ -534,7 +534,7 @@
             tblEntitled: "Entitled Hours",
             tblStart: "Start Date",
             tblEnd: "End Date",
-            tblRenewed: "Renewed At",
+            tblRenewed: "Renewed At (Months Left)",
             tblTotalAL: "Total AL",
             tblPrevUsed: "Prev Month Used",
             tblMonthUsed: "Current Month Used",
@@ -600,7 +600,7 @@
             tblEntitled: "ម៉ោងទទួលបាន",
             tblStart: "ថ្ងៃចាប់ផ្តើម",
             tblEnd: "ថ្ងៃបញ្ចប់",
-            tblRenewed: "កែប្រែនៅឆ្នាំ",
+            tblRenewed: "ខែនៅសល់រហូតដល់ផុតកំណត់",
             tblTotalAL: "ច្បាប់សរុប",
             tblPrevUsed: "ខែមុនប្រើ",
             tblMonthUsed: "ខែនេះប្រើ",
@@ -666,7 +666,7 @@
             tblEntitled: "应享小时数",
             tblStart: "开始日期",
             tblEnd: "结束日期",
-            tblRenewed: "续期工龄",
+            tblRenewed: "到期剩余月数",
             tblTotalAL: "年假总数",
             tblPrevUsed: "上月已用",
             tblMonthUsed: "本月已用",
@@ -746,6 +746,25 @@
         renderMaster();
     }
 
+    /* Helper Function to calculate remaining months cycle (e.g. 12 months if before 22nd) */
+    function getRemainingCycleMonths(startDateStr, endDateStr, refDate = new Date()) {
+        const startParts = startDateStr.split('.');
+        const endParts = endDateStr.split('.');
+        
+        const startDay = parseInt(startParts[2], 10);
+        const endYear = parseInt(endParts[0], 10);
+        const endMonth = parseInt(endParts[1], 10) - 1; // 0-indexed month
+
+        let months = (endYear - refDate.getFullYear()) * 12 + (endMonth - refDate.getMonth());
+        
+        // If refDate is before the cycle start day of the month, increment 1
+        if (refDate.getDate() < startDay) {
+            months += 1;
+        }
+
+        return Math.max(0, months);
+    }
+
     let employees = JSON.parse(localStorage.getItem('al_db_custom_v5')) || [
         {
             id: "200000", name: "Sok Heng", joinDate: "2018.04.18", entitled: 160,
@@ -754,7 +773,7 @@
         },
         {
             id: "200226", name: "Chan Leakhena", joinDate: "2020.08.12", entitled: 160,
-            startDate: "2026.08.12", endDate: "2027.08.11",
+            startDate: "2026.08.22", endDate: "2027.08.21",
             prevUsed: 20.0, monthUsed: 8.0, carried: 0, yearRange: "2026-2027", exceeded: 0, remarks: ""
         }
     ];
@@ -829,6 +848,9 @@
             const endStr = emp.endDate || `${startYear+1}.${String(join.getMonth()+1).padStart(2,'0')}.${String(join.getDate()-1).padStart(2,'0')}`;
             const yearRangeStr = emp.yearRange || `${startYear}-${startYear+1}`;
 
+            // CALCULATE "RENEWED AT" (MONTHS REMAINING IN CURRENT CYCLE)
+            const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
+
             const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
             const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
 
@@ -845,7 +867,7 @@
                     <td>${emp.entitled}</td>
                     <td>${startStr}</td>
                     <td>${endStr}</td>
-                    <td>${workYears}</td>
+                    <td><b>${remainingMonthsCycle}</b></td>
                     <td>${emp.entitled}</td>
                     <td>${emp.prevUsed}</td>
                     <td>${emp.monthUsed}</td>
@@ -897,6 +919,12 @@
             const join = new Date(parts[0], parts[1]-1, parts[2]);
             const now = new Date();
             const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
+            
+            const startYear = (now.getMonth() < join.getMonth() || (now.getMonth() === join.getMonth() && now.getDate() < join.getDate())) ? now.getFullYear()-1 : now.getFullYear();
+            const startStr = emp.startDate || `${startYear}.${String(join.getMonth()+1).padStart(2,'0')}.${String(join.getDate()).padStart(2,'0')}`;
+            const endStr = emp.endDate || `${startYear+1}.${String(join.getMonth()+1).padStart(2,'0')}.${String(join.getDate()-1).padStart(2,'0')}`;
+            const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
+
             const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
             const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
 
@@ -906,9 +934,9 @@
                 "Join Date": emp.joinDate,
                 "Years of Work": workYears,
                 "Entitled Hours": emp.entitled,
-                "Start Date": emp.startDate || "",
-                "End Date": emp.endDate || "",
-                "Renewed At": workYears,
+                "Start Date": startStr,
+                "End Date": endStr,
+                "Renewed At (Months Left)": remainingMonthsCycle,
                 "Total AL": emp.entitled,
                 "Prev Month Used": emp.prevUsed,
                 "Current Month Used": emp.monthUsed,
@@ -1056,13 +1084,16 @@
         const isStarted = queryDate >= lStartDate ? "Start Date Reached" : "Start Date Not Reached";
         const isExceeded = remAfterToday < 0 ? "Exceeded Limit" : "Within Limit";
 
+        // Renewed At (Remaining Cycle Months)
+        const remainingMonthsCycle = getRemainingCycleMonths(startDateStr, endDateStr, queryDate);
+
         document.getElementById('qName').innerText = emp.name;
         document.getElementById('qJoin').innerText = emp.joinDate;
         document.getElementById('qYears').innerText = workYears;
         document.getElementById('qEntitled').innerText = emp.entitled;
         document.getElementById('qStart').innerText = startDateStr;
         document.getElementById('qEnd').innerText = endDateStr;
-        document.getElementById('qRenewal').innerText = workYears;
+        document.getElementById('qRenewal').innerText = remainingMonthsCycle;
         document.getElementById('qMonths').innerText = serviceMonths;
         document.getElementById('qTotalAL').innerText = emp.entitled;
 
