@@ -2204,25 +2204,24 @@ document
    AUTH STATE LISTENER
    ========================= */
 
-supabaseClient.auth.onAuthStateChange(
-    async(event,session)=>{
+supabaseClient.auth.onAuthStateChange((event, session) => {
 
-        if(event === "SIGNED_IN" && session){
+    if (event === "SIGNED_IN" && session) {
 
-            hideLogin();
+        hideLogin();
 
+        setTimeout(async () => {
             await loadEmployees();
-
             resetInactivityTimer();
+        }, 0);
 
-        }
-
-        if(event === "SIGNED_OUT"){
-
-            showLogin();
-        }
     }
-);
+
+    if (event === "SIGNED_OUT") {
+        showLogin();
+    }
+
+});
 
 
 /* =========================
