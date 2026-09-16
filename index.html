@@ -6,69 +6,77 @@
     <title>Annual Leave Management System - Cambodia Insight</title>
     <style>
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
-        body { background: #f8fafc; color: #1e293b; padding: 15px; }
-        .container { max-width: 1280px; margin: 0 auto; }
+        body { background: #f8fafc; color: #1e293b; padding: 10px; font-size: 13px; }
+        .container { max-width: 1350px; margin: 0 auto; }
         
         /* Header & Navigation */
-        .header { background: #0f172a; color: white; padding: 18px 20px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center; }
-        .header h2 { font-size: 20px; font-weight: 600; }
-        .header span { font-size: 13px; color: #94a3b8; }
+        .header { background: #0f172a; color: white; padding: 12px 16px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .header h2 { font-size: 18px; font-weight: 600; }
+        .header span { font-size: 12px; color: #94a3b8; }
         
-        nav { display: flex; background: #1e293b; overflow-x: auto; border-radius: 0 0 10px 10px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        nav button { flex: 1; padding: 14px 16px; border: none; background: transparent; color: #94a3b8; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 14px; transition: all 0.2s; }
+        nav { display: flex; background: #1e293b; border-radius: 0 0 8px 8px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        nav button { flex: 1; padding: 10px 12px; border: none; background: transparent; color: #94a3b8; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px; transition: all 0.2s; }
         nav button.active { background: #2563eb; color: white; }
         nav button:hover:not(.active) { color: white; background: #334155; }
 
         /* Tab Panels */
-        .tab-panel { display: none; background: white; padding: 24px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        .tab-panel { display: none; background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
         .tab-panel.active { display: block; }
 
         /* Dashboard Styles */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: #f1f5f9; padding: 18px; border-radius: 8px; border-left: 4px solid #2563eb; }
-        .stat-card h4 { color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px; }
-        .stat-card div { font-size: 24px; font-weight: 700; color: #0f172a; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .stat-card { background: #f1f5f9; padding: 12px 16px; border-radius: 6px; border-left: 4px solid #2563eb; }
+        .stat-card h4 { color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+        .stat-card div { font-size: 20px; font-weight: 700; color: #0f172a; }
 
-        .quick-actions { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-        .quick-btn { padding: 10px 18px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; }
+        .quick-actions { display: flex; gap: 10px; margin-bottom: 16px; }
+        .quick-btn { padding: 8px 14px; background: #2563eb; color: white; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; font-size: 13px; }
         .quick-btn.green { background: #16a34a; }
         .quick-btn.slate { background: #475569; }
 
-        /* Forms */
-        .form-group { margin-bottom: 14px; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #334155; }
-        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background: #fff; }
-        input:focus, select:focus { outline: none; border-color: #2563eb; ring: 2px #bfdbfe; }
-        .btn-submit { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 10px; }
+        /* Forms & Inputs */
+        .form-group { margin-bottom: 8px; }
+        label { display: block; font-weight: 600; margin-bottom: 3px; font-size: 12px; color: #334155; }
+        input, select, textarea { width: 100%; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 12px; background: #fff; }
+        input:focus, select:focus { outline: none; border-color: #2563eb; }
+        .btn-submit { width: 100%; padding: 8px 12px; background: #2563eb; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 6px; }
 
-        /* Tables */
-        .table-responsive { overflow-x: auto; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1200px; }
-        th, td { border: 1px solid #e2e8f0; padding: 10px 8px; text-align: center; white-space: nowrap; }
-        th { background: #f8fafc; color: #334155; font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+        /* Master Table */
+        .table-responsive { overflow-x: auto; margin-top: 10px; }
+        table.master-tbl { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 1200px; }
+        table.master-tbl th, table.master-tbl td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: center; white-space: nowrap; }
+        table.master-tbl th { background: #f8fafc; color: #334155; font-weight: 700; font-size: 11px; text-transform: uppercase; }
         tr:hover { background-color: #f8fafc; }
-        .btn-edit { background: none; border: none; cursor: pointer; font-size: 16px; color: #2563eb; padding: 2px 6px; border-radius: 4px; }
-        .btn-edit:hover { background: #e0f2fe; }
+        .btn-edit { background: none; border: none; cursor: pointer; font-size: 14px; color: #2563eb; padding: 2px 4px; }
 
-        /* Check Eligibility Side-by-Side Excel Layout */
-        .query-container { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
-        .query-form-box { flex: 1; min-width: 300px; background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .query-result-box { flex: 1.2; min-width: 340px; }
+        /* CHECK ELIGIBILITY: COMPACT SINGLE PAGE 2-COLUMN LAYOUT */
+        .eligibility-container { display: flex; gap: 16px; align-items: flex-start; }
         
-        .excel-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .excel-table td { border: 1px solid #cbd5e1; padding: 8px 12px; }
-        .excel-table td.label { background: #f8fafc; font-weight: 600; width: 55%; text-align: left; color: #334155; }
-        .excel-table td.value { background: #ffffff; text-align: right; font-weight: 500; }
-        .excel-table td.highlight-blue { background: #e0f2fe; color: #0369a1; font-weight: bold; }
-        .excel-table td.bg-green { background: #dcfce7; color: #15803d; font-weight: bold; }
-        .excel-table td.bg-red { background: #fee2e2; color: #b91c1c; font-weight: bold; }
+        /* Small Left Form Box */
+        .query-box-small { width: 260px; flex-shrink: 0; background: #f8fafc; padding: 14px; border-radius: 6px; border: 1px solid #e2e8f0; }
+        .query-box-small h4 { font-size: 14px; margin-bottom: 10px; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+        
+        /* 2 Column Side-by-Side Results Grid */
+        .query-results-wrapper { flex-grow: 1; }
+        .results-grid-2col { display: flex; gap: 12px; width: 100%; }
+        
+        .result-col { flex: 1; border-collapse: collapse; width: 50%; }
+        .result-col table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .result-col td { border: 1px solid #cbd5e1; padding: 6px 10px; }
+        .result-col td.label { background: #f1f5f9; font-weight: 600; width: 55%; color: #334155; }
+        .result-col td.value { background: #ffffff; text-align: right; font-weight: 500; }
+        
+        /* Dynamic Highlight Colors */
+        .highlight-blue { background: #e0f2fe !important; color: #0369a1 !important; font-weight: bold !important; }
+        .bg-green { background: #dcfce7 !important; color: #15803d !important; font-weight: bold !important; }
+        .bg-red { background: #fee2e2 !important; color: #b91c1c !important; font-weight: bold !important; }
 
-        /* Modal Popup */
+        /* Edit Modal Popup */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 24px; border-radius: 10px; width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .modal-content { background: white; padding: 18px; border-radius: 8px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #64748b; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     </style>
 </head>
 <body>
@@ -79,7 +87,7 @@
         <span>Cambodia Insight</span>
     </div>
     
-    <!-- Top Navigation Menu -->
+    <!-- Navigation Menu -->
     <nav>
         <button id="nav-home" class="active" onclick="switchTab('tab-home', this)">Dashboard</button>
         <button id="nav-master" onclick="switchTab('tab-master', this)">Master Sheet</button>
@@ -88,10 +96,9 @@
         <button id="nav-add" onclick="switchTab('tab-add', this)">+ Add Employee</button>
     </nav>
 
-    <!-- TAB 1: DASHBOARD HOME -->
+    <!-- TAB 1: DASHBOARD -->
     <div id="tab-home" class="tab-panel active">
-        <h3 style="margin-bottom: 16px; color: #0f172a;">Overview & Dashboard</h3>
-        
+        <h3 style="margin-bottom: 12px; color: #0f172a;">Overview Dashboard</h3>
         <div class="stats-grid">
             <div class="stat-card">
                 <h4>Total Employees</h4>
@@ -111,29 +118,23 @@
             </div>
         </div>
 
-        <h4 style="margin-bottom: 12px; color: #334155;">Quick Actions</h4>
+        <h4 style="margin-bottom: 8px; color: #334155;">Quick Actions</h4>
         <div class="quick-actions">
             <button class="quick-btn" onclick="triggerNav('tab-att', 'nav-att')">✏️ Log Attendance</button>
-            <button class="quick-btn green" onclick="triggerNav('tab-query', 'nav-query')">🔍 Run Leave Query</button>
-            <button class="quick-btn slate" onclick="triggerNav('tab-add', 'nav-add')">👤 Register New Staff</button>
+            <button class="quick-btn green" onclick="triggerNav('tab-query', 'nav-query')">🔍 Check Eligibility</button>
+            <button class="quick-btn slate" onclick="triggerNav('tab-add', 'nav-add')">👤 Register Staff</button>
         </div>
-
-        <h4 style="margin-bottom: 12px; color: #334155; margin-top: 10px;">Recent System Activity</h4>
-        <ul id="activityLog" style="list-style: none; color: #64748b; font-size: 13px; line-height: 1.8;">
-            <li>• System active for current payroll cycle.</li>
-            <li>• Local database synchronized successfully.</li>
-        </ul>
     </div>
 
     <!-- TAB 2: MASTER SHEET -->
     <div id="tab-master" class="tab-panel">
-        <div style="margin-bottom:15px;">
+        <div style="margin-bottom:10px;">
             <h3>Master Annual Leave Roster</h3>
-            <p style="font-size:12px; color:#64748b;">Complete record of employee service, entitlement, and balance</p>
+            <p style="font-size:11px; color:#64748b;">Complete employee leave ledger</p>
         </div>
 
         <div class="table-responsive">
-            <table id="masterTable">
+            <table class="master-tbl" id="masterTable">
                 <thead>
                     <tr>
                         <th>Edit</th>
@@ -164,9 +165,7 @@
     <!-- TAB 3: DAILY ATTENDANCE -->
     <div id="tab-att" class="tab-panel">
         <h3>Log Daily Attendance</h3>
-        <p style="font-size:12px; color:#64748b; margin-bottom:15px;">Record leave hours taken by staff for the current month</p>
-        
-        <form id="attForm" style="max-width: 500px;">
+        <form id="attForm" style="max-width: 400px; margin-top:10px;">
             <div class="form-group">
                 <label>Employee ID</label>
                 <input type="text" id="attId" placeholder="e.g. 200090" required>
@@ -183,15 +182,13 @@
         </form>
     </div>
 
-    <!-- TAB 4: CHECK ELIGIBILITY (SIDE-BY-SIDE SIDE LAYOUT) -->
+    <!-- TAB 4: CHECK ELIGIBILITY (NO SCROLLING - 2 COLUMNS RESULT GRID) -->
     <div id="tab-query" class="tab-panel">
-        <h3>Annual Leave Eligibility Lookup</h3>
-        <p style="font-size:12px; color:#64748b; margin-bottom:15px;">Calculates accrued allowance and checks eligibility triggers</p>
-
-        <div class="query-container">
-            <!-- Left Side: Query Input Box -->
-            <div class="query-form-box">
-                <h4 style="margin-bottom:12px; color:#0f172a;">Query Parameters</h4>
+        <div class="eligibility-container">
+            
+            <!-- Compact Small Form Box -->
+            <div class="query-box-small">
+                <h4>Query Parameters</h4>
                 <div class="form-group">
                     <label>Query Date</label>
                     <input type="date" id="chkDate">
@@ -201,42 +198,56 @@
                     <input type="text" id="chkEmpId" placeholder="e.g. 200090" value="200090">
                 </div>
                 <div class="form-group">
-                    <label>Today's Leave Hours (Optional)</label>
+                    <label>Today's Hours (Optional)</label>
                     <input type="number" id="chkHours" value="0">
                 </div>
                 <button onclick="runExcelQuery()" class="btn-submit">Run Calculation Query</button>
             </div>
 
-            <!-- Right Side: Exact Excel Layout Results Table -->
-            <div class="query-result-box">
-                <table class="excel-table" id="queryResult" style="display:none;">
-                    <tr><td class="label">Name</td><td class="value" id="qName">-</td></tr>
-                    <tr><td class="label">Join Date</td><td class="value" id="qJoin">-</td></tr>
-                    <tr><td class="label">Years of Work</td><td class="value" id="qYears">-</td></tr>
-                    <tr><td class="label">Entitled Days/Hours</td><td class="value" id="qEntitled">-</td></tr>
-                    <tr><td class="label">Leave Start Date</td><td class="value" id="qStart">-</td></tr>
-                    <tr><td class="label">Leave End Date</td><td class="value" id="qEnd">-</td></tr>
-                    <tr><td class="label">* Renewed At</td><td class="value" id="qRenewal">-</td></tr>
-                    <tr><td class="label">* Months of Service</td><td class="value" id="qMonths">-</td></tr>
-                    <tr><td class="label">Total Annual Leave</td><td class="value" id="qTotalAL">-</td></tr>
-                    <tr><td class="label">Total Hours Used</td><td class="value" id="qTotalUsed">-</td></tr>
-                    <tr><td class="label">* Current Month Used</td><td class="value" id="qCurrentMonthUsed">-</td></tr>
-                    <tr><td class="label">* Total Remaining Hours</td><td class="value" id="qRemainingTotal">-</td></tr>
-                    <tr><td class="label" style="background:#fee2e2; color:#991b1b;">* Carried Forward Balance</td><td class="value" id="qCarried" style="background:#fee2e2;">0</td></tr>
-                    <tr><td class="label highlight-blue">* Allowed Available This Month</td><td class="value highlight-blue" id="qAllowedThisMonth">-</td></tr>
-                    <tr><td class="label highlight-blue">* Remaining Balance After Today</td><td class="value highlight-blue" id="qRemAfterToday">-</td></tr>
-                    <tr><td class="label">* Is Leave Start Date Reached?</td><td class="value" id="qIsStarted">-</td></tr>
-                    <tr><td class="label">* Exceeds Entitled Hours?</td><td class="value" id="qIsExceeded">-</td></tr>
-                    <tr><td class="label highlight-blue">* Year Range</td><td class="value highlight-blue" id="qYearRange">-</td></tr>
-                </table>
+            <!-- 2-Column Results Grid (All 18 Metrics Visible on One Screen) -->
+            <div class="query-results-wrapper">
+                <div class="results-grid-2col" id="queryResult" style="display:none;">
+                    
+                    <!-- Left Column Table (First 9 Fields) -->
+                    <div class="result-col">
+                        <table>
+                            <tr><td class="label">Name</td><td class="value" id="qName">-</td></tr>
+                            <tr><td class="label">Join Date</td><td class="value" id="qJoin">-</td></tr>
+                            <tr><td class="label">Years of Work</td><td class="value" id="qYears">-</td></tr>
+                            <tr><td class="label">Entitled Days/Hours</td><td class="value" id="qEntitled">-</td></tr>
+                            <tr><td class="label">Leave Start Date</td><td class="value" id="qStart">-</td></tr>
+                            <tr><td class="label">Leave End Date</td><td class="value" id="qEnd">-</td></tr>
+                            <tr><td class="label">Renewed At</td><td class="value" id="qRenewal">-</td></tr>
+                            <tr><td class="label">Months of Service</td><td class="value" id="qMonths">-</td></tr>
+                            <tr><td class="label">Total Annual Leave</td><td class="value" id="qTotalAL">-</td></tr>
+                        </table>
+                    </div>
+
+                    <!-- Right Column Table (Remaining 9 Fields & Status Checks) -->
+                    <div class="result-col">
+                        <table>
+                            <tr><td class="label">Total Hours Used</td><td class="value" id="qTotalUsed">-</td></tr>
+                            <tr><td class="label">Current Month Used</td><td class="value" id="qCurrentMonthUsed">-</td></tr>
+                            <tr><td class="label">Total Remaining Hours</td><td class="value" id="qRemainingTotal">-</td></tr>
+                            <tr><td class="label" style="background:#fee2e2; color:#991b1b;">Carried Forward Balance</td><td class="value" id="qCarried" style="background:#fee2e2;">0</td></tr>
+                            <tr><td class="label highlight-blue">Allowed Available This Month</td><td class="value highlight-blue" id="qAllowedThisMonth">-</td></tr>
+                            <tr><td class="label highlight-blue">Remaining Balance After Today</td><td class="value highlight-blue" id="qRemAfterToday">-</td></tr>
+                            <tr><td class="label">Is Leave Start Date Reached?</td><td class="value" id="qIsStarted">-</td></tr>
+                            <tr><td class="label">Exceeds Entitled Hours?</td><td class="value" id="qIsExceeded">-</td></tr>
+                            <tr><td class="label highlight-blue">Year Range</td><td class="value highlight-blue" id="qYearRange">-</td></tr>
+                        </table>
+                    </div>
+
+                </div>
             </div>
+
         </div>
     </div>
 
     <!-- TAB 5: ADD EMPLOYEE -->
     <div id="tab-add" class="tab-panel">
         <h3>Register New Employee</h3>
-        <form id="addEmpForm" style="max-width: 500px; margin-top:15px;">
+        <form id="addEmpForm" style="max-width: 400px; margin-top:10px;">
             <div class="form-group">
                 <label>Employee ID</label>
                 <input type="text" id="newId" placeholder="e.g. 200090" required>
@@ -250,19 +261,19 @@
                 <input type="date" id="newJoinDate" required>
             </div>
             <div class="form-group">
-                <label>Entitled Annual Hours</label>
+                <label>Entitled Hours</label>
                 <input type="number" id="newEntitled" value="160" required>
             </div>
             <div class="form-group">
                 <label>Remarks</label>
-                <input type="text" id="newRemarks" placeholder="Optional notes">
+                <input type="text" id="newRemarks">
             </div>
-            <button type="submit" class="btn-submit">Save Employee to Database</button>
+            <button type="submit" class="btn-submit">Save Employee</button>
         </form>
     </div>
 </div>
 
-<!-- EDIT MODAL (PEN SIGN EDIT ACTION) -->
+<!-- EDIT MODAL -->
 <div class="modal" id="editModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -272,82 +283,45 @@
         <form id="editForm">
             <input type="hidden" id="editIndex">
             <div class="grid-2">
-                <div class="form-group">
-                    <label>Employee ID</label>
-                    <input type="text" id="editId">
-                </div>
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="editName" required>
-                </div>
+                <div class="form-group"><label>Employee ID</label><input type="text" id="editId"></div>
+                <div class="form-group"><label>Full Name</label><input type="text" id="editName" required></div>
             </div>
             <div class="grid-2">
-                <div class="form-group">
-                    <label>Join Date (YYYY.MM.DD)</label>
-                    <input type="text" id="editJoinDate" required>
-                </div>
-                <div class="form-group">
-                    <label>Total AL (Entitled)</label>
-                    <input type="number" id="editEntitled" step="0.5" required>
-                </div>
+                <div class="form-group"><label>Join Date (YYYY.MM.DD)</label><input type="text" id="editJoinDate" required></div>
+                <div class="form-group"><label>Total AL (Entitled)</label><input type="number" id="editEntitled" step="0.5" required></div>
             </div>
             <div class="grid-2">
-                <div class="form-group">
-                    <label>Start Date (YYYY.MM.DD)</label>
-                    <input type="text" id="editStartDate">
-                </div>
-                <div class="form-group">
-                    <label>End Date (YYYY.MM.DD)</label>
-                    <input type="text" id="editEndDate">
-                </div>
+                <div class="form-group"><label>Start Date (YYYY.MM.DD)</label><input type="text" id="editStartDate"></div>
+                <div class="form-group"><label>End Date (YYYY.MM.DD)</label><input type="text" id="editEndDate"></div>
             </div>
             <div class="grid-2">
-                <div class="form-group">
-                    <label>Prev Month Used (Hrs)</label>
-                    <input type="number" id="editPrevUsed" step="0.5" required>
-                </div>
-                <div class="form-group">
-                    <label>Current Month Used (Hrs)</label>
-                    <input type="number" id="editMonthUsed" step="0.5" required>
-                </div>
+                <div class="form-group"><label>Prev Month Used (Hrs)</label><input type="number" id="editPrevUsed" step="0.5" required></div>
+                <div class="form-group"><label>Current Month Used (Hrs)</label><input type="number" id="editMonthUsed" step="0.5" required></div>
             </div>
             <div class="grid-2">
-                <div class="form-group">
-                    <label>Carried From Last Year</label>
-                    <input type="number" id="editCarried" step="0.5" required>
-                </div>
-                <div class="form-group">
-                    <label>Exceeded Hours</label>
-                    <input type="number" id="editExceeded" step="0.5" required>
-                </div>
+                <div class="form-group"><label>Carried From Last Year</label><input type="number" id="editCarried" step="0.5" required></div>
+                <div class="form-group"><label>Exceeded Hours</label><input type="number" id="editExceeded" step="0.5" required></div>
             </div>
             <div class="grid-2">
-                <div class="form-group">
-                    <label>Year Range (e.g. 2026-2027)</label>
-                    <input type="text" id="editYearRange">
-                </div>
-                <div class="form-group">
-                    <label>Remarks</label>
-                    <input type="text" id="editRemarks">
-                </div>
+                <div class="form-group"><label>Year Range</label><input type="text" id="editYearRange"></div>
+                <div class="form-group"><label>Remarks</label><input type="text" id="editRemarks"></div>
             </div>
-            <button type="submit" class="btn-submit" style="background:#16a34a;">Save Changes to Master Sheet</button>
+            <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:10px;">Save Changes</button>
         </form>
     </div>
 </div>
 
 <script>
-    // Master Database Storage
-    let employees = JSON.parse(localStorage.getItem('al_db_custom_v3')) || [
+    let employees = JSON.parse(localStorage.getItem('al_db_custom_v4')) || [
         {
             id: "200090", name: "Sok Heng", joinDate: "2018.04.18", entitled: 160,
             startDate: "2026.04.18", endDate: "2027.04.17",
             prevUsed: 114.0, monthUsed: 0, carried: 0, yearRange: "2026-2027", exceeded: 0, remarks: ""
         },
         {
-            id: "200001", name: "Seng Visal", joinDate: "2017.01.17", entitled: 168,
-            startDate: "2026.01.17", endDate: "2027.01.16",
-            prevUsed: 139.5, monthUsed: 0, carried: 0, yearRange: "2026-2027", exceeded: 0, remarks: ""
+            id: "200226", name: "Chan Leakhena", joinDate: "2020.08.12", entitled: 160,
+            startDate: "2026.08.12", endDate: "2027.08.11",
+            prevUsed: 20.0, monthUsed: 8.0, carried: 0, yearRange: "2026-2027", exceeded: 0, remarks: ""
         }
     ];
 
@@ -371,9 +345,7 @@
 
     function updateDashboardStats() {
         document.getElementById('statTotalStaff').innerText = employees.length;
-        let totalUsed = 0;
-        let currentMonth = 0;
-        let exceededCount = 0;
+        let totalUsed = 0, currentMonth = 0, exceededCount = 0;
 
         employees.forEach(e => {
             const used = (e.prevUsed + e.monthUsed) - (e.exceeded || 0);
@@ -388,7 +360,6 @@
         document.getElementById('statExceeded').innerText = exceededCount;
     }
 
-    // Render Master Sheet according to exact user calculation rules
     function renderMaster() {
         const tbody = document.querySelector('#masterTable tbody');
         tbody.innerHTML = '';
@@ -398,26 +369,20 @@
             const join = new Date(parts[0], parts[1]-1, parts[2]);
             const now = new Date();
             
-            // Auto Years of Work & Renewed At
             const totalWorkMonths = (now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth());
             const workYears = Math.floor(totalWorkMonths / 12);
             
-            // Auto dates if empty
             const startYear = (now.getMonth() < join.getMonth() || (now.getMonth() === join.getMonth() && now.getDate() < join.getDate())) ? now.getFullYear()-1 : now.getFullYear();
             const startStr = emp.startDate || `${startYear}.${String(join.getMonth()+1).padStart(2,'0')}.${String(join.getDate()).padStart(2,'0')}`;
             const endStr = emp.endDate || `${startYear+1}.${String(join.getMonth()+1).padStart(2,'0')}.${String(join.getDate()-1).padStart(2,'0')}`;
             const yearRangeStr = emp.yearRange || `${startYear}-${startYear+1}`;
 
-            // User Rules:
-            // Total Used Hours = Prev Month Used + Current Month Used - Exceeded Hours
             const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
-            
-            // Remaining Hours = Total AL - Total Used Hours + Balance Carrying From Last Year
             const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
 
             tbody.innerHTML += `
                 <tr>
-                    <td><button class="btn-edit" onclick="openEditModal(${index})" title="Edit Row">✏️</button></td>
+                    <td><button class="btn-edit" onclick="openEditModal(${index})">✏️</button></td>
                     <td><b>${emp.id}</b></td>
                     <td>${emp.name}</td>
                     <td>${emp.joinDate}</td>
@@ -440,7 +405,6 @@
         });
     }
 
-    // Open Modal with Edit Inputs
     function openEditModal(index) {
         const emp = employees[index];
         document.getElementById('editIndex').value = index;
@@ -482,13 +446,12 @@
             remarks: document.getElementById('editRemarks').value
         };
         
-        localStorage.setItem('al_db_custom_v3', JSON.stringify(employees));
+        localStorage.setItem('al_db_custom_v4', JSON.stringify(employees));
         closeModal();
         renderMaster();
-        alert('Master record updated successfully!');
+        alert('Master record updated!');
     });
 
-    // Register New Staff
     document.getElementById('addEmpForm').addEventListener('submit', function(e){
         e.preventDefault();
         const joinInput = document.getElementById('newJoinDate').value.replace(/-/g, '.');
@@ -501,13 +464,12 @@
             remarks: document.getElementById('newRemarks').value.trim()
         };
         employees.push(emp);
-        localStorage.setItem('al_db_custom_v3', JSON.stringify(employees));
-        alert('New Employee Added!');
+        localStorage.setItem('al_db_custom_v4', JSON.stringify(employees));
+        alert('Employee Added!');
         this.reset();
         switchTab('tab-master', document.getElementById('nav-master'));
     });
 
-    // Daily Attendance Logging
     document.getElementById('attForm').addEventListener('submit', function(e){
         e.preventDefault();
         const id = document.getElementById('attId').value.trim();
@@ -515,15 +477,15 @@
         let emp = employees.find(e => e.id === id);
         if(emp) {
             emp.monthUsed += hrs;
-            localStorage.setItem('al_db_custom_v3', JSON.stringify(employees));
-            alert(`Attendance Logged! ${emp.name} added ${hrs} hrs. Current Month Used: ${emp.monthUsed} hrs.`);
+            localStorage.setItem('al_db_custom_v4', JSON.stringify(employees));
+            alert(`Logged! ${emp.name} added ${hrs} hrs.`);
             this.reset();
         } else {
             alert('Employee ID not found!');
         }
     });
 
-    // Check Eligibility Calculation Logic
+    // RUN 2-COLUMN ELIGIBILITY QUERY
     function runExcelQuery() {
         const id = document.getElementById('chkEmpId').value.trim();
         const queryDateStr = document.getElementById('chkDate').value;
@@ -543,8 +505,6 @@
         const startDateStr = emp.startDate || `${startYear}.${String(joinDate.getMonth() + 1).padStart(2, '0')}.${String(joinDate.getDate()).padStart(2, '0')}`;
         const endDateStr = emp.endDate || `${startYear + 1}.${String(joinDate.getMonth() + 1).padStart(2, '0')}.${String(joinDate.getDate() - 1).padStart(2, '0')}`;
 
-        // Months of Service Rule: Counted from Leave Start Date to Query Date
-        // Every 1st day of month increments month count by +1
         const startParts = startDateStr.split('.');
         const lStartDate = new Date(startParts[0], startParts[1]-1, startParts[2]);
         
@@ -564,6 +524,7 @@
         const isStarted = queryDate >= lStartDate ? "Start Date Reached" : "Start Date Not Reached";
         const isExceeded = remAfterToday < 0 ? "Exceeded Limit" : "Within Limit";
 
+        // Left Column Data
         document.getElementById('qName').innerText = emp.name;
         document.getElementById('qJoin').innerText = emp.joinDate;
         document.getElementById('qYears').innerText = workYears;
@@ -573,6 +534,8 @@
         document.getElementById('qRenewal').innerText = workYears;
         document.getElementById('qMonths').innerText = serviceMonths;
         document.getElementById('qTotalAL').innerText = emp.entitled;
+
+        // Right Column Data
         document.getElementById('qTotalUsed').innerText = totalUsed.toFixed(1);
         document.getElementById('qCurrentMonthUsed').innerText = emp.monthUsed;
         document.getElementById('qRemainingTotal').innerText = remainingTotal.toFixed(2);
@@ -589,7 +552,8 @@
         elExceeded.className = `value ${remAfterToday < 0 ? 'bg-red' : 'bg-green'}`;
 
         document.getElementById('qYearRange').innerText = emp.yearRange || `${startYear}-${startYear + 1}`;
-        document.getElementById('queryResult').style.display = 'table';
+        
+        document.getElementById('queryResult').style.display = 'flex';
     }
 </script>
 </body>
