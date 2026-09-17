@@ -398,7 +398,7 @@
            </div>
            <!-- Added Summary Cards -->
            <div class="stat-card" style="border-color: #d97706;">
-               <h4 data-i18n="statTotalBusyLeave">Total Busy Leave (Hrs)</h4>
+               <h4 data-i18n="statTotalBusyLeave">Total Busy Leave</h4>
                <div id="statTotalBusyLeave">0</div>
            </div>
            <div class="stat-card" style="border-color: #4f46e5;">
@@ -522,22 +522,22 @@
            </div>
            <div class="form-group">
                <label data-i18n="lblHoursTaken">Annual Leave</label>
-               <input type="number" id="attHours" placeholder="0" step="0.5" value="0" required>
+               <input type="number" id="attHours" placeholder="0" step="0.5" placeholder="e.g. 0"required>
            </div>
            <div class="form-group">
                <label id="lblBusyLeave" data-i18n="busyLeaveLabel">Busy Leave</label>
-               <input type="number" id="dailyBusyLeaveInput" step="0.5" min="0" value="0" class="form-control">
+               <input type="number" id="dailyBusyLeaveInput" step="0.5" min="0" placeholder="e.g. 0" class="form-control">
            </div>
            
            <hr style="margin: 12px 0; border:0; border-top:1px solid #cbd5e1;">
  
            <div class="form-group">
                <label id="lblWorkHours" data-i18n="workHoursLabel">Work Hours</label>
-               <input type="number" id="dailyWorkHoursInput" step="0.5" min="0" value="0" class="form-control">
+               <input type="number" id="dailyWorkHoursInput" step="0.5" min="0" placeholder="e.g. 0" class="form-control">
            </div>
            <div class="form-group">
                <label id="lblOTHours" data-i18n="otHoursLabel">OT Hours</label>
-               <input type="number" id="dailyOTHoursInput" step="0.5" min="0" value="0" class="form-control">
+               <input type="number" id="dailyOTHoursInput" step="0.5" min="0" placeholder="e.g. 0" class="form-control">
            </div>
  
            <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:10px;" data-i18n="btnSubmitAtt">Submit Attendance Record</button>
@@ -590,8 +590,8 @@
                                <tr><td class="label highlight-blue" data-i18n="lblAllowedThisMonth">Allowed Available This Month</td><td class="value highlight-blue" id="qAllowedThisMonth">-</td></tr>
                                <tr><td class="label highlight-blue" data-i18n="lblRemAfterToday">Remaining Balance After Today</td><td class="value highlight-blue" id="qRemAfterToday">-</td></tr>
                                <tr><td class="label" data-i18n="thEligBusyLeave">Busy Leave</td><td class="value" id="qEligBusyLeave">0</td></tr>
-                               <tr><td class="label" data-i18n="thEligWorkHours">Work Hours (Total)</td><td class="value" id="qEligWorkHours">0</td></tr>
-                               <tr><td class="label" data-i18n="thEligOTHours">OT Hours (Total)</td><td class="value" id="qEligOTHours">0</td></tr>
+                               <tr><td class="label" data-i18n="thEligWorkHours">Work Hours</td><td class="value" id="qEligWorkHours">0</td></tr>
+                               <tr><td class="label" data-i18n="thEligOTHours">OT Hours</td><td class="value" id="qEligOTHours">0</td></tr>
                                <tr><td class="label" data-i18n="lblIsStarted">Is Leave Start Date Reached?</td><td class="value" id="qIsStarted">-</td></tr>
                                <tr><td class="label" data-i18n="lblIsExceeded">Exceeds Entitled Hours?</td><td class="value" id="qIsExceeded">-</td></tr>
                                <tr><td class="label highlight-blue" data-i18n="tblYearRange">Year Range</td><td class="value highlight-blue" id="qYearRange">-</td></tr>
@@ -771,7 +771,7 @@
            dashNoticesTitle: "System Reminders & Announcements",
            notice1: "📌 <b>Monthly Reset:</b> Current month leave hours carry over as recorded unless manually updated.",
            notice2: "📌 <b>Exporting:</b> Use the Excel export button in Master Sheet before printing monthly reports.",
-           masterTitle: "Employee Management",
+           masterTitle: "Employee Master Management",
            masterSub: "Complete employee management ledger",
            lblSearch: "🔍 Search Employee:",
            btnExport: "📊 Export to Excel (.xlsx)",
@@ -837,7 +837,7 @@
            navAddEmployee: "បន្ថែមបុគ្គលិក",
            dashOverview: "ផ្ទាំងព័ត៌មានទូទៅ",
            statTotalStaff: "បុគ្គលិកសរុប",
-           statTotalUsed: "ច្បាប់ប្រៀបប្រើសរុប",
+           statTotalUsed: "បំណាច់ឆ្នាំប្រើសរុប",
            statCurrentMonth: "ប្រើក្នុងខែនេះ",
            statExceeded: "លើសកម្រិតកំណត់",
            statTotalBusyLeave: "ច្បាប់រវល់សរុប",
@@ -913,7 +913,7 @@
            navDashboard: "仪表板",
            navMaster: "主控表",
            navAttendance: "每日考勤",
-           navEligibility: "查询年假资格",
+           navEligibility: "查询资格",
            navAddEmployee: "添加员工",
            dashOverview: "概览仪表板",
            statTotalStaff: "总员工数",
