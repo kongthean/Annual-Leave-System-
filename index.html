@@ -616,15 +616,16 @@
         </div>
     </div>
 
-    <!-- TAB 5: EXPORT CENTER -->
+    <!-- TAB 5: EXPORT CENTER (4 EXPORT OPTIONS WITH UPDATED COLUMNS) -->
     <div id="tab-export" class="tab-panel">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
             <div>
                 <h3 data-i18n="exportCenterTitle">Operational Data Export Center</h3>
-                <p style="font-size:11px; color:#64748b;" data-i18n="exportCenterSub">Download detailed multi-column monthly operational reports.</p>
+                <p style="font-size:11px; color:#64748b;" data-i18n="exportCenterSub">Download detailed multi-column monthly operational reports (Total 4 export options).</p>
             </div>
-            <div class="flex flex-wrap items-center gap-2">
-                <button onclick="exportCustomReport('work')" class="quick-btn green" style="background:#059669;"><i class="fa-solid fa-file-excel mr-1"></i> Working Hour & OT</button>
+            <div class="flex flex-wrap items-center gap-2" style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button onclick="exportCustomReport('summary')" class="quick-btn green" style="background:#16a34a;"><i class="fa-solid fa-file-excel mr-1"></i> Export Summary List</button>
+                <button onclick="exportCustomReport('work')" class="quick-btn" style="background:#059669;"><i class="fa-solid fa-file-excel mr-1"></i> Working Hour & OT</button>
                 <button onclick="exportCustomReport('leave')" class="quick-btn" style="background:#2563eb;"><i class="fa-solid fa-file-excel mr-1"></i> AL & Busy Leave</button>
                 <button onclick="exportCustomReport('cycle')" class="quick-btn" style="background:#4f46e5;"><i class="fa-solid fa-file-excel mr-1"></i> AL Cycle</button>
             </div>
@@ -640,12 +641,17 @@
                         <th data-i18n="tblId">ID</th>
                         <th data-i18n="tblName">Name</th>
                         <th data-i18n="tblJoin">Join Date</th>
+                        <th data-i18n="tblYears">Years of Work</th>
                         <th data-i18n="tblEntitled">Total AL</th>
-                        <th data-i18n="tblCarried">Carrier Last Year</th>
-                        <th data-i18n="tblStart">Start AL Date</th>
-                        <th data-i18n="tblEnd">End AL Date</th>
+                        <th data-i18n="tblCarried">Carried from Last Year</th>
+                        <th data-i18n="tblStart">AL Start</th>
+                        <th data-i18n="tblEnd">AL End</th>
+                        <th data-i18n="tblTotalUsed">Total Used Hours</th>
                         <th data-i18n="tblMonthUsed">Used This Month</th>
-                        <th data-i18n="tblTotalUsed">Total Using</th>
+                        <th data-i18n="tblRemaining">Remaining Hours</th>
+                        <th data-i18n="thMasterBusyLeave">Busy Leave Used This Month</th>
+                        <th data-i18n="thMasterWorkHours">Working Hour Total This Month</th>
+                        <th data-i18n="thMasterOTHours">OT Hours Total This Month</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -1286,22 +1292,33 @@
         if (!tbody) return;
         tbody.innerHTML = '';
         dataToRender.forEach(emp => {
-            const computedCycle = computeLeaveCycle(emp.joinDate, new Date());
+            const parts = emp.joinDate.split('.');
+            const join = new Date(parts[0], parts[1]-1, parts[2]);
+            const now = new Date();
+            const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
+
+            const computedCycle = computeLeaveCycle(emp.joinDate, now);
             const startStr = emp.startDate || computedCycle.startStr;
             const endStr = emp.endDate || computedCycle.endStr;
-            const totalUsing = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
+            const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
+            const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
 
             tbody.innerHTML += `
                 <tr>
                     <td><b>${emp.id}</b></td>
                     <td>${emp.name}</td>
                     <td>${emp.joinDate}</td>
+                    <td>${workYears}</td>
                     <td>${emp.entitled}</td>
                     <td>${emp.carried || 0}</td>
                     <td>${startStr}</td>
                     <td>${endStr}</td>
+                    <td><b>${totalUsed.toFixed(1)}</b></td>
                     <td>${emp.monthUsed}</td>
-                    <td><b>${totalUsing.toFixed(1)}</b></td>
+                    <td style="color:${remaining < 0 ? '#dc2626':'#15803d'}; font-weight:bold;">${remaining.toFixed(2)}</td>
+                    <td>${emp.busyLeave || 0}</td>
+                    <td>${emp.workHours || 0}</td>
+                    <td>${emp.otHours || 0}</td>
                 </tr>
             `;
         });
@@ -1375,7 +1392,36 @@
         let data = [];
         let filename = '';
 
-        if (type === 'work') {
+        if (type === 'summary') {
+            filename = 'Export_Summary_Employee_List.xlsx';
+            data.push([
+                "ID", "Name", "Join Date", "Years of Work", "Total AL", 
+                "Carried from Last Year", "AL Start", "AL End", "Total Used Hours", 
+                "Used This Month", "Remaining Hours", "Busy Leave Used This Month", 
+                "Working Hour Total This Month", "OT Hours Total This Month"
+            ]);
+
+            employees.forEach(emp => {
+                const parts = emp.joinDate.split('.');
+                const join = new Date(parts[0], parts[1]-1, parts[2]);
+                const now = new Date();
+                const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
+
+                const computedCycle = computeLeaveCycle(emp.joinDate, now);
+                const startStr = emp.startDate || computedCycle.startStr;
+                const endStr = emp.endDate || computedCycle.endStr;
+                const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
+                const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+
+                data.push([
+                    emp.id, emp.name, emp.joinDate, workYears, emp.entitled,
+                    emp.carried || 0, startStr, endStr, totalUsed.toFixed(1),
+                    emp.monthUsed, remaining.toFixed(2), emp.busyLeave || 0,
+                    emp.workHours || 0, emp.otHours || 0
+                ]);
+            });
+
+        } else if (type === 'work') {
             filename = 'Export_Working_Hour_and_OT_Hours.xlsx';
             let headerRow1 = ["ID", "Name"];
             let headerRow2 = ["", ""];
@@ -1383,7 +1429,6 @@
                 headerRow1.push(`Day ${d}`, "");
                 headerRow2.push("Working Hours", "OT Hours");
             }
-            // Append person-specific total columns after Day 31
             headerRow1.push("Total Working Hours", "Total OT Hours");
             headerRow2.push("", "");
 
@@ -1402,7 +1447,6 @@
                     rowWorkSum += wVal;
                     rowOTSum += otVal;
                 }
-                // Push individual row totals for this specific person
                 row.push(rowWorkSum, rowOTSum);
                 data.push(row);
             });
@@ -1415,7 +1459,6 @@
                 headerRow1.push(`Day ${d}`, "");
                 headerRow2.push("Busy Leave", "AL");
             }
-            // Append person-specific total columns after Day 31
             headerRow1.push("Total Busy Leave", "Total AL Leave");
             headerRow2.push("", "");
 
@@ -1434,7 +1477,6 @@
                     rowBusySum += busyVal;
                     rowALSum += alVal;
                 }
-                // Push individual row totals for this specific person
                 row.push(rowBusySum, rowALSum);
                 data.push(row);
             });
@@ -1452,7 +1494,6 @@
                 const endStr = emp.endDate || computedCycle.endStr;
                 const totalUsing = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
 
-                // Calendar-month rule calculation starting on the 1st
                 const startParts = startStr.split('.');
                 const lStartDate = new Date(startParts[0], startParts[1]-1, startParts[2]);
                 const now = new Date();
@@ -1625,7 +1666,6 @@
         const startParts = startDateStr.split('.');
         const lStartDate = new Date(startParts[0], startParts[1]-1, startParts[2]);
         
-        // Calendar-month rule calculation starting on the 1st automatically
         let serviceMonths = (queryDate.getFullYear() - lStartDate.getFullYear()) * 12 + (queryDate.getMonth() - lStartDate.getMonth()) + 1;
         if (serviceMonths < 1) serviceMonths = 1;
   
