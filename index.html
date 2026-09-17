@@ -25,7 +25,7 @@
 <style>
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
         body { background: #f8fafc; color: #1e293b; padding: 10px; font-size: 13px; }
-        .container { max-width: 1350px; margin: 0 auto; filter: blur(0px); transition: filter 0.3s; }
+        .container { max-width: 1450px; margin: 0 auto; filter: blur(0px); transition: filter 0.3s; }
         
         /* LOGIN MODAL OVERLAY */
         .login-overlay {
@@ -264,7 +264,7 @@
 
         /* Master Table */
         .table-responsive { overflow-x: auto; margin-top: 10px; }
-        table.master-tbl { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 1200px; }
+        table.master-tbl { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 1400px; }
         table.master-tbl th, table.master-tbl td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: center; white-space: nowrap; }
         table.master-tbl th { background: #f8fafc; color: #334155; font-weight: 700; font-size: 11px; text-transform: uppercase; }
         tr:hover { background-color: #f8fafc; }
@@ -484,6 +484,9 @@
                         <th data-i18n="tblCarried">Carried Forward</th>
                         <th data-i18n="tblYearRange">Year Range</th>
                         <th data-i18n="tblExceeded">Exceeded Hours</th>
+                        <th data-i18n="thMasterWorkHours">Total Work Hours</th>
+                        <th data-i18n="thMasterOTHours">Total OT Hours</th>
+                        <th data-i18n="thMasterBusyLeave">Total Busy Leave</th>
                         <th data-i18n="tblRemarks">Remarks</th>
                     </tr>
                 </thead>
@@ -495,7 +498,7 @@
     <!-- TAB 3: DAILY ATTENDANCE -->
     <div id="tab-att" class="tab-panel">
         <h3 data-i18n="attTitle">Log Daily Attendance</h3>
-        <form id="attForm" style="max-width: 400px; margin-top:10px;">
+        <form id="attForm" style="max-width: 450px; margin-top:10px;">
             <div class="form-group">
                 <label data-i18n="lblEmpId">Employee ID</label>
                 <input type="text" id="attId" placeholder="e.g. 200001" required>
@@ -505,10 +508,26 @@
                 <input type="date" id="attDate" required>
             </div>
             <div class="form-group">
-                <label data-i18n="lblHoursTaken">Hours Taken</label>
-                <input type="number" id="attHours" placeholder="0" step="0.5" required>
+                <label data-i18n="lblHoursTaken">Hours Taken (Leave)</label>
+                <input type="number" id="attHours" placeholder="0" step="0.5" value="0" required>
             </div>
-            <button type="submit" class="btn-submit" style="background:#16a34a;" data-i18n="btnSubmitAtt">Submit Attendance Record</button>
+            <div class="form-group">
+                <label id="lblBusyLeave" data-i18n="busyLeaveLabel">Busy Leave (Daily)</label>
+                <input type="number" id="dailyBusyLeaveInput" step="0.5" min="0" value="0" class="form-control">
+            </div>
+            
+            <hr style="margin: 12px 0; border:0; border-top:1px solid #cbd5e1;">
+
+            <div class="form-group">
+                <label id="lblWorkHours" data-i18n="workHoursLabel">Work Hours (Daily)</label>
+                <input type="number" id="dailyWorkHoursInput" step="0.5" min="0" value="0" class="form-control">
+            </div>
+            <div class="form-group">
+                <label id="lblOTHours" data-i18n="otHoursLabel">OT Hours (Daily)</label>
+                <input type="number" id="dailyOTHoursInput" step="0.5" min="0" value="0" class="form-control">
+            </div>
+
+            <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:10px;" data-i18n="btnSubmitAtt">Submit Attendance Record</button>
         </form>
     </div>
 
@@ -557,6 +576,9 @@
                                 <tr><td class="label" data-i18n="tblCarried" style="background:#fee2e2; color:#991b1b;">Carried Forward Balance</td><td class="value" id="qCarried" style="background:#fee2e2;">0</td></tr>
                                 <tr><td class="label highlight-blue" data-i18n="lblAllowedThisMonth">Allowed Available This Month</td><td class="value highlight-blue" id="qAllowedThisMonth">-</td></tr>
                                 <tr><td class="label highlight-blue" data-i18n="lblRemAfterToday">Remaining Balance After Today</td><td class="value highlight-blue" id="qRemAfterToday">-</td></tr>
+                                <tr><td class="label" data-i18n="thEligBusyLeave">Busy Leave (Hrs)</td><td class="value" id="qEligBusyLeave">0</td></tr>
+                                <tr><td class="label" data-i18n="thEligWorkHours">Work Hours (Total)</td><td class="value" id="qEligWorkHours">0</td></tr>
+                                <tr><td class="label" data-i18n="thEligOTHours">OT Hours (Total)</td><td class="value" id="qEligOTHours">0</td></tr>
                                 <tr><td class="label" data-i18n="lblIsStarted">Is Leave Start Date Reached?</td><td class="value" id="qIsStarted">-</td></tr>
                                 <tr><td class="label" data-i18n="lblIsExceeded">Exceeds Entitled Hours?</td><td class="value" id="qIsExceeded">-</td></tr>
                                 <tr><td class="label highlight-blue" data-i18n="tblYearRange">Year Range</td><td class="value highlight-blue" id="qYearRange">-</td></tr>
@@ -637,9 +659,14 @@
                 <div class="form-group"><label data-i18n="tblExceeded">Exceeded Hours</label><input type="number" id="editExceeded" step="0.5" required></div>
             </div>
             <div class="grid-2">
-                <div class="form-group"><label data-i18n="tblYearRange">Year Range</label><input type="text" id="editYearRange"></div>
-                <div class="form-group"><label data-i18n="tblRemarks">Remarks</label><input type="text" id="editRemarks"></div>
+                <div class="form-group"><label data-i18n="thMasterWorkHours">Total Work Hours</label><input type="number" id="editWorkHours" step="0.5" value="0"></div>
+                <div class="form-group"><label data-i18n="thMasterOTHours">Total OT Hours</label><input type="number" id="editOTHours" step="0.5" value="0"></div>
             </div>
+            <div class="grid-2">
+                <div class="form-group"><label data-i18n="thMasterBusyLeave">Total Busy Leave</label><input type="number" id="editBusyLeave" step="0.5" value="0"></div>
+                <div class="form-group"><label data-i18n="tblYearRange">Year Range</label><input type="text" id="editYearRange"></div>
+            </div>
+            <div class="form-group"><label data-i18n="tblRemarks">Remarks</label><input type="text" id="editRemarks"></div>
             <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:10px;" data-i18n="btnSaveChanges">Save Changes</button>
         </form>
     </div>
@@ -736,6 +763,15 @@
             tblCarried: "Carried Forward",
             tblYearRange: "Year Range",
             tblExceeded: "Exceeded Hours",
+            thMasterWorkHours: "Total Work Hours",
+            thMasterOTHours: "Total OT Hours",
+            thMasterBusyLeave: "Total Busy Leave",
+            thEligBusyLeave: "Busy Leave (Hrs)",
+            thEligWorkHours: "Work Hours (Total)",
+            thEligOTHours: "OT Hours (Total)",
+            workHoursLabel: "Work Hours (Daily)",
+            otHoursLabel: "OT Hours (Daily)",
+            busyLeaveLabel: "Busy Leave (Daily)",
             tblRemarks: "Remarks",
             lblRemarksHeading: "Master Remarks / Notes:",
             noRemarksText: "No specific remarks or notes logged for this employee.",
@@ -804,6 +840,15 @@
             tblCarried: "បង្វិលមកពីឆ្នាំមុន",
             tblYearRange: "រង្វង់ឆ្នាំ",
             tblExceeded: "ម៉ោងប្រើលើស",
+            thMasterWorkHours: "ម៉ោងការងារសរុប",
+            thMasterOTHours: "ម៉ោងថែមសរុប",
+            thMasterBusyLeave: "ច្បាប់រវល់សរុប",
+            thEligBusyLeave: "ច្បាប់រវល់ (ម៉ោង)",
+            thEligWorkHours: "ម៉ោងការងារ (សរុប)",
+            thEligOTHours: "ម៉ោងថែម (សរុប)",
+            workHoursLabel: "ម៉ោងការងារ (ថ្ងៃ)",
+            otHoursLabel: "ម៉ោងថែមម៉ោង (ថ្ងៃ)",
+            busyLeaveLabel: "ច្បាប់រវល់ (ថ្ងៃ)",
             tblRemarks: "កំណត់សម្គាល់",
             lblRemarksHeading: "កំណត់សម្គាល់ចម្បង:",
             noRemarksText: "គ្មានកំណត់សម្គាល់សម្រាប់បុគ្គលិកនេះទេ។",
@@ -872,6 +917,15 @@
             tblCarried: "上年结转",
             tblYearRange: "年份范围",
             tblExceeded: "超出小时数",
+            thMasterWorkHours: "总工作时间",
+            thMasterOTHours: "总加班时间",
+            thMasterBusyLeave: "总事务假",
+            thEligBusyLeave: "事务假 (小时)",
+            thEligWorkHours: "工作时间 (总计)",
+            thEligOTHours: "加班时间 (总计)",
+            workHoursLabel: "工作时间 (每天)",
+            otHoursLabel: "加班时间 (每天)",
+            busyLeaveLabel: "事务假 (每天)",
             tblRemarks: "备注",
             lblRemarksHeading: "主控表备注/说明:",
             noRemarksText: "该员工无特定备注或说明。",
@@ -1106,6 +1160,9 @@
                     <td>${emp.carried || 0}</td>
                     <td>${yearRangeStr}</td>
                     <td style="color:${emp.exceeded > 0 ? '#dc2626':'#64748b'}; font-weight:bold;">${emp.exceeded || 0}</td>
+                    <td>${emp.workHours || 0}</td>
+                    <td>${emp.otHours || 0}</td>
+                    <td>${emp.busyLeave || 0}</td>
                     <td>${emp.remarks || '-'}</td>
                 </tr>
             `;
@@ -1173,6 +1230,9 @@
                 "Carried Forward": emp.carried || 0,
                 "Year Range": emp.yearRange || computedCycle.yearRangeStr,
                 "Exceeded Hours": emp.exceeded || 0,
+                "Total Work Hours": emp.workHours || 0,
+                "Total OT Hours": emp.otHours || 0,
+                "Total Busy Leave": emp.busyLeave || 0,
                 "Remarks": emp.remarks || ""
             };
         });
@@ -1196,6 +1256,9 @@
         document.getElementById('editMonthUsed').value = emp.monthUsed;
         document.getElementById('editCarried').value = emp.carried || 0;
         document.getElementById('editExceeded').value = emp.exceeded || 0;
+        document.getElementById('editWorkHours').value = emp.workHours || 0;
+        document.getElementById('editOTHours').value = emp.otHours || 0;
+        document.getElementById('editBusyLeave').value = emp.busyLeave || 0;
         document.getElementById('editYearRange').value = emp.yearRange || "";
         document.getElementById('editRemarks').value = emp.remarks || "";
         
@@ -1223,6 +1286,9 @@
             monthUsed: parseFloat(document.getElementById('editMonthUsed').value),
             carried: parseFloat(document.getElementById('editCarried').value),
             exceeded: parseFloat(document.getElementById('editExceeded').value),
+            workHours: parseFloat(document.getElementById('editWorkHours').value) || 0,
+            otHours: parseFloat(document.getElementById('editOTHours').value) || 0,
+            busyLeave: parseFloat(document.getElementById('editBusyLeave').value) || 0,
             yearRange: document.getElementById('editYearRange').value.trim() || computedCycle.yearRangeStr,
             remarks: document.getElementById('editRemarks').value
         };
@@ -1252,6 +1318,7 @@
             endDate: computedCycle.endStr,
             yearRange: computedCycle.yearRangeStr,
             prevUsed: 0, monthUsed: 0, carried: 0, exceeded: 0,
+            workHours: 0, otHours: 0, busyLeave: 0,
             remarks: document.getElementById('newRemarks').value.trim()
         };
 
@@ -1272,14 +1339,28 @@
     document.getElementById('attForm').addEventListener('submit', function(e){
         e.preventDefault();
         const id = document.getElementById('attId').value.trim();
-        const hrs = parseFloat(document.getElementById('attHours').value);
+        const hrs = parseFloat(document.getElementById('attHours').value) || 0;
+        const addWork = parseFloat(document.getElementById('dailyWorkHoursInput').value) || 0;
+        const addOT = parseFloat(document.getElementById('dailyOTHoursInput').value) || 0;
+        const addBusy = parseFloat(document.getElementById('dailyBusyLeaveInput').value) || 0;
+
         let emp = employees.find(e => e.id === id);
         
         if(emp) {
             const newMonthUsed = emp.monthUsed + hrs;
-            db.ref('employees/' + emp.firebaseKey).update({ monthUsed: newMonthUsed }).then(() => {
-                alert(`Logged to Firebase! ${emp.name} added ${hrs} hrs.`);
+            const newWorkHours = (emp.workHours || 0) + addWork;
+            const newOTHours = (emp.otHours || 0) + addOT;
+            const newBusyLeave = (emp.busyLeave || 0) + addBusy;
+
+            db.ref('employees/' + emp.firebaseKey).update({ 
+                monthUsed: newMonthUsed,
+                workHours: newWorkHours,
+                otHours: newOTHours,
+                busyLeave: newBusyLeave
+            }).then(() => {
+                alert(`Logged to Firebase successfully for ${emp.name}!`);
                 this.reset();
+                document.getElementById('attDate').valueAsDate = new Date();
             }).catch(error => {
                 alert('Error updating attendance: ' + error.message);
             });
@@ -1349,6 +1430,10 @@
         document.getElementById('qCarried').innerText = carriedForward;
         document.getElementById('qAllowedThisMonth').innerText = allowedThisMonth.toFixed(2);
         document.getElementById('qRemAfterToday').innerText = remAfterToday.toFixed(2);
+
+        document.getElementById('qEligBusyLeave').innerText = emp.busyLeave || 0;
+        document.getElementById('qEligWorkHours').innerText = emp.workHours || 0;
+        document.getElementById('qEligOTHours').innerText = emp.otHours || 0;
 
         const elStarted = document.getElementById('qIsStarted');
         elStarted.innerText = isStarted;
