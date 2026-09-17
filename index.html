@@ -631,7 +631,7 @@
             </div>
         </div>
         <div class="search-bar-wrapper">
-            <label style="margin:0; font-weight:bold; color:#0f172a;" data-i18n="lblSearch">🔍 Filter Records:</label>
+            <label style="margin:0; font-weight:bold; color:#0f172a;" data-i18n="lblSearch">🔍 Search Employee:</label>
             <input type="text" id="exportSearchInput" onkeyup="filterExportTable()" placeholder="Search ID or Name...">
         </div>
         <div class="table-responsive">
@@ -1395,10 +1395,10 @@
         if (type === 'summary') {
             filename = 'Export_Summary_Employee_List.xlsx';
             data.push([
-                "ID", "Name", "Join Date", "Years of Work", "Total AL", 
-                "Carried from Last Year", "AL Start", "AL End", "Total Used Hours", 
-                "Used This Month", "Remaining Hours", "Busy Leave Used This Month", 
-                "Working Hour Total This Month", "OT Hours Total This Month"
+                "ID", "Name", "Join Date", "Years of Work", "Etitled Hours", 
+                "Carried Forward Balance", "AL Start Date", "AL End Date", "Total Used Hours", 
+                "Current Month Used", "Remaining Hours", "Total Busy Leave", 
+                "Total Working Hour", "Total OT Hours"
             ]);
 
             employees.forEach(emp => {
