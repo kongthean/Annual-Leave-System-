@@ -396,6 +396,19 @@
                 <h4 data-i18n="statExceeded">Exceeded Limits</h4>
                 <div id="statExceeded">0</div>
             </div>
+            <!-- Added Summary Cards -->
+            <div class="stat-card" style="border-color: #d97706;">
+                <h4 data-i18n="statTotalBusyLeave">Total Busy Leave (Hrs)</h4>
+                <div id="statTotalBusyLeave">0</div>
+            </div>
+            <div class="stat-card" style="border-color: #4f46e5;">
+                <h4 data-i18n="statTotalWorkHours">Total Work Hours</h4>
+                <div id="statTotalWorkHours">0</div>
+            </div>
+            <div class="stat-card" style="border-color: #0d9488;">
+                <h4 data-i18n="statTotalOTHours">Total OT Hours</h4>
+                <div id="statTotalOTHours">0</div>
+            </div>
         </div>
 
         <h4 style="margin-bottom: 8px; color: #334155;" data-i18n="quickActions">Quick Actions</h4>
@@ -508,22 +521,22 @@
                 <input type="date" id="attDate" required>
             </div>
             <div class="form-group">
-                <label data-i18n="lblHoursTaken">Hours Taken (Leave)</label>
+                <label data-i18n="lblHoursTaken">Annual Leave</label>
                 <input type="number" id="attHours" placeholder="0" step="0.5" value="0" required>
             </div>
             <div class="form-group">
-                <label id="lblBusyLeave" data-i18n="busyLeaveLabel">Busy Leave (Daily)</label>
+                <label id="lblBusyLeave" data-i18n="busyLeaveLabel">Busy Leave</label>
                 <input type="number" id="dailyBusyLeaveInput" step="0.5" min="0" value="0" class="form-control">
             </div>
             
             <hr style="margin: 12px 0; border:0; border-top:1px solid #cbd5e1;">
 
             <div class="form-group">
-                <label id="lblWorkHours" data-i18n="workHoursLabel">Work Hours (Daily)</label>
+                <label id="lblWorkHours" data-i18n="workHoursLabel">Work Hours</label>
                 <input type="number" id="dailyWorkHoursInput" step="0.5" min="0" value="0" class="form-control">
             </div>
             <div class="form-group">
-                <label id="lblOTHours" data-i18n="otHoursLabel">OT Hours (Daily)</label>
+                <label id="lblOTHours" data-i18n="otHoursLabel">OT Hours</label>
                 <input type="number" id="dailyOTHoursInput" step="0.5" min="0" value="0" class="form-control">
             </div>
 
@@ -676,7 +689,7 @@
     /* FIREBASE DATABASE REFERENCE */
     const db = firebase.database();
 
-    /* AUTHENTICATION & INACTIVITY TIMER SETUP */
+    /* AUTHENTICATION & SESSION STORAGE & INACTIVITY TIMER SETUP */
     const AUTH_USER = "admin";
     const AUTH_PASS = "206206";
     const INACTIVITY_TIMEOUT = 60 * 60 * 1000; // 1 Hour in Milliseconds
@@ -689,6 +702,9 @@
         const errorDiv = document.getElementById('loginError');
 
         if (userIn === AUTH_USER && passIn === AUTH_PASS) {
+            // Save session state to prevent refresh re-login prompt
+            sessionStorage.setItem('isLoggedIn', 'true');
+
             document.getElementById('loginOverlay').style.display = 'none';
             document.querySelector('.container').style.filter = 'none';
             errorDiv.style.display = 'none';
@@ -699,7 +715,17 @@
         }
     });
 
+    // Check if already logged in during page refresh/load
+    window.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('isLoggedIn') === 'true') {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.querySelector('.container').style.filter = 'none';
+            resetInactivityTimer();
+        }
+    });
+
     function lockSystem() {
+        sessionStorage.removeItem('isLoggedIn'); // Clear session
         document.getElementById('loginOverlay').style.display = 'flex';
         document.querySelector('.container').style.filter = 'blur(4px)';
         document.getElementById('loginUser').focus();
@@ -734,6 +760,9 @@
             statTotalUsed: "Total Leave Used (Hrs)",
             statCurrentMonth: "This Month Used (Hrs)",
             statExceeded: "Exceeded Limits",
+            statTotalBusyLeave: "Total Busy Leave (Hrs)",
+            statTotalWorkHours: "Total Work Hours",
+            statTotalOTHours: "Total OT Hours",
             quickActions: "Quick Actions",
             btnLogAtt: "✏️ Log Attendance",
             btnCheckElig: "🔍 Check Eligibility",
@@ -811,6 +840,9 @@
             statTotalUsed: "ច្បាប់ប្រៀបប្រើសរុប (ម៉ោង)",
             statCurrentMonth: "ប្រើក្នុងខែនេះ (ម៉ោង)",
             statExceeded: "លើសកម្រិតកំណត់",
+            statTotalBusyLeave: "ច្បាប់រវល់សរុប (ម៉ោង)",
+            statTotalWorkHours: "ម៉ោងការងារសរុប",
+            statTotalOTHours: "ម៉ោងថែមម៉ោងសរុប",
             quickActions: "សកម្មភាពរហ័ស",
             btnLogAtt: "✏️ កត់ត្រាវត្តមាន",
             btnCheckElig: "🔍 ពិនិត្យសិទ្ធិ",
@@ -888,6 +920,9 @@
             statTotalUsed: "已用年假总时数",
             statCurrentMonth: "本月已用 (小时)",
             statExceeded: "超出限额人数",
+            statTotalBusyLeave: "总事务假 (小时)",
+            statTotalWorkHours: "总工作时间",
+            statTotalOTHours: "总加班时间",
             quickActions: "快捷操作",
             btnLogAtt: "✏️ 记录考勤",
             btnCheckElig: "🔍 查询资格",
@@ -1085,6 +1120,8 @@
     function updateDashboardStats() {
         document.getElementById('statTotalStaff').innerText = employees.length;
         let totalUsed = 0, currentMonth = 0, exceededCount = 0;
+        let totalBusy = 0, totalWork = 0, totalOT = 0;
+        
         const dashBody = document.querySelector('#dashSummaryTable tbody');
         dashBody.innerHTML = '';
 
@@ -1095,6 +1132,11 @@
             const used = (e.prevUsed + e.monthUsed) - (e.exceeded || 0);
             totalUsed += used;
             currentMonth += e.monthUsed;
+            
+            totalBusy += (e.busyLeave || 0);
+            totalWork += (e.workHours || 0);
+            totalOT += (e.otHours || 0);
+
             const remaining = (e.entitled - used) + (e.carried || 0);
             if(remaining < 0) exceededCount++;
 
@@ -1114,6 +1156,10 @@
         document.getElementById('statTotalUsed').innerText = totalUsed.toFixed(1);
         document.getElementById('statCurrentMonth').innerText = currentMonth.toFixed(1);
         document.getElementById('statExceeded').innerText = exceededCount;
+        
+        document.getElementById('statTotalBusyLeave').innerText = totalBusy.toFixed(1);
+        document.getElementById('statTotalWorkHours').innerText = totalWork.toFixed(1);
+        document.getElementById('statTotalOTHours').innerText = totalOT.toFixed(1);
     }
 
     function renderMaster() {
