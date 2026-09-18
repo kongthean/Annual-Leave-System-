@@ -522,7 +522,7 @@
            </div>
            <div class="form-group">
                <label data-i18n="lblHoursTaken">Annual Leave</label>
-               <input type="number" id="attHours" placeholder="e.g. 0" step="0.5" placeholder="e.g. 0" class="form-control">
+               <input type="number" id="attHours" placeholder="e.g. 0" step="0.5" class="form-control">
            </div>
            <div class="form-group">
                <label id="lblBusyLeave" data-i18n="busyLeaveLabel">Busy Leave</label>
@@ -547,7 +547,7 @@
    <!-- TAB 4: CHECK ELIGIBILITY -->
    <div id="tab-query" class="tab-panel">
        <div class="eligibility-container">
-           <div class="query-box-small">
+           <form class="query-box-small" onsubmit="event.preventDefault(); runExcelQuery();">
                <h4 data-i18n="queryParams">Query Parameters</h4>
                <div class="form-group">
                    <label data-i18n="lblQueryDate">Query Date</label>
@@ -561,8 +561,8 @@
                    <label data-i18n="lblTodayHours">Today's Hours (Optional)</label>
                    <input type="number" id="chkHours" placeholder="e.g. 0">
                </div>
-               <button onclick="runExcelQuery()" class="btn-submit" data-i18n="btnRunCalc">Run Calculation Query</button>
-           </div>
+               <button type="submit" class="btn-submit" data-i18n="btnRunCalc">Run Calculation Query</button>
+           </form>
  
            <div class="query-results-wrapper">
                <div class="results-grid-2col" id="queryResult" style="display:none; flex-direction:column;">
@@ -799,7 +799,7 @@
            thEligWorkHours: "Work Hours",
            thEligOTHours: "OT Hours",
            workHoursLabel: "Work Hours",
-          otHoursLabel: "OT Hours",
+           otHoursLabel: "OT Hours",
            busyLeaveLabel: "Busy Leave",
            tblRemarks: "Remarks",
            lblRemarksHeading: "Master Remarks / Notes:",
