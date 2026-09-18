@@ -1145,21 +1145,21 @@
                    <td><b>${e.id}</b></td>
                    <td>${e.name}</td>
                    <td>${e.joinDate}</td>
-                   <td>${e.entitled}</td>
-                   <td>${used.toFixed(1)}</td>
+                   <td>${(e.entitled || 0).toFixed(2)}</td>
+                   <td>${used.toFixed(2)}</td>
                    <td style="color:${remaining < 0 ? '#dc2626':'#15803d'}; font-weight:bold;">${remaining.toFixed(2)}</td>
                    <td><span class="${remaining < 0 ? 'bg-red' : 'bg-green'}" style="padding:2px 6px; border-radius:4px;">${remaining < 0 ? txtExceeded : txtNormal}</span></td>
                </tr>
            `;
        });
  
-       document.getElementById('statTotalUsed').innerText = totalUsed.toFixed(1);
-       document.getElementById('statCurrentMonth').innerText = currentMonth.toFixed(1);
+       document.getElementById('statTotalUsed').innerText = totalUsed.toFixed(2);
+       document.getElementById('statCurrentMonth').innerText = currentMonth.toFixed(2);
        document.getElementById('statExceeded').innerText = exceededCount;
        
-       document.getElementById('statTotalBusyLeave').innerText = totalBusy.toFixed(1);
-       document.getElementById('statTotalWorkHours').innerText = totalWork.toFixed(1);
-       document.getElementById('statTotalOTHours').innerText = totalOT.toFixed(1);
+       document.getElementById('statTotalBusyLeave').innerText = totalBusy.toFixed(2);
+       document.getElementById('statTotalWorkHours').innerText = totalWork.toFixed(2);
+       document.getElementById('statTotalOTHours').innerText = totalOT.toFixed(2);
    }
  
    function renderMaster() {
@@ -1194,21 +1194,21 @@
                    <td>${emp.name}</td>
                    <td>${emp.joinDate}</td>
                    <td>${workYears}</td>
-                   <td>${emp.entitled}</td>
+                   <td>${(emp.entitled || 0).toFixed(2)}</td>
                    <td>${startStr}</td>
                    <td>${endStr}</td>
                    <td><b>${remainingMonthsCycle}</b></td>
-                   <td>${emp.entitled}</td>
-                   <td>${emp.prevUsed}</td>
-                   <td>${emp.monthUsed}</td>
-                   <td><b>${totalUsed.toFixed(1)}</b></td>
+                   <td>${(emp.entitled || 0).toFixed(2)}</td>
+                   <td>${(emp.prevUsed || 0).toFixed(2)}</td>
+                   <td>${(emp.monthUsed || 0).toFixed(2)}</td>
+                   <td><b>${totalUsed.toFixed(2)}</b></td>
                    <td style="color:${remaining < 0 ? '#dc2626':'#15803d'}; font-weight:bold;">${remaining.toFixed(2)}</td>
-                   <td>${emp.carried || 0}</td>
+                   <td>${(emp.carried || 0).toFixed(2)}</td>
                    <td>${yearRangeStr}</td>
-                   <td style="color:${emp.exceeded > 0 ? '#dc2626':'#64748b'}; font-weight:bold;">${emp.exceeded || 0}</td>
-                   <td>${emp.workHours || 0}</td>
-                   <td>${emp.otHours || 0}</td>
-                   <td>${emp.busyLeave || 0}</td>
+                   <td style="color:${emp.exceeded > 0 ? '#dc2626':'#64748b'}; font-weight:bold;">${(emp.exceeded || 0).toFixed(2)}</td>
+                   <td>${(emp.workHours || 0).toFixed(2)}</td>
+                   <td>${(emp.otHours || 0).toFixed(2)}</td>
+                   <td>${(emp.busyLeave || 0).toFixed(2)}</td>
                    <td>${emp.remarks || '-'}</td>
                </tr>
            `;
@@ -1264,21 +1264,21 @@
                "Name": emp.name,
                "Join Date": emp.joinDate,
                "Years of Work": workYears,
-               "Entitled Hours": emp.entitled,
+               "Entitled Hours": Number((emp.entitled || 0).toFixed(2)),
                "AL Start Date": startStr,
                "AL End Date": endStr,
                "AL Renewed At": remainingMonthsCycle,
-               "Total AL": emp.entitled,
-               "Prev Month Used": emp.prevUsed,
-               "Current Month Used": emp.monthUsed,
-               "Total Used Hours": totalUsed,
-               "Remaining Hours": remaining,
-               "Carried Forward": emp.carried || 0,
+               "Total AL": Number((emp.entitled || 0).toFixed(2)),
+               "Prev Month Used": Number((emp.prevUsed || 0).toFixed(2)),
+               "Current Month Used": Number((emp.monthUsed || 0).toFixed(2)),
+               "Total Used Hours": Number(totalUsed.toFixed(2)),
+               "Remaining Hours": Number(remaining.toFixed(2)),
+               "Carried Forward": Number((emp.carried || 0).toFixed(2)),
                "Year Range": emp.yearRange || computedCycle.yearRangeStr,
-               "Exceeded Hours": emp.exceeded || 0,
-               "Total Work Hours": emp.workHours || 0,
-               "Total OT Hours": emp.otHours || 0,
-               "Total Busy Leave": emp.busyLeave || 0,
+               "Exceeded Hours": Number((emp.exceeded || 0).toFixed(2)),
+               "Total Work Hours": Number((emp.workHours || 0).toFixed(2)),
+               "Total OT Hours": Number((emp.otHours || 0).toFixed(2)),
+               "Total Busy Leave": Number((emp.busyLeave || 0).toFixed(2)),
                "Remarks": emp.remarks || ""
            };
        });
@@ -1463,23 +1463,23 @@
        document.getElementById('qName').innerText = emp.name;
        document.getElementById('qJoin').innerText = emp.joinDate;
        document.getElementById('qYears').innerText = workYears;
-       document.getElementById('qEntitled').innerText = emp.entitled;
+       document.getElementById('qEntitled').innerText = (emp.entitled || 0).toFixed(2);
        document.getElementById('qStart').innerText = startDateStr;
        document.getElementById('qEnd').innerText = endDateStr;
        document.getElementById('qRenewal').innerText = remainingMonthsCycle;
        document.getElementById('qMonths').innerText = serviceMonths;
-       document.getElementById('qTotalAL').innerText = emp.entitled;
+       document.getElementById('qTotalAL').innerText = (emp.entitled || 0).toFixed(2);
  
-       document.getElementById('qTotalUsed').innerText = totalUsed.toFixed(1);
-       document.getElementById('qCurrentMonthUsed').innerText = emp.monthUsed;
+       document.getElementById('qTotalUsed').innerText = totalUsed.toFixed(2);
+       document.getElementById('qCurrentMonthUsed').innerText = (emp.monthUsed || 0).toFixed(2);
        document.getElementById('qRemainingTotal').innerText = remainingTotal.toFixed(2);
-       document.getElementById('qCarried').innerText = carriedForward;
+       document.getElementById('qCarried').innerText = carriedForward.toFixed(2);
        document.getElementById('qAllowedThisMonth').innerText = allowedThisMonth.toFixed(2);
        document.getElementById('qRemAfterToday').innerText = remAfterToday.toFixed(2);
  
-       document.getElementById('qEligBusyLeave').innerText = emp.busyLeave || 0;
-       document.getElementById('qEligWorkHours').innerText = emp.workHours || 0;
-       document.getElementById('qEligOTHours').innerText = emp.otHours || 0;
+       document.getElementById('qEligBusyLeave').innerText = (emp.busyLeave || 0).toFixed(2);
+       document.getElementById('qEligWorkHours').innerText = (emp.workHours || 0).toFixed(2);
+       document.getElementById('qEligOTHours').innerText = (emp.otHours || 0).toFixed(2);
  
        const elStarted = document.getElementById('qIsStarted');
        elStarted.innerText = isStarted;
