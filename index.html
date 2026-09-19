@@ -188,6 +188,7 @@
      table.master-tbl th, table.master-tbl td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: center; white-space: nowrap; }
      table.master-tbl th { background: #f8fafc; color: #334155; font-weight: 700; font-size: 11px; text-transform: uppercase; }
      tr:hover { background-color: #f8fafc; }
+     .btn-view { background: none; border: none; cursor: pointer; font-size: 14px; color: #0d9488; padding: 2px 4px; }
      .btn-edit { background: none; border: none; cursor: pointer; font-size: 14px; color: #2563eb; padding: 2px 4px; }
      .btn-delete { background: none; border: none; cursor: pointer; font-size: 14px; color: #dc2626; padding: 2px 4px; }
  
@@ -215,12 +216,16 @@
      .bg-green { background: #dcfce7 !important; color: #15803d !important; font-weight: bold !important; }
      .bg-red { background: #fee2e2 !important; color: #b91c1c !important; font-weight: bold !important; }
  
-     /* Large Edit Modal Popup */
+     /* Large Edit / View Modal Popup */
      .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); align-items: center; justify-content: center; }
      .modal-content { background: white; padding: 24px; border-radius: 8px; width: 100%; max-width: 900px; max-height: 95vh; overflow-y: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
      .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
      .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; }
      .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+     .detail-view-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px; font-size: 13px; }
+     .detail-item { background: #f8fafc; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+     .detail-item span.lbl { font-weight: 600; color: #475569; }
+     .detail-item span.val { font-weight: 700; color: #0f172a; }
  </style>
 </head>
 <body>
@@ -477,7 +482,7 @@
      </div>
  </div>
  
- <!-- TAB 4: LEAVE RECORDS (UPDATED TO 2-SIDE / 2-COLUMN LAYOUT) -->
+ <!-- TAB 4: LEAVE RECORDS -->
  <div id="tab-leave" class="tab-panel">
      <h3 data-i18n="leaveRecordsTitle">Leave Records</h3>
      <form id="leaveForm" style="max-width: 900px; margin-top:10px;">
@@ -576,6 +581,10 @@
                      <th data-i18n="tblId">ID</th>
                      <th data-i18n="tblName">Name</th>
                      <th data-i18n="tblSex">Sex</th>
+                     <th data-i18n="tblDob">Date of Birth</th>
+                     <th data-i18n="tblPob">Place of Birth</th>
+                     <th data-i18n="tblResidence">Current Residence</th>
+                     <th data-i18n="tblContact">Contact Number</th>
                      <th data-i18n="tblJoin">Join Date</th>
                      <th data-i18n="tblYears">Years of Work</th>
                      <th data-i18n="tblEntitled">Entitled Hours</th>
@@ -674,6 +683,22 @@
                  </select>
              </div>
              <div class="form-group">
+                 <label data-i18n="tblDob">Date of Birth</label>
+                 <input type="date" id="newDob">
+             </div>
+             <div class="form-group">
+                 <label data-i18n="tblPob">Place of Birth</label>
+                 <input type="text" id="newPob" placeholder="e.g. Phnom Penh">
+             </div>
+             <div class="form-group">
+                 <label data-i18n="tblResidence">Current Residence</label>
+                 <input type="text" id="newResidence" placeholder="e.g. Toul Kork">
+             </div>
+             <div class="form-group">
+                 <label data-i18n="tblContact">Contact Number</label>
+                 <input type="text" id="newContact" placeholder="e.g. 012 345 678">
+             </div>
+             <div class="form-group">
                  <label data-i18n="tblJoin">Join Date</label>
                  <input type="date" id="newJoinDate" required>
              </div>
@@ -715,44 +740,63 @@
              </div>
          </div>
          <div class="grid-3">
+             <div class="form-group"><label data-i18n="tblDob">Date of Birth</label><input type="date" id="editDob"></div>
+             <div class="form-group"><label data-i18n="tblPob">Place of Birth</label><input type="text" id="editPob"></div>
+             <div class="form-group"><label data-i18n="tblResidence">Current Residence</label><input type="text" id="editResidence"></div>
+         </div>
+         <div class="grid-3">
+             <div class="form-group"><label data-i18n="tblContact">Contact Number</label><input type="text" id="editContact"></div>
              <div class="form-group"><label data-i18n="lblJoinFormat">Join Date (YYYY.MM.DD)</label><input type="text" id="editJoinDate" required></div>
              <div class="form-group"><label data-i18n="tblResignedDate">Resigned Date</label><input type="text" id="editResignedDate" placeholder="YYYY.MM.DD or blank"></div>
+         </div>
+         <div class="grid-3">
              <div class="form-group"><label data-i18n="tblStatus">Status</label>
                  <select id="editStatus"><option value="Active">Active</option><option value="Resigned">Resigned</option></select>
              </div>
-         </div>
-         <div class="grid-3">
              <div class="form-group"><label data-i18n="tblEntitled">Entitled Hours</label><input type="number" id="editEntitled" step="0.5" required></div>
              <div class="form-group"><label data-i18n="tblStart">AL Start Date</label><input type="text" id="editStartDate"></div>
-             <div class="form-group"><label data-i18n="tblEnd">AL End Date</label><input type="text" id="editEndDate"></div>
          </div>
          <div class="grid-3">
+             <div class="form-group"><label data-i18n="tblEnd">AL End Date</label><input type="text" id="editEndDate"></div>
              <div class="form-group"><label data-i18n="tblPrevUsed">Prev Month Used</label><input type="number" id="editPrevUsed" step="0.5" required></div>
              <div class="form-group"><label data-i18n="tblMonthUsed">Current Month Used</label><input type="number" id="editMonthUsed" step="0.5" required></div>
-             <div class="form-group"><label data-i18n="tblCarried">Carried Forward</label><input type="number" id="editCarried" step="0.5" required></div>
          </div>
          <div class="grid-3">
+             <div class="form-group"><label data-i18n="tblCarried">Carried Forward</label><input type="number" id="editCarried" step="0.5" required></div>
              <div class="form-group"><label data-i18n="tblExceeded">Exceeded Hours</label><input type="number" id="editExceeded" step="0.5" required></div>
              <div class="form-group"><label data-i18n="thMasterWorkingHours">Working Hours</label><input type="number" id="editWorkHours" step="0.5" placeholder="e.g. 0.00"></div>
-             <div class="form-group"><label data-i18n="thMasterMonthlyOT">Monthly Overtime</label><input type="number" id="editOTHours" step="0.5" placeholder="e.g. 0.00"></div>
          </div>
          <div class="grid-3">
+             <div class="form-group"><label data-i18n="thMasterMonthlyOT">Monthly Overtime</label><input type="number" id="editOTHours" step="0.5" placeholder="e.g. 0.00"></div>
              <div class="form-group"><label data-i18n="leaveTypeAL">Annual Leave</label><input type="number" id="editLeaveAL" step="0.5" placeholder="e.g. 0.00"></div>
              <div class="form-group"><label data-i18n="leaveTypeSpecial">Special Leave</label><input type="number" id="editLeaveSpecial" step="0.5" placeholder="e.g. 0.00"></div>
-             <div class="form-group"><label data-i18n="leaveTypeMaternity">Maternity Leave</label><input type="number" id="editLeaveMaternity" step="0.5" placeholder="e.g. 0.00"></div>
          </div>
          <div class="grid-3">
+             <div class="form-group"><label data-i18n="leaveTypeMaternity">Maternity Leave</label><input type="number" id="editLeaveMaternity" step="0.5" placeholder="e.g. 0.00"></div>
              <div class="form-group"><label data-i18n="leaveTypeTravel">Travel Leave</label><input type="number" id="editLeaveTravel" step="0.5" placeholder="e.g. 0.00"></div>
              <div class="form-group"><label data-i18n="leaveTypePersonal">Personal Leave</label><input type="number" id="editLeavePersonal" step="0.5" placeholder="e.g. 0.00"></div>
-             <div class="form-group"><label data-i18n="leaveTypeSick">Sick Leave</label><input type="number" id="editLeaveSick" step="0.5" placeholder="e.g. 0.00"></div>
          </div>
          <div class="grid-3">
+             <div class="form-group"><label data-i18n="leaveTypeSick">Sick Leave</label><input type="number" id="editLeaveSick" step="0.5" placeholder="e.g. 0.00"></div>
              <div class="form-group"><label data-i18n="leaveTypeOther">Other Leave</label><input type="number" id="editLeaveOther" step="0.5" placeholder="e.g. 0.00"></div>
              <div class="form-group"><label data-i18n="tblYearRange">Year Range</label><input type="text" id="editYearRange"></div>
-             <div class="form-group"><label data-i18n="tblRemarks">Remarks</label><input type="text" id="editRemarks"></div>
          </div>
+         <div class="form-group"><label data-i18n="tblRemarks">Remarks</label><input type="text" id="editRemarks"></div>
          <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:14px;" data-i18n="btnSaveChanges">Save Changes</button>
      </form>
+ </div>
+</div>
+
+<!-- VIEW DETAILS MODAL -->
+<div class="modal" id="viewDetailModal">
+ <div class="modal-content">
+     <div class="modal-header">
+         <h4 id="viewModalTitle">Detailed Information View</h4>
+         <button class="modal-close" onclick="closeViewModal()">&times;</button>
+     </div>
+     <div id="viewModalBody" class="detail-view-grid">
+         <!-- Populated dynamically -->
+     </div>
  </div>
 </div>
  
@@ -848,6 +892,10 @@
          tblId: "ID",
          tblName: "Name",
          tblSex: "Sex",
+         tblDob: "Date of Birth",
+         tblPob: "Place of Birth",
+         tblResidence: "Current Residence",
+         tblContact: "Contact Number",
          tblJoin: "Join Date",
          tblResignedDate: "Resigned Date",
          tblYears: "Years of Work",
@@ -950,6 +998,10 @@
          tblId: "អត្តលេខ",
          tblName: "ឈ្មោះ",
          tblSex: "ភេទ",
+         tblDob: "ថ្ងៃខែឆ្នាំកំណើត",
+         tblPob: "ទីកន្លែងកំណើត",
+         tblResidence: "ទីលំនៅបច្ចុប្បន្ន",
+         tblContact: "លេខទូរស័ព្ទ",
          tblJoin: "ថ្ងៃចូលធ្វើការ",
          tblResignedDate: "ថ្ងៃលាលែង",
          tblYears: "អតីតភាព",
@@ -1021,7 +1073,6 @@
          navDashboard: "仪表板",
          navMaster: "主控表",
          navMonthlyReport: "月度报告",
-         navMonthlyReport: "月度报告",
          monthlyReportSub: "月度汇总摘要与考勤更新",
          lblLeaveDate: "请假日期",
          lblEmpId: "员工编号",
@@ -1052,6 +1103,10 @@
          tblId: "工号",
          tblName: "姓名",
          tblSex: "性别",
+         tblDob: "出生日期",
+         tblPob: "出生地",
+         tblResidence: "现居地",
+         tblContact: "联系电话",
          tblJoin: "入职日期",
          tblResignedDate: "离职日期",
          tblYears: "工龄",
@@ -1210,6 +1265,10 @@
          employees = Object.keys(data).map(key => ({
              firebaseKey: key,
              sex: data[key].sex || 'Male',
+             dob: data[key].dob || '',
+             pob: data[key].pob || '',
+             residence: data[key].residence || '',
+             contact: data[key].contact || '',
              status: data[key].status || 'Active',
              resignedDate: data[key].resignedDate || '',
              workHours: data[key].workHours || 0,
@@ -1326,6 +1385,7 @@
          tbody.innerHTML += `
              <tr>
                  <td>
+                     <button class="btn-view" onclick="openMasterDetailModal(${index})" title="Check Detail">🔎</button>
                      <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">✏️</button>
                      <button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">🗑️</button>
                  </td>
@@ -1372,6 +1432,7 @@
          tbody.innerHTML += `
              <tr>
                  <td>
+                     <button class="btn-view" onclick="openMonthlyDetailModal(${index})" title="Check Detail">🔎</button>
                      <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">✏️</button>
                      <button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">🗑️</button>
                  </td>
@@ -1411,12 +1472,17 @@
          tbody.innerHTML += `
              <tr>
                  <td>
+                     <button class="btn-view" onclick="openEmployeeDetailModal(${index})" title="See Details">🔎</button>
                      <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">✏️</button>
                      <button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">🗑️</button>
                  </td>
                  <td><b>${emp.id}</b></td>
                  <td>${emp.name}</td>
                  <td>${emp.sex || 'Male'}</td>
+                 <td>${emp.dob || '-'}</td>
+                 <td>${emp.pob || '-'}</td>
+                 <td>${emp.residence || '-'}</td>
+                 <td>${emp.contact || '-'}</td>
                  <td>${emp.joinDate}</td>
                  <td>${workYears}</td>
                  <td>${(emp.entitled || 0).toFixed(2)}</td>
@@ -1536,8 +1602,9 @@
              const now = new Date();
              const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
              return {
-                 "Employee ID": emp.id, "Name": emp.name, "Sex": emp.sex || "Male", "Join Date": emp.joinDate,
-                 "Years of Work": workYears, "Entitled Hours": Number((emp.entitled || 0).toFixed(2)), "Status": emp.status || "Active"
+                 "Employee ID": emp.id, "Name": emp.name, "Sex": emp.sex || "Male", "Date of Birth": emp.dob || "",
+                 "Place of Birth": emp.pob || "", "Current Residence": emp.residence || "", "Contact Number": emp.contact || "",
+                 "Join Date": emp.joinDate, "Years of Work": workYears, "Entitled Hours": Number((emp.entitled || 0).toFixed(2)), "Status": emp.status || "Active"
              };
          });
      }
@@ -1548,12 +1615,120 @@
      XLSX.writeFile(workbook, filename);
  }
  
+ /* MODAL VIEW FUNCTIONS FOR POPUP LAYERS */
+ function openMasterDetailModal(index) {
+     const emp = employees[index];
+     const parts = emp.joinDate.split('.');
+     const join = new Date(parts[0], parts[1]-1, parts[2]);
+     const now = new Date();
+     const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
+     const computedCycle = computeLeaveCycle(emp.joinDate, now);
+     const startStr = emp.startDate || computedCycle.startStr;
+     const endStr = emp.endDate || computedCycle.endStr;
+     const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
+     const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
+     const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+ 
+     document.getElementById('viewModalTitle').innerText = `Master Details: ${emp.name} (${emp.id})`;
+     const body = document.getElementById('viewModalBody');
+     body.innerHTML = `
+         <div class="detail-item"><span class="lbl">ID:</span><span class="val">${emp.id}</span></div>
+         <div class="detail-item"><span class="lbl">Name:</span><span class="val">${emp.name}</span></div>
+         <div class="detail-item"><span class="lbl">Join Date:</span><span class="val">${emp.joinDate}</span></div>
+         <div class="detail-item"><span class="lbl">Year of Work:</span><span class="val">${workYears}</span></div>
+         <div class="detail-item"><span class="lbl">Entitled Hours:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">AL Start Date:</span><span class="val">${startStr}</span></div>
+         <div class="detail-item"><span class="lbl">AL End Date:</span><span class="val">${endStr}</span></div>
+         <div class="detail-item"><span class="lbl">AL Renewed At:</span><span class="val">${remainingMonthsCycle}</span></div>
+         <div class="detail-item"><span class="lbl">Total AL:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Carried Forward:</span><span class="val">${(emp.carried || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Prev Month Used:</span><span class="val">${(emp.prevUsed || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Current Month Used:</span><span class="val">${(emp.monthUsed || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Total Used Hours:</span><span class="val">${totalUsed.toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Exceeded Hours:</span><span class="val">${(emp.exceeded || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Remaining Hours:</span><span class="val">${remaining.toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Working Hours:</span><span class="val">${(emp.workHours || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Monthly Overtime:</span><span class="val">${(emp.otHours || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Annual Leave:</span><span class="val">${(emp.leaveAL || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Special Leave:</span><span class="val">${(emp.leaveSpecial || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Maternity Leave:</span><span class="val">${(emp.leaveMaternity || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Travel Leave:</span><span class="val">${(emp.leaveTravel || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Personal Leave:</span><span class="val">${(emp.leavePersonal || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Sick Leave:</span><span class="val">${(emp.leaveSick || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Other Leave:</span><span class="val">${(emp.leaveOther || 0).toFixed(2)}</span></div>
+         <div class="detail-item" style="grid-column: span 2;"><span class="lbl">Remark:</span><span class="val">${emp.remarks || '-'}</span></div>
+     `;
+     document.getElementById('viewDetailModal').style.display = 'flex';
+ }
+ 
+ function openMonthlyDetailModal(index) {
+     const emp = employees[index];
+     const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
+     const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+ 
+     document.getElementById('viewModalTitle').innerText = `Monthly Report Details: ${emp.name} (${emp.id})`;
+     const body = document.getElementById('viewModalBody');
+     body.innerHTML = `
+         <div class="detail-item"><span class="lbl">ID:</span><span class="val">${emp.id}</span></div>
+         <div class="detail-item"><span class="lbl">Name:</span><span class="val">${emp.name}</span></div>
+         <div class="detail-item"><span class="lbl">Join Date:</span><span class="val">${emp.joinDate}</span></div>
+         <div class="detail-item"><span class="lbl">Resigned Date:</span><span class="val">${emp.resignedDate || '-'}</span></div>
+         <div class="detail-item"><span class="lbl">Attendance:</span><span class="val">${emp.monthlyWorkDays || 208}</span></div>
+         <div class="detail-item"><span class="lbl">Actual Working Hours:</span><span class="val">${(emp.workHours || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Entitled Hours:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Total Used Hours:</span><span class="val">${totalUsed.toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Remaining Hours:</span><span class="val">${remaining.toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Annual Leave:</span><span class="val">${(emp.leaveAL || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Special Leave:</span><span class="val">${(emp.leaveSpecial || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Maternity Leave:</span><span class="val">${(emp.leaveMaternity || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Travel Leave:</span><span class="val">${(emp.leaveTravel || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Personal Leave:</span><span class="val">${(emp.leavePersonal || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Sick Leave:</span><span class="val">${(emp.leaveSick || 0).toFixed(2)}</span></div>
+         <div class="detail-item"><span class="lbl">Other Leave:</span><span class="val">${(emp.leaveOther || 0).toFixed(2)}</span></div>
+         <div class="detail-item" style="grid-column: span 2;"><span class="lbl">Monthly Overtime:</span><span class="val">${(emp.otHours || 0).toFixed(2)}</span></div>
+     `;
+     document.getElementById('viewDetailModal').style.display = 'flex';
+ }
+ 
+ function openEmployeeDetailModal(index) {
+     const emp = employees[index];
+     const parts = emp.joinDate.split('.');
+     const join = new Date(parts[0], parts[1]-1, parts[2]);
+     const now = new Date();
+     const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
+ 
+     document.getElementById('viewModalTitle').innerText = `Employee Profile Details: ${emp.name} (${emp.id})`;
+     const body = document.getElementById('viewModalBody');
+     body.innerHTML = `
+         <div class="detail-item"><span class="lbl">ID:</span><span class="val">${emp.id}</span></div>
+         <div class="detail-item"><span class="lbl">Name:</span><span class="val">${emp.name}</span></div>
+         <div class="detail-item"><span class="lbl">Sex:</span><span class="val">${emp.sex || 'Male'}</span></div>
+         <div class="detail-item"><span class="lbl">Date of Birth:</span><span class="val">${emp.dob || '-'}</span></div>
+         <div class="detail-item"><span class="lbl">Place of Birth:</span><span class="val">${emp.pob || '-'}</span></div>
+         <div class="detail-item"><span class="lbl">Current Residence:</span><span class="val">${emp.residence || '-'}</span></div>
+         <div class="detail-item"><span class="lbl">Contact Number:</span><span class="val">${emp.contact || '-'}</span></div>
+         <div class="detail-item"><span class="lbl">Join Date:</span><span class="val">${emp.joinDate}</span></div>
+         <div class="detail-item"><span class="lbl">Years of Work:</span><span class="val">${workYears}</span></div>
+         <div class="detail-item"><span class="lbl">Entitled Hours:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
+         <div class="detail-item" style="grid-column: span 2;"><span class="lbl">Status:</span><span class="val">${emp.status || 'Active'}</span></div>
+     `;
+     document.getElementById('viewDetailModal').style.display = 'flex';
+ }
+ 
+ function closeViewModal() {
+     document.getElementById('viewDetailModal').style.display = 'none';
+ }
+ 
  function openEditModal(index) {
      const emp = employees[index];
      document.getElementById('editIndex').value = emp.firebaseKey;
      document.getElementById('editId').value = emp.id;
      document.getElementById('editName').value = emp.name;
      document.getElementById('editSex').value = emp.sex || 'Male';
+     document.getElementById('editDob').value = emp.dob || '';
+     document.getElementById('editPob').value = emp.pob || '';
+     document.getElementById('editResidence').value = emp.residence || '';
+     document.getElementById('editContact').value = emp.contact || '';
      document.getElementById('editJoinDate').value = emp.joinDate;
      document.getElementById('editResignedDate').value = emp.resignedDate || '';
      document.getElementById('editStatus').value = emp.status || 'Active';
@@ -1595,13 +1770,16 @@
      const leaveSickVal = parseFloat(document.getElementById('editLeaveSick').value) || 0;
      const leaveOtherVal = parseFloat(document.getElementById('editLeaveOther').value) || 0;
  
-     // Sum up all specified categories into monthUsed, excluding Personal Leave
      const calculatedMonthUsed = leaveALVal + leaveSpecialVal + leaveMaternityVal + leaveTravelVal + leaveSickVal + leaveOtherVal;
  
      const updatedData = {
          id: document.getElementById('editId').value,
          name: document.getElementById('editName').value,
          sex: document.getElementById('editSex').value,
+         dob: document.getElementById('editDob').value,
+         pob: document.getElementById('editPob').value,
+         residence: document.getElementById('editResidence').value,
+         contact: document.getElementById('editContact').value,
          joinDate: joinDateInput,
          resignedDate: document.getElementById('editResignedDate').value.trim(),
          status: document.getElementById('editStatus').value,
@@ -1644,6 +1822,10 @@
          id: newEmpId,
          name: newEmpName,
          sex: document.getElementById('newSex').value,
+         dob: document.getElementById('newDob').value,
+         pob: document.getElementById('newPob').value,
+         residence: document.getElementById('newResidence').value,
+         contact: document.getElementById('newContact').value,
          joinDate: joinInput,
          resignedDate: "",
          status: document.getElementById('newStatus').value,
@@ -1693,7 +1875,6 @@
          const newLeaveSick = (emp.leaveSick || 0) + addSick;
          const newLeaveOther = (emp.leaveOther || 0) + addOther;
  
-         // Sum up Annual, Special, Maternity, Travel, Sick, and Other into monthUsed (Excluding Personal Leave)
          const newMonthUsed = newLeaveAL + newLeaveSpecial + newLeaveMaternity + newLeaveTravel + newLeaveSick + newLeaveOther;
  
          const updatePayload = {
@@ -1708,7 +1889,7 @@
          };
  
          db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
-             alert(`Leave records successfully saved for ${emp.name}! (Personal Leave tracked separately and excluded from Current Month Used).`);
+             alert(`Leave records successfully saved for ${emp.name}!`);
              this.reset();
              document.getElementById('leaveDate').valueAsDate = new Date();
          }).catch(error => {
@@ -1746,94 +1927,6 @@
          alert('Employee ID not found!');
      }
  });
- 
- function runExcelQuery() {
-     const id = document.getElementById('chkEmpId').value.trim();
-     const queryDateStr = document.getElementById('chkDate').value;
-     const todayHrs = parseFloat(document.getElementById('chkHours').value) || 0;
- 
-     if(!id) {
-         alert('Please enter an Employee ID!');
-         return;
-     }
- 
-     const emp = employees.find(e => e.id === id);
-     if(!emp) {
-         alert('Employee ID not found!');
-         return;
-     }
- 
-     const queryDate = new Date(queryDateStr);
-     const joinParts = emp.joinDate.split('.');
-     const joinDate = new Date(joinParts[0], joinParts[1]-1, joinParts[2]);
- 
-     const computedCycle = computeLeaveCycle(emp.joinDate, queryDate);
-     const startDateStr = emp.startDate || computedCycle.startStr;
-     const endDateStr = emp.endDate || computedCycle.endStr;
- 
-     const startParts = startDateStr.split('.');
-     const lStartDate = new Date(startParts[0], startParts[1]-1, startParts[2]);
-   
-     let serviceMonths = (queryDate.getFullYear() - lStartDate.getFullYear()) * 12 + (queryDate.getMonth() - lStartDate.getMonth()) + 1;
-     if (serviceMonths < 1) serviceMonths = 1;
- 
-     const totalWorkMonths = (queryDate.getFullYear() - joinDate.getFullYear()) * 12 + (queryDate.getMonth() - joinDate.getMonth());
-     const workYears = Math.floor(totalWorkMonths / 12);
- 
-     const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
-     const remainingTotal = (emp.entitled - totalUsed) + (emp.carried || 0);
-   
-     const carriedForward = emp.carried || 0;
-     const allowedThisMonth = (1.5 * serviceMonths * 8) + carriedForward - totalUsed;
-     const remAfterToday = allowedThisMonth - todayHrs;
- 
-     const isStarted = queryDate >= lStartDate ? "Start Date Reached" : "Start Date Not Reached";
-     const isExceeded = remAfterToday < 0 ? "Exceeded Limit" : "Within Limit";
-     const remainingMonthsCycle = getRemainingCycleMonths(startDateStr, endDateStr, queryDate);
- 
-     document.getElementById('qName').innerText = emp.name;
-     document.getElementById('qJoin').innerText = emp.joinDate;
-     document.getElementById('qYears').innerText = workYears;
-     document.getElementById('qEntitled').innerText = (emp.entitled || 0).toFixed(2);
-     document.getElementById('qStart').innerText = startDateStr;
-     document.getElementById('qEnd').innerText = endDateStr;
-     document.getElementById('qRenewal').innerText = remainingMonthsCycle;
-     document.getElementById('qMonths').innerText = serviceMonths;
-     document.getElementById('qTotalAL').innerText = (emp.entitled || 0).toFixed(2);
- 
-     document.getElementById('qTotalUsed').innerText = totalUsed.toFixed(2);
-     document.getElementById('qCurrentMonthUsed').innerText = (emp.monthUsed || 0).toFixed(2);
-     document.getElementById('qRemainingTotal').innerText = remainingTotal.toFixed(2);
-     document.getElementById('qCarried').innerText = carriedForward.toFixed(2);
-     document.getElementById('qAllowedThisMonth').innerText = allowedThisMonth.toFixed(2);
-     document.getElementById('qRemAfterToday').innerText = remAfterToday.toFixed(2);
- 
-     document.getElementById('qEligWorkHours').innerText = (emp.workHours || 0).toFixed(2);
-     document.getElementById('qEligOTHours').innerText = (emp.otHours || 0).toFixed(2);
- 
-     const elStarted = document.getElementById('qIsStarted');
-     elStarted.innerText = isStarted;
-     elStarted.className = `value ${queryDate >= lStartDate ? 'bg-green' : 'bg-red'}`;
- 
-     const elExceeded = document.getElementById('qIsExceeded');
-     elExceeded.innerText = isExceeded;
-     elExceeded.className = `value ${remAfterToday < 0 ? 'bg-red' : 'bg-green'}`;
- 
-     document.getElementById('qYearRange').innerText = emp.yearRange || computedCycle.yearRangeStr;
-   
-     const remarkBox = document.getElementById('qRemarkContainer');
-     const remarkTextEl = document.getElementById('qRemarksText');
-   
-     if (emp.remarks && emp.remarks.trim() !== '') {
-         remarkTextEl.innerText = emp.remarks;
-         remarkBox.className = 'query-remark-box';
-     } else {
-         remarkTextEl.innerText = translations[currentLang].noRemarksText || 'No specific remarks or notes logged for this employee.';
-         remarkBox.className = 'query-remark-box empty';
-     }
- 
-     document.getElementById('queryResult').style.display = 'flex';
- }
 </script>
 </body>
 </html>
