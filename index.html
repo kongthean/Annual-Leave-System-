@@ -477,47 +477,55 @@
       </div>
   </div>
  
-  <!-- TAB 4: LEAVE RECORDS -->
+  <!-- TAB 4: LEAVE RECORDS (UPDATED TO 2-SIDE / 2-COLUMN LAYOUT) -->
   <div id="tab-leave" class="tab-panel">
       <h3 data-i18n="leaveRecordsTitle">Leave Records</h3>
-      <form id="leaveForm" style="max-width: 480px; margin-top:10px;">
-          <div class="form-group">
-              <label data-i18n="lblLeaveDate">Leave Date</label>
-              <input type="date" id="leaveDate" required>
+      <form id="leaveForm" style="max-width: 900px; margin-top:10px;">
+          <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+              <!-- Left Column -->
+              <div style="flex: 1; min-width: 320px;">
+                  <div class="form-group">
+                      <label data-i18n="lblLeaveDate">Leave Date</label>
+                      <input type="date" id="leaveDate" required>
+                  </div>
+                  <div class="form-group">
+                      <label data-i18n="lblEmpId">Employee ID</label>
+                      <input type="text" id="leaveEmpId" placeholder="e.g. 200001" required>
+                  </div>
+                  <div class="form-group">
+                      <label data-i18n="leaveTypeAL">Annual Leave</label>
+                      <input type="number" id="leaveAL" step="0.5" min="0" placeholder="e.g. 0.00">
+                  </div>
+                  <div class="form-group">
+                      <label data-i18n="leaveTypeSpecial">Special Leave</label>
+                      <input type="number" id="leaveSpecial" step="0.5" min="0" placeholder="e.g. 0.00">
+                  </div>
+                  <div class="form-group">
+                      <label data-i18n="leaveTypeMaternity">Maternity Leave</label>
+                      <input type="number" id="leaveMaternity" step="0.5" min="0" placeholder="e.g. 0.00">
+                  </div>
+              </div>
+              <!-- Right Column -->
+              <div style="flex: 1; min-width: 320px;">
+                  <div class="form-group">
+                      <label data-i18n="leaveTypeTravel">Travel Leave</label>
+                      <input type="number" id="leaveTravel" step="0.5" min="0" placeholder="e.g. 0.00">
+                  </div>
+                  <div class="form-group">
+                      <label data-i18n="leaveTypePersonal">Personal Leave</label>
+                      <input type="number" id="leavePersonal" step="0.5" min="0" placeholder="e.g. 0.00">
+                  </div>
+                  <div class="form-group">
+                      <label data-i18n="leaveTypeSick">Sick Leave</label>
+                      <input type="number" id="leaveSick" step="0.5" min="0" placeholder="e.g. 0.00">
+                  </div>
+                  <div class="form-group">
+                      <label data-i18n="leaveTypeOther">Other Leave</label>
+                      <input type="number" id="leaveOther" step="0.5" min="0" placeholder="e.g. 0.00">
+                  </div>
+              </div>
           </div>
-          <div class="form-group">
-              <label data-i18n="lblEmpId">Employee ID</label>
-              <input type="text" id="leaveEmpId" placeholder="e.g. 200001" required>
-          </div>
-          <div class="form-group">
-              <label data-i18n="leaveTypeAL">Annual Leave</label>
-              <input type="number" id="leaveAL" step="0.5" min="0" placeholder="e.g. 0.00">
-          </div>
-          <div class="form-group">
-              <label data-i18n="leaveTypeSpecial">Special Leave</label>
-              <input type="number" id="leaveSpecial" step="0.5" min="0" placeholder="e.g. 0.00">
-          </div>
-          <div class="form-group">
-              <label data-i18n="leaveTypeMaternity">Maternity Leave</label>
-              <input type="number" id="leaveMaternity" step="0.5" min="0" placeholder="e.g. 0.00">
-          </div>
-          <div class="form-group">
-              <label data-i18n="leaveTypeTravel">Travel Leave</label>
-              <input type="number" id="leaveTravel" step="0.5" min="0" placeholder="e.g. 0.00">
-          </div>
-          <div class="form-group">
-              <label data-i18n="leaveTypePersonal">Personal Leave</label>
-              <input type="number" id="leavePersonal" step="0.5" min="0" placeholder="e.g. 0.00">
-          </div>
-          <div class="form-group">
-              <label data-i18n="leaveTypeSick">Sick Leave</label>
-              <input type="number" id="leaveSick" step="0.5" min="0" placeholder="e.g. 0.00">
-          </div>
-          <div class="form-group">
-              <label data-i18n="leaveTypeOther">Other Leave</label>
-              <input type="number" id="leaveOther" step="0.5" min="0" placeholder="e.g. 0.00">
-          </div>
-          <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:10px;" data-i18n="btnSubmitLeave">Submit Leave Record</button>
+          <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:14px;" data-i18n="btnSubmitLeave">Submit Leave Record</button>
       </form>
   </div>
  
