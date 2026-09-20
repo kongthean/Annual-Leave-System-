@@ -371,7 +371,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.00</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.10</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -544,6 +544,46 @@
      </form>
  </div>
 </div>
+
+<!-- TOTP (GOOGLE AUTHENTICATOR) VERIFY MODAL (v6.10) - shown after correct Administration username/password, for accounts that already have an authenticator set up -->
+<div class="modal" id="totpVerifyModal">
+    <div class="modal-content" style="max-width: 400px; text-align:center;">
+        <div class="modal-header">
+            <h4 data-i18n="totpVerifyModalTitle">Enter Authenticator Code</h4>
+            <button class="modal-close" onclick="closeTotpVerifyModal()">&times;</button>
+        </div>
+        <p style="font-size:13px; color:#334155; margin-bottom:14px;" data-i18n="totpVerifyModalSub">Open Google Authenticator (or a similar app) and enter the current 6-digit code.</p>
+        <div class="form-group">
+            <input type="text" id="totpVerifyInput" inputmode="numeric" maxlength="6" placeholder="000000" style="text-align:center; font-size:22px; letter-spacing:6px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); confirmTotpVerify();}">
+        </div>
+        <div id="totpVerifyError" class="login-error" style="display:none;"></div>
+        <button type="button" class="btn-submit" onclick="confirmTotpVerify()" data-i18n="btnVerifyCode">Verify</button>
+    </div>
+</div>
+
+<!-- TOTP (GOOGLE AUTHENTICATOR) SETUP MODAL (v6.10) - shown the first time an Administration account logs in after this update, since it has no authenticator yet -->
+<div class="modal" id="totpSetupModal">
+    <div class="modal-content" style="max-width: 460px; text-align:center;">
+        <div class="modal-header">
+            <h4 data-i18n="totpSetupModalTitle">Set Up Authenticator App</h4>
+            <button class="modal-close" onclick="closeTotpSetupModal()">&times;</button>
+        </div>
+        <p style="font-size:13px; color:#334155; margin-bottom:10px; text-align:left;" data-i18n="totpSetupModalSub">This account needs an authenticator app (like Google Authenticator) before it can log in. In the app: add a new account, choose "Enter a setup key manually", and type in the key below.</p>
+        <div class="form-group">
+            <label data-i18n="totpSetupSecretLabel">Setup Key</label>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <div id="totpSetupSecretText" style="flex:1; font-family:monospace; font-size:16px; letter-spacing:2px; background:#f1f5f9; padding:8px; border-radius:6px; word-break:break-all;"></div>
+                <button type="button" class="btn-edit" onclick="copyTotpSecret()" data-i18n="btnCopy">Copy</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label data-i18n="totpSetupConfirmLabel">Enter the code the app now shows</label>
+            <input type="text" id="totpSetupInput" inputmode="numeric" maxlength="6" placeholder="000000" style="text-align:center; font-size:22px; letter-spacing:6px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); confirmTotpSetup();}">
+        </div>
+        <div id="totpSetupError" class="login-error" style="display:none;"></div>
+        <button type="button" class="btn-submit" onclick="confirmTotpSetup()" data-i18n="btnConfirmEnable">Confirm &amp; Enable</button>
+    </div>
+</div>
  
  <!-- ONE-TIME BROADCAST MODAL (v6.00) - moved outside adminApp so it can pop up over the Employee view too, not just HR/Administration -->
  <div class="modal" id="broadcastModal">
@@ -574,6 +614,15 @@
         <h4 data-i18n="systemLockedTitle">System Temporarily Locked</h4>
         <p id="systemLockMessageAdmin" style="font-size:13px; color:#334155; margin-top:8px;"></p>
         <button type="button" class="btn-submit" style="margin-top:14px;" onclick="lockSystem();" data-i18n="lockSystemOption">Log Out</button>
+    </div>
+</div>
+
+<!-- DEVICE BLOCKED OVERLAY (v6.10) - shown to a device Administration has blocked, on any door (Employee/HR/Administration) -->
+<div class="modal" id="deviceBlockedOverlay" style="display:none;">
+    <div class="modal-content" style="max-width: 420px; text-align:center;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:48px; height:48px; margin:0 auto 12px auto; display:block; color:#b91c1c;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+        <h4 data-i18n="deviceBlockedTitle">This Device Has Been Blocked</h4>
+        <p style="font-size:13px; color:#334155; margin-top:8px;" data-i18n="deviceBlockedSub">Administration has blocked this device from using the system. Contact Administration if you believe this is a mistake.</p>
     </div>
 </div>
 
@@ -719,6 +768,10 @@
         <button class="quick-btn admin-only" style="background:linear-gradient(135deg,#b91c1c,#7f1d1d); position:relative;" onclick="openLockSystemModal()">
             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="quick-btn-label" data-i18n="navLockSystem">Lock System</span>
             <span id="lockSystemActiveBadge" class="notif-badge" style="display:none; top:2px; right:2px; background:#facc15; color:#7c2d12;">!</span>
+        </button>
+        <button class="quick-btn admin-only" style="background:linear-gradient(135deg,#0e7490,#155e75); position:relative;" onclick="openDeviceLogModal()">
+            <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="4" y1="18" x2="20" y2="18"/><line x1="10" y1="21" x2="14" y2="21"/></svg></span><span class="quick-btn-label" data-i18n="navDeviceLog">Device Log</span>
+            <span id="deviceLogBadge" class="notif-badge" style="display:none; top:2px; right:2px;">0</span>
         </button>
  <button class="quick-btn rose" onclick="openBackupLangModal()">
      <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span class="quick-btn-label" data-i18n="navBackupNow">Backup Now</span>
@@ -1045,7 +1098,7 @@
 
  <!-- CHECK RECORD RESULT MODAL (pops up as a large layer after Run Calculation Query) -->
  <div class="modal" id="queryResultModal">
-     <div class="modal-content" style="max-width: 95vw; width: fit-content;">
+     <div class="modal-content" style="max-width: 95vw; width: 960px;">
          <div class="modal-header">
              <h4 data-i18n="queryResultTitle">Query Result</h4>
              <button class="modal-close" onclick="closeQueryResultModal()">&times;</button>
@@ -1088,6 +1141,7 @@
                  <span id="qRemarksText">-</span>
              </div>
          </div>
+         <div style="text-align:center; margin-top:16px;"><button type="button" class="btn-submit" style="width:auto; padding:8px 30px;" onclick="closeQueryResultModal()" data-i18n="btnClose">Close</button></div>
      </div>
  </div>
  
@@ -1271,7 +1325,7 @@
  </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.00
+     HR & Administration System Version 6.10
  </div>
 </div>
 
@@ -1330,6 +1384,7 @@
                          <th data-i18n="acctColPassword">Password</th>
                          <th data-i18n="acctColRole">Role</th>
                          <th data-i18n="acctColStatus">Status</th>
+                         <th data-i18n="acctColTotp">Authenticator</th>
                      </tr>
                  </thead>
                  <tbody></tbody>
@@ -1384,6 +1439,32 @@
             <button type="button" class="btn-submit" style="width:auto; flex:1;" onclick="applySystemLockSettings()" data-i18n="btnApplyLock">Apply</button>
             <button type="button" class="quick-btn" style="width:auto; flex:1; background:linear-gradient(135deg,#475569,#334155);" onclick="unlockAllSystems()" data-i18n="btnUnlockAll">Unlock All</button>
         </div>
+    </div>
+</div>
+
+<!-- DEVICE LOG MODAL (v6.10) - see which devices have logged in, rename them, block/unblock access -->
+<div class="modal" id="deviceLogModal">
+    <div class="modal-content" style="max-width: 900px;">
+        <div class="modal-header">
+            <h4 data-i18n="deviceLogTitle">Device Log</h4>
+            <button class="modal-close" onclick="closeDeviceLogModal()">&times;</button>
+        </div>
+        <p style="font-size:13px; color:#334155; margin-bottom:14px;" data-i18n="deviceLogSub">Devices that have logged into this system. "Active" means used in roughly the last 2 minutes. Blocking a device signs it out immediately and keeps it out until unblocked.</p>
+        <div class="table-responsive">
+            <table class="master-tbl" id="deviceLogTable">
+                <thead>
+                    <tr>
+                        <th data-i18n="tblActions">Actions</th>
+                        <th data-i18n="deviceColName">Device Name</th>
+                        <th data-i18n="deviceColUser">Last Signed In As</th>
+                        <th data-i18n="deviceColLastSeen">Last Seen</th>
+                        <th data-i18n="deviceColStatus">Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div style="text-align:center; margin-top:16px;"><button type="button" class="btn-submit" style="width:auto; padding:8px 30px;" onclick="closeDeviceLogModal()" data-i18n="btnClose">Close</button></div>
     </div>
 </div>
 
@@ -1467,6 +1548,7 @@
      <div id="viewModalBody" class="detail-view-grid">
          <!-- Populated dynamically -->
      </div>
+     <div style="text-align:center; margin-top:16px;"><button type="button" class="btn-submit" style="width:auto; padding:8px 30px;" onclick="closeViewModal()" data-i18n="btnClose">Close</button></div>
  </div>
 </div>
  
@@ -1567,6 +1649,80 @@
  /* Kept for backward compatibility with any old reference; the Administration chooser card now calls openRoleLogin('admin') directly. */
  function handleEmployeePower() { openRoleLogin('admin'); }
 
+ /* v6.10: Google Authenticator (TOTP, RFC 6238) two-factor login for Administration accounts.
+    Pure client-side, using the browser's built-in Web Crypto API - no external service, no cost,
+    works offline once set up. Honest limitation: since this app has no real backend server, the
+    secret has to live in the same Firebase database as everything else - same trust model as the
+    passwords already stored there. It's a real extra layer, not bank-grade security. */
+ function base32Encode(bytes) {
+     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+     let bits = '';
+     for (const b of bytes) bits += b.toString(2).padStart(8, '0');
+     let output = '';
+     for (let i = 0; i < bits.length; i += 5) {
+         let chunk = bits.substr(i, 5);
+         if (chunk.length < 5) chunk = chunk.padEnd(5, '0');
+         output += alphabet[parseInt(chunk, 2)];
+     }
+     return output;
+ }
+
+ function base32Decode(base32) {
+     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+     const clean = (base32 || '').replace(/=+$/, '').toUpperCase().replace(/[^A-Z2-7]/g, '');
+     let bits = '';
+     for (const char of clean) {
+         const val = alphabet.indexOf(char);
+         if (val === -1) continue;
+         bits += val.toString(2).padStart(5, '0');
+     }
+     const bytes = [];
+     for (let i = 0; i + 8 <= bits.length; i += 8) {
+         bytes.push(parseInt(bits.substr(i, 8), 2));
+     }
+     return new Uint8Array(bytes);
+ }
+
+ function generateTOTPSecret() {
+     const bytes = new Uint8Array(20);
+     crypto.getRandomValues(bytes);
+     return base32Encode(bytes);
+ }
+
+ async function hmacSha1(keyBytes, msgBytes) {
+     const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+     const sig = await crypto.subtle.sign('HMAC', key, msgBytes);
+     return new Uint8Array(sig);
+ }
+
+ async function generateTOTP(secretBase32, forTime) {
+     const keyBytes = base32Decode(secretBase32);
+     const counter = Math.floor((forTime || Date.now()) / 1000 / 30);
+     const counterBytes = new ArrayBuffer(8);
+     const view = new DataView(counterBytes);
+     view.setUint32(0, Math.floor(counter / 0x100000000));
+     view.setUint32(4, counter >>> 0);
+     const hmac = await hmacSha1(keyBytes, new Uint8Array(counterBytes));
+     const offset = hmac[hmac.length - 1] & 0xf;
+     const binCode = ((hmac[offset] & 0x7f) << 24) | ((hmac[offset + 1] & 0xff) << 16) | ((hmac[offset + 2] & 0xff) << 8) | (hmac[offset + 3] & 0xff);
+     return (binCode % 1000000).toString().padStart(6, '0');
+ }
+
+ async function verifyTOTP(secretBase32, token) {
+     const clean = (token || '').trim();
+     if (!/^\d{6}$/.test(clean)) return false;
+     const now = Date.now();
+     /* Allow +-1 step (30s) either side, to tolerate small clock drift between phone and server. */
+     for (let step = -1; step <= 1; step++) {
+         const candidate = await generateTOTP(secretBase32, now + step * 30000);
+         if (candidate === clean) return true;
+     }
+     return false;
+ }
+
+ let pendingLoginAccount = null;
+ let pendingSetupSecret = null;
+
  document.getElementById('loginForm').addEventListener('submit', function(e) {
      e.preventDefault();
      const userIn = document.getElementById('loginUser').value.trim();
@@ -1575,21 +1731,119 @@
 
      const found = accounts.find(a => a.username === userIn && a.password === passIn && a.role === loginTargetRole && !a.disabled);
 
-     if (found) {
-         sessionStorage.setItem('isLoggedIn', 'true');
-         sessionStorage.setItem('loggedInRole', found.role);
-         sessionStorage.setItem('loggedInAccountName', found.name || found.username);
-         sessionStorage.setItem('loggedInAccountUsername', found.username);
-         document.getElementById('loginOverlay').style.display = 'none';
-         errorDiv.style.display = 'none';
-         document.getElementById('loginPass').value = '';
-         showAdminView();
-         checkBroadcastForCurrentUser();
-     } else {
+     if (!found) {
          errorDiv.innerText = t('loginErrorMsg');
          errorDiv.style.display = 'block';
+         return;
      }
+
+     errorDiv.style.display = 'none';
+
+     if (found.role === 'admin') {
+         pendingLoginAccount = found;
+         document.getElementById('loginOverlay').style.display = 'none';
+         document.getElementById('loginPass').value = '';
+         if (found.totpSecret) {
+             openTotpVerifyModal();
+         } else {
+             openTotpSetupModal();
+         }
+         return;
+     }
+
+     completeLogin(found);
  });
+
+ function completeLogin(found) {
+     sessionStorage.setItem('isLoggedIn', 'true');
+     sessionStorage.setItem('loggedInRole', found.role);
+     sessionStorage.setItem('loggedInAccountName', found.name || found.username);
+     sessionStorage.setItem('loggedInAccountUsername', found.username);
+     document.getElementById('loginOverlay').style.display = 'none';
+     document.getElementById('loginPass').value = '';
+     showAdminView();
+     checkBroadcastForCurrentUser();
+     recordDeviceSession(found.role, found.name || found.username);
+ }
+
+ function openTotpVerifyModal() {
+     document.getElementById('totpVerifyInput').value = '';
+     document.getElementById('totpVerifyError').style.display = 'none';
+     document.getElementById('totpVerifyModal').style.display = 'flex';
+     setTimeout(() => { const el = document.getElementById('totpVerifyInput'); if (el) el.focus(); }, 100);
+ }
+
+ function closeTotpVerifyModal() {
+     document.getElementById('totpVerifyModal').style.display = 'none';
+     pendingLoginAccount = null;
+ }
+
+ async function confirmTotpVerify() {
+     if (!pendingLoginAccount) return;
+     const code = document.getElementById('totpVerifyInput').value;
+     const errorDiv = document.getElementById('totpVerifyError');
+     const ok = await verifyTOTP(pendingLoginAccount.totpSecret, code);
+     if (ok) {
+         const account = pendingLoginAccount;
+         document.getElementById('totpVerifyModal').style.display = 'none';
+         pendingLoginAccount = null;
+         completeLogin(account);
+     } else {
+         errorDiv.innerText = t('totpInvalidCodeMsg');
+         errorDiv.style.display = 'block';
+     }
+ }
+
+ function openTotpSetupModal() {
+     pendingSetupSecret = generateTOTPSecret();
+     document.getElementById('totpSetupSecretText').innerText = pendingSetupSecret;
+     document.getElementById('totpSetupInput').value = '';
+     document.getElementById('totpSetupError').style.display = 'none';
+     document.getElementById('totpSetupModal').style.display = 'flex';
+ }
+
+ function closeTotpSetupModal() {
+     document.getElementById('totpSetupModal').style.display = 'none';
+     pendingLoginAccount = null;
+     pendingSetupSecret = null;
+ }
+
+ function copyTotpSecret() {
+     try {
+         navigator.clipboard.writeText(pendingSetupSecret || '');
+         showToast(true, t('toastCopied'));
+     } catch (e) { /* clipboard unavailable - the key is still shown as selectable text */ }
+ }
+
+ async function confirmTotpSetup() {
+     if (!pendingLoginAccount || !pendingSetupSecret) return;
+     const code = document.getElementById('totpSetupInput').value;
+     const errorDiv = document.getElementById('totpSetupError');
+     const ok = await verifyTOTP(pendingSetupSecret, code);
+     if (!ok) {
+         errorDiv.innerText = t('totpInvalidCodeMsg');
+         errorDiv.style.display = 'block';
+         return;
+     }
+     const account = pendingLoginAccount;
+     const secret = pendingSetupSecret;
+     db.ref('accounts/' + account.firebaseKey).update({ totpSecret: secret }).then(() => {
+         document.getElementById('totpSetupModal').style.display = 'none';
+         pendingLoginAccount = null;
+         pendingSetupSecret = null;
+         completeLogin({ ...account, totpSecret: secret });
+     }).catch(() => {
+         errorDiv.innerText = t('totpSetupSaveErrorMsg');
+         errorDiv.style.display = 'block';
+     });
+ }
+
+ function resetAccountTotp(firebaseKey) {
+     if (!confirm(t('confirmResetTotpMsg'))) return;
+     db.ref('accounts/' + firebaseKey + '/totpSecret').remove().then(() => {
+         showToast(true, t('toastTotpReset'));
+     }).catch(() => showToast(false));
+ }
 
  window.addEventListener('DOMContentLoaded', function() {
      /* Restore whichever screen the person was on before a refresh, instead of
@@ -1597,8 +1851,10 @@
         in the same tab, so we use it to pick up right where they left off. */
      if (sessionStorage.getItem('isLoggedIn') === 'true') {
          showAdminView();
+         recordDeviceSession(sessionStorage.getItem('loggedInRole'), sessionStorage.getItem('loggedInAccountName'));
      } else if (sessionStorage.getItem('empLoggedInId')) {
          showEmployeeView();
+         recordDeviceSession('employee', sessionStorage.getItem('empLoggedInId'));
      } else {
          showChooserView();
      }
@@ -1612,6 +1868,7 @@
      sessionStorage.removeItem('loggedInAccountName');
      sessionStorage.removeItem('loggedInAccountUsername');
      if (inactivityTimer) clearTimeout(inactivityTimer);
+     if (deviceHeartbeatTimer) { clearInterval(deviceHeartbeatTimer); deviceHeartbeatTimer = null; }
      closeAllMenus();
      document.getElementById('loginOverlay').style.display = 'none';
      showChooserView();
@@ -1936,7 +2193,45 @@
         btnUnlockAll: "Unlock All",
         systemLockedTitle: "System Temporarily Locked",
         toastLockSettingsSaved: "Lock settings saved.",
-        toastAllUnlocked: "Both systems unlocked."
+        toastAllUnlocked: "Both systems unlocked.",
+        btnClose: "Close",
+        navDeviceLog: "Device Log",
+        deviceLogTitle: "Device Log",
+        deviceLogSub: "Devices that have logged into this system. \"Active\" means used in roughly the last 2 minutes. Blocking a device signs it out immediately and keeps it out until unblocked.",
+        deviceColName: "Device Name",
+        deviceColUser: "Last Signed In As",
+        deviceColLastSeen: "Last Seen",
+        deviceColStatus: "Status",
+        deviceNamePlaceholder: "e.g. Sokha's Phone",
+        deviceStatusActive: "Active",
+        deviceStatusInactive: "Inactive",
+        deviceStatusBlocked: "Blocked",
+        deviceLogEmpty: "No devices have logged in yet.",
+        btnBlockDevice: "Block",
+        btnUnblockDevice: "Unblock",
+        confirmBlockDeviceMsg: "Block this device? It will be signed out immediately and unable to use the system until you unblock it.",
+        toastDeviceBlocked: "Device blocked.",
+        toastDeviceUnblocked: "Device unblocked.",
+        deviceBlockedTitle: "This Device Has Been Blocked",
+        deviceBlockedSub: "Administration has blocked this device from using the system. Contact Administration if you believe this is a mistake.",
+        totpVerifyModalTitle: "Enter Authenticator Code",
+        totpVerifyModalSub: "Open Google Authenticator (or a similar app) and enter the current 6-digit code.",
+        btnVerifyCode: "Verify",
+        totpInvalidCodeMsg: "That code is invalid or expired. Please try again.",
+        totpSetupModalTitle: "Set Up Authenticator App",
+        totpSetupModalSub: "This account needs an authenticator app (like Google Authenticator) before it can log in. In the app: add a new account, choose \"Enter a setup key manually\", and type in the key below.",
+        totpSetupSecretLabel: "Setup Key",
+        btnCopy: "Copy",
+        toastCopied: "Copied to clipboard.",
+        totpSetupConfirmLabel: "Enter the code the app now shows",
+        btnConfirmEnable: "Confirm & Enable",
+        totpSetupSaveErrorMsg: "Could not save this authenticator. Please try again.",
+        acctColTotp: "Authenticator",
+        totpSetupStatusEnabled: "Enabled",
+        totpSetupStatusNotSet: "Not set up yet",
+        btnResetAuthenticator: "Reset",
+        confirmResetTotpMsg: "Reset this account's authenticator? They will need to set it up again the next time they log in.",
+        toastTotpReset: "Authenticator reset."
      },
      km: {
          appTitle: "ប្រព័ន្ធគ្រប់គ្រងបុគ្គលិក",
@@ -2239,7 +2534,45 @@
         btnUnlockAll: "ដោះសោទាំងអស់",
         systemLockedTitle: "ប្រព័ន្ធត្រូវបានចាក់សោជាបណ្តោះអាសន្ន",
         toastLockSettingsSaved: "ការកំណត់ចាក់សោត្រូវបានរក្សាទុក។",
-        toastAllUnlocked: "ប្រព័ន្ធទាំងពីរត្រូវបានដោះសោ។"
+        toastAllUnlocked: "ប្រព័ន្ធទាំងពីរត្រូវបានដោះសោ។",
+        btnClose: "បិទ",
+        navDeviceLog: "កំណត់ត្រាឧបករណ៍",
+        deviceLogTitle: "កំណត់ត្រាឧបករណ៍",
+        deviceLogSub: "ឧបករណ៍ដែលបានចូលប្រព័ន្ធនេះ។ \"សកម្ម\" មានន័យថាបានប្រើប្រាស់ប្រហែល 2 នាទីចុងក្រោយ។ ការទប់ស្កាត់ឧបករណ៍មួយនឹងធ្វើឱ្យវាចាកចេញភ្លាមៗ និងរក្សាវាឱ្យនៅក្រៅរហូតដល់ត្រូវបានដោះសោ។",
+        deviceColName: "ឈ្មោះឧបករណ៍",
+        deviceColUser: "ចូលចុងក្រោយក្នុងនាម",
+        deviceColLastSeen: "ឃើញចុងក្រោយ",
+        deviceColStatus: "ស្ថានភាព",
+        deviceNamePlaceholder: "ឧ. ទូរស័ព្ទរបស់សុខា",
+        deviceStatusActive: "សកម្ម",
+        deviceStatusInactive: "អសកម្ម",
+        deviceStatusBlocked: "ត្រូវបានទប់ស្កាត់",
+        deviceLogEmpty: "មិនទាន់មានឧបករណ៍ណាមួយបានចូលប្រព័ន្ធនៅឡើយទេ។",
+        btnBlockDevice: "ទប់ស្កាត់",
+        btnUnblockDevice: "ដោះសោ",
+        confirmBlockDeviceMsg: "ទប់ស្កាត់ឧបករណ៍នេះឬ? វានឹងត្រូវបានចាកចេញភ្លាមៗ និងមិនអាចប្រើប្រាស់ប្រព័ន្ធបានរហូតដល់អ្នកដោះសោ។",
+        toastDeviceBlocked: "ឧបករណ៍ត្រូវបានទប់ស្កាត់។",
+        toastDeviceUnblocked: "ឧបករណ៍ត្រូវបានដោះសោ។",
+        deviceBlockedTitle: "ឧបករណ៍នេះត្រូវបានទប់ស្កាត់",
+        deviceBlockedSub: "រដ្ឋបាលបានទប់ស្កាត់ឧបករណ៍នេះពីការប្រើប្រាស់ប្រព័ន្ធ។ សូមទាក់ទងរដ្ឋបាលប្រសិនបើអ្នកគិតថានេះជាកំហុស។",
+        totpVerifyModalTitle: "បញ្ចូលលេខកូដពីកម្មវិធីផ្ទៀងផ្ទាត់",
+        totpVerifyModalSub: "បើក Google Authenticator (ឬកម្មវិធីស្រដៀងគ្នា) ហើយបញ្ចូលលេខកូដ 6 ខ្ទង់បច្ចុប្បន្ន។",
+        btnVerifyCode: "ផ្ទៀងផ្ទាត់",
+        totpInvalidCodeMsg: "លេខកូដនេះមិនត្រឹមត្រូវ ឬបានផុតកំណត់។ សូមព្យាយាមម្តងទៀត។",
+        totpSetupModalTitle: "រៀបចំកម្មវិធីផ្ទៀងផ្ទាត់",
+        totpSetupModalSub: "គណនីនេះត្រូវការកម្មវិធីផ្ទៀងផ្ទាត់ (ដូចជា Google Authenticator) មុនពេលអាចចូលប្រើបាន។ នៅក្នុងកម្មវិធី៖ បន្ថែមគណនីថ្មី ជ្រើសរើស \"បញ្ចូលលេខកូដដោយដៃ\" រួចវាយបញ្ចូលលេខខាងក្រោម។",
+        totpSetupSecretLabel: "លេខកូដរៀបចំ",
+        btnCopy: "ចម្លង",
+        toastCopied: "ចម្លងទៅក្ដារតម្បៀតខ្ទាស់រួចរាល់។",
+        totpSetupConfirmLabel: "បញ្ចូលលេខកូដដែលកម្មវិធីកំពុងបង្ហាញ",
+        btnConfirmEnable: "បញ្ជាក់ និងបើកដំណើរការ",
+        totpSetupSaveErrorMsg: "មិនអាចរក្សាទុកការរៀបចំនេះបានទេ។ សូមព្យាយាមម្តងទៀត។",
+        acctColTotp: "កម្មវិធីផ្ទៀងផ្ទាត់",
+        totpSetupStatusEnabled: "បានបើកដំណើរការ",
+        totpSetupStatusNotSet: "មិនទាន់បានរៀបចំ",
+        btnResetAuthenticator: "កំណត់ឡើងវិញ",
+        confirmResetTotpMsg: "កំណត់ឡើងវិញកម្មវិធីផ្ទៀងផ្ទាត់របស់គណនីនេះឬ? ពួកគេនឹងត្រូវរៀបចំវាម្តងទៀតនៅពេលចូលលើកក្រោយ។",
+        toastTotpReset: "កម្មវិធីផ្ទៀងផ្ទាត់ត្រូវបានកំណត់ឡើងវិញ។"
      },
      zh: {
          appTitle: "行政管理系统",
@@ -2542,7 +2875,45 @@
         btnUnlockAll: "全部解锁",
         systemLockedTitle: "系统暂时被锁定",
         toastLockSettingsSaved: "锁定设置已保存。",
-        toastAllUnlocked: "两个系统均已解锁。"
+        toastAllUnlocked: "两个系统均已解锁。",
+        btnClose: "关闭",
+        navDeviceLog: "设备日志",
+        deviceLogTitle: "设备日志",
+        deviceLogSub: "登录过本系统的设备。\u201C活跃\u201D表示大约在最近2分钟内使用过。锁定某设备会立即将其登出，并在解锁前一直阻止其使用。",
+        deviceColName: "设备名称",
+        deviceColUser: "最近登录身份",
+        deviceColLastSeen: "最近活动时间",
+        deviceColStatus: "状态",
+        deviceNamePlaceholder: "例如：Sokha的手机",
+        deviceStatusActive: "活跃",
+        deviceStatusInactive: "不活跃",
+        deviceStatusBlocked: "已锁定",
+        deviceLogEmpty: "尚无设备登录过。",
+        btnBlockDevice: "锁定",
+        btnUnblockDevice: "解锁",
+        confirmBlockDeviceMsg: "锁定此设备？它将立即被登出，并且在您解锁之前无法使用系统。",
+        toastDeviceBlocked: "设备已锁定。",
+        toastDeviceUnblocked: "设备已解锁。",
+        deviceBlockedTitle: "此设备已被锁定",
+        deviceBlockedSub: "行政管理已锁定此设备使用本系统。如果您认为这是错误，请联系行政管理。",
+        totpVerifyModalTitle: "输入验证器代码",
+        totpVerifyModalSub: "打开Google Authenticator（或类似应用），输入当前的6位验证码。",
+        btnVerifyCode: "验证",
+        totpInvalidCodeMsg: "该验证码无效或已过期，请重试。",
+        totpSetupModalTitle: "设置验证器应用",
+        totpSetupModalSub: "该账户需要先设置验证器应用（如Google Authenticator）才能登录。在应用中：添加新账户，选择\u201C手动输入设置密钥\u201D，然后输入下方的密钥。",
+        totpSetupSecretLabel: "设置密钥",
+        btnCopy: "复制",
+        toastCopied: "已复制到剪贴板。",
+        totpSetupConfirmLabel: "输入应用当前显示的验证码",
+        btnConfirmEnable: "确认并启用",
+        totpSetupSaveErrorMsg: "无法保存此验证器设置，请重试。",
+        acctColTotp: "验证器",
+        totpSetupStatusEnabled: "已启用",
+        totpSetupStatusNotSet: "尚未设置",
+        btnResetAuthenticator: "重置",
+        confirmResetTotpMsg: "重置该账户的验证器？他们下次登录时需要重新设置。",
+        toastTotpReset: "验证器已重置。"
      }
  };
  
@@ -2647,6 +3018,7 @@
 
  function empLogout() {
      sessionStorage.removeItem('empLoggedInId');
+     if (deviceHeartbeatTimer) { clearInterval(deviceHeartbeatTimer); deviceHeartbeatTimer = null; }
      closeAllMenus();
      refreshEmployeeGate();
  }
@@ -3068,6 +3440,123 @@
          showToast(true, t('toastAllUnlocked'));
          closeLockSystemModal();
      }).catch(() => showToast(false));
+ }
+
+ /* v6.10: Device Log - tracks which browser/device has logged in (as Employee, HR or Administration),
+    lets Administration rename devices for clarity and block/unblock them. This identifies a BROWSER,
+    not physical hardware - clearing browser data or using a different browser counts as a new device.
+    "Active" is approximated from a periodic heartbeat, not true real-time presence. */
+ function getDeviceId() {
+     let id = null;
+     try { id = localStorage.getItem('appDeviceId'); } catch (e) { /* ignore */ }
+     if (!id) {
+         id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : ('dev-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+         try { localStorage.setItem('appDeviceId', id); } catch (e) { /* ignore - device just won't persist an ID across sessions */ }
+     }
+     return id;
+ }
+ const CURRENT_DEVICE_ID = getDeviceId();
+
+ let deviceSessions = [];
+ let deviceHeartbeatTimer = null;
+
+ db.ref('deviceSessions').on('value', (snapshot) => {
+     const data = snapshot.val();
+     deviceSessions = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+     renderDeviceLogTable();
+     applyDeviceBlockState();
+ });
+
+ function recordDeviceSession(role, label) {
+     /* Read the device's current record fresh from Firebase (rather than the local
+        deviceSessions cache, which may not have loaded yet) so a fast re-login right
+        after page load can never accidentally wipe out a saved custom name or a block. */
+     db.ref('deviceSessions/' + CURRENT_DEVICE_ID).once('value').then(snap => {
+         const existing = snap.val() || {};
+         db.ref('deviceSessions/' + CURRENT_DEVICE_ID).update({
+             customName: existing.customName || '',
+             role: role,
+             label: label,
+             userAgent: navigator.userAgent,
+             lastSeen: Date.now(),
+             blocked: existing.blocked || false
+         });
+     });
+     if (deviceHeartbeatTimer) clearInterval(deviceHeartbeatTimer);
+     deviceHeartbeatTimer = setInterval(() => {
+         db.ref('deviceSessions/' + CURRENT_DEVICE_ID + '/lastSeen').set(Date.now());
+     }, 45000);
+ }
+
+ function applyDeviceBlockState() {
+     const mine = deviceSessions.find(d => d.firebaseKey === CURRENT_DEVICE_ID);
+     const overlay = document.getElementById('deviceBlockedOverlay');
+     if (!overlay) return;
+     if (mine && mine.blocked) {
+         overlay.style.display = 'flex';
+         if (deviceHeartbeatTimer) { clearInterval(deviceHeartbeatTimer); deviceHeartbeatTimer = null; }
+         sessionStorage.removeItem('isLoggedIn');
+         sessionStorage.removeItem('loggedInRole');
+         sessionStorage.removeItem('loggedInAccountName');
+         sessionStorage.removeItem('loggedInAccountUsername');
+         sessionStorage.removeItem('empLoggedInId');
+     } else {
+         overlay.style.display = 'none';
+     }
+ }
+
+ function deviceStatusIsActive(lastSeen) {
+     return !!lastSeen && (Date.now() - lastSeen) < 120000;
+ }
+
+ function renderDeviceLogTable() {
+     const tbody = document.querySelector('#deviceLogTable tbody');
+     const badge = document.getElementById('deviceLogBadge');
+     if (badge) {
+         if (deviceSessions.length > 0) { badge.style.display = 'inline-block'; badge.innerText = deviceSessions.length; }
+         else { badge.style.display = 'none'; }
+     }
+     if (!tbody) return;
+     const sorted = [...deviceSessions].sort((a, b) => (b.lastSeen || 0) - (a.lastSeen || 0));
+     tbody.innerHTML = sorted.map(d => {
+         const isActive = deviceStatusIsActive(d.lastSeen);
+         const lastSeenStr = d.lastSeen ? new Date(d.lastSeen).toLocaleString() : '-';
+         const roleLabel = d.role === 'admin' ? t('roleLabelAdmin') : (d.role === 'hr' ? t('roleLabelHR') : t('chooserEmployee'));
+         return `
+             <tr>
+                 <td>
+                     <button class="${d.blocked ? 'btn-view' : 'btn-delete'}" onclick="toggleDeviceBlocked('${d.firebaseKey}', ${!d.blocked})" title="${d.blocked ? t('btnUnblockDevice') : t('btnBlockDevice')}">${d.blocked ? t('btnUnblockDevice') : t('btnBlockDevice')}</button>
+                 </td>
+                 <td><input type="text" value="${(d.customName || '').replace(/"/g, '&quot;')}" placeholder="${t('deviceNamePlaceholder')}" style="min-width:160px;" onchange="renameDevice('${d.firebaseKey}', this.value)"></td>
+                 <td>${d.label || '-'} <span style="color:#94a3b8; font-size:11px;">(${roleLabel})</span></td>
+                 <td>${lastSeenStr}</td>
+                 <td><span class="${isActive ? 'bg-green' : 'bg-red'}" style="padding:2px 6px; border-radius:4px;">${d.blocked ? t('deviceStatusBlocked') : (isActive ? t('deviceStatusActive') : t('deviceStatusInactive'))}</span></td>
+             </tr>
+         `;
+     }).join('');
+     if (deviceSessions.length === 0) {
+         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">${t('deviceLogEmpty')}</td></tr>`;
+     }
+ }
+
+ function renameDevice(firebaseKey, newName) {
+     db.ref('deviceSessions/' + firebaseKey + '/customName').set(newName.trim());
+ }
+
+ function toggleDeviceBlocked(firebaseKey, blocked) {
+     if (blocked && !confirm(t('confirmBlockDeviceMsg'))) { renderDeviceLogTable(); return; }
+     db.ref('deviceSessions/' + firebaseKey + '/blocked').set(blocked).then(() => {
+         showToast(true, blocked ? t('toastDeviceBlocked') : t('toastDeviceUnblocked'));
+     }).catch(() => showToast(false));
+ }
+
+ function openDeviceLogModal() {
+     renderDeviceLogTable();
+     document.getElementById('deviceLogModal').style.display = 'flex';
+ }
+
+ function closeDeviceLogModal() {
+     document.getElementById('deviceLogModal').style.display = 'none';
  }
 
  /* v6.00: HR edits to Master Sheet / Monthly Report / Employee wait for Administration approval */
@@ -3686,10 +4175,13 @@ function deleteAnnouncement(firebaseKey) {
                  </select>
              </td>
              <td style="color:${a.disabled ? '#dc2626' : '#15803d'}; font-weight:600;">${a.disabled ? t('acctDisabled') : t('acctActive')}</td>
+             <td>${a.role === 'admin' ? (a.totpSecret
+                 ? `<span style="color:#15803d; font-weight:600;">${t('totpSetupStatusEnabled')}</span> <button class="btn-edit" style="font-size:10px; padding:3px 8px;" onclick="resetAccountTotp('${a.firebaseKey}')">${t('btnResetAuthenticator')}</button>`
+                 : `<span style="color:#94a3b8;">${t('totpSetupStatusNotSet')}</span>`) : '-'}</td>
          </tr>
      `).join('');
      if (accounts.length === 0) {
-         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">-</td></tr>`;
+         tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">-</td></tr>`;
      }
  }
 
@@ -4413,6 +4905,7 @@ function deleteAnnouncement(firebaseKey) {
          document.getElementById('empLoginPass').value = '';
          refreshEmployeeGate();
          checkBroadcastForCurrentUser();
+         recordDeviceSession('employee', found.name || found.id);
      } else {
          const attempts = (lockState.attempts || 0) + 1;
          if (attempts >= LOCKOUT_MAX_ATTEMPTS) {
