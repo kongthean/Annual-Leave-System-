@@ -97,6 +97,7 @@
      /* Tab Panels */
      .tab-panel { display: none; background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
      .tab-panel.active { display: block; }
+     .emp-panel { display: block; background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
  
      /* Dashboard Styles */
      .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -107,7 +108,7 @@
      .dash-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; margin-bottom: 16px; }
      .dash-card h4 { font-size: 14px; color: #0f172a; margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
  
-     .quick-actions { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+     .quick-actions { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center; }
    
      /* Modern Feature Buttons Styling */
      .quick-btn {
@@ -247,6 +248,13 @@
  <div class="header">
      <h2 data-i18n="employeeAppTitle">Employee Self-Service</h2>
      <div class="header-right">
+         <!-- Employee Notification Bell (shown only after employee login) -->
+         <div class="lang-dropdown" id="empNotifBellWrapper" style="display:none;">
+             <button class="lang-btn" onclick="toggleEmpNotifPanel(event)" title="Notifications" id="empNotifBellBtn">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px;"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                 <span id="empNotifBadge" class="notif-badge" style="display:none;">0</span>
+             </button>
+         </div>
          <!-- Language Dropdown -->
          <div class="lang-dropdown">
              <button class="lang-btn" onclick="toggleLangMenu(event, 'langMenuEmp')">
@@ -265,25 +273,48 @@
                  </div>
              </div>
          </div>
+         <!-- Employee logout (shown only after employee login) -->
+         <button class="lang-btn" id="empLogoutBtn" onclick="empLogout()" title="Log Out" style="display:none;">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+         </button>
          <!-- Power Button: goes to Administration System (logs in if needed) -->
          <button class="lang-btn" onclick="handleEmployeePower()" title="Administration Login" style="background:#dc2626;">⏻</button>
      </div>
  </div>
 
- <div class="tab-panel active" style="margin-top:12px;">
+ <!-- EMPLOYEE LOGIN GATE -->
+ <div class="emp-panel" id="empLoginScreen" style="margin-top:12px; text-align:center; max-width:380px; margin-left:auto; margin-right:auto;">
+     <h3 data-i18n="empLoginTitle">Employee Login</h3>
+     <p style="font-size:12px; color:#64748b; margin-bottom:14px;" data-i18n="empLoginSub">Log in with your Employee ID to submit requests and view responses from administration.</p>
+     <form id="empLoginForm" style="text-align:left;">
+         <div class="form-group">
+             <label data-i18n="lblEmpLoginId">Employee ID / Username</label>
+             <input type="text" id="empLoginUser" placeholder="e.g. 200001" required autocomplete="off">
+         </div>
+         <div class="form-group">
+             <label data-i18n="lblEmpLoginPass">Password</label>
+             <input type="password" id="empLoginPass" required>
+         </div>
+         <button type="submit" class="btn-submit" style="background:#2563eb;" data-i18n="btnEmpLogin">Log In</button>
+         <div id="empLoginError" style="display:none; color:#dc2626; font-size:12px; margin-top:10px; font-weight:600; text-align:center;" data-i18n="empLoginErrorMsg">Invalid ID or password, or this account is not active.</div>
+     </form>
+ </div>
+
+ <!-- EMPLOYEE CONTENT (request form) - shown after login -->
+ <div class="emp-panel" id="empContentArea" style="display:none; margin-top:12px; text-align:center;">
      <h3 data-i18n="employeeAppTitle">Employee Self-Service</h3>
-     <p style="font-size:12px; color:#64748b; margin-bottom:14px;" data-i18n="employeeAppSub">Submit a request to the administration team — check your annual leave, update your information, request leave, or ask us anything else.</p>
+     <p style="font-size:12px; color:#64748b; margin-bottom:14px; max-width:480px; margin-left:auto; margin-right:auto;" data-i18n="employeeAppSub">Submit a request to the administration team — check your annual leave, update your information, request leave, or ask us anything else.</p>
 
-     <div class="toast-msg" id="empToast" data-i18n="reqConfirmMsg">✓ Your request has been submitted successfully! We will review and respond within 24 hours or the next business day.</div>
+     <div class="toast-msg" id="empToast" style="max-width:480px; margin:0 auto 12px auto; text-align:left;" data-i18n="reqConfirmMsg">✓ Your request has been submitted successfully! We will review and respond within 24 hours or the next business day.</div>
 
-     <form id="empRequestForm" style="max-width: 480px;">
+     <form id="empRequestForm" style="max-width: 480px; margin:0 auto; text-align:left;">
          <div class="form-group">
              <label data-i18n="lblEmpId">Employee ID</label>
-             <input type="text" id="reqEmpId" placeholder="e.g. 200001" required>
+             <input type="text" id="reqEmpId" placeholder="e.g. 200001" required readonly style="background:#f1f5f9;">
          </div>
          <div class="form-group">
              <label data-i18n="lblFullName">Full Name</label>
-             <input type="text" id="reqName" placeholder="e.g. Sok Heng" required>
+             <input type="text" id="reqName" placeholder="e.g. Sok Heng" required readonly style="background:#f1f5f9;">
          </div>
          <div class="form-group">
              <label data-i18n="lblReqDate">Date</label>
@@ -306,7 +337,7 @@
          <div class="form-group">
              <label data-i18n="lblReqMethod">Preferred Way to Get a Response</label>
              <select id="reqMethod" required onchange="onReqMethodChange()">
-                 <option value="" data-i18n="reqTypeChoose">-- Select --</option>
+                 <option value="System" data-i18n="methodSystem">System (in-app notification)</option>
                  <option value="Phone Call" data-i18n="methodPhone">Phone Call</option>
                  <option value="SMS" data-i18n="methodSMS">SMS</option>
                  <option value="Email" data-i18n="methodEmail">Email</option>
@@ -324,6 +355,17 @@
          </div>
          <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:10px;" data-i18n="btnSubmitRequest">Submit Request</button>
      </form>
+ </div>
+</div>
+
+<!-- EMPLOYEE NOTIFICATIONS MODAL -->
+<div class="modal" id="empNotifModal">
+ <div class="modal-content" style="max-width:550px;">
+     <div class="modal-header">
+         <h4 data-i18n="empNotifTitle">Notifications</h4>
+         <button class="modal-close" onclick="closeEmpNotifModal()">&times;</button>
+     </div>
+     <div id="empNotifListBody"></div>
  </div>
 </div>
 
@@ -356,7 +398,7 @@
          <!-- Notification Bell -->
          <div class="lang-dropdown">
              <button class="lang-btn" onclick="toggleNotifPanel(event)" title="Notifications" id="notifBellBtn">
-                 🔔<span id="notifBadge" class="notif-badge" style="display:none;">0</span>
+ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px;"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span id="notifBadge" class="notif-badge" style="display:none;">0</span>
              </button>
          </div>
        
@@ -665,9 +707,9 @@
  </div>
  
  <!-- TAB 5: ATTENDANCE -->
- <div id="tab-att" class="tab-panel">
+ <div id="tab-att" class="tab-panel" style="text-align:center;">
      <h3 data-i18n="attTitle">Attendance</h3>
-     <form id="attForm" style="max-width: 450px; margin-top:10px;">
+     <form id="attForm" style="max-width: 450px; margin: 10px auto 0 auto; text-align:left;">
          <div class="form-group">
              <label data-i18n="lblAttDate">Date</label>
              <input type="date" id="attDate" required>
@@ -898,6 +940,10 @@
          </div>
          <div class="form-group"><label data-i18n="tblEmergencyContact">Emergency Contact</label><input type="text" id="editEmergencyContact"></div>
          <div class="grid-3">
+             <div class="form-group"><label data-i18n="lblLoginUsername">Login Username</label><input type="text" id="editLoginUsername" placeholder="Defaults to Employee ID"></div>
+             <div class="form-group"><label data-i18n="lblLoginPassword">Login Password</label><input type="text" id="editLoginPassword" placeholder="Defaults to Employee ID"></div>
+         </div>
+         <div class="grid-3">
              <div class="form-group"><label data-i18n="tblStatus">Status</label>
                  <select id="editStatus"><option value="Active">Active</option><option value="Resigned">Resigned</option></select>
              </div>
@@ -958,10 +1004,48 @@
      <div id="notifListBody"></div>
  </div>
 </div>
+
+<!-- COMPOSE NOTIFICATION MODAL (respond to a request, or send a general announcement) -->
+<div class="modal" id="composeModal">
+ <div class="modal-content" style="max-width:480px;">
+     <div class="modal-header">
+         <h4 id="composeModalTitle" data-i18n="composeRespondTitle">Send Response</h4>
+         <button class="modal-close" onclick="closeComposeModal()">&times;</button>
+     </div>
+     <form id="composeForm">
+         <input type="hidden" id="composeRelatedKey">
+         <div class="form-group">
+             <label data-i18n="lblComposeTarget">Send To</label>
+             <select id="composeTargetType" onchange="onComposeTargetTypeChange()">
+                 <option value="SPECIFIC" data-i18n="targetSpecific">Specific Employee ID</option>
+                 <option value="ALL" data-i18n="targetAll">All Employees (General Notification)</option>
+             </select>
+         </div>
+         <div class="form-group" id="composeSpecificIdGroup">
+             <label data-i18n="lblEmpId">Employee ID</label>
+             <input type="text" id="composeSpecificId" placeholder="e.g. 200001">
+         </div>
+         <div class="form-group">
+             <label data-i18n="lblComposeMessage">Response / Notification Title</label>
+             <input type="text" id="composeMessage" required>
+         </div>
+         <div class="form-group">
+             <label data-i18n="lblComposeDescription">Description Details</label>
+             <textarea id="composeDescription" rows="3" required></textarea>
+         </div>
+         <button type="submit" class="btn-submit" style="background:#2563eb; margin-top:6px;" data-i18n="btnSendNotification">Send</button>
+     </form>
+ </div>
+</div>
  
 <script>
  /* FIREBASE DATABASE REFERENCE */
  const db = firebase.database();
+
+ /* Shared row-action icons (used instead of emoji) */
+ const ICON_VIEW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px; height:15px; vertical-align:middle;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+ const ICON_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px; height:15px; vertical-align:middle;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+ const ICON_DELETE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px; height:15px; vertical-align:middle;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
  
  /* AUTHENTICATION & INACTIVITY TIMER SETUP */
  const AUTH_USER = "admin";
@@ -1153,7 +1237,30 @@
          btnMarkProcessed: "Mark as Processed",
          btnDeleteRequest: "Delete",
          statusPending: "Pending",
-         statusProcessed: "Processed"
+         statusProcessed: "Processed",
+         methodSystem: "System (in-app notification)",
+         empLoginTitle: "Employee Login",
+         empLoginSub: "Log in with your Employee ID to submit requests and view responses from administration.",
+         lblEmpLoginId: "Employee ID / Username",
+         lblEmpLoginPass: "Password",
+         btnEmpLogin: "Log In",
+         empLoginErrorMsg: "Invalid ID or password, or this account is not active.",
+         empNotifTitle: "Notifications",
+         empNotifEmpty: "You have no notifications yet.",
+         targetAllBadge: "General Announcement",
+         btnNewAnnouncement: "+ New Announcement",
+         btnRespond: "Respond",
+         composeRespondTitle: "Send Response",
+         composeAnnounceTitle: "Send General Announcement",
+         lblComposeTarget: "Send To",
+         targetSpecific: "Specific Employee ID",
+         targetAll: "All Employees (General Notification)",
+         lblComposeMessage: "Response / Notification Title",
+         lblComposeDescription: "Description Details",
+         btnSendNotification: "Send",
+         notifSentAlert: "Notification sent successfully!",
+         lblLoginUsername: "Login Username",
+         lblLoginPassword: "Login Password"
      },
      km: {
          appTitle: "ប្រព័ន្ធគ្រប់គ្រងបុគ្គលិក",
@@ -1295,7 +1402,30 @@
          btnMarkProcessed: "កំណត់ថាបានដំណើរការ",
          btnDeleteRequest: "លុប",
          statusPending: "កំពុងរង់ចាំ",
-         statusProcessed: "បានដំណើរការ"
+         statusProcessed: "បានដំណើរការ",
+         methodSystem: "តាមប្រព័ន្ធ (ការជូនដំណឹងក្នុងកម្មវិធី)",
+         empLoginTitle: "ចូលគណនីបុគ្គលិក",
+         empLoginSub: "ចូលគណនីដោយប្រើអត្តលេខបុគ្គលិករបស់អ្នក ដើម្បីដាក់ស្នើសំណើ និងមើលចម្លើយពីផ្នែកគ្រប់គ្រង។",
+         lblEmpLoginId: "អត្តលេខបុគ្គលិក / ឈ្មោះគណនី",
+         lblEmpLoginPass: "ពាក្យសម្ងាត់",
+         btnEmpLogin: "ចូលគណនី",
+         empLoginErrorMsg: "អត្តលេខ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ ឬគណនីនេះមិនទាន់សកម្មទេ។",
+         empNotifTitle: "ការជូនដំណឹង",
+         empNotifEmpty: "អ្នកមិនទាន់មានការជូនដំណឹងទេ។",
+         targetAllBadge: "សេចក្តីជូនដំណឹងទូទៅ",
+         btnNewAnnouncement: "+ សេចក្តីជូនដំណឹងថ្មី",
+         btnRespond: "ឆ្លើយតប",
+         composeRespondTitle: "ផ្ញើចម្លើយ",
+         composeAnnounceTitle: "ផ្ញើសេចក្តីជូនដំណឹងទូទៅ",
+         lblComposeTarget: "ផ្ញើទៅ",
+         targetSpecific: "អត្តលេខបុគ្គលិកជាក់លាក់",
+         targetAll: "បុគ្គលិកទាំងអស់ (ការជូនដំណឹងទូទៅ)",
+         lblComposeMessage: "ចំណងជើងចម្លើយ / ការជូនដំណឹង",
+         lblComposeDescription: "ព័ត៌មានលម្អិត",
+         btnSendNotification: "ផ្ញើ",
+         notifSentAlert: "បានផ្ញើការជូនដំណឹងដោយជោគជ័យ!",
+         lblLoginUsername: "ឈ្មោះគណនីចូល",
+         lblLoginPassword: "ពាក្យសម្ងាត់ចូល"
      },
      zh: {
          appTitle: "行政管理系统",
@@ -1436,7 +1566,30 @@
          btnMarkProcessed: "标记为已处理",
          btnDeleteRequest: "删除",
          statusPending: "待处理",
-         statusProcessed: "已处理"
+         statusProcessed: "已处理",
+         methodSystem: "系统（应用内通知）",
+         empLoginTitle: "员工登录",
+         empLoginSub: "使用您的员工编号登录，以提交请求并查看行政部门的回复。",
+         lblEmpLoginId: "员工编号 / 用户名",
+         lblEmpLoginPass: "密码",
+         btnEmpLogin: "登录",
+         empLoginErrorMsg: "编号或密码不正确，或该账户未激活。",
+         empNotifTitle: "通知",
+         empNotifEmpty: "您目前没有通知。",
+         targetAllBadge: "全体通知",
+         btnNewAnnouncement: "+ 新建通知",
+         btnRespond: "回复",
+         composeRespondTitle: "发送回复",
+         composeAnnounceTitle: "发送全体通知",
+         lblComposeTarget: "发送对象",
+         targetSpecific: "指定员工编号",
+         targetAll: "所有员工（全体通知）",
+         lblComposeMessage: "回复 / 通知标题",
+         lblComposeDescription: "详细说明",
+         btnSendNotification: "发送",
+         notifSentAlert: "通知已成功发送！",
+         lblLoginUsername: "登录用户名",
+         lblLoginPassword: "登录密码"
      }
  };
  
@@ -1475,6 +1628,49 @@
      document.getElementById('adminApp').style.display = 'none';
      document.getElementById('employeeApp').style.display = 'block';
      closeAllMenus();
+     refreshEmployeeGate();
+ }
+
+ function refreshEmployeeGate() {
+     const empId = sessionStorage.getItem('empLoggedInId');
+     if (!empId) {
+         showEmpLoginScreen();
+         return;
+     }
+     if (employees.length === 0) {
+         /* Employee data hasn't loaded from Firebase yet - wait rather than
+            wrongly clearing a valid session. This function runs again once data arrives. */
+         showEmpLoginScreen();
+         return;
+     }
+     const found = employees.find(e => e.id === empId && e.status === 'Active');
+     if (found) {
+         document.getElementById('empLoginScreen').style.display = 'none';
+         document.getElementById('empContentArea').style.display = 'block';
+         document.getElementById('empNotifBellWrapper').style.display = 'inline-block';
+         document.getElementById('empLogoutBtn').style.display = 'inline-flex';
+         const idField = document.getElementById('reqEmpId');
+         const nameField = document.getElementById('reqName');
+         if (idField) idField.value = found.id;
+         if (nameField) nameField.value = found.name;
+         renderEmpNotifBadge();
+     } else {
+         sessionStorage.removeItem('empLoggedInId');
+         showEmpLoginScreen();
+     }
+ }
+
+ function showEmpLoginScreen() {
+     document.getElementById('empLoginScreen').style.display = 'block';
+     document.getElementById('empContentArea').style.display = 'none';
+     document.getElementById('empNotifBellWrapper').style.display = 'none';
+     document.getElementById('empLogoutBtn').style.display = 'none';
+ }
+
+ function empLogout() {
+     sessionStorage.removeItem('empLoggedInId');
+     closeAllMenus();
+     refreshEmployeeGate();
  }
 
  function showAdminView() {
@@ -1585,6 +1781,8 @@
              residence: data[key].residence || '',
              contact: data[key].contact || '',
              emergencyContact: data[key].emergencyContact || '',
+             loginUsername: data[key].loginUsername || '',
+             loginPassword: data[key].loginPassword || '',
              status: data[key].status || 'Active',
              resignedDate: data[key].resignedDate || '',
              workHours: data[key].workHours || 0,
@@ -1606,6 +1804,7 @@
      renderMaster();
      renderMonthlyReport();
      renderEmployeeList();
+     refreshEmployeeGate();
  });
  
  document.getElementById('chkDate').valueAsDate = new Date();
@@ -1701,9 +1900,9 @@
          tbody.innerHTML += `
              <tr>
                  <td>
-                     <button class="btn-view" onclick="openMasterDetailModal(${index})" title="Check Detail">🔎</button>
-                     <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">✏️</button>
-                     <button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">🗑️</button>
+                     <button class="btn-view" onclick="openMasterDetailModal(${index})" title="Check Detail">${ICON_VIEW}</button>
+                     <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">${ICON_EDIT}</button>
+                     <button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">${ICON_DELETE}</button>
                  </td>
                  <td><b>${emp.id}</b></td>
                  <td>${emp.name}</td>
@@ -1748,9 +1947,9 @@
          tbody.innerHTML += `
              <tr>
                  <td>
-                     <button class="btn-view" onclick="openMonthlyDetailModal(${index})" title="Check Detail">🔎</button>
-                     <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">✏️</button>
-                     <button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">🗑️</button>
+                     <button class="btn-view" onclick="openMonthlyDetailModal(${index})" title="Check Detail">${ICON_VIEW}</button>
+                     <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">${ICON_EDIT}</button>
+                     <button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">${ICON_DELETE}</button>
                  </td>
                  <td><b>${emp.id}</b></td>
                  <td>${emp.name}</td>
@@ -1788,9 +1987,9 @@
          tbody.innerHTML += `
              <tr>
                  <td>
-                     <button class="btn-view" onclick="openEmployeeDetailModal(${index})" title="See Details">🔎</button>
-                     <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">✏️</button>
-                     <button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">🗑️</button>
+                     <button class="btn-view" onclick="openEmployeeDetailModal(${index})" title="See Details">${ICON_VIEW}</button>
+                     <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">${ICON_EDIT}</button>
+                     <button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">${ICON_DELETE}</button>
                  </td>
                  <td><b>${emp.id}</b></td>
                  <td>${emp.name}</td>
@@ -2049,6 +2248,8 @@
      document.getElementById('editResidence').value = emp.residence || '';
      document.getElementById('editContact').value = emp.contact || '';
      document.getElementById('editEmergencyContact').value = emp.emergencyContact || '';
+     document.getElementById('editLoginUsername').value = emp.loginUsername || '';
+     document.getElementById('editLoginPassword').value = emp.loginPassword || '';
      document.getElementById('editJoinDate').value = emp.joinDate;
      document.getElementById('editResignedDate').value = emp.resignedDate || '';
      document.getElementById('editStatus').value = emp.status || 'Active';
@@ -2101,6 +2302,8 @@
          residence: document.getElementById('editResidence').value,
          contact: document.getElementById('editContact').value,
          emergencyContact: document.getElementById('editEmergencyContact').value,
+         loginUsername: document.getElementById('editLoginUsername').value.trim(),
+         loginPassword: document.getElementById('editLoginPassword').value.trim(),
          joinDate: joinDateInput,
          resignedDate: document.getElementById('editResignedDate').value.trim(),
          status: document.getElementById('editStatus').value,
@@ -2264,17 +2467,48 @@
      }
  });
 
+/* ===== EMPLOYEE LOGIN ===== */
+ document.getElementById('empLoginForm').addEventListener('submit', function(e) {
+     e.preventDefault();
+     const userIn = document.getElementById('empLoginUser').value.trim();
+     const passIn = document.getElementById('empLoginPass').value.trim();
+     const errorDiv = document.getElementById('empLoginError');
+
+     const found = employees.find(emp => {
+         const uname = emp.loginUsername || emp.id;
+         const pwd = emp.loginPassword || emp.id;
+         return uname === userIn && pwd === passIn && emp.status === 'Active';
+     });
+
+     if (found) {
+         sessionStorage.setItem('empLoggedInId', found.id);
+         errorDiv.style.display = 'none';
+         document.getElementById('empLoginPass').value = '';
+         refreshEmployeeGate();
+     } else {
+         errorDiv.style.display = 'block';
+     }
+ });
+
  /* ===== EMPLOYEE REQUEST SUBMISSION ===== */
  function onReqMethodChange() {
      const method = document.getElementById('reqMethod').value;
-     document.getElementById('reqContactGroup').style.display = method ? 'block' : 'none';
+     document.getElementById('reqContactGroup').style.display = (method && method !== 'System') ? 'block' : 'none';
  }
 
  document.getElementById('empRequestForm').addEventListener('submit', function(e) {
      e.preventDefault();
+     const loggedInId = sessionStorage.getItem('empLoggedInId');
+     const loggedInEmp = employees.find(emp => emp.id === loggedInId);
+     if (!loggedInEmp) {
+         alert('Your session has expired. Please log in again.');
+         refreshEmployeeGate();
+         return;
+     }
+
      const payload = {
-         empId: document.getElementById('reqEmpId').value.trim(),
-         name: document.getElementById('reqName').value.trim(),
+         empId: loggedInEmp.id,
+         name: loggedInEmp.name,
          date: document.getElementById('reqDate').value,
          type: document.getElementById('reqType').value,
          description: document.getElementById('reqDescription').value.trim(),
@@ -2286,6 +2520,9 @@
 
      db.ref('requests').push(payload).then(() => {
          this.reset();
+         document.getElementById('reqEmpId').value = loggedInEmp.id;
+         document.getElementById('reqName').value = loggedInEmp.name;
+         document.getElementById('reqMethod').value = 'System';
          document.getElementById('reqDate').valueAsDate = new Date();
          document.getElementById('reqContactGroup').style.display = 'none';
          const toast = document.getElementById('empToast');
@@ -2329,13 +2566,18 @@
      const body = document.getElementById('notifListBody');
      if (!body) return;
 
+     let html = `<div style="margin-bottom:12px;">
+         <button class="quick-btn indigo" style="padding:6px 12px; font-size:12px;" onclick="openComposeNotification(null, null)">${t('btnNewAnnouncement')}</button>
+     </div>`;
+
      if (requests.length === 0) {
-         body.innerHTML = `<p style="font-size:13px; color:#64748b; text-align:center; padding:20px;">${t('notifEmpty')}</p>`;
+         html += `<p style="font-size:13px; color:#64748b; text-align:center; padding:20px;">${t('notifEmpty')}</p>`;
+         body.innerHTML = html;
          return;
      }
 
      const sorted = [...requests].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-     body.innerHTML = sorted.map(r => `
+     html += sorted.map(r => `
          <div class="detail-item" style="flex-direction:column; align-items:flex-start; gap:6px; margin-bottom:10px;">
              <div style="display:flex; justify-content:space-between; width:100%;">
                  <span class="lbl">${r.name || '-'} (${r.empId || '-'})</span>
@@ -2346,12 +2588,14 @@
                  <b>${t('lblReqDescription')}:</b> ${r.description || '-'}<br>
                  <b>${t('lblReqMethod')}:</b> ${r.method || '-'} &nbsp;|&nbsp; <b>${t('lblReqContact')}:</b> ${r.contact || '-'}
              </div>
-             <div style="display:flex; gap:8px; margin-top:4px;">
+             <div style="display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
+                 <button class="quick-btn" style="padding:4px 10px; font-size:11px;" onclick="openComposeNotification('${r.empId || ''}', '${r.firebaseKey}')">${t('btnRespond')}</button>
                  ${r.status !== 'processed' ? `<button class="quick-btn green" style="padding:4px 10px; font-size:11px;" onclick="markRequestProcessed('${r.firebaseKey}')">${t('btnMarkProcessed')}</button>` : ''}
                  <button class="quick-btn slate" style="padding:4px 10px; font-size:11px;" onclick="deleteRequest('${r.firebaseKey}')">${t('btnDeleteRequest')}</button>
              </div>
          </div>
      `).join('');
+     body.innerHTML = html;
  }
 
  function toggleNotifPanel(e) {
@@ -2371,6 +2615,135 @@
 
  function deleteRequest(key) {
      db.ref('requests/' + key).remove();
+ }
+
+ /* ===== NOTIFICATIONS CHANNEL (admin responses + general announcements, auto-removed after 7 days) ===== */
+ let allNotifications = [];
+
+ db.ref('notifications').on('value', (snapshot) => {
+     const data = snapshot.val();
+     let list = [];
+     if (data) {
+         list = Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] }));
+     }
+     const cutoff = Date.now() - REQUEST_RETENTION_MS;
+     list.forEach(n => {
+         if ((n.timestamp || 0) < cutoff) {
+             db.ref('notifications/' + n.firebaseKey).remove();
+         }
+     });
+     allNotifications = list.filter(n => (n.timestamp || 0) >= cutoff);
+     renderEmpNotifBadge();
+     if (document.getElementById('empNotifModal') && document.getElementById('empNotifModal').style.display === 'flex') {
+         renderEmpNotifList();
+     }
+ });
+
+ /* ---- Admin: compose a response (tied to a request) or a general announcement (to all) ---- */
+ function openComposeNotification(targetId, relatedKey) {
+     closeAllMenus();
+     document.getElementById('composeForm').reset();
+     document.getElementById('composeRelatedKey').value = relatedKey || '';
+     if (targetId) {
+         document.getElementById('composeTargetType').value = 'SPECIFIC';
+         document.getElementById('composeSpecificId').value = targetId;
+         document.getElementById('composeSpecificIdGroup').style.display = 'block';
+         document.getElementById('composeModalTitle').innerText = t('composeRespondTitle');
+     } else {
+         document.getElementById('composeTargetType').value = 'ALL';
+         document.getElementById('composeSpecificId').value = '';
+         document.getElementById('composeSpecificIdGroup').style.display = 'none';
+         document.getElementById('composeModalTitle').innerText = t('composeAnnounceTitle');
+     }
+     document.getElementById('composeModal').style.display = 'flex';
+ }
+
+ function onComposeTargetTypeChange() {
+     const type = document.getElementById('composeTargetType').value;
+     document.getElementById('composeSpecificIdGroup').style.display = (type === 'SPECIFIC') ? 'block' : 'none';
+ }
+
+ function closeComposeModal() {
+     document.getElementById('composeModal').style.display = 'none';
+ }
+
+ document.getElementById('composeForm').addEventListener('submit', function(e) {
+     e.preventDefault();
+     const targetType = document.getElementById('composeTargetType').value;
+     const targetId = targetType === 'ALL' ? 'ALL' : document.getElementById('composeSpecificId').value.trim();
+
+     if (targetType === 'SPECIFIC' && !targetId) {
+         alert('Please enter an Employee ID to send this to.');
+         return;
+     }
+
+     const relatedKey = document.getElementById('composeRelatedKey').value;
+     const payload = {
+         targetId: targetId,
+         message: document.getElementById('composeMessage').value.trim(),
+         description: document.getElementById('composeDescription').value.trim(),
+         relatedRequestKey: relatedKey || null,
+         timestamp: Date.now()
+     };
+
+     db.ref('notifications').push(payload).then(() => {
+         if (relatedKey) {
+             db.ref('requests/' + relatedKey).update({ status: 'processed' });
+         }
+         closeComposeModal();
+         alert(t('notifSentAlert'));
+     }).catch(error => {
+         alert('Error sending notification: ' + error.message);
+     });
+ });
+
+ /* ---- Employee: view notifications addressed to me or to everyone ---- */
+ function getEmpNotifications() {
+     const empId = sessionStorage.getItem('empLoggedInId');
+     if (!empId) return [];
+     return allNotifications.filter(n => n.targetId === 'ALL' || n.targetId === empId);
+ }
+
+ function renderEmpNotifBadge() {
+     const badge = document.getElementById('empNotifBadge');
+     if (!badge) return;
+     const list = getEmpNotifications();
+     if (list.length > 0) {
+         badge.style.display = 'inline-block';
+         badge.innerText = list.length;
+     } else {
+         badge.style.display = 'none';
+     }
+ }
+
+ function renderEmpNotifList() {
+     const body = document.getElementById('empNotifListBody');
+     if (!body) return;
+     const list = getEmpNotifications().sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+     if (list.length === 0) {
+         body.innerHTML = `<p style="font-size:13px; color:#64748b; text-align:center; padding:20px;">${t('empNotifEmpty')}</p>`;
+         return;
+     }
+     body.innerHTML = list.map(n => `
+         <div class="detail-item" style="flex-direction:column; align-items:flex-start; gap:6px; margin-bottom:10px;">
+             <div style="display:flex; justify-content:space-between; width:100%;">
+                 <span class="lbl">${n.message || '-'}</span>
+                 <span class="val" style="font-size:11px; color:#64748b;">${n.targetId === 'ALL' ? t('targetAllBadge') : ''}</span>
+             </div>
+             <div style="font-size:12px; color:#334155; width:100%; text-align:left;">${n.description || ''}</div>
+         </div>
+     `).join('');
+ }
+
+ function toggleEmpNotifPanel(e) {
+     e.stopPropagation();
+     closeAllMenus();
+     renderEmpNotifList();
+     document.getElementById('empNotifModal').style.display = 'flex';
+ }
+
+ function closeEmpNotifModal() {
+     document.getElementById('empNotifModal').style.display = 'none';
  }
 </script>
 </body>
