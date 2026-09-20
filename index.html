@@ -54,9 +54,9 @@
      .login-card .form-group { text-align: left; margin-bottom: 12px; }
      .login-card label { display: block; font-weight: 600; font-size: 11px; color: #334155; margin-bottom: 4px; text-transform: uppercase; }
      .login-card input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; }
-     .login-card input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
-     .login-btn { width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
-     .login-btn:hover { background: #1d4ed8; }
+     .login-card input:focus { outline: none; border-color: #123a5c; box-shadow: 0 0 0 2px rgba(18, 58, 92, 0.2); }
+     .login-btn { width: 100%; padding: 10px; background: #123a5c; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+     .login-btn:hover { background: #0a2740; }
      .login-error { color: #dc2626; font-size: 12px; margin-top: 10px; display: none; font-weight: 600; }
  
      /* Header & Navigation */
@@ -107,7 +107,8 @@
          transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
      }
      .chooser-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,0.22); }
-     .chooser-card.employee { background: linear-gradient(150deg, #2563eb, #1d4ed8); }
+     .chooser-card.employee { background: linear-gradient(150deg, #123a5c, #0a2740); }
+     .chooser-card.hr { background: linear-gradient(150deg, #0d9488, #0f766e); }
      .chooser-card.admin { background: linear-gradient(150deg, #0f172a, #334155); }
      .chooser-card .chooser-icon { width: 64px; height: 64px; }
      .chooser-card .chooser-icon svg { width: 100%; height: 100%; stroke: currentColor; }
@@ -116,7 +117,7 @@
 
      nav { display: flex; background: #1e293b; border-radius: 0 0 8px 8px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); flex-wrap: wrap; }
      nav button { flex: 1; padding: 10px 12px; border: none; background: transparent; color: #94a3b8; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px; transition: all 0.2s; min-width: 130px; }
-     nav button.active { background: #2563eb; color: white; }
+     nav button.active { background: #123a5c; color: white; }
      nav button:hover:not(.active) { color: white; background: #334155; }
  
      /* Tab Panels */
@@ -126,7 +127,7 @@
  
      /* Dashboard Styles */
      .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
-     .stat-card { background: #f1f5f9; padding: 12px 16px; border-radius: 6px; border-left: 4px solid #2563eb; }
+     .stat-card { background: #f1f5f9; padding: 12px 16px; border-radius: 6px; border-left: 4px solid #123a5c; }
      .stat-card h4 { color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
      .stat-card div { font-size: 20px; font-weight: 700; color: #0f172a; }
  
@@ -138,7 +139,7 @@
      /* Modern Feature Buttons Styling */
      .quick-btn {
          padding: 10px 16px;
-         background: linear-gradient(135deg, #2563eb, #1d4ed8);
+         background: linear-gradient(135deg, #123a5c, #0a2740);
          color: white;
          border: none;
          border-radius: 8px;
@@ -148,7 +149,7 @@
          display: inline-flex;
          align-items: center;
          gap: 8px;
-         box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+         box-shadow: 0 4px 12px rgba(18, 58, 92, 0.2);
          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
          position: relative;
          overflow: hidden;
@@ -163,10 +164,10 @@
      }
      .quick-btn:hover {
          transform: translateY(-2px);
-         box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+         box-shadow: 0 6px 16px rgba(18, 58, 92, 0.35);
      }
      .quick-btn:hover::after { opacity: 1; }
-     .quick-btn:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2); }
+     .quick-btn:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(18, 58, 92, 0.2); }
  
      .quick-btn.green { background: linear-gradient(135deg, #16a34a, #15803d); box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2); }
      .quick-btn.green:hover { box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35); }
@@ -185,20 +186,59 @@
  
      .quick-btn.indigo { background: linear-gradient(135deg, #4f46e5, #4338ca); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); }
      .quick-btn.indigo:hover { box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35); }
+
+     .quick-btn.cyan { background: linear-gradient(135deg, #0891b2, #0e7490); box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2); }
+     .quick-btn.cyan:hover { box-shadow: 0 6px 16px rgba(8, 145, 178, 0.35); }
+
+     .quick-btn.rose { background: linear-gradient(135deg, #e11d48, #be123c); box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2); }
+     .quick-btn.rose:hover { box-shadow: 0 6px 16px rgba(225, 29, 72, 0.35); }
+
+     .quick-btn.brown { background: linear-gradient(135deg, #78716c, #57534e); box-shadow: 0 4px 12px rgba(87, 83, 78, 0.2); }
+     .quick-btn.brown:hover { box-shadow: 0 6px 16px rgba(87, 83, 78, 0.35); }
  
-     /* Main Menu icon buttons (scoped so other quick-btn buttons, like Export, are unaffected) */
-     .quick-actions .quick-btn { flex-direction: column; gap: 6px; padding: 14px 10px; min-width: 96px; }
-     .quick-actions .quick-btn .quick-btn-icon { display:flex; align-items:center; justify-content:center; width: 24px; height: 24px; }
-     .quick-actions .quick-btn .quick-btn-icon svg { width: 100%; height: 100%; stroke: currentColor; }
-     .quick-actions .quick-btn .quick-btn-label { font-size: 11px; font-weight: 600; line-height: 1.2; }
+ /* Main Menu icon buttons (scoped so other quick-btn buttons, like Export, are unaffected) */
+ .quick-actions { align-items: stretch; }
+ .quick-actions .quick-btn {
+     flex-direction: column;
+     gap: 6px;
+     padding: 14px 10px;
+     width: 104px;
+     min-width: 104px;
+     max-width: 104px;
+     min-height: 96px;
+     justify-content: center;
+ }
+ .quick-actions .quick-btn .quick-btn-icon { display:flex; align-items:center; justify-content:center; flex: 0 0 24px; width: 24px; height: 24px; }
+ .quick-actions .quick-btn .quick-btn-icon svg { display:block; width: 24px; height: 24px; stroke: currentColor; }
+ .quick-actions .quick-btn .quick-btn-label {
+     font-size: 11px;
+     font-weight: 600;
+     line-height: 1.25;
+     white-space: normal;
+     word-break: break-word;
+     overflow-wrap: break-word;
+     text-align: center;
+     max-width: 100%;
+ }
+ @media (max-width: 600px) {
+     .quick-actions { gap: 8px; }
+     .quick-actions .quick-btn {
+         width: calc(33.333% - 6px);
+         min-width: calc(33.333% - 6px);
+         max-width: calc(33.333% - 6px);
+         min-height: 88px;
+         padding: 10px 6px;
+     }
+     .quick-actions .quick-btn .quick-btn-label { font-size: 10px; }
+ }
  
      /* SYSTEM REMINDER BOX */
      .system-reminder-card {
-         background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 5px solid #2563eb; border-radius: 8px; padding: 16px 20px; margin-top: 16px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+         background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 5px solid #123a5c; border-radius: 8px; padding: 16px 20px; margin-top: 16px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
      }
      .reminder-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: #0f172a; }
      .reminder-title { font-weight: 700; font-size: 14px; }
-     .reminder-icon { stroke: #2563eb; }
+     .reminder-icon { stroke: #123a5c; }
      .reminder-body ul { list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 8px; }
      .reminder-body li { font-size: 13px; color: #334155; line-height: 1.5; padding: 6px 10px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 5px; }
  
@@ -206,8 +246,8 @@
      .form-group { margin-bottom: 8px; }
      label { display: block; font-weight: 600; margin-bottom: 3px; font-size: 12px; color: #334155; }
      input, select, textarea { width: 100%; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 5px; font-size: 12px; background: #fff; }
-     input:focus, select:focus { outline: none; border-color: #2563eb; }
-     .btn-submit { width: 100%; padding: 8px 12px; background: #2563eb; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 6px; }
+     input:focus, select:focus { outline: none; border-color: #123a5c; }
+     .btn-submit { width: 100%; padding: 8px 12px; background: #123a5c; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 6px; }
  
      /* Search Box Bar */
      .search-bar-wrapper {
@@ -227,7 +267,7 @@
      table.master-tbl th { background: #f8fafc; color: #334155; font-weight: 700; font-size: 11px; text-transform: uppercase; }
      tr:hover { background-color: #f8fafc; }
      .btn-view { background: none; border: none; cursor: pointer; font-size: 14px; color: #0d9488; padding: 2px 4px; }
-     .btn-edit { background: none; border: none; cursor: pointer; font-size: 14px; color: #2563eb; padding: 2px 4px; }
+     .btn-edit { background: none; border: none; cursor: pointer; font-size: 14px; color: #123a5c; padding: 2px 4px; }
      .btn-delete { background: none; border: none; cursor: pointer; font-size: 14px; color: #dc2626; padding: 2px 4px; }
  
      /* CHECK ELIGIBILITY */
@@ -314,7 +354,14 @@
              <span class="chooser-label" data-i18n="chooserEmployee">Employee System</span>
              <span class="chooser-sub" data-i18n="chooserEmployeeSub">Submit requests &amp; view responses</span>
          </button>
-         <button class="chooser-card admin" onclick="handleEmployeePower()">
+         <button class="chooser-card hr" onclick="openRoleLogin('hr')">
+             <span class="chooser-icon">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+             </span>
+             <span class="chooser-label" data-i18n="chooserHR">HR System</span>
+             <span class="chooser-sub" data-i18n="chooserHRSub">Day-to-day employee management</span>
+         </button>
+         <button class="chooser-card admin" onclick="openRoleLogin('admin')">
              <span class="chooser-icon">
                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
              </span>
@@ -324,7 +371,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">Administration System Version 2.00</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.00</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -365,6 +412,8 @@
              <button class="lang-btn" onclick="toggleEmpPowerMenu(event)" title="Power" style="background:#dc2626;">⏻</button>
              <div class="lang-menu" id="empPowerMenu">
                  <div class="lang-option" onclick="empLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> <span data-i18n="empLogoutOption">Log Out</span></div>
+                 <div class="lang-option" onclick="openRoleLogin('hr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <span data-i18n="switchToHROption">Switch to HR System</span></div>
+                 <div class="lang-option" onclick="openRoleLogin('admin')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M12 2l9 4.5v5.5c0 5-3.5 9-9 10-5.5-1-9-5-9-10V6.5L12 2z"/></svg> <span data-i18n="switchToAdminOption">Switch to Administration System</span></div>
                  <div class="lang-option" onclick="returnToChooser()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M3 9.5L12 3l9 6.5"/><path d="M5 10v10a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1V10"/></svg> <span data-i18n="returnToChooserOption">Return to Choose System</span></div>
              </div>
          </div>
@@ -384,7 +433,7 @@
              <label data-i18n="lblEmpLoginPass">Password</label>
              <input type="password" id="empLoginPass" required>
          </div>
-         <button type="submit" class="btn-submit" style="background:#2563eb;" data-i18n="btnEmpLogin">Log In</button>
+         <button type="submit" class="btn-submit" style="background:#123a5c;" data-i18n="btnEmpLogin">Log In</button>
          <div id="empLoginError" style="display:none; color:#dc2626; font-size:12px; margin-top:10px; font-weight:600; text-align:center;" data-i18n="empLoginErrorMsg">Invalid ID or password, or this account is not active.</div>
      </form>
  </div>
@@ -444,6 +493,24 @@
          </div>
          <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:10px;" data-i18n="btnSubmitRequest">Submit Request</button>
      </form>
+
+     <!-- v5.00: Request history / status tracker -->
+     <div style="max-width:700px; margin:24px auto 0 auto; text-align:left;">
+         <h4 style="margin-bottom:8px; color:#334155;" data-i18n="myRequestsTitle">My Requests</h4>
+         <div class="table-responsive">
+             <table class="master-tbl" id="myRequestsTable">
+                 <thead>
+                     <tr>
+                         <th data-i18n="reqColDate">Date</th>
+                         <th data-i18n="reqColType">Type</th>
+                         <th data-i18n="reqColStatus">Status</th>
+                         <th data-i18n="reqColResponse">Admin Response</th>
+                     </tr>
+                 </thead>
+                 <tbody></tbody>
+             </table>
+         </div>
+     </div>
  </div>
 </div>
 
@@ -516,6 +583,8 @@
              <div class="lang-menu" id="adminPowerMenu">
                  <div class="lang-option" onclick="lockSystem()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> <span data-i18n="lockSystemOption">Log Out</span></div>
                  <div class="lang-option" onclick="switchToEmployee()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg> <span data-i18n="switchToEmployeeOption">Switch to Employee</span></div>
+                 <div class="lang-option" id="switchToHRMenuOption" onclick="openRoleLogin('hr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <span data-i18n="switchToHROption">Switch to HR System</span></div>
+                 <div class="lang-option" id="switchToAdminMenuOption" onclick="openRoleLogin('admin')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M12 2l9 4.5v5.5c0 5-3.5 9-9 10-5.5-1-9-5-9-10V6.5L12 2z"/></svg> <span data-i18n="switchToAdminOption">Switch to Administration System</span></div>
              </div>
          </div>
      </div>
@@ -525,13 +594,17 @@
  <nav>
      <button id="nav-home" class="active" onclick="switchTab('tab-home', this)" data-i18n="navDashboard">Dashboard</button>
      <button id="nav-master" onclick="switchTab('tab-master', this)" data-i18n="navMaster">Master Sheet</button>
-     <button id="nav-monthly" onclick="switchTab('tab-monthly', this)" data-i18n="navMonthlyReport">Monthly Report</button>
      <button id="nav-leave" onclick="switchTab('tab-leave', this)" data-i18n="navLeaveRecords">Leave Records</button>
      <button id="nav-att" onclick="switchTab('tab-att', this)" data-i18n="navAttendance">Attendance</button>
-     <button id="nav-employee" onclick="switchTab('tab-employee', this)" data-i18n="navEmployee">Employee</button>
      <button id="nav-query" onclick="switchTab('tab-query', this)" data-i18n="navEligibility">Check Record</button>
      <button id="nav-add" onclick="switchTab('tab-add', this)" data-i18n="navAddEmployee">Add Employee</button>
  </nav>
+ <!-- nav-monthly and nav-employee buttons were moved off the top bar in v5.00 (still reachable from Main Menu below) -->
+ <button id="nav-monthly" onclick="switchTab('tab-monthly', this)" data-i18n="navMonthlyReport" style="display:none;">Monthly Report</button>
+ <button id="nav-employee" onclick="switchTab('tab-employee', this)" data-i18n="navEmployee" style="display:none;">Employee</button>
+ <!-- New v5.00 sections, reachable only from Main Menu, same "hidden nav button" wiring pattern -->
+ <button id="nav-shift" onclick="switchTab('tab-shift', this)" data-i18n="navShiftRoster" style="display:none;">Shift Roster</button>
+ <button id="nav-dept" onclick="switchTab('tab-dept', this)" data-i18n="navDepartments" style="display:none;">Departments</button>
  
  <!-- TAB 1: DASHBOARD -->
  <div id="tab-home" class="tab-panel active">
@@ -595,8 +668,38 @@
          <button class="quick-btn amber" onclick="triggerNav('tab-add', 'nav-add')">
              <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></span><span class="quick-btn-label" data-i18n="navAddEmployee">Add Employee</span>
          </button>
+         <button class="quick-btn cyan" onclick="triggerNav('tab-shift', 'nav-shift')">
+             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="15" r="2.5"/><line x1="12" y1="13" x2="12" y2="12"/></svg></span><span class="quick-btn-label" data-i18n="navShiftRoster">Shift Roster</span>
+         </button>
+         <button class="quick-btn purple admin-only" onclick="triggerNav('tab-dept', 'nav-dept')">
+             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01"/><path d="M15 10h.01"/></svg></span><span class="quick-btn-label" data-i18n="navDepartments">Departments</span>
+         </button>
+         <button class="quick-btn brown admin-only" onclick="openRecentlyDeletedModal()">
+             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-9.36L1 10"/></svg></span><span class="quick-btn-label" data-i18n="navRecentlyDeleted">Recently Deleted</span>
+         </button>
+         <button class="quick-btn admin-only" style="background:linear-gradient(135deg,#334155,#1e293b); position:relative;" onclick="openPendingApprovalsModal()">
+             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span class="quick-btn-label" data-i18n="navPendingApprovals">Pending Approvals</span>
+             <span id="pendingApprovalsBadge" class="notif-badge" style="display:none; top:2px; right:2px;">0</span>
+         </button>
+         <button class="quick-btn admin-only" style="background:linear-gradient(135deg,#6d28d9,#5b21b6);" onclick="openManagementModal()">
+             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="quick-btn-label" data-i18n="navManagement">Management</span>
+         </button>
+ <button class="quick-btn rose" onclick="openBackupLangModal()">
+     <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span class="quick-btn-label" data-i18n="navBackupNow">Backup Now</span>
+ </button>
      </div>
  
+     <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px;">
+         <div class="dash-card" style="flex:1; min-width:260px; margin-bottom:0;">
+             <h4 data-i18n="chartEmpStatusTitle">Employee Status Breakdown</h4>
+             <div id="chartEmpStatus"></div>
+         </div>
+         <div class="dash-card" style="flex:1; min-width:280px; margin-bottom:0;">
+             <h4 data-i18n="chartLeaveUsageTitle">Leave Usage by Type (Total Hours)</h4>
+             <div id="chartLeaveUsage"></div>
+         </div>
+     </div>
+
      <div class="dash-card">
          <h4 data-i18n="dashTableTitle">Employee Status</h4>
          <div class="table-responsive">
@@ -627,10 +730,11 @@
              <span class="reminder-title" data-i18n="dashNoticesTitle">System Reminders & Announcements</span>
          </div>
          <div class="reminder-body">
-             <ul>
-                 <li data-i18n="notice1">📌 <b>Monthly Reset:</b> Current month leave hours carry over as recorded unless manually updated.</li>
-                 <li data-i18n="notice2">📌 <b>Exporting:</b> Use the Excel export button in Master Sheet or Monthly Report before printing reports.</li>
-             </ul>
+            <ul id="announcementsList"></ul>
+            <div id="announcementAddRow" class="admin-only" style="display:flex; gap:8px; margin-top:10px;">
+                <input type="text" id="newAnnouncementText" data-i18n-ph="announcementPlaceholder" placeholder="Add a new reminder or announcement..." style="flex:1;">
+                <button type="button" class="btn-primary" onclick="addAnnouncement()" data-i18n="btnAdd">Add</button>
+            </div>
          </div>
      </div>
  </div>
@@ -657,6 +761,7 @@
                      <th data-i18n="tblActions">Actions</th>
                      <th data-i18n="tblId">ID</th>
                      <th data-i18n="tblName">Name</th>
+                     <th data-i18n="tblDepartment">Department</th>
                      <th data-i18n="tblJoin">Join Date</th>
                      <th data-i18n="tblYears">Years of Work</th>
                      <th data-i18n="tblEntitled">Entitled Hours</th>
@@ -880,6 +985,39 @@
      </div>
  </div>
 
+ <!-- ONE-TIME BROADCAST MODAL (v6.00) - shown once per user, on their next login, for maintenance/announcement messages -->
+ <div class="modal" id="broadcastModal">
+     <div class="modal-content" style="max-width: 480px;">
+         <div class="modal-header">
+             <h4 data-i18n="broadcastModalTitle">Announcement</h4>
+             <button class="modal-close" onclick="closeBroadcastModal()">&times;</button>
+         </div>
+         <p id="broadcastModalMessage" style="font-weight:700; margin-bottom:8px;"></p>
+         <p id="broadcastModalDescription" style="font-size:13px; color:#334155; margin-bottom:16px;"></p>
+         <button class="btn-submit" onclick="closeBroadcastModal()" data-i18n="btnOk">OK</button>
+     </div>
+ </div>
+
+ <!-- BACKUP LANGUAGE CHOICE MODAL -->
+ <div class="modal" id="backupLangModal">
+     <div class="modal-content" style="max-width: 380px;">
+         <div class="modal-header">
+             <h4 data-i18n="backupLangModalTitle">Choose Backup Language</h4>
+             <button class="modal-close" onclick="closeBackupLangModal()">&times;</button>
+         </div>
+         <p style="font-size:13px; color:#334155; margin-bottom:14px;" data-i18n="backupLangModalSub">Choose which language to use for the exported Excel file, then confirm to download.</p>
+         <div class="form-group">
+             <label data-i18n="backupLangModalLabel">Backup Language</label>
+             <select id="backupLangModalSelect">
+                 <option value="en">English</option>
+                 <option value="km">ខ្មែរ (Khmer)</option>
+                 <option value="zh">中文 (Chinese)</option>
+             </select>
+         </div>
+         <button class="btn-submit" onclick="confirmBackupNow()" data-i18n="btnConfirmBackup">Download Backup</button>
+     </div>
+ </div>
+
  <!-- CHECK RECORD RESULT MODAL (pops up as a large layer after Run Calculation Query) -->
  <div class="modal" id="queryResultModal">
      <div class="modal-content" style="max-width: 95vw; width: fit-content;">
@@ -998,16 +1136,205 @@
                      </div>
                  </div>
              </div>
+             <div class="form-group" style="max-width:380px;">
+                 <label data-i18n="tblDepartment">Department</label>
+                 <select id="newDept"></select>
+             </div>
              <button type="submit" class="btn-submit" style="margin-top:6px;" data-i18n="btnSaveEmp">Save Employee</button>
          </form>
      </div>
  </div>
 
+ <!-- TAB 9: SHIFT ROSTER (v5.00) -->
+ <div id="tab-shift" class="tab-panel">
+     <h3 data-i18n="shiftTitle">Shift Roster</h3>
+     <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="shiftSub">Assign daily shift types to employees</p>
+
+     <div class="dash-card" style="margin-bottom:16px;">
+         <h4 data-i18n="shiftTypesTitle">Shift Types</h4>
+         <div class="table-responsive">
+             <table class="master-tbl">
+                 <thead>
+                     <tr>
+                         <th data-i18n="shiftColType">Type</th>
+                         <th data-i18n="shiftColTime">Working Time</th>
+                         <th data-i18n="shiftColBreak">Break</th>
+                     </tr>
+                 </thead>
+                 <tbody>
+                     <tr><td><b>M</b></td><td data-i18n="shiftMTime">07:00 - 16:00</td><td data-i18n="shiftMBreak">11:00 - 12:00 (1 hour)</td></tr>
+                     <tr><td><b>F</b></td><td data-i18n="shiftFTime">07:00 - 17:00</td><td data-i18n="shiftFBreak">11:00 - 13:00 (2 hours)</td></tr>
+                     <tr><td><b>G</b></td><td data-i18n="shiftGTime">17:00 - 05:00</td><td data-i18n="shiftGBreak">23:00 - 01:00 (2 hours)</td></tr>
+                     <tr><td><b>H</b></td><td colspan="2" data-i18n="shiftHLabel">Rest Day</td></tr>
+                 </tbody>
+             </table>
+         </div>
+     </div>
+
+     <form class="query-box-small" style="width:auto; max-width:520px; margin:0 auto 16px auto;" onsubmit="event.preventDefault(); saveShiftAssignment();">
+         <h4 data-i18n="shiftAssignTitle">Assign Shift</h4>
+         <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+             <div class="form-group" style="min-width:160px;">
+                 <label data-i18n="lblEmpId">Employee ID</label>
+                 <input type="text" id="shiftEmpId" placeholder="e.g. 200001" required>
+             </div>
+             <div class="form-group" style="min-width:160px;">
+                 <label data-i18n="shiftDate">Date</label>
+                 <input type="date" id="shiftDate" required>
+             </div>
+             <div class="form-group" style="min-width:160px;">
+                 <label data-i18n="shiftType">Shift Type</label>
+                 <select id="shiftType" required>
+                     <option value="M">M</option>
+                     <option value="F">F</option>
+                     <option value="G">G</option>
+                     <option value="H" data-i18n="shiftHOption">H (Rest Day)</option>
+                 </select>
+             </div>
+         </div>
+         <button type="submit" class="btn-submit" data-i18n="btnSaveShift">Save Assignment</button>
+     </form>
+
+     <div class="search-bar-wrapper">
+         <label style="margin:0; font-weight:bold; color:#0f172a;" data-i18n="lblSearch">Search Employee:</label>
+         <input type="text" id="shiftSearchInput" onkeyup="filterShiftTable()" placeholder="Enter ID or Name...">
+     </div>
+
+     <div class="table-responsive">
+         <table class="master-tbl" id="shiftTable">
+             <thead>
+                 <tr>
+                     <th data-i18n="tblActions">Actions</th>
+                     <th data-i18n="shiftDate">Date</th>
+                     <th data-i18n="tblId">ID</th>
+                     <th data-i18n="tblName">Name</th>
+                     <th data-i18n="shiftType">Shift Type</th>
+                     <th data-i18n="shiftColTime">Working Time</th>
+                     <th data-i18n="shiftColBreak">Break</th>
+                 </tr>
+             </thead>
+             <tbody></tbody>
+         </table>
+     </div>
+ </div>
+
+ <!-- TAB 10: DEPARTMENTS (v5.00) -->
+ <div id="tab-dept" class="tab-panel">
+     <h3 data-i18n="deptTitle">Departments / Teams</h3>
+     <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="deptSub">Group employees into departments or teams</p>
+
+     <form style="display:flex; gap:10px; align-items:flex-end; max-width:520px; margin-bottom:16px;" onsubmit="event.preventDefault(); addDepartment();">
+         <div class="form-group" style="flex:1; margin-bottom:0;">
+             <label data-i18n="deptNewLabel">New Department Name</label>
+             <input type="text" id="newDeptName" placeholder="e.g. Sales">
+         </div>
+         <button type="submit" class="btn-submit" style="width:auto; padding:8px 16px; margin-top:0;" data-i18n="btnAddDept">Add</button>
+     </form>
+
+     <div class="table-responsive">
+         <table class="master-tbl" id="deptTable">
+             <thead>
+                 <tr>
+                     <th data-i18n="tblActions">Actions</th>
+                     <th data-i18n="deptColName">Department Name</th>
+                     <th data-i18n="deptColCount">Employees Assigned</th>
+                 </tr>
+             </thead>
+             <tbody></tbody>
+         </table>
+     </div>
+ </div>
+
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     Administration System Version 2.00
+     HR & Administration System Version 6.00
  </div>
 </div>
- 
+
+ <!-- RECENTLY DELETED (UNDO) MODAL -->
+ <div class="modal" id="recentlyDeletedModal">
+     <div class="modal-content" style="max-width: 900px;">
+         <div class="modal-header">
+             <h4 data-i18n="recentlyDeletedTitle">Recently Deleted Employees</h4>
+             <button class="modal-close" onclick="closeRecentlyDeletedModal()">&times;</button>
+         </div>
+         <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="recentlyDeletedSub">Deleted employees are kept here for 30 days before being permanently removed.</p>
+         <div class="table-responsive">
+             <table class="master-tbl" id="deletedTable">
+                 <thead>
+                     <tr>
+                         <th data-i18n="tblActions">Actions</th>
+                         <th data-i18n="tblId">ID</th>
+                         <th data-i18n="tblName">Name</th>
+                         <th data-i18n="deletedColOn">Deleted On</th>
+                     </tr>
+                 </thead>
+                 <tbody></tbody>
+             </table>
+         </div>
+     </div>
+ </div>
+
+ <!-- PENDING APPROVALS MODAL (v6.00, admin only) -->
+ <div class="modal" id="pendingApprovalsModal">
+     <div class="modal-content" style="max-width: 800px;">
+         <div class="modal-header">
+             <h4 data-i18n="pendingApprovalsTitle">Pending Approvals</h4>
+             <button class="modal-close" onclick="closePendingApprovalsModal()">&times;</button>
+         </div>
+         <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="pendingApprovalsSub">Edits made by HR System wait here until Administration approves or rejects them.</p>
+         <div id="pendingApprovalsBody"></div>
+     </div>
+ </div>
+
+ <!-- MANAGEMENT MODAL (v6.00, admin only) -->
+ <div class="modal" id="managementModal">
+     <div class="modal-content" style="max-width: 900px;">
+         <div class="modal-header">
+             <h4 data-i18n="managementTitle">Management</h4>
+             <button class="modal-close" onclick="closeManagementModal()">&times;</button>
+         </div>
+
+         <h4 style="margin-bottom:8px;" data-i18n="accountsSectionTitle">HR &amp; Administration Accounts</h4>
+         <div class="table-responsive" style="margin-bottom:16px;">
+             <table class="master-tbl" id="accountsTable">
+                 <thead>
+                     <tr>
+                         <th data-i18n="tblActions">Actions</th>
+                         <th data-i18n="acctColName">Name</th>
+                         <th data-i18n="acctColUsername">Username</th>
+                         <th data-i18n="acctColPassword">Password</th>
+                         <th data-i18n="acctColRole">Role</th>
+                         <th data-i18n="acctColStatus">Status</th>
+                     </tr>
+                 </thead>
+                 <tbody></tbody>
+             </table>
+         </div>
+
+         <form style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom:20px;" onsubmit="event.preventDefault(); addAccount();">
+             <div class="form-group" style="margin-bottom:0;"><label data-i18n="acctColName">Name</label><input type="text" id="newAcctName" required></div>
+             <div class="form-group" style="margin-bottom:0;"><label data-i18n="acctColUsername">Username</label><input type="text" id="newAcctUsername" required></div>
+             <div class="form-group" style="margin-bottom:0;"><label data-i18n="acctColPassword">Password</label><input type="text" id="newAcctPassword" required></div>
+             <div class="form-group" style="margin-bottom:0;">
+                 <label data-i18n="acctColRole">Role</label>
+                 <select id="newAcctRole">
+                     <option value="hr" data-i18n="roleLabelHR">HR</option>
+                     <option value="admin" data-i18n="roleLabelAdmin">Admin</option>
+                 </select>
+             </div>
+             <button type="submit" class="btn-submit" style="width:auto; padding:8px 16px; margin-top:0;" data-i18n="btnAddAccount">Add Account</button>
+         </form>
+
+         <h4 style="margin-bottom:8px;" data-i18n="broadcastSectionTitle">Send One-Time Notification</h4>
+         <p style="font-size:11px; color:#64748b; margin-bottom:8px;" data-i18n="broadcastSectionSub">Shown once to every employee, HR and admin the next time they log in (e.g. maintenance schedule).</p>
+         <form onsubmit="event.preventDefault(); sendBroadcast();" style="max-width:520px;">
+             <div class="form-group"><label data-i18n="lblComposeMessage">Message</label><input type="text" id="broadcastMessage" required></div>
+             <div class="form-group"><label data-i18n="lblComposeDescription">Description</label><textarea id="broadcastDescription" rows="2"></textarea></div>
+             <button type="submit" class="btn-submit" data-i18n="btnSendBroadcast">Send Notification</button>
+         </form>
+     </div>
+ </div>
+
 <!-- LARGE EDIT MODAL -->
 <div class="modal" id="editModal">
  <div class="modal-content">
@@ -1038,6 +1365,7 @@
          <div class="grid-3">
              <div class="form-group"><label data-i18n="lblLoginUsername">Login Username</label><input type="text" id="editLoginUsername" placeholder="Defaults to Employee ID"></div>
              <div class="form-group"><label data-i18n="lblLoginPassword">Login Password</label><input type="text" id="editLoginPassword" placeholder="Defaults to Employee ID"></div>
+             <div class="form-group"><label data-i18n="tblDepartment">Department</label><select id="editDept"></select></div>
          </div>
          <div class="grid-3">
              <div class="form-group"><label data-i18n="tblStatus">Status</label>
@@ -1129,7 +1457,7 @@
              <label data-i18n="lblComposeDescription">Description Details</label>
              <textarea id="composeDescription" rows="3" required></textarea>
          </div>
-         <button type="submit" class="btn-submit" style="background:#2563eb; margin-top:6px;" data-i18n="btnSendNotification">Send</button>
+         <button type="submit" class="btn-submit" style="background:#123a5c; margin-top:6px;" data-i18n="btnSendNotification">Send</button>
      </form>
  </div>
 </div>
@@ -1145,6 +1473,8 @@
  const ICON_LOGOUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>';
  const ICON_HOME = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M3 9.5L12 3l9 6.5"/><path d="M5 10v10a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1V10"/></svg>';
  const ICON_USER_SWITCH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>';
+ const ICON_RESTORE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px; height:15px; vertical-align:middle;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-9.36L1 10"/></svg>';
+ const ICON_BACKUP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px; height:15px; vertical-align:middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
 
  /* Lightweight on-page toast: replaces browser alert() popups that require
     clicking OK. Auto-dismisses on its own, no click needed. */
@@ -1163,29 +1493,52 @@
      }, 2000);
  }
  
- /* AUTHENTICATION & INACTIVITY TIMER SETUP */
- const AUTH_USER = "admin";
- const AUTH_PASS = "206206";
+ /* AUTHENTICATION & INACTIVITY TIMER SETUP (v6.00: role-based accounts - HR System / Administration System) */
  const INACTIVITY_TIMEOUT = 60 * 60 * 1000;
  let inactivityTimer = null;
- 
+ let loginTargetRole = 'admin';
+
+ /* Which door on the Chooser screen was clicked - 'admin' or 'hr'.
+    Both roles log into the exact same adminApp screen/tabs; applyRoleGating() then
+    hides the admin-only pieces (Departments, Recently Deleted, delete buttons,
+    direct edit of Master Sheet/Monthly Report/Employee, Management) for HR. */
+ function openRoleLogin(role) {
+     loginTargetRole = role;
+     if (sessionStorage.getItem('isLoggedIn') === 'true' && sessionStorage.getItem('loggedInRole') === role) {
+         showAdminView();
+         return;
+     }
+     document.querySelector('#loginOverlay .login-card p').innerText = role === 'hr' ? t('hrSystemTitle') : t('appTitle');
+     document.getElementById('loginOverlay').style.display = 'flex';
+ }
+
+ /* Kept for backward compatibility with any old reference; the Administration chooser card now calls openRoleLogin('admin') directly. */
+ function handleEmployeePower() { openRoleLogin('admin'); }
+
  document.getElementById('loginForm').addEventListener('submit', function(e) {
      e.preventDefault();
      const userIn = document.getElementById('loginUser').value.trim();
      const passIn = document.getElementById('loginPass').value.trim();
      const errorDiv = document.getElementById('loginError');
- 
-     if (userIn === AUTH_USER && passIn === AUTH_PASS) {
+
+     const found = accounts.find(a => a.username === userIn && a.password === passIn && a.role === loginTargetRole && !a.disabled);
+
+     if (found) {
          sessionStorage.setItem('isLoggedIn', 'true');
+         sessionStorage.setItem('loggedInRole', found.role);
+         sessionStorage.setItem('loggedInAccountName', found.name || found.username);
+         sessionStorage.setItem('loggedInAccountUsername', found.username);
          document.getElementById('loginOverlay').style.display = 'none';
          errorDiv.style.display = 'none';
          document.getElementById('loginPass').value = '';
          showAdminView();
+         checkBroadcastForCurrentUser();
      } else {
+         errorDiv.innerText = t('loginErrorMsg');
          errorDiv.style.display = 'block';
      }
  });
- 
+
  window.addEventListener('DOMContentLoaded', function() {
      /* The Chooser screen is always the first thing anyone sees on load.
         Existing sessions (employee or admin) still work via the normal
@@ -1197,6 +1550,9 @@
 
  function lockSystem() {
      sessionStorage.removeItem('isLoggedIn');
+     sessionStorage.removeItem('loggedInRole');
+     sessionStorage.removeItem('loggedInAccountName');
+     sessionStorage.removeItem('loggedInAccountUsername');
      if (inactivityTimer) clearTimeout(inactivityTimer);
      closeAllMenus();
      document.getElementById('loginOverlay').style.display = 'none';
@@ -1350,6 +1706,8 @@
          reqConfirmMsg: "✓ Your request has been submitted successfully! We will review and respond within 24 hours or the next business day.",
          lockSystemOption: "Log Out",
          switchToEmployeeOption: "Switch to Employee",
+         switchToHROption: "Switch to HR System",
+         switchToAdminOption: "Switch to Administration System",
          notifTitle: "Employee Requests",
          notifEmpty: "No requests received.",
          btnMarkProcessed: "Mark as Processed",
@@ -1391,7 +1749,124 @@
          noLabel: "No",
          empLogoutOption: "Log Out",
          returnToChooserOption: "Return to Choose System",
-         empLoggedInAsPrefix: "Logged in as:"
+         empLoggedInAsPrefix: "Logged in as:",
+        navShiftRoster: "Shift Roster",
+        navDepartments: "Departments",
+        navRecentlyDeleted: "Recently Deleted",
+        navBackupNow: "Backup Now",
+        tblDepartment: "Department",
+        shiftTitle: "Shift Roster",
+        shiftSub: "Assign daily shift types to employees",
+        shiftTypesTitle: "Shift Types",
+        shiftColType: "Type",
+        shiftColTime: "Working Time",
+        shiftColBreak: "Break",
+        shiftMTime: "07:00 - 16:00",
+        shiftMBreak: "11:00 - 12:00 (1 hour)",
+        shiftFTime: "07:00 - 17:00",
+        shiftFBreak: "11:00 - 13:00 (2 hours)",
+        shiftGTime: "17:00 - 05:00",
+        shiftGBreak: "23:00 - 01:00 (2 hours)",
+        shiftHLabel: "Rest Day",
+        shiftAssignTitle: "Assign Shift",
+        shiftDate: "Date",
+        shiftType: "Shift Type",
+        shiftHOption: "H (Rest Day)",
+        btnSaveShift: "Save Assignment",
+        shiftDeleteConfirm: "Delete this shift assignment?",
+        deptTitle: "Departments / Teams",
+        deptSub: "Group employees into departments or teams",
+        deptNewLabel: "New Department Name",
+        btnAddDept: "Add",
+        deptColName: "Department Name",
+        deptColCount: "Employees Assigned",
+        deptNone: "-- None --",
+        deptDuplicateMsg: "That department already exists",
+        deptInUseMsg: "Cannot delete: employees are still assigned to this department",
+        deptDeleteConfirm: "Delete this department?",
+        recentlyDeletedTitle: "Recently Deleted Employees",
+        recentlyDeletedSub: "Deleted employees are kept here for 30 days before being permanently removed.",
+        recentlyDeletedEmpty: "No recently deleted employees.",
+        deletedColOn: "Deleted On",
+        confirmDeleteMsg: "Delete employee \"{name}\"? You can restore them later from Recently Deleted.",
+        toastDeletedToRecycle: "Moved to Recently Deleted",
+        backupEmptyMsg: "There is no data to back up yet",
+        toastBackupDone: "Backup downloaded",
+        chartEmpStatusTitle: "Employee Status Breakdown",
+        chartLeaveUsageTitle: "Leave Usage by Type (Total Hours)",
+        statAliveStatus: "Active",
+        lockoutMsg: "Too many attempts. Please try again in {minutes} minute(s).",
+        lockoutTooManyAttempts: "Too many failed attempts. This ID is locked for 15 minutes.",
+        sessionExpiredMsg: "Your session has expired. Please log in again.",
+        myRequestsTitle: "My Requests",
+        myRequestsEmpty: "You haven't submitted any requests yet.",
+        reqColDate: "Date",
+        reqColType: "Type",
+        reqColStatus: "Status",
+        reqColResponse: "Admin Response",
+        reqStatusPending: "Pending",
+        reqStatusResponded: "Responded",
+        reqNoResponseYet: "Awaiting response",
+
+        /* pre-existing keys missing from EN (fixed) */
+        lblEmpId: "Employee ID",
+        lblEmpName: "Employee Name",
+        lblLeaveDate: "Leave Date",
+        monthlyReportTitle: "Monthly Report",
+        monthlyReportSub: "Monthly aggregated summary & attendance updates",
+
+        /* v6.00 */
+        hrSystemTitle: "HR System",
+        loginErrorMsg: "Invalid username or password, or this account is disabled.",
+        chooserHR: "HR System",
+        chooserHRSub: "Manage employee records and requests",
+        roleLabelAdmin: "Administration System",
+        roleLabelHR: "HR System",
+        navPendingApprovals: "Pending Approvals",
+        navManagement: "Management",
+        hrNotAllowedMsg: "This action is not available to HR accounts.",
+        deptRenamePrompt: "Enter new department name:",
+        pendingApprovalsTitle: "Pending Approvals",
+        pendingApprovalsSub: "Edits made by HR accounts wait here until an Administrator approves or rejects them.",
+        pendingApprovalsEmpty: "There is nothing waiting for approval.",
+        pendingApprovalsRequestedBy: "Requested by",
+        pendingApprovalsNoDiff: "No changes detected.",
+        btnApprove: "Approve",
+        btnReject: "Reject",
+        rejectConfirmMsg: "Reject this pending edit? This cannot be undone.",
+        toastApproved: "Edit approved and applied.",
+        toastRejected: "Edit rejected.",
+        toastSentForApproval: "Change sent to Administration for approval.",
+        managementTitle: "Management",
+        accountsSectionTitle: "HR & Employee Accounts",
+        acctColName: "Name",
+        acctColUsername: "Username",
+        acctColPassword: "Password",
+        acctColRole: "Role",
+        acctColStatus: "Status",
+        btnAddAccount: "Add Account",
+        broadcastSectionTitle: "Send One-Time Notification",
+        broadcastSectionSub: "Every user (Employee, HR, Administration) will see this once, the next time they log in.",
+        btnSendBroadcast: "Send Notification",
+        btnEnable: "Enable",
+        btnDisable: "Disable",
+        acctDisabled: "Disabled",
+        acctActive: "Active",
+        acctDuplicateUsernameMsg: "That username is already in use.",
+        toastBroadcastSent: "Notification sent. It will appear once for every user at their next login.",
+        broadcastModalTitle: "Notice",
+        btnOk: "OK",
+        announcementPlaceholder: "Add a new reminder or announcement...",
+        btnAdd: "Add",
+        announcementEditPrompt: "Edit this reminder / announcement:",
+        announcementDeleteConfirm: "Delete this reminder / announcement?",
+        toastAnnouncementAdded: "Announcement added.",
+        toastAnnouncementUpdated: "Announcement updated.",
+        toastAnnouncementDeleted: "Announcement deleted.",
+        backupLangModalTitle: "Choose Backup Language",
+        backupLangModalSub: "Choose which language to use for the exported Excel file, then confirm to download.",
+        backupLangModalLabel: "Backup Language",
+        btnConfirmBackup: "Download Backup"
      },
      km: {
          appTitle: "ប្រព័ន្ធគ្រប់គ្រងបុគ្គលិក",
@@ -1529,6 +2004,8 @@
          reqConfirmMsg: "✓ សំណើរបស់អ្នកបានដាក់ស្នើដោយជោគជ័យ! យើងនឹងពិនិត្យ និងឆ្លើយតបក្នុងរយៈពេល ២៤ម៉ោង ឬថ្ងៃធ្វើការបន្ទាប់។",
          lockSystemOption: "ចាកចេញ",
          switchToEmployeeOption: "ប្តូរទៅសេវាកម្មបុគ្គលិក",
+         switchToHROption: "ប្តូរទៅប្រព័ន្ធធនធានមនុស្ស",
+         switchToAdminOption: "ប្តូរទៅប្រព័ន្ធរដ្ឋបាល",
          notifTitle: "សំណើពីបុគ្គលិក",
          notifEmpty: "មិនទាន់មានសំណើទេ។",
          btnMarkProcessed: "កំណត់ថាបានដំណើរការ",
@@ -1570,13 +2047,124 @@
          noLabel: "ទេ",
          empLogoutOption: "ចាកចេញ",
          returnToChooserOption: "ត្រឡប់ទៅជ្រើសរើសប្រព័ន្ធ",
-         empLoggedInAsPrefix: "បានចូលគណនីជា៖"
+         empLoggedInAsPrefix: "បានចូលគណនីជា៖",
+        navShiftRoster: "កាលវិភាគវេន",
+        navDepartments: "នាយកដ្ឋាន",
+        navRecentlyDeleted: "បានលុបថ្មីៗ",
+        navBackupNow: "បម្រុងទុកទិន្នន័យ",
+        tblDepartment: "នាយកដ្ឋាន",
+        shiftTitle: "កាលវិភាគវេន",
+        shiftSub: "កំណត់ប្រភេទវេនប្រចាំថ្ងៃឱ្យបុគ្គលិក",
+        shiftTypesTitle: "ប្រភេទវេន",
+        shiftColType: "ប្រភេទ",
+        shiftColTime: "ម៉ោងធ្វើការ",
+        shiftColBreak: "ម៉ោងសម្រាក",
+        shiftMTime: "07:00 - 16:00",
+        shiftMBreak: "11:00 - 12:00 (1 ម៉ោង)",
+        shiftFTime: "07:00 - 17:00",
+        shiftFBreak: "11:00 - 13:00 (2 ម៉ោង)",
+        shiftGTime: "17:00 - 05:00",
+        shiftGBreak: "23:00 - 01:00 (2 ម៉ោង)",
+        shiftHLabel: "ថ្ងៃឈប់សម្រាក",
+        shiftAssignTitle: "កំណត់វេន",
+        shiftDate: "កាលបរិច្ឆេទ",
+        shiftType: "ប្រភេទវេន",
+        shiftHOption: "H (ថ្ងៃឈប់សម្រាក)",
+        btnSaveShift: "រក្សាទុកការកំណត់វេន",
+        shiftDeleteConfirm: "លុបការកំណត់វេននេះ?",
+        deptTitle: "នាយកដ្ឋាន / ក្រុម",
+        deptSub: "ចាត់ថ្នាក់បុគ្គលិកទៅតាមនាយកដ្ឋាន ឬក្រុម",
+        deptNewLabel: "ឈ្មោះនាយកដ្ឋានថ្មី",
+        btnAddDept: "បន្ថែម",
+        deptColName: "ឈ្មោះនាយកដ្ឋាន",
+        deptColCount: "ចំនួនបុគ្គលិក",
+        deptNone: "-- គ្មាន --",
+        deptDuplicateMsg: "នាយកដ្ឋាននេះមានរួចហើយ",
+        deptInUseMsg: "មិនអាចលុបបានទេ៖ នៅមានបុគ្គលិកនៅក្នុងនាយកដ្ឋាននេះ",
+        deptDeleteConfirm: "លុបនាយកដ្ឋាននេះ?",
+        recentlyDeletedTitle: "បុគ្គលិកដែលបានលុបថ្មីៗ",
+        recentlyDeletedSub: "បុគ្គលិកដែលបានលុបនឹងរក្សាទុកទីនេះរយៈពេល 30ថ្ងៃ មុនពេលលុបជាអចិន្ត្រៃយ៍។",
+        recentlyDeletedEmpty: "មិនមានបុគ្គលិកដែលបានលុបថ្មីៗទេ។",
+        deletedColOn: "កាលបរិច្ឆេទបានលុប",
+        confirmDeleteMsg: "លុបបុគ្គលិក \"{name}\"? អ្នកអាចស្ដារវិញបានពីមុខងារ \"បានលុបថ្មីៗ\"។",
+        toastDeletedToRecycle: "បានផ្លាស់ទីទៅ \"បានលុបថ្មីៗ\"",
+        backupEmptyMsg: "មិនទាន់មានទិន្នន័យសម្រាប់បម្រុងទុកទេ",
+        toastBackupDone: "បានទាញយកឯកសារបម្រុងទុក",
+        chartEmpStatusTitle: "ស្ថានភាពបុគ្គលិក",
+        chartLeaveUsageTitle: "ការប្រើប្រាស់ថ្ងៃឈប់សម្រាកតាមប្រភេទ (សរុបម៉ោង)",
+        statAliveStatus: "កំពុងបម្រើការងារ",
+        lockoutMsg: "ព្យាយាមច្រើនដងពេក។ សូមព្យាយាមម្តងទៀតក្នុងរយៈពេល {minutes} នាទី។",
+        lockoutTooManyAttempts: "ព្យាយាមខុសច្រើនដងពេក។ អត្តលេខនេះត្រូវបានចាក់សោរយៈពេល 15នាទី។",
+        sessionExpiredMsg: "សម័យចូលរបស់អ្នកបានផុតកំណត់។ សូមចូលម្តងទៀត។",
+        myRequestsTitle: "សំណើររបស់ខ្ញុំ",
+        myRequestsEmpty: "អ្នកមិនទាន់បានដាក់ស្នើសំណើរណាមួយនៅឡើយទេ។",
+        reqColDate: "កាលបរិច្ឆេទ",
+        reqColType: "ប្រភេទ",
+        reqColStatus: "ស្ថានភាព",
+        reqColResponse: "ការឆ្លើយតបពីរដ្ឋបាល",
+        reqStatusPending: "កំពុងរង់ចាំ",
+        reqStatusResponded: "បានឆ្លើយតប",
+        reqNoResponseYet: "កំពុងរង់ចាំការឆ្លើយតប",
+
+        /* v6.00 */
+        hrSystemTitle: "ប្រព័ន្ធធនធានមនុស្ស",
+        loginErrorMsg: "ឈ្មោះអ្នកប្រើប្រាស់ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ ឬគណនីនេះត្រូវបានផ្អាក។",
+        chooserHR: "ប្រព័ន្ធធនធានមនុស្ស",
+        chooserHRSub: "គ្រប់គ្រងកំណត់ត្រា និងសំណើររបស់បុគ្គលិក",
+        roleLabelAdmin: "ប្រព័ន្ធរដ្ឋបាល",
+        roleLabelHR: "ប្រព័ន្ធធនធានមនុស្ស",
+        navPendingApprovals: "ការអនុម័តកំពុងរង់ចាំ",
+        navManagement: "ការគ្រប់គ្រង",
+        hrNotAllowedMsg: "សកម្មភាពនេះមិនអាចប្រើប្រាស់បានសម្រាប់គណនីធនធានមនុស្សទេ។",
+        deptRenamePrompt: "បញ្ចូលឈ្មោះនាយកដ្ឋានថ្មី៖",
+        pendingApprovalsTitle: "ការអនុម័តកំពុងរង់ចាំ",
+        pendingApprovalsSub: "ការកែប្រែដែលធ្វើឡើងដោយគណនីធនធានមនុស្ស នឹងរង់ចាំនៅទីនេះ រហូតដល់អ្នកគ្រប់គ្រងអនុម័ត ឬបដិសេធ។",
+        pendingApprovalsEmpty: "មិនមានអ្វីកំពុងរង់ចាំការអនុម័តទេ។",
+        pendingApprovalsRequestedBy: "ស្នើដោយ",
+        pendingApprovalsNoDiff: "រកមិនឃើញការផ្លាស់ប្តូរទេ។",
+        btnApprove: "អនុម័ត",
+        btnReject: "បដិសេធ",
+        rejectConfirmMsg: "បដិសេធការកែប្រែនេះឬ? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។",
+        toastApproved: "ការកែប្រែត្រូវបានអនុម័ត និងអនុវត្តរួចរាល់។",
+        toastRejected: "ការកែប្រែត្រូវបានបដិសេធ។",
+        toastSentForApproval: "ការផ្លាស់ប្តូរត្រូវបានផ្ញើទៅរដ្ឋបាលដើម្បីអនុម័ត។",
+        managementTitle: "ការគ្រប់គ្រង",
+        accountsSectionTitle: "គណនីធនធានមនុស្ស និងបុគ្គលិក",
+        acctColName: "ឈ្មោះ",
+        acctColUsername: "ឈ្មោះអ្នកប្រើប្រាស់",
+        acctColPassword: "ពាក្យសម្ងាត់",
+        acctColRole: "តួនាទី",
+        acctColStatus: "ស្ថានភាព",
+        btnAddAccount: "បន្ថែមគណនី",
+        broadcastSectionTitle: "ផ្ញើការជូនដំណឹងតែម្តង",
+        broadcastSectionSub: "អ្នកប្រើប្រាស់ទាំងអស់ (បុគ្គលិក ធនធានមនុស្ស រដ្ឋបាល) នឹងឃើញវាតែម្តងគត់ នៅពេលចូលប្រើលើកក្រោយ។",
+        btnSendBroadcast: "ផ្ញើការជូនដំណឹង",
+        btnEnable: "បើកដំណើរការ",
+        btnDisable: "បិទដំណើរការ",
+        acctDisabled: "បិទដំណើរការ",
+        acctActive: "សកម្ម",
+        acctDuplicateUsernameMsg: "ឈ្មោះអ្នកប្រើប្រាស់នេះកំពុងប្រើប្រាស់រួចហើយ។",
+        toastBroadcastSent: "ការជូនដំណឹងត្រូវបានផ្ញើ។ វានឹងបង្ហាញម្តងសម្រាប់អ្នកប្រើប្រាស់ទាំងអស់ក្នុងការចូលលើកក្រោយ។",
+        broadcastModalTitle: "ការជូនដំណឹង",
+        btnOk: "យល់ព្រម",
+        announcementPlaceholder: "បន្ថែមការរំលឹក ឬការជូនដំណឹងថ្មី...",
+        btnAdd: "បន្ថែម",
+        announcementEditPrompt: "កែសម្រួលការរំលឹក / ការជូនដំណឹងនេះ៖",
+        announcementDeleteConfirm: "លុបការរំលឹក / ការជូនដំណឹងនេះឬ?",
+        toastAnnouncementAdded: "បានបន្ថែមការជូនដំណឹង។",
+        toastAnnouncementUpdated: "បានធ្វើបច្ចុប្បន្នភាពការជូនដំណឹង។",
+        toastAnnouncementDeleted: "បានលុបការជូនដំណឹង។",
+        backupLangModalTitle: "ជ្រើសរើសភាសាសម្រាប់ការបម្រុងទុក",
+        backupLangModalSub: "ជ្រើសរើសភាសាសម្រាប់ឯកសារ Excel នាំចេញ រួចបញ្ជាក់ដើម្បីទាញយក។",
+        backupLangModalLabel: "ភាសាបម្រុងទុក",
+        btnConfirmBackup: "ទាញយកឯកសារបម្រុងទុក"
      },
      zh: {
          appTitle: "行政管理系统",
          navDashboard: "仪表板",
          navMaster: "主控表",
          navMonthlyReport: "月度报告",
+         monthlyReportTitle: "月度报告",
          monthlyReportSub: "月度汇总摘要与考勤更新",
          lblLeaveDate: "请假日期",
          lblEmpId: "员工编号",
@@ -1707,6 +2295,8 @@
          reqConfirmMsg: "✓ 您的请求已成功提交！我们将在24小时内或下一个工作日审核并回复。",
          lockSystemOption: "登出",
          switchToEmployeeOption: "切换到员工系统",
+         switchToHROption: "切换到人力资源系统",
+         switchToAdminOption: "切换到行政管理系统",
          notifTitle: "员工请求",
          notifEmpty: "暂无请求。",
          btnMarkProcessed: "标记为已处理",
@@ -1748,7 +2338,117 @@
          noLabel: "否",
          empLogoutOption: "登出",
          returnToChooserOption: "返回选择系统",
-         empLoggedInAsPrefix: "登录身份："
+         empLoggedInAsPrefix: "登录身份：",
+        navShiftRoster: "排班表",
+        navDepartments: "部门",
+        navRecentlyDeleted: "最近删除",
+        navBackupNow: "立即备份",
+        tblDepartment: "部门",
+        shiftTitle: "排班表",
+        shiftSub: "为员工分配每日班次类型",
+        shiftTypesTitle: "班次类型",
+        shiftColType: "类型",
+        shiftColTime: "工作时间",
+        shiftColBreak: "休息时间",
+        shiftMTime: "07:00 - 16:00",
+        shiftMBreak: "11:00 - 12:00（1小时）",
+        shiftFTime: "07:00 - 17:00",
+        shiftFBreak: "11:00 - 13:00（2小时）",
+        shiftGTime: "17:00 - 05:00",
+        shiftGBreak: "23:00 - 01:00（2小时）",
+        shiftHLabel: "休息日",
+        shiftAssignTitle: "分配班次",
+        shiftDate: "日期",
+        shiftType: "班次类型",
+        shiftHOption: "H（休息日）",
+        btnSaveShift: "保存分配",
+        shiftDeleteConfirm: "删除此班次分配？",
+        deptTitle: "部门 / 团队",
+        deptSub: "将员工分组到部门或团队",
+        deptNewLabel: "新部门名称",
+        btnAddDept: "添加",
+        deptColName: "部门名称",
+        deptColCount: "已分配员工数",
+        deptNone: "-- 无 --",
+        deptDuplicateMsg: "该部门已存在",
+        deptInUseMsg: "无法删除：仍有员工被分配到该部门",
+        deptDeleteConfirm: "删除此部门？",
+        recentlyDeletedTitle: "最近删除的员工",
+        recentlyDeletedSub: "已删除的员工将在此保留30天，之后将被永久移除。",
+        recentlyDeletedEmpty: "没有最近删除的员工。",
+        deletedColOn: "删除时间",
+        confirmDeleteMsg: "删除员工\"{name}\"？您可以稍后从\"最近删除\"中恢复。",
+        toastDeletedToRecycle: "已移至最近删除",
+        backupEmptyMsg: "目前没有可备份的数据",
+        toastBackupDone: "备份文件已下载",
+        chartEmpStatusTitle: "员工状态概览",
+        chartLeaveUsageTitle: "各类假期使用情况（总小时数）",
+        statAliveStatus: "在职",
+        lockoutMsg: "尝试次数过多，请在 {minutes} 分钟后重试。",
+        lockoutTooManyAttempts: "登录失败次数过多，此账号已被锁定15分钟。",
+        sessionExpiredMsg: "您的登录已过期，请重新登录。",
+        myRequestsTitle: "我的请求",
+        myRequestsEmpty: "您尚未提交任何请求。",
+        reqColDate: "日期",
+        reqColType: "类型",
+        reqColStatus: "状态",
+        reqColResponse: "管理员回复",
+        reqStatusPending: "待处理",
+        reqStatusResponded: "已回复",
+        reqNoResponseYet: "等待回复中",
+
+        /* v6.00 */
+        hrSystemTitle: "人力资源系统",
+        loginErrorMsg: "用户名或密码不正确，或该账户已被停用。",
+        chooserHR: "人力资源系统",
+        chooserHRSub: "管理员工资料与申请",
+        roleLabelAdmin: "行政管理系统",
+        roleLabelHR: "人力资源系统",
+        navPendingApprovals: "待审批",
+        navManagement: "账户管理",
+        hrNotAllowedMsg: "人力资源账户无法执行此操作。",
+        deptRenamePrompt: "请输入新的部门名称：",
+        pendingApprovalsTitle: "待审批",
+        pendingApprovalsSub: "人力资源账户所做的修改将在此等待，直到管理员批准或拒绝。",
+        pendingApprovalsEmpty: "目前没有待审批的项目。",
+        pendingApprovalsRequestedBy: "申请人",
+        pendingApprovalsNoDiff: "未检测到任何更改。",
+        btnApprove: "批准",
+        btnReject: "拒绝",
+        rejectConfirmMsg: "确定要拒绝此项修改吗？此操作无法撤销。",
+        toastApproved: "修改已批准并已应用。",
+        toastRejected: "修改已被拒绝。",
+        toastSentForApproval: "更改已发送给管理员审批。",
+        managementTitle: "账户管理",
+        accountsSectionTitle: "人力资源与员工账户",
+        acctColName: "姓名",
+        acctColUsername: "用户名",
+        acctColPassword: "密码",
+        acctColRole: "角色",
+        acctColStatus: "状态",
+        btnAddAccount: "添加账户",
+        broadcastSectionTitle: "发送一次性通知",
+        broadcastSectionSub: "所有用户（员工、人力资源、管理员）下次登录时都会看到一次此通知。",
+        btnSendBroadcast: "发送通知",
+        btnEnable: "启用",
+        btnDisable: "停用",
+        acctDisabled: "已停用",
+        acctActive: "启用中",
+        acctDuplicateUsernameMsg: "该用户名已被使用。",
+        toastBroadcastSent: "通知已发送，所有用户下次登录时都会看到一次。",
+        broadcastModalTitle: "通知",
+        btnOk: "确定",
+        announcementPlaceholder: "添加新的提醒或公告...",
+        btnAdd: "添加",
+        announcementEditPrompt: "编辑此提醒/公告：",
+        announcementDeleteConfirm: "删除此提醒/公告？",
+        toastAnnouncementAdded: "公告已添加。",
+        toastAnnouncementUpdated: "公告已更新。",
+        toastAnnouncementDeleted: "公告已删除。",
+        backupLangModalTitle: "选择备份语言",
+        backupLangModalSub: "选择导出Excel文件所使用的语言，然后确认下载。",
+        backupLangModalLabel: "备份语言",
+        btnConfirmBackup: "下载备份文件"
      }
  };
  
@@ -1834,6 +2534,7 @@
          if (idField) idField.value = found.id;
          if (nameField) nameField.value = found.name;
          renderEmpNotifBadge();
+         renderMyRequests();
      } else {
          sessionStorage.removeItem('empLoggedInId');
          showEmpLoginScreen();
@@ -1860,6 +2561,38 @@
      document.getElementById('adminApp').style.display = 'block';
      closeAllMenus();
      resetInactivityTimer();
+     applyRoleGating();
+ }
+
+ /* v6.00: HR and Administration share this exact screen/tabs. This hides the
+    admin-only pieces for HR and updates the header title/name so it's clear
+    which door was used to log in. Client-side only (no server enforcement) -
+    fine for a small trusted team, but not a real security boundary. */
+ function applyRoleGating() {
+     const role = sessionStorage.getItem('loggedInRole') || 'admin';
+     const isAdmin = role === 'admin';
+     const name = sessionStorage.getItem('loggedInAccountName') || '';
+
+     document.querySelector('#adminApp .header h2').innerText = isAdmin ? t('appTitle') : t('hrSystemTitle');
+     const brand = document.querySelector('#adminApp .header-brand');
+     if (brand) brand.innerText = (isAdmin ? t('roleLabelAdmin') : t('roleLabelHR')) + (name ? ' - ' + name : '');
+
+     document.querySelectorAll('.admin-only').forEach(el => {
+         el.style.display = isAdmin ? '' : 'none';
+     });
+
+     /* Power menu: never show a "switch to" option for the role that's already active */
+     const switchToHROpt = document.getElementById('switchToHRMenuOption');
+     const switchToAdminOpt = document.getElementById('switchToAdminMenuOption');
+     if (switchToHROpt) switchToHROpt.style.display = isAdmin ? '' : 'none';
+     if (switchToAdminOpt) switchToAdminOpt.style.display = isAdmin ? 'none' : '';
+
+     renderMaster();
+     renderEmployeeList();
+     renderDeptTable();
+     renderPendingApprovals();
+     renderAccountsTable();
+     renderAnnouncements();
  }
 
  function handleEmployeePower() {
@@ -1913,6 +2646,12 @@
 
  function t(key) {
      return (translations[currentLang] && translations[currentLang][key]) || (translations.en[key] || key);
+ }
+
+ /* v6.00: look up a translation in a SPECIFIC language regardless of the current UI language -
+    used by Backup Now so the exported Excel headers can be chosen independently (EN/KM/ZH). */
+ function tLang(key, lang) {
+     return (translations[lang] && translations[lang][key]) || translations.en[key] || key;
  }
  
  function statusText(status) {
@@ -2106,23 +2845,170 @@
      renderMonthlyReport();
      renderEmployeeList();
      refreshEmployeeGate();
+     populateDeptDropdowns();
+     renderDeptTable();
+     renderDashboardCharts();
  });
- 
+
+ /* v5.00: Departments/Teams */
+ let departments = [];
+ db.ref('departments').on('value', (snapshot) => {
+     const data = snapshot.val();
+     departments = data ? Object.keys(data).map(key => ({ firebaseKey: key, name: data[key].name || '' })) : [];
+     if (departments.length === 0) {
+         // Seed with generic placeholders the first time this feature is used, so the dropdowns aren't empty.
+         ['Department 1', 'Department 2', 'Department 3'].forEach(name => db.ref('departments').push({ name }));
+     }
+     populateDeptDropdowns();
+     renderDeptTable();
+     renderMaster();
+ });
+
+ /* v6.00: Accounts (HR System / Administration System logins) */
+ let accounts = [];
+ db.ref('accounts').on('value', (snapshot) => {
+     const data = snapshot.val();
+     accounts = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+     if (accounts.length === 0) {
+         // First run: migrate the old single hardcoded admin login (admin/206206) into the new
+         // accounts system so nobody gets locked out of Administration System after this update.
+         db.ref('accounts').push({ username: 'admin', password: '206206', name: 'Administrator', role: 'admin', disabled: false });
+     }
+     renderAccountsTable();
+ });
+
+ /* v6.00: One-time broadcast notifications (seen once per user, tracked in localStorage) */
+ let broadcasts = [];
+ db.ref('broadcasts').on('value', (snapshot) => {
+     const data = snapshot.val();
+     broadcasts = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+ });
+
+ function checkBroadcastForCurrentUser() {
+     if (broadcasts.length === 0) return;
+     const latest = [...broadcasts].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))[0];
+     if (!latest) return;
+     const userId = sessionStorage.getItem('empLoggedInId') || sessionStorage.getItem('loggedInAccountUsername');
+     if (!userId) return;
+     const seenKey = 'seenBroadcast_' + latest.firebaseKey + '_' + userId;
+     try {
+         if (localStorage.getItem(seenKey)) return;
+         localStorage.setItem(seenKey, '1');
+     } catch (e) { /* if storage is unavailable, just show it without persisting */ }
+     setTimeout(() => {
+         document.getElementById('broadcastModalMessage').innerText = latest.message || '';
+         document.getElementById('broadcastModalDescription').innerText = latest.description || '';
+         document.getElementById('broadcastModal').style.display = 'flex';
+     }, 300);
+ }
+
+ function closeBroadcastModal() {
+     document.getElementById('broadcastModal').style.display = 'none';
+ }
+
+ /* v6.00: HR edits to Master Sheet / Monthly Report / Employee wait for Administration approval */
+ let pendingEdits = [];
+ db.ref('pendingEdits').on('value', (snapshot) => {
+     const data = snapshot.val();
+     pendingEdits = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+     renderPendingApprovals();
+ });
+
+/* v6.00: Dashboard System Reminders & Announcements (admin-editable, HR read-only) */
+let announcements = [];
+db.ref('announcements').on('value', (snapshot) => {
+    const data = snapshot.val();
+    announcements = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+    if (announcements.length === 0) {
+        db.ref('announcements').push({ text: '\ud83d\udccc <b>Monthly Reset:</b> Current month leave hours carry over as recorded unless manually updated.', timestamp: Date.now() });
+        db.ref('announcements').push({ text: '\ud83d\udccc <b>Exporting:</b> Use the Excel export button in Master Sheet or Monthly Report before printing reports.', timestamp: Date.now() });
+    }
+    renderAnnouncements();
+});
+
+function renderAnnouncements() {
+    const list = document.getElementById('announcementsList');
+    if (!list) return;
+    const isAdminRole = (sessionStorage.getItem('loggedInRole') || 'admin') === 'admin';
+    const sorted = [...announcements].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+    list.innerHTML = sorted.map(a => `
+        <li data-firebase-key="${a.firebaseKey}">
+            <span class="announcement-text">${a.text || ''}</span>
+            ${isAdminRole ? `
+            <span class="announcement-actions" style="margin-left:8px;">
+                <button type="button" class="btn-edit" onclick="editAnnouncement('${a.firebaseKey}')" title="Edit">${ICON_EDIT}</button>
+                <button type="button" class="btn-delete" onclick="deleteAnnouncement('${a.firebaseKey}')" title="Delete">${ICON_DELETE}</button>
+            </span>` : ''}
+        </li>
+    `).join('') || `<li>${t('pendingApprovalsEmpty')}</li>`;
+}
+
+function addAnnouncement() {
+    if ((sessionStorage.getItem('loggedInRole') || 'admin') !== 'admin') return;
+    const input = document.getElementById('newAnnouncementText');
+    const text = (input.value || '').trim();
+    if (!text) return;
+    db.ref('announcements').push({ text, timestamp: Date.now() }).then(() => {
+        input.value = '';
+        showToast(true, t('toastAnnouncementAdded'));
+    });
+}
+
+function editAnnouncement(firebaseKey) {
+    if ((sessionStorage.getItem('loggedInRole') || 'admin') !== 'admin') return;
+    const current = announcements.find(a => a.firebaseKey === firebaseKey);
+    if (!current) return;
+    const updated = prompt(t('announcementEditPrompt'), current.text || '');
+    if (updated === null) return;
+    const trimmed = updated.trim();
+    if (!trimmed) return;
+    db.ref('announcements/' + firebaseKey).update({ text: trimmed }).then(() => {
+        showToast(true, t('toastAnnouncementUpdated'));
+    });
+}
+
+function deleteAnnouncement(firebaseKey) {
+    if ((sessionStorage.getItem('loggedInRole') || 'admin') !== 'admin') return;
+    if (!confirm(t('announcementDeleteConfirm'))) return;
+    db.ref('announcements/' + firebaseKey).remove().then(() => {
+        showToast(true, t('toastAnnouncementDeleted'));
+    });
+}
+
+ /* v5.00: Shift Roster */
+ let shifts = [];
+ db.ref('shifts').on('value', (snapshot) => {
+     const data = snapshot.val();
+     shifts = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+     renderShiftTable();
+ });
+
+ /* v5.00: Recently Deleted (soft-delete / Undo) */
+ let deletedEmployees = [];
+ db.ref('deletedEmployees').on('value', (snapshot) => {
+     const data = snapshot.val();
+     deletedEmployees = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+     purgeOldDeletedEmployees();
+     renderDeletedTable();
+ });
+
  document.getElementById('chkDate').valueAsDate = new Date();
  document.getElementById('attDate').valueAsDate = new Date();
  document.getElementById('leaveDate').valueAsDate = new Date();
- 
+
  function switchTab(tabId, btn) {
      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
      document.getElementById(tabId).classList.add('active');
      if(btn) btn.classList.add('active');
-   
+
      if(tabId === 'tab-master') renderMaster();
      if(tabId === 'tab-monthly') renderMonthlyReport();
      if(tabId === 'tab-employee') renderEmployeeList();
-     if(tabId === 'tab-home') updateDashboardStats();
+     if(tabId === 'tab-home') { updateDashboardStats(); renderDashboardCharts(); }
      if(tabId === 'tab-add') document.getElementById('newId').focus();
+     if(tabId === 'tab-shift') renderShiftTable();
+     if(tabId === 'tab-dept') renderDeptTable();
  }
  
  function triggerNav(tabId, navBtnId) {
@@ -2181,7 +3067,8 @@
  function renderMaster() {
      const tbody = document.querySelector('#masterTable tbody');
      tbody.innerHTML = '';
- 
+     const isAdminRole = (sessionStorage.getItem('loggedInRole') || 'admin') === 'admin';
+
      employees.forEach((emp, index) => {
          const parts = emp.joinDate.split('.');
          const join = new Date(parts[0], parts[1]-1, parts[2]);
@@ -2203,10 +3090,11 @@
                  <td>
                      <button class="btn-view" onclick="openMasterDetailModal(${index})" title="View Details">${ICON_VIEW}</button>
                      <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">${ICON_EDIT}</button>
-                     <button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">${ICON_DELETE}</button>
+                     ${isAdminRole ? `<button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">${ICON_DELETE}</button>` : ''}
                  </td>
                  <td><b>${emp.id}</b></td>
                  <td>${emp.name}</td>
+                 <td>${emp.department || '-'}</td>
                  <td>${emp.joinDate}</td>
                  <td>${workYears}</td>
                  <td>${(emp.entitled || 0).toFixed(2)}</td>
@@ -2278,19 +3166,20 @@
  function renderEmployeeList() {
      const tbody = document.querySelector('#employeeTable tbody');
      tbody.innerHTML = '';
- 
+     const isAdminRole = (sessionStorage.getItem('loggedInRole') || 'admin') === 'admin';
+
      employees.forEach((emp, index) => {
          const parts = emp.joinDate.split('.');
          const join = new Date(parts[0], parts[1]-1, parts[2]);
          const now = new Date();
          const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
- 
+
          tbody.innerHTML += `
              <tr>
                  <td>
                      <button class="btn-view" onclick="openEmployeeDetailModal(${index})" title="View Details">${ICON_VIEW}</button>
                      <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">${ICON_EDIT}</button>
-                     <button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">${ICON_DELETE}</button>
+                     ${isAdminRole ? `<button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">${ICON_DELETE}</button>` : ''}
                  </td>
                  <td><b>${emp.id}</b></td>
                  <td>${emp.name}</td>
@@ -2349,19 +3238,505 @@
  }
  
  function updateEmpMonthlyField(firebaseKey, field, val) {
-     db.ref('employees/' + firebaseKey).update({ [field]: parseFloat(val) || 0 });
+     const newValue = parseFloat(val) || 0;
+
+     /* v6.00: HR System edits to Monthly Report also queue for Administration approval instead of writing directly. */
+     if ((sessionStorage.getItem('loggedInRole') || 'admin') === 'hr') {
+         const emp = employees.find(e => e.firebaseKey === firebaseKey);
+         const fieldLabels = { monthlyWorkDays: t('thMasterWorkingHours') + ' (' + t('reqColDate') + ')', workHours: t('thMasterWorkingHours') };
+         db.ref('pendingEdits').push({
+             employeeKey: firebaseKey,
+             empId: emp ? emp.id : '',
+             empName: emp ? emp.name : '',
+             field: field,
+             fieldLabel: fieldLabels[field] || field,
+             oldValue: emp ? (emp[field] || 0) : 0,
+             newValue: newValue,
+             requestedBy: sessionStorage.getItem('loggedInAccountName') || '',
+             timestamp: Date.now()
+         }).then(() => {
+             showToast(true, t('toastSentForApproval'));
+             renderMonthlyReport();
+         }).catch(() => showToast(false));
+         return;
+     }
+
+     db.ref('employees/' + firebaseKey).update({ [field]: newValue });
  }
  
+ /* v5.00: Deleting now soft-deletes (moves the record to deletedEmployees for 30 days,
+    recoverable from the "Recently Deleted" screen) instead of removing it immediately. */
  function confirmDelete(firebaseKey, name) {
-     if (confirm(`⚠️ Are you sure you want to delete employee "${name}"? This action cannot be undone.`)) {
-         db.ref('employees/' + firebaseKey).remove().then(() => {
-             alert(`Employee ${name} deleted successfully.`);
-         }).catch(error => {
-             alert('Error deleting employee: ' + error.message);
-         });
+     if ((sessionStorage.getItem('loggedInRole') || 'admin') !== 'admin') {
+         showToast(false, t('hrNotAllowedMsg'));
+         return;
+     }
+     if (confirm(t('confirmDeleteMsg').replace('{name}', name))) {
+         db.ref('employees/' + firebaseKey).once('value').then(snap => {
+             const record = snap.val();
+             if (!record) { showToast(false); return; }
+             record.deletedAt = new Date().toISOString();
+             db.ref('deletedEmployees/' + firebaseKey).set(record).then(() => {
+                 return db.ref('employees/' + firebaseKey).remove();
+             }).then(() => {
+                 showToast(true, t('toastDeletedToRecycle'));
+             }).catch(() => showToast(false));
+         }).catch(() => showToast(false));
      }
  }
- 
+
+ function purgeOldDeletedEmployees() {
+     const cutoff = Date.now() - (30 * 24 * 60 * 60 * 1000);
+     deletedEmployees.forEach(rec => {
+         const deletedTime = rec.deletedAt ? new Date(rec.deletedAt).getTime() : 0;
+         if (deletedTime && deletedTime < cutoff) db.ref('deletedEmployees/' + rec.firebaseKey).remove();
+     });
+ }
+
+ function renderDeletedTable() {
+     const tbody = document.querySelector('#deletedTable tbody');
+     if (!tbody) return;
+     tbody.innerHTML = '';
+     deletedEmployees.forEach(rec => {
+         const deletedOn = rec.deletedAt ? new Date(rec.deletedAt).toLocaleDateString() : '-';
+         tbody.innerHTML += `
+             <tr>
+                 <td>
+                     <button class="btn-edit" onclick="restoreEmployee('${rec.firebaseKey}')" title="Restore">${ICON_RESTORE}</button>
+                 </td>
+                 <td><b>${rec.id || '-'}</b></td>
+                 <td>${rec.name || '-'}</td>
+                 <td>${deletedOn}</td>
+             </tr>
+         `;
+     });
+     if (deletedEmployees.length === 0) {
+         tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8;" data-i18n="recentlyDeletedEmpty">No recently deleted employees.</td></tr>`;
+     }
+ }
+
+ function restoreEmployee(firebaseKey) {
+     const rec = deletedEmployees.find(r => r.firebaseKey === firebaseKey);
+     if (!rec) return;
+     const restored = { ...rec };
+     delete restored.firebaseKey;
+     delete restored.deletedAt;
+     db.ref('employees/' + firebaseKey).set(restored).then(() => {
+         return db.ref('deletedEmployees/' + firebaseKey).remove();
+     }).then(() => showToast(true)).catch(() => showToast(false));
+ }
+
+ function openRecentlyDeletedModal() {
+     renderDeletedTable();
+     document.getElementById('recentlyDeletedModal').style.display = 'flex';
+ }
+
+ function closeRecentlyDeletedModal() {
+     document.getElementById('recentlyDeletedModal').style.display = 'none';
+ }
+
+ /* ================= v5.00: DEPARTMENTS / TEAMS ================= */
+ function populateDeptDropdowns() {
+     const selects = [document.getElementById('newDept'), document.getElementById('editDept')].filter(Boolean);
+     selects.forEach(sel => {
+         const current = sel.value;
+         sel.innerHTML = '<option value="">' + t('deptNone') + '</option>' +
+             departments.map(d => `<option value="${d.name}">${d.name}</option>`).join('');
+         if (current) sel.value = current;
+     });
+ }
+
+ function renderDeptTable() {
+     const tbody = document.querySelector('#deptTable tbody');
+     if (!tbody) return;
+     tbody.innerHTML = departments.map(d => {
+         const count = employees.filter(e => e.department === d.name).length;
+         return `
+             <tr>
+                 <td>
+                     <button class="btn-edit" onclick="editDepartment('${d.firebaseKey}', '${d.name.replace(/'/g, "\\'")}')" title="Edit">${ICON_EDIT}</button>
+                     <button class="btn-delete" onclick="deleteDepartment('${d.firebaseKey}', ${count})" title="Delete">${ICON_DELETE}</button>
+                 </td>
+                 <td>${d.name}</td>
+                 <td>${count}</td>
+             </tr>
+         `;
+     }).join('');
+     if (departments.length === 0) {
+         tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">-</td></tr>`;
+     }
+ }
+
+ function addDepartment() {
+     const nameInput = document.getElementById('newDeptName');
+     const name = nameInput.value.trim();
+     if (!name) return;
+     if (departments.some(d => d.name.toLowerCase() === name.toLowerCase())) {
+         showToast(false, t('deptDuplicateMsg'));
+         return;
+     }
+     db.ref('departments').push({ name }).then(() => {
+         nameInput.value = '';
+         showToast(true);
+     }).catch(() => showToast(false));
+ }
+
+ function deleteDepartment(firebaseKey, employeeCount) {
+     if (employeeCount > 0) {
+         showToast(false, t('deptInUseMsg'));
+         return;
+     }
+     if (confirm(t('deptDeleteConfirm'))) {
+         db.ref('departments/' + firebaseKey).remove().then(() => showToast(true)).catch(() => showToast(false));
+     }
+ }
+
+ function editDepartment(firebaseKey, oldName) {
+     const newName = prompt(t('deptRenamePrompt'), oldName);
+     if (newName === null) return;
+     const trimmed = newName.trim();
+     if (!trimmed || trimmed === oldName) return;
+     if (departments.some(d => d.firebaseKey !== firebaseKey && d.name.toLowerCase() === trimmed.toLowerCase())) {
+         showToast(false, t('deptDuplicateMsg'));
+         return;
+     }
+     // Rename the department, and re-point every employee currently assigned to the old name so nobody is orphaned.
+     const updates = {};
+     updates['departments/' + firebaseKey + '/name'] = trimmed;
+     employees.forEach(e => {
+         if (e.department === oldName) updates['employees/' + e.firebaseKey + '/department'] = trimmed;
+     });
+     db.ref().update(updates).then(() => showToast(true)).catch(() => showToast(false));
+ }
+
+ /* ================= v6.00: PENDING APPROVALS (HR edits awaiting Administration review) ================= */
+ function openPendingApprovalsModal() {
+     renderPendingApprovals();
+     document.getElementById('pendingApprovalsModal').style.display = 'flex';
+ }
+ function closePendingApprovalsModal() {
+     document.getElementById('pendingApprovalsModal').style.display = 'none';
+ }
+
+ function renderPendingApprovals() {
+     const badge = document.getElementById('pendingApprovalsBadge');
+     if (badge) {
+         if (pendingEdits.length > 0) { badge.style.display = 'inline-block'; badge.innerText = pendingEdits.length; }
+         else { badge.style.display = 'none'; }
+     }
+
+     const body = document.getElementById('pendingApprovalsBody');
+     if (!body) return;
+     if (pendingEdits.length === 0) {
+         body.innerHTML = `<p style="text-align:center; color:#94a3b8; padding:20px;">${t('pendingApprovalsEmpty')}</p>`;
+         return;
+     }
+
+     const sorted = [...pendingEdits].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+     body.innerHTML = sorted.map(p => {
+         const changed = [];
+         if (p.newRecord && p.oldRecord) {
+             Object.keys(p.newRecord).forEach(k => {
+                 const oldVal = p.oldRecord[k] === undefined ? '' : p.oldRecord[k];
+                 const newVal = p.newRecord[k];
+                 if (String(oldVal) !== String(newVal) && k !== 'firebaseKey') {
+                     changed.push(`<div style="font-size:12px; margin-bottom:2px;"><b>${k}</b>: <span style="color:#dc2626; text-decoration:line-through;">${oldVal || '-'}</span> &rarr; <span style="color:#15803d; font-weight:600;">${newVal || '-'}</span></div>`);
+                 }
+             });
+         } else if (p.fieldLabel) {
+             changed.push(`<div style="font-size:12px;"><b>${p.fieldLabel}</b>: <span style="color:#dc2626; text-decoration:line-through;">${p.oldValue}</span> &rarr; <span style="color:#15803d; font-weight:600;">${p.newValue}</span></div>`);
+         }
+         return `
+             <div class="detail-item" style="flex-direction:column; align-items:flex-start; gap:6px; margin-bottom:10px;">
+                 <div style="display:flex; justify-content:space-between; width:100%;">
+                     <span class="lbl">${p.empName || '-'} (${p.empId || '-'})</span>
+                     <span class="val" style="font-size:11px; color:#64748b;">${t('pendingApprovalsRequestedBy')}: ${p.requestedBy || '-'}</span>
+                 </div>
+                 <div style="width:100%; text-align:left;">${changed.join('') || t('pendingApprovalsNoDiff')}</div>
+                 <div style="display:flex; gap:8px; margin-top:4px;">
+                     <button class="quick-btn green" style="padding:4px 10px; font-size:11px;" onclick="approvePendingEdit('${p.firebaseKey}')">${t('btnApprove')}</button>
+                     <button class="quick-btn" style="padding:4px 10px; font-size:11px; background:linear-gradient(135deg,#dc2626,#b91c1c);" onclick="rejectPendingEdit('${p.firebaseKey}')">${t('btnReject')}</button>
+                 </div>
+             </div>
+         `;
+     }).join('');
+ }
+
+ function approvePendingEdit(firebaseKey) {
+     const p = pendingEdits.find(x => x.firebaseKey === firebaseKey);
+     if (!p) return;
+     const apply = p.newRecord
+         ? db.ref('employees/' + p.employeeKey).set(p.newRecord)
+         : db.ref('employees/' + p.employeeKey).update({ [p.field]: p.newValue });
+     apply.then(() => db.ref('pendingEdits/' + firebaseKey).remove())
+         .then(() => showToast(true, t('toastApproved')))
+         .catch(() => showToast(false));
+ }
+
+ function rejectPendingEdit(firebaseKey) {
+     if (!confirm(t('rejectConfirmMsg'))) return;
+     db.ref('pendingEdits/' + firebaseKey).remove().then(() => showToast(true, t('toastRejected'))).catch(() => showToast(false));
+ }
+
+ /* ================= v6.00: MANAGEMENT (accounts + one-time broadcast) ================= */
+ function openManagementModal() {
+     renderAccountsTable();
+     document.getElementById('managementModal').style.display = 'flex';
+ }
+ function closeManagementModal() {
+     document.getElementById('managementModal').style.display = 'none';
+ }
+
+ function renderAccountsTable() {
+     const tbody = document.querySelector('#accountsTable tbody');
+     if (!tbody) return;
+     tbody.innerHTML = accounts.map(a => `
+         <tr>
+             <td>
+                 <button class="btn-edit" style="font-size:10px; padding:3px 8px;" onclick="toggleAccountDisabled('${a.firebaseKey}', ${!a.disabled})">${a.disabled ? t('btnEnable') : t('btnDisable')}</button>
+             </td>
+             <td><input type="text" value="${a.name || ''}" style="width:110px;" onchange="updateAccountField('${a.firebaseKey}', 'name', this.value)"></td>
+             <td><input type="text" value="${a.username || ''}" style="width:100px;" onchange="updateAccountField('${a.firebaseKey}', 'username', this.value)"></td>
+             <td><input type="text" value="${a.password || ''}" style="width:100px;" onchange="updateAccountField('${a.firebaseKey}', 'password', this.value)"></td>
+             <td>
+                 <select onchange="updateAccountField('${a.firebaseKey}', 'role', this.value)">
+                     <option value="hr" ${a.role === 'hr' ? 'selected' : ''}>${t('roleLabelHR')}</option>
+                     <option value="admin" ${a.role === 'admin' ? 'selected' : ''}>${t('roleLabelAdmin')}</option>
+                 </select>
+             </td>
+             <td style="color:${a.disabled ? '#dc2626' : '#15803d'}; font-weight:600;">${a.disabled ? t('acctDisabled') : t('acctActive')}</td>
+         </tr>
+     `).join('');
+     if (accounts.length === 0) {
+         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">-</td></tr>`;
+     }
+ }
+
+ function updateAccountField(firebaseKey, field, value) {
+     db.ref('accounts/' + firebaseKey).update({ [field]: value }).then(() => showToast(true)).catch(() => showToast(false));
+ }
+
+ function toggleAccountDisabled(firebaseKey, disabled) {
+     db.ref('accounts/' + firebaseKey).update({ disabled }).then(() => showToast(true)).catch(() => showToast(false));
+ }
+
+ function addAccount() {
+     const name = document.getElementById('newAcctName').value.trim();
+     const username = document.getElementById('newAcctUsername').value.trim();
+     const password = document.getElementById('newAcctPassword').value.trim();
+     const role = document.getElementById('newAcctRole').value;
+     if (!name || !username || !password) return;
+     if (accounts.some(a => a.username === username)) {
+         showToast(false, t('acctDuplicateUsernameMsg'));
+         return;
+     }
+     db.ref('accounts').push({ name, username, password, role, disabled: false }).then(() => {
+         document.getElementById('newAcctName').value = '';
+         document.getElementById('newAcctUsername').value = '';
+         document.getElementById('newAcctPassword').value = '';
+         showToast(true);
+     }).catch(() => showToast(false));
+ }
+
+ function sendBroadcast() {
+     const message = document.getElementById('broadcastMessage').value.trim();
+     const description = document.getElementById('broadcastDescription').value.trim();
+     if (!message) return;
+     db.ref('broadcasts').push({ message, description, timestamp: Date.now() }).then(() => {
+         document.getElementById('broadcastMessage').value = '';
+         document.getElementById('broadcastDescription').value = '';
+         showToast(true, t('toastBroadcastSent'));
+     }).catch(() => showToast(false));
+ }
+
+ /* ================= v5.00: SHIFT ROSTER ================= */
+ const SHIFT_META = {
+     M: { time: '07:00 - 16:00', brk: '11:00 - 12:00 (1 hour)' },
+     F: { time: '07:00 - 17:00', brk: '11:00 - 13:00 (2 hours)' },
+     G: { time: '17:00 - 05:00', brk: '23:00 - 01:00 (2 hours)' },
+     H: { time: '-', brk: '-' }
+ };
+
+ function saveShiftAssignment() {
+     const empId = document.getElementById('shiftEmpId').value.trim();
+     const date = document.getElementById('shiftDate').value;
+     const type = document.getElementById('shiftType').value;
+     const emp = employees.find(e => e.id === empId);
+     if (!emp) { showToast(false, t('empIdNotFound')); return; }
+
+     db.ref('shifts').push({
+         empId: emp.id,
+         empName: emp.name,
+         date: date,
+         type: type
+     }).then(() => {
+         document.getElementById('shiftEmpId').value = '';
+         showToast(true);
+     }).catch(() => showToast(false));
+ }
+
+ function renderShiftTable() {
+     const tbody = document.querySelector('#shiftTable tbody');
+     if (!tbody) return;
+     const searchTerm = (document.getElementById('shiftSearchInput')?.value || '').toLowerCase();
+
+     const sorted = [...shifts]
+         .filter(s => !searchTerm || (s.empId || '').toLowerCase().includes(searchTerm) || (s.empName || '').toLowerCase().includes(searchTerm))
+         .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+     tbody.innerHTML = sorted.map(s => {
+         const meta = SHIFT_META[s.type] || { time: '-', brk: '-' };
+         return `
+             <tr>
+                 <td><button class="btn-delete" onclick="deleteShiftAssignment('${s.firebaseKey}')" title="Delete">${ICON_DELETE}</button></td>
+                 <td>${s.date || '-'}</td>
+                 <td><b>${s.empId || '-'}</b></td>
+                 <td>${s.empName || '-'}</td>
+                 <td><b>${s.type || '-'}</b></td>
+                 <td>${s.type === 'H' ? t('shiftHLabel') : meta.time}</td>
+                 <td>${s.type === 'H' ? '-' : meta.brk}</td>
+             </tr>
+         `;
+     }).join('');
+     if (sorted.length === 0) {
+         tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">-</td></tr>`;
+     }
+ }
+
+ function filterShiftTable() { renderShiftTable(); }
+
+ function deleteShiftAssignment(firebaseKey) {
+     if (confirm(t('shiftDeleteConfirm'))) {
+         db.ref('shifts/' + firebaseKey).remove().then(() => showToast(true)).catch(() => showToast(false));
+     }
+ }
+
+ /* ================= v5.00: DASHBOARD CHARTS (plain inline SVG, no external library) ================= */
+ function renderDashboardCharts() {
+     renderStatusChart();
+     renderLeaveUsageChart();
+ }
+
+ function renderStatusChart() {
+     const el = document.getElementById('chartEmpStatus');
+     if (!el) return;
+     const active = employees.filter(e => e.status !== 'Resigned').length;
+     const resigned = employees.filter(e => e.status === 'Resigned').length;
+     const total = active + resigned || 1;
+     const activePct = Math.round((active / total) * 100);
+     const resignedPct = 100 - activePct;
+
+     el.innerHTML = `
+         <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+             <svg width="120" height="120" viewBox="0 0 36 36">
+                 <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="4"></circle>
+                 <circle cx="18" cy="18" r="15.9" fill="none" stroke="#16a34a" stroke-width="4"
+                     stroke-dasharray="${activePct} ${100 - activePct}" stroke-dashoffset="25"></circle>
+                 <circle cx="18" cy="18" r="15.9" fill="none" stroke="#dc2626" stroke-width="4"
+                     stroke-dasharray="${resignedPct} ${100 - resignedPct}" stroke-dashoffset="${25 - activePct}"></circle>
+             </svg>
+             <div style="font-size:12px;">
+                 <div style="margin-bottom:6px;"><span style="display:inline-block; width:10px; height:10px; background:#16a34a; border-radius:2px; margin-right:6px;"></span>${t('statAliveStatus') || 'Active'}: <b>${active}</b> (${activePct}%)</div>
+                 <div><span style="display:inline-block; width:10px; height:10px; background:#dc2626; border-radius:2px; margin-right:6px;"></span>${t('resigned')}: <b>${resigned}</b> (${resignedPct}%)</div>
+             </div>
+         </div>
+     `;
+ }
+
+ function renderLeaveUsageChart() {
+     const el = document.getElementById('chartLeaveUsage');
+     if (!el) return;
+     const types = [
+         { key: 'leaveAL', label: t('thMasterAnnualLeave'), color: '#123a5c' },
+         { key: 'leaveSpecial', label: t('thMasterSpecialLeave'), color: '#7c3aed' },
+         { key: 'leaveMaternity', label: t('thMasterMaternityLeave'), color: '#e11d48' },
+         { key: 'leaveTravel', label: t('thMasterTravelLeave'), color: '#0d9488' },
+         { key: 'leavePersonal', label: t('thMasterPersonalLeave'), color: '#d97706' },
+         { key: 'leaveSick', label: t('thMasterSickLeave'), color: '#4f46e5' },
+         { key: 'leaveOther', label: t('thMasterOtherLeave'), color: '#64748b' }
+     ];
+     const totals = types.map(tp => ({ ...tp, total: employees.reduce((sum, e) => sum + (e[tp.key] || 0), 0) }));
+     const maxVal = Math.max(1, ...totals.map(tp => tp.total));
+
+     el.innerHTML = totals.map(tp => `
+         <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:11px;">
+             <div style="width:100px; text-align:right; color:#334155;">${tp.label}</div>
+             <div style="flex:1; background:#f1f5f9; border-radius:4px; overflow:hidden; height:14px;">
+                 <div style="width:${(tp.total / maxVal) * 100}%; background:${tp.color}; height:100%;"></div>
+             </div>
+             <div style="width:50px; font-weight:600; color:#0f172a;">${tp.total.toFixed(1)}</div>
+         </div>
+     `).join('');
+ }
+
+ /* ================= v5.00: MANUAL FULL BACKUP (on-demand only, per user preference - no scheduled auto-backup to avoid Firebase overhead) ================= */
+ /* v6.00: renames an object's keys to translated column headers for the chosen backup language.
+    Keys with no translation mapping (e.g. firebaseKey) are kept as-is in English. */
+ function relabelForBackup(obj, headerMap) {
+     const out = {};
+     Object.keys(obj).forEach(k => { out[headerMap[k] || k] = obj[k]; });
+     return out;
+ }
+
+ function getEmployeeHeaderMap(lang) {
+     return {
+         id: tLang('tblId', lang), name: tLang('tblName', lang), department: tLang('tblDepartment', lang),
+         sex: tLang('tblSex', lang), dob: tLang('tblDob', lang), pob: tLang('tblPob', lang),
+         residence: tLang('tblResidence', lang), contact: tLang('tblContact', lang), emergencyContact: tLang('tblEmergencyContact', lang),
+         joinDate: tLang('tblJoin', lang), resignedDate: tLang('tblResignedDate', lang), status: tLang('tblStatus', lang),
+         entitled: tLang('tblEntitled', lang), startDate: tLang('tblStart', lang), endDate: tLang('tblEnd', lang),
+         yearRange: tLang('tblYearRange', lang), carried: tLang('tblCarried', lang), prevUsed: tLang('tblPrevUsed', lang),
+         monthUsed: tLang('tblMonthUsed', lang), exceeded: tLang('tblExceeded', lang), workHours: tLang('thMasterWorkingHours', lang),
+         otHours: tLang('thMasterMonthlyOT', lang), leaveAL: tLang('thMasterAnnualLeave', lang), leaveSpecial: tLang('thMasterSpecialLeave', lang),
+         leaveMaternity: tLang('thMasterMaternityLeave', lang), leaveTravel: tLang('thMasterTravelLeave', lang), leavePersonal: tLang('thMasterPersonalLeave', lang),
+         leaveSick: tLang('thMasterSickLeave', lang), leaveOther: tLang('thMasterOtherLeave', lang), remarks: tLang('tblRemarks', lang)
+     };
+ }
+
+ function openBackupLangModal() {
+     document.getElementById('backupLangModal').style.display = 'flex';
+ }
+
+ function closeBackupLangModal() {
+     document.getElementById('backupLangModal').style.display = 'none';
+ }
+
+ function confirmBackupNow() {
+     const langSelect = document.getElementById('backupLangModalSelect');
+     const lang = langSelect ? langSelect.value : 'en';
+     closeBackupLangModal();
+     backupNow(lang);
+ }
+
+ function backupNow(lang) {
+     lang = lang || 'en';
+     const empHeaders = getEmployeeHeaderMap(lang);
+
+     const wb = XLSX.utils.book_new();
+
+     const empSheet = employees.map(e => relabelForBackup(e, empHeaders));
+     const reqSheet = requests.map(r => ({ ...r }));
+     const notifSheet = (typeof allNotifications !== 'undefined' ? allNotifications : []).map(n => ({ ...n }));
+     const deptSheet = departments.map(d => ({ ...d }));
+     const shiftSheet = shifts.map(s => ({ ...s }));
+     const deletedSheet = deletedEmployees.map(d => relabelForBackup(d, empHeaders));
+
+     if (empSheet.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(empSheet), "Employees");
+     if (reqSheet.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(reqSheet), "Requests");
+     if (notifSheet.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(notifSheet), "Notifications");
+     if (deptSheet.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(deptSheet), "Departments");
+     if (shiftSheet.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(shiftSheet), "Shifts");
+     if (deletedSheet.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(deletedSheet), "RecentlyDeleted");
+
+     if (wb.SheetNames.length === 0) {
+         showToast(false, t('backupEmptyMsg'));
+         return;
+     }
+
+     XLSX.writeFile(wb, `Full_Backup_${new Date().toISOString().slice(0,10)}.xlsx`);
+     showToast(true, t('toastBackupDone'));
+ }
+
  function exportToExcel(type) {
      let data = [];
      let filename = "";
@@ -2381,7 +3756,7 @@
              const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
  
              return {
-                 "Employee ID": emp.id, "Name": emp.name, "Sex": emp.sex || "Male", "Join Date": emp.joinDate,
+                 "Employee ID": emp.id, "Name": emp.name, "Department": emp.department || "", "Sex": emp.sex || "Male", "Join Date": emp.joinDate,
                  "Years of Work": workYears, "Entitled Hours": Number((emp.entitled || 0).toFixed(2)),
                  "AL Start Date": startStr, "AL End Date": endStr, "Year Range": emp.yearRange || computedCycle.yearRangeStr,
                  "Months Until AL Renewal": remainingMonthsCycle, "Total AL": Number((emp.entitled || 0).toFixed(2)),
@@ -2549,6 +3924,7 @@
      document.getElementById('editResidence').value = emp.residence || '';
      document.getElementById('editContact').value = emp.contact || '';
      document.getElementById('editEmergencyContact').value = emp.emergencyContact || '';
+     if (document.getElementById('editDept')) document.getElementById('editDept').value = emp.department || '';
      document.getElementById('editLoginUsername').value = emp.loginUsername || '';
      document.getElementById('editLoginPassword').value = emp.loginPassword || '';
      document.getElementById('editJoinDate').value = emp.joinDate;
@@ -2625,14 +4001,36 @@
          leaveSick: leaveSickVal,
          leaveOther: leaveOtherVal,
          yearRange: document.getElementById('editYearRange').value.trim() || computedCycle.yearRangeStr,
-         remarks: document.getElementById('editRemarks').value
+         remarks: document.getElementById('editRemarks').value,
+         department: document.getElementById('editDept') ? document.getElementById('editDept').value : ''
      };
-   
+
+     /* v6.00: HR System edits to Master Sheet/Employee don't write directly - they queue
+        for Administration to approve or reject. Administration keeps editing directly, as before. */
+     if ((sessionStorage.getItem('loggedInRole') || 'admin') === 'hr') {
+         db.ref('employees/' + firebaseKey).once('value').then(snap => {
+             const oldRecord = snap.val() || {};
+             return db.ref('pendingEdits').push({
+                 employeeKey: firebaseKey,
+                 empId: updatedData.id,
+                 empName: updatedData.name,
+                 oldRecord: oldRecord,
+                 newRecord: updatedData,
+                 requestedBy: sessionStorage.getItem('loggedInAccountName') || '',
+                 timestamp: Date.now()
+             });
+         }).then(() => {
+             closeModal();
+             showToast(true, t('toastSentForApproval'));
+         }).catch(() => showToast(false));
+         return;
+     }
+
      db.ref('employees/' + firebaseKey).set(updatedData).then(() => {
          closeModal();
-         alert('Master record updated successfully in Firebase!');
+         showToast(true);
      }).catch(error => {
-         alert('Error updating record: ' + error.message);
+         showToast(false);
      });
  });
  
@@ -2662,7 +4060,8 @@
          prevUsed: 0, monthUsed: 0, carried: 0, exceeded: 0,
          workHours: 0, otHours: 0, monthlyWorkDays: 208,
          leaveAL: 0, leaveSpecial: 0, leaveMaternity: 0, leaveTravel: 0, leavePersonal: 0, leaveSick: 0, leaveOther: 0,
-         remarks: document.getElementById('newRemarks').value.trim()
+         remarks: document.getElementById('newRemarks').value.trim(),
+         department: document.getElementById('newDept') ? document.getElementById('newDept').value : ''
      };
  
      db.ref('employees').push(emp).then(() => {
@@ -2766,11 +4165,38 @@
  });
 
 /* ===== EMPLOYEE LOGIN ===== */
+ /* v5.00: Login attempt lockout - 5 wrong attempts locks that ID for 15 minutes.
+    Tracked client-side (localStorage) since this is a static site with no server/auth backend. */
+ const LOCKOUT_MAX_ATTEMPTS = 5;
+ const LOCKOUT_DURATION_MS = 15 * 60 * 1000;
+
+ function getLockoutState(userKey) {
+     try {
+         const raw = localStorage.getItem('loginLockout_' + userKey);
+         return raw ? JSON.parse(raw) : { attempts: 0, lockUntil: 0 };
+     } catch (e) { return { attempts: 0, lockUntil: 0 }; }
+ }
+ function setLockoutState(userKey, state) {
+     try { localStorage.setItem('loginLockout_' + userKey, JSON.stringify(state)); } catch (e) {}
+ }
+ function clearLockoutState(userKey) {
+     try { localStorage.removeItem('loginLockout_' + userKey); } catch (e) {}
+ }
+
  document.getElementById('empLoginForm').addEventListener('submit', function(e) {
      e.preventDefault();
      const userIn = document.getElementById('empLoginUser').value.trim();
      const passIn = document.getElementById('empLoginPass').value.trim();
      const errorDiv = document.getElementById('empLoginError');
+
+     if (!userIn) return;
+     const lockState = getLockoutState(userIn);
+     if (lockState.lockUntil && Date.now() < lockState.lockUntil) {
+         const minsLeft = Math.ceil((lockState.lockUntil - Date.now()) / 60000);
+         errorDiv.innerText = t('lockoutMsg').replace('{minutes}', minsLeft);
+         errorDiv.style.display = 'block';
+         return;
+     }
 
      const found = employees.find(emp => {
          const uname = emp.loginUsername || emp.id;
@@ -2779,11 +4205,21 @@
      });
 
      if (found) {
+         clearLockoutState(userIn);
          sessionStorage.setItem('empLoggedInId', found.id);
          errorDiv.style.display = 'none';
          document.getElementById('empLoginPass').value = '';
          refreshEmployeeGate();
+         checkBroadcastForCurrentUser();
      } else {
+         const attempts = (lockState.attempts || 0) + 1;
+         if (attempts >= LOCKOUT_MAX_ATTEMPTS) {
+             setLockoutState(userIn, { attempts: 0, lockUntil: Date.now() + LOCKOUT_DURATION_MS });
+             errorDiv.innerText = t('lockoutTooManyAttempts');
+         } else {
+             setLockoutState(userIn, { attempts, lockUntil: 0 });
+             errorDiv.innerText = t('empLoginErrorMsg');
+         }
          errorDiv.style.display = 'block';
      }
  });
@@ -2799,7 +4235,7 @@
      const loggedInId = sessionStorage.getItem('empLoggedInId');
      const loggedInEmp = employees.find(emp => emp.id === loggedInId);
      if (!loggedInEmp) {
-         alert('Your session has expired. Please log in again.');
+         showToast(false, t('sessionExpiredMsg'));
          refreshEmployeeGate();
          return;
      }
@@ -2827,7 +4263,7 @@
          toast.style.display = 'block';
          setTimeout(() => { toast.style.display = 'none'; }, 6000);
      }).catch(error => {
-         alert('Error submitting request: ' + error.message);
+         showToast(false);
      });
  });
 
@@ -2849,7 +4285,38 @@
      });
      requests = list.filter(r => (r.timestamp || 0) >= cutoff);
      renderNotifications();
+     renderMyRequests();
  });
+
+ /* v5.00: Employee-side "My Requests" history/status tracker */
+ function renderMyRequests() {
+     const tbody = document.querySelector('#myRequestsTable tbody');
+     if (!tbody) return;
+     const empId = sessionStorage.getItem('empLoggedInId');
+     if (!empId) return;
+
+     const mine = requests.filter(r => r.empId === empId).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+     if (mine.length === 0) {
+         tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8;" data-i18n="myRequestsEmpty">You haven't submitted any requests yet.</td></tr>`;
+         return;
+     }
+
+     tbody.innerHTML = mine.map(r => {
+         const response = (typeof allNotifications !== 'undefined' ? allNotifications : [])
+             .find(n => n.relatedRequestKey === r.firebaseKey);
+         const statusLabel = r.status === 'processed' ? t('reqStatusResponded') : t('reqStatusPending');
+         const statusColor = r.status === 'processed' ? '#15803d' : '#d97706';
+         const responseText = response ? `<b>${response.message || ''}</b><br>${response.description || ''}` : t('reqNoResponseYet');
+         return `
+             <tr>
+                 <td>${r.date || '-'}</td>
+                 <td>${r.type || '-'}</td>
+                 <td style="color:${statusColor}; font-weight:600;">${statusLabel}</td>
+                 <td style="text-align:left;">${responseText}</td>
+             </tr>
+         `;
+     }).join('');
+ }
 
  function renderNotifications() {
      const badge = document.getElementById('notifBadge');
@@ -2935,6 +4402,7 @@
      if (document.getElementById('empNotifModal') && document.getElementById('empNotifModal').style.display === 'flex') {
          renderEmpNotifList();
      }
+     renderMyRequests();
  });
 
  /* ---- Admin: compose a response (tied to a request) or a general announcement (to all) ---- */
