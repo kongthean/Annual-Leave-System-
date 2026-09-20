@@ -371,7 +371,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.10</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.12</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -545,19 +545,30 @@
  </div>
 </div>
 
-<!-- TOTP (GOOGLE AUTHENTICATOR) VERIFY MODAL (v6.10) - shown after correct Administration username/password, for accounts that already have an authenticator set up -->
+<!-- TOTP (GOOGLE AUTHENTICATOR) VERIFY MODAL (v6.10, updated v6.11 with backup code fallback) - shown after correct Administration username/password, for accounts that already have an authenticator set up -->
 <div class="modal" id="totpVerifyModal">
     <div class="modal-content" style="max-width: 400px; text-align:center;">
         <div class="modal-header">
             <h4 data-i18n="totpVerifyModalTitle">Enter Authenticator Code</h4>
             <button class="modal-close" onclick="closeTotpVerifyModal()">&times;</button>
         </div>
-        <p style="font-size:13px; color:#334155; margin-bottom:14px;" data-i18n="totpVerifyModalSub">Open Google Authenticator (or a similar app) and enter the current 6-digit code.</p>
-        <div class="form-group">
-            <input type="text" id="totpVerifyInput" inputmode="numeric" maxlength="6" placeholder="000000" style="text-align:center; font-size:22px; letter-spacing:6px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); confirmTotpVerify();}">
+        <div id="totpCodeSection">
+            <p style="font-size:13px; color:#334155; margin-bottom:14px;" data-i18n="totpVerifyModalSub">Open Google Authenticator (or a similar app) and enter the current 6-digit code.</p>
+            <div class="form-group">
+                <input type="text" id="totpVerifyInput" inputmode="numeric" maxlength="6" placeholder="000000" style="text-align:center; font-size:22px; letter-spacing:6px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); confirmTotpVerify();}">
+            </div>
+            <button type="button" class="btn-submit" onclick="confirmTotpVerify()" data-i18n="btnVerifyCode">Verify</button>
+            <p style="margin-top:14px;"><a href="javascript:void(0)" onclick="showBackupCodeSection()" data-i18n="useBackupCodeLink">Use a backup code instead</a></p>
+        </div>
+        <div id="backupCodeSection" style="display:none;">
+            <p style="font-size:13px; color:#334155; margin-bottom:14px;" data-i18n="backupCodeSectionSub">Lost your phone? Enter one of your unused backup codes below.</p>
+            <div class="form-group">
+                <input type="text" id="backupCodeInput" maxlength="9" placeholder="XXXX-XXXX" style="text-align:center; font-size:20px; letter-spacing:2px; text-transform:uppercase;" onkeydown="if(event.key==='Enter'){event.preventDefault(); confirmBackupCodeVerify();}">
+            </div>
+            <button type="button" class="btn-submit" onclick="confirmBackupCodeVerify()" data-i18n="btnVerifyCode">Verify</button>
+            <p style="margin-top:14px;"><a href="javascript:void(0)" onclick="showTotpCodeSection()" data-i18n="useAuthCodeLink">Back to authenticator code</a></p>
         </div>
         <div id="totpVerifyError" class="login-error" style="display:none;"></div>
-        <button type="button" class="btn-submit" onclick="confirmTotpVerify()" data-i18n="btnVerifyCode">Verify</button>
     </div>
 </div>
 
@@ -584,7 +595,22 @@
         <button type="button" class="btn-submit" onclick="confirmTotpSetup()" data-i18n="btnConfirmEnable">Confirm &amp; Enable</button>
     </div>
 </div>
- 
+
+<!-- BACKUP/RECOVERY CODES REVEAL MODAL (v6.11) - shown once right after an authenticator is set up (or codes are regenerated), so the codes can be saved somewhere safe -->
+<div class="modal" id="backupCodesRevealModal">
+    <div class="modal-content" style="max-width: 440px; text-align:center;">
+        <div class="modal-header">
+            <h4 data-i18n="backupCodesRevealTitle">Save Your Backup Codes</h4>
+        </div>
+        <p style="font-size:13px; color:#334155; margin-bottom:14px; text-align:left;" data-i18n="backupCodesRevealSub">Each code can be used once to log in if you lose access to your authenticator app. They will not be shown again after you close this window - write them down or save them somewhere safe.</p>
+        <div id="backupCodesRevealList" style="font-family:monospace; font-size:16px; letter-spacing:1px; background:#f1f5f9; border-radius:8px; padding:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;"></div>
+        <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+            <button type="button" class="btn-edit" onclick="copyBackupCodes()" data-i18n="btnCopy">Copy</button>
+            <button type="button" class="btn-submit" onclick="acknowledgeBackupCodes()" data-i18n="backupCodesSavedBtn">I've Saved These Codes</button>
+        </div>
+    </div>
+</div>
+
  <!-- ONE-TIME BROADCAST MODAL (v6.00) - moved outside adminApp so it can pop up over the Employee view too, not just HR/Administration -->
  <div class="modal" id="broadcastModal">
      <div class="modal-content" style="max-width: 480px;">
@@ -1325,7 +1351,7 @@
  </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.10
+     HR & Administration System Version 6.12
  </div>
 </div>
 
@@ -1739,7 +1765,7 @@
 
      errorDiv.style.display = 'none';
 
-     if (found.role === 'admin') {
+     if (accountTotpRequired(found)) {
          pendingLoginAccount = found;
          document.getElementById('loginOverlay').style.display = 'none';
          document.getElementById('loginPass').value = '';
@@ -1753,6 +1779,14 @@
 
      completeLogin(found);
  });
+
+ /* v6.12: whether an account must go through the authenticator step - true if an
+    admin has explicitly turned it on (totpEnabled), OR the account already has a
+    secret set up from before this control existed (so nobody who was already using
+    it gets silently un-protected). */
+ function accountTotpRequired(account) {
+     return !!(account.totpEnabled || account.totpSecret);
+ }
 
  function completeLogin(found) {
      sessionStorage.setItem('isLoggedIn', 'true');
@@ -1768,7 +1802,9 @@
 
  function openTotpVerifyModal() {
      document.getElementById('totpVerifyInput').value = '';
+     document.getElementById('backupCodeInput').value = '';
      document.getElementById('totpVerifyError').style.display = 'none';
+     showTotpCodeSection();
      document.getElementById('totpVerifyModal').style.display = 'flex';
      setTimeout(() => { const el = document.getElementById('totpVerifyInput'); if (el) el.focus(); }, 100);
  }
@@ -1776,6 +1812,19 @@
  function closeTotpVerifyModal() {
      document.getElementById('totpVerifyModal').style.display = 'none';
      pendingLoginAccount = null;
+ }
+
+ function showTotpCodeSection() {
+     document.getElementById('totpCodeSection').style.display = 'block';
+     document.getElementById('backupCodeSection').style.display = 'none';
+     document.getElementById('totpVerifyError').style.display = 'none';
+ }
+
+ function showBackupCodeSection() {
+     document.getElementById('totpCodeSection').style.display = 'none';
+     document.getElementById('backupCodeSection').style.display = 'block';
+     document.getElementById('totpVerifyError').style.display = 'none';
+     setTimeout(() => { const el = document.getElementById('backupCodeInput'); if (el) el.focus(); }, 100);
  }
 
  async function confirmTotpVerify() {
@@ -1792,6 +1841,30 @@
          errorDiv.innerText = t('totpInvalidCodeMsg');
          errorDiv.style.display = 'block';
      }
+ }
+
+ function confirmBackupCodeVerify() {
+     if (!pendingLoginAccount) return;
+     const account = pendingLoginAccount;
+     const code = (document.getElementById('backupCodeInput').value || '').trim().toUpperCase();
+     const errorDiv = document.getElementById('totpVerifyError');
+     if (!code) return;
+     db.ref('accounts/' + account.firebaseKey + '/backupCodes/' + code).once('value').then(snap => {
+         if (!snap.exists() || snap.val() === true) {
+             errorDiv.innerText = t('backupCodeInvalidMsg');
+             errorDiv.style.display = 'block';
+             return;
+         }
+         db.ref('accounts/' + account.firebaseKey + '/backupCodes/' + code).set(true).then(() => {
+             document.getElementById('totpVerifyModal').style.display = 'none';
+             pendingLoginAccount = null;
+             completeLogin(account);
+             showToast(true, t('toastBackupCodeUsed'));
+         });
+     }).catch(() => {
+         errorDiv.innerText = t('backupCodeInvalidMsg');
+         errorDiv.style.display = 'block';
+     });
  }
 
  function openTotpSetupModal() {
@@ -1815,6 +1888,52 @@
      } catch (e) { /* clipboard unavailable - the key is still shown as selectable text */ }
  }
 
+ /* v6.11: Backup/recovery codes - a set of one-time codes generated alongside the
+    authenticator, so losing the phone doesn't mean being permanently locked out of
+    Administration. Each code works exactly once, then is marked used. */
+ function generateBackupCode() {
+     const charset = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no 0/O/1/I/L, to avoid mix-ups when copying by hand
+     const bytes = new Uint8Array(8);
+     crypto.getRandomValues(bytes);
+     let raw = '';
+     for (let i = 0; i < 8; i++) raw += charset[bytes[i] % charset.length];
+     return raw.slice(0, 4) + '-' + raw.slice(4);
+ }
+
+ function generateBackupCodes(count) {
+     const codes = {};
+     while (Object.keys(codes).length < count) {
+         codes[generateBackupCode()] = false;
+     }
+     return codes;
+ }
+
+ let pendingBackupCodesLoginAccount = null;
+
+ function openBackupCodesRevealModal(codes, accountToLoginAfter) {
+     pendingBackupCodesLoginAccount = accountToLoginAfter || null;
+     const list = document.getElementById('backupCodesRevealList');
+     list.innerHTML = Object.keys(codes).map(c => `<div>${c}</div>`).join('');
+     document.getElementById('backupCodesRevealModal').style.display = 'flex';
+ }
+
+ function copyBackupCodes() {
+     const codes = Array.from(document.querySelectorAll('#backupCodesRevealList div')).map(el => el.innerText).join('\n');
+     try {
+         navigator.clipboard.writeText(codes);
+         showToast(true, t('toastCopied'));
+     } catch (e) { /* clipboard unavailable - the codes are still shown as selectable text */ }
+ }
+
+ function acknowledgeBackupCodes() {
+     document.getElementById('backupCodesRevealModal').style.display = 'none';
+     if (pendingBackupCodesLoginAccount) {
+         const account = pendingBackupCodesLoginAccount;
+         pendingBackupCodesLoginAccount = null;
+         completeLogin(account);
+     }
+ }
+
  async function confirmTotpSetup() {
      if (!pendingLoginAccount || !pendingSetupSecret) return;
      const code = document.getElementById('totpSetupInput').value;
@@ -1827,11 +1946,12 @@
      }
      const account = pendingLoginAccount;
      const secret = pendingSetupSecret;
-     db.ref('accounts/' + account.firebaseKey).update({ totpSecret: secret }).then(() => {
+     const backupCodes = generateBackupCodes(8);
+     db.ref('accounts/' + account.firebaseKey).update({ totpSecret: secret, backupCodes: backupCodes }).then(() => {
          document.getElementById('totpSetupModal').style.display = 'none';
          pendingLoginAccount = null;
          pendingSetupSecret = null;
-         completeLogin({ ...account, totpSecret: secret });
+         openBackupCodesRevealModal(backupCodes, { ...account, totpSecret: secret, backupCodes: backupCodes });
      }).catch(() => {
          errorDiv.innerText = t('totpSetupSaveErrorMsg');
          errorDiv.style.display = 'block';
@@ -1840,8 +1960,16 @@
 
  function resetAccountTotp(firebaseKey) {
      if (!confirm(t('confirmResetTotpMsg'))) return;
-     db.ref('accounts/' + firebaseKey + '/totpSecret').remove().then(() => {
+     db.ref('accounts/' + firebaseKey).update({ totpSecret: null, backupCodes: null }).then(() => {
          showToast(true, t('toastTotpReset'));
+     }).catch(() => showToast(false));
+ }
+
+ function regenerateBackupCodes(firebaseKey) {
+     if (!confirm(t('confirmRegenerateBackupCodesMsg'))) return;
+     const backupCodes = generateBackupCodes(8);
+     db.ref('accounts/' + firebaseKey + '/backupCodes').set(backupCodes).then(() => {
+         openBackupCodesRevealModal(backupCodes, null);
      }).catch(() => showToast(false));
  }
 
@@ -2231,7 +2359,21 @@
         totpSetupStatusNotSet: "Not set up yet",
         btnResetAuthenticator: "Reset",
         confirmResetTotpMsg: "Reset this account's authenticator? They will need to set it up again the next time they log in.",
-        toastTotpReset: "Authenticator reset."
+        toastTotpReset: "Authenticator reset.",
+        useBackupCodeLink: "Use a backup code instead",
+        useAuthCodeLink: "Back to authenticator code",
+        backupCodeSectionSub: "Lost your phone? Enter one of your unused backup codes below.",
+        backupCodeInvalidMsg: "That backup code is invalid or has already been used.",
+        toastBackupCodeUsed: "Logged in with a backup code. That code cannot be used again.",
+        backupCodesRevealTitle: "Save Your Backup Codes",
+        backupCodesRevealSub: "Each code can be used once to log in if you lose access to your authenticator app. They will not be shown again after you close this window - write them down or save them somewhere safe.",
+        backupCodesSavedBtn: "I've Saved These Codes",
+        btnRegenerateBackupCodes: "New Codes",
+        backupCodesRemainingLabel: "Backup codes left",
+        confirmRegenerateBackupCodesMsg: "Generate a new set of backup codes for this account? Any old, unused codes will stop working.",
+        totpStatusDisabled: "Not required",
+        btnEnableAuth: "Enable",
+        btnDisableAuth: "Disable"
      },
      km: {
          appTitle: "ប្រព័ន្ធគ្រប់គ្រងបុគ្គលិក",
@@ -2572,7 +2714,21 @@
         totpSetupStatusNotSet: "មិនទាន់បានរៀបចំ",
         btnResetAuthenticator: "កំណត់ឡើងវិញ",
         confirmResetTotpMsg: "កំណត់ឡើងវិញកម្មវិធីផ្ទៀងផ្ទាត់របស់គណនីនេះឬ? ពួកគេនឹងត្រូវរៀបចំវាម្តងទៀតនៅពេលចូលលើកក្រោយ។",
-        toastTotpReset: "កម្មវិធីផ្ទៀងផ្ទាត់ត្រូវបានកំណត់ឡើងវិញ។"
+        toastTotpReset: "កម្មវិធីផ្ទៀងផ្ទាត់ត្រូវបានកំណត់ឡើងវិញ។",
+        useBackupCodeLink: "ប្រើលេខកូដបម្រុងជំនួសវិញ",
+        useAuthCodeLink: "ត្រឡប់ទៅលេខកូដកម្មវិធីផ្ទៀងផ្ទាត់វិញ",
+        backupCodeSectionSub: "បាត់ទូរស័ព្ទឬ? សូមបញ្ចូលលេខកូដបម្រុងមួយក្នុងចំណោមលេខកូដដែលមិនទាន់បានប្រើរបស់អ្នកខាងក្រោម។",
+        backupCodeInvalidMsg: "លេខកូដបម្រុងនេះមិនត្រឹមត្រូវ ឬត្រូវបានប្រើរួចហើយ។",
+        toastBackupCodeUsed: "បានចូលដោយប្រើលេខកូដបម្រុង។ លេខកូដនោះមិនអាចប្រើម្តងទៀតបានទេ។",
+        backupCodesRevealTitle: "រក្សាទុកលេខកូដបម្រុងរបស់អ្នក",
+        backupCodesRevealSub: "លេខកូដនីមួយៗអាចប្រើបានតែម្តងគត់ដើម្បីចូលប្រើ ប្រសិនបើអ្នកបាត់ការចូលប្រើកម្មវិធីផ្ទៀងផ្ទាត់របស់អ្នក។ វានឹងមិនត្រូវបានបង្ហាញម្តងទៀតទេបន្ទាប់ពីអ្នកបិទបង្អួចនេះ សូមកត់ត្រាទុក ឬរក្សាទុកវានៅកន្លែងមានសុវត្ថិភាព។",
+        backupCodesSavedBtn: "ខ្ញុំបានរក្សាទុកលេខកូដទាំងនេះហើយ",
+        btnRegenerateBackupCodes: "លេខកូដថ្មី",
+        backupCodesRemainingLabel: "លេខកូដបម្រុងនៅសល់",
+        confirmRegenerateBackupCodesMsg: "បង្កើតសំណុំលេខកូដបម្រុងថ្មីសម្រាប់គណនីនេះឬ? លេខកូដចាស់ដែលមិនទាន់បានប្រើនឹងលែងដំណើរការទៀតហើយ។",
+        totpStatusDisabled: "មិនតម្រូវ",
+        btnEnableAuth: "បើក",
+        btnDisableAuth: "បិទ"
      },
      zh: {
          appTitle: "行政管理系统",
@@ -2913,7 +3069,21 @@
         totpSetupStatusNotSet: "尚未设置",
         btnResetAuthenticator: "重置",
         confirmResetTotpMsg: "重置该账户的验证器？他们下次登录时需要重新设置。",
-        toastTotpReset: "验证器已重置。"
+        toastTotpReset: "验证器已重置。",
+        useBackupCodeLink: "改用备用代码",
+        useAuthCodeLink: "返回验证器代码",
+        backupCodeSectionSub: "手机丢了？请输入下面一个尚未使用的备用代码。",
+        backupCodeInvalidMsg: "该备用代码无效或已被使用过。",
+        toastBackupCodeUsed: "已使用备用代码登录。该代码将无法再次使用。",
+        backupCodesRevealTitle: "保存您的备用代码",
+        backupCodesRevealSub: "如果您无法访问验证器应用，每个代码可使用一次登录。关闭此窗口后将不会再次显示这些代码，请记下或妥善保存。",
+        backupCodesSavedBtn: "我已保存这些代码",
+        btnRegenerateBackupCodes: "生成新代码",
+        backupCodesRemainingLabel: "剩余备用代码",
+        confirmRegenerateBackupCodesMsg: "为此账户生成一组新的备用代码？旧的未使用代码将失效。",
+        totpStatusDisabled: "无需验证",
+        btnEnableAuth: "启用",
+        btnDisableAuth: "停用"
      }
  };
  
@@ -4157,6 +4327,26 @@ function deleteAnnouncement(firebaseKey) {
      document.getElementById('managementModal').style.display = 'none';
  }
 
+ /* v6.12: builds the Authenticator column for one account row in Management - works
+    for both HR and Administration accounts now, with an explicit Enable/Disable
+    action instead of it being forced on for Administration only. */
+ function renderAcctTotpCell(a) {
+     if (!a.totpEnabled && !a.totpSecret) {
+         return `<span style="color:#94a3b8;">${t('totpStatusDisabled')}</span> <button class="btn-edit" style="font-size:10px; padding:3px 8px;" onclick="toggleAccountTotpEnabled('${a.firebaseKey}', true)">${t('btnEnableAuth')}</button>`;
+     }
+     if (!a.totpSecret) {
+         return `<span style="color:#d97706; font-weight:600;">${t('totpSetupStatusNotSet')}</span><br>
+             <button class="btn-edit" style="font-size:10px; padding:3px 8px; margin-top:3px;" onclick="toggleAccountTotpEnabled('${a.firebaseKey}', false)">${t('btnDisableAuth')}</button>`;
+     }
+     const remaining = a.backupCodes ? Object.values(a.backupCodes).filter(used => used !== true).length : 0;
+     const total = a.backupCodes ? Object.keys(a.backupCodes).length : 0;
+     return `<span style="color:#15803d; font-weight:600;">${t('totpSetupStatusEnabled')}</span><br>
+         <span style="font-size:11px; color:#64748b;">${t('backupCodesRemainingLabel')}: ${remaining}/${total}</span><br>
+         <button class="btn-edit" style="font-size:10px; padding:3px 8px; margin-top:3px;" onclick="resetAccountTotp('${a.firebaseKey}')">${t('btnResetAuthenticator')}</button>
+         <button class="btn-edit" style="font-size:10px; padding:3px 8px; margin-top:3px;" onclick="regenerateBackupCodes('${a.firebaseKey}')">${t('btnRegenerateBackupCodes')}</button>
+         <button class="btn-edit" style="font-size:10px; padding:3px 8px; margin-top:3px;" onclick="toggleAccountTotpEnabled('${a.firebaseKey}', false)">${t('btnDisableAuth')}</button>`;
+ }
+
  function renderAccountsTable() {
      const tbody = document.querySelector('#accountsTable tbody');
      if (!tbody) return;
@@ -4175,9 +4365,7 @@ function deleteAnnouncement(firebaseKey) {
                  </select>
              </td>
              <td style="color:${a.disabled ? '#dc2626' : '#15803d'}; font-weight:600;">${a.disabled ? t('acctDisabled') : t('acctActive')}</td>
-             <td>${a.role === 'admin' ? (a.totpSecret
-                 ? `<span style="color:#15803d; font-weight:600;">${t('totpSetupStatusEnabled')}</span> <button class="btn-edit" style="font-size:10px; padding:3px 8px;" onclick="resetAccountTotp('${a.firebaseKey}')">${t('btnResetAuthenticator')}</button>`
-                 : `<span style="color:#94a3b8;">${t('totpSetupStatusNotSet')}</span>`) : '-'}</td>
+             <td>${renderAcctTotpCell(a)}</td>
          </tr>
      `).join('');
      if (accounts.length === 0) {
@@ -4191,6 +4379,14 @@ function deleteAnnouncement(firebaseKey) {
 
  function toggleAccountDisabled(firebaseKey, disabled) {
      db.ref('accounts/' + firebaseKey).update({ disabled }).then(() => showToast(true)).catch(() => showToast(false));
+ }
+
+ /* v6.12: lets Management turn the authenticator-app login requirement on or off for
+    any HR or Administration account, instead of it being forced on Administration
+    only. Turning it off does not delete an existing secret or backup codes - turning
+    it back on later picks up right where it left off. */
+ function toggleAccountTotpEnabled(firebaseKey, enabled) {
+     db.ref('accounts/' + firebaseKey).update({ totpEnabled: enabled }).then(() => showToast(true)).catch(() => showToast(false));
  }
 
  function addAccount() {
