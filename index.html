@@ -371,7 +371,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.13</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.15</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1351,7 +1351,7 @@
  </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.13
+     HR & Administration System Version 6.15
  </div>
 </div>
 
@@ -1642,15 +1642,20 @@
  function showToast(success, msg) {
      const el = document.getElementById('globalToast');
      if (!el) { if (!success) console.error(msg); return; }
+     /* v6.14: a third state, 'pending' (amber, stays up longer), for actions that were
+        NOT saved yet - e.g. an HR edit that only got queued for Administration's approval.
+        Using the same green as a real save made the two look identical and easy to
+        confuse, which is what led to edits appearing to "disappear". */
+     const isPending = success === 'pending';
      el.innerText = msg || (success ? t('toastSuccess') : t('toastFail'));
-     el.style.background = success ? '#16a34a' : '#dc2626';
+     el.style.background = isPending ? '#d97706' : (success ? '#16a34a' : '#dc2626');
      el.style.display = 'block';
      requestAnimationFrame(() => { el.style.opacity = '1'; });
      if (_toastTimer) clearTimeout(_toastTimer);
      _toastTimer = setTimeout(() => {
          el.style.opacity = '0';
          setTimeout(() => { el.style.display = 'none'; }, 250);
-     }, 2000);
+     }, isPending ? 4500 : 2000);
  }
  
  /* AUTHENTICATION & INACTIVITY TIMER SETUP (v6.00: role-based accounts - HR System / Administration System) */
@@ -2280,7 +2285,7 @@
         rejectConfirmMsg: "Reject this pending edit? This cannot be undone.",
         toastApproved: "Edit approved and applied.",
         toastRejected: "Edit rejected.",
-        toastSentForApproval: "Change sent to Administration for approval.",
+        toastSentForApproval: "NOT SAVED YET - sent to Administration for approval.",
         managementTitle: "Management",
         accountsSectionTitle: "HR & Employee Accounts",
         acctColName: "Name",
@@ -2635,7 +2640,7 @@
         rejectConfirmMsg: "បដិសេធការកែប្រែនេះឬ? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។",
         toastApproved: "ការកែប្រែត្រូវបានអនុម័ត និងអនុវត្តរួចរាល់។",
         toastRejected: "ការកែប្រែត្រូវបានបដិសេធ។",
-        toastSentForApproval: "ការផ្លាស់ប្តូរត្រូវបានផ្ញើទៅរដ្ឋបាលដើម្បីអនុម័ត។",
+        toastSentForApproval: "មិនទាន់រក្សាទុកទេ - ត្រូវបានផ្ញើទៅរដ្ឋបាលដើម្បីអនុម័ត។",
         managementTitle: "ការគ្រប់គ្រង",
         accountsSectionTitle: "គណនីធនធានមនុស្ស និងបុគ្គលិក",
         acctColName: "ឈ្មោះ",
@@ -2990,7 +2995,7 @@
         rejectConfirmMsg: "确定要拒绝此项修改吗？此操作无法撤销。",
         toastApproved: "修改已批准并已应用。",
         toastRejected: "修改已被拒绝。",
-        toastSentForApproval: "更改已发送给管理员审批。",
+        toastSentForApproval: "尚未保存 - 已发送给管理员审批。",
         managementTitle: "账户管理",
         accountsSectionTitle: "人力资源与员工账户",
         acctColName: "姓名",
@@ -4079,7 +4084,7 @@ function deleteAnnouncement(firebaseKey) {
              requestedBy: sessionStorage.getItem('loggedInAccountName') || '',
              timestamp: Date.now()
          }).then(() => {
-             showToast(true, t('toastSentForApproval'));
+             showToast('pending', t('toastSentForApproval'));
              renderMonthlyReport();
          }).catch(() => showToast(false));
          return;
@@ -4837,9 +4842,13 @@ function deleteAnnouncement(firebaseKey) {
      const leaveTravelVal = parseFloat(document.getElementById('editLeaveTravel').value) || 0;
      const leaveSickVal = parseFloat(document.getElementById('editLeaveSick').value) || 0;
      const leaveOtherVal = parseFloat(document.getElementById('editLeaveOther').value) || 0;
- 
-     const calculatedMonthUsed = leaveALVal + leaveSpecialVal + leaveMaternityVal + leaveTravelVal + leaveSickVal + leaveOtherVal;
- 
+
+     /* v6.15 fix: "Current Month Used" is its own editable field in this form, filled in
+        directly by whoever types a number into it - it must NOT be silently overwritten
+        by a recalculated total, or a direct edit to it (e.g. changing 0 to 12) gets
+        discarded on save and reverts back to 0 the moment the page is refreshed. */
+     const monthUsedVal = parseFloat(document.getElementById('editMonthUsed').value) || 0;
+
      const updatedData = {
          id: document.getElementById('editId').value,
          name: document.getElementById('editName').value,
@@ -4858,7 +4867,7 @@ function deleteAnnouncement(firebaseKey) {
          startDate: document.getElementById('editStartDate').value.trim() || computedCycle.startStr,
          endDate: document.getElementById('editEndDate').value.trim() || computedCycle.endStr,
          prevUsed: parseFloat(document.getElementById('editPrevUsed').value),
-         monthUsed: calculatedMonthUsed,
+         monthUsed: monthUsedVal,
          carried: parseFloat(document.getElementById('editCarried').value),
          exceeded: parseFloat(document.getElementById('editExceeded').value),
          workHours: parseFloat(document.getElementById('editWorkHours').value) || 0,
@@ -4891,7 +4900,7 @@ function deleteAnnouncement(firebaseKey) {
              });
          }).then(() => {
              closeModal();
-             showToast(true, t('toastSentForApproval'));
+             showToast('pending', t('toastSentForApproval'));
          }).catch(() => showToast(false));
          return;
      }
@@ -4949,7 +4958,7 @@ function deleteAnnouncement(firebaseKey) {
              formEl.reset();
              document.getElementById('newEntitled').value = "160";
              document.getElementById('newId').focus();
-             showToast(true, t('toastSentForApproval'));
+             showToast('pending', t('toastSentForApproval'));
          }).catch(() => showToast(false));
          return;
      }
