@@ -376,7 +376,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.24</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.26</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1352,7 +1352,7 @@
  </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.24
+     HR & Administration System Version 6.26
  </div>
 </div>
 
@@ -4913,107 +4913,110 @@ function deleteAnnouncement(firebaseKey) {
  }
  
  /* MODAL VIEW FUNCTIONS FOR POPUP LAYERS - NOW FULLY TRANSLATED */
- function openMasterDetailModal(index) {
-     const emp = employees[index];
-     const parts = emp.joinDate.split('.');
-     const join = new Date(parts[0], parts[1]-1, parts[2]);
-     const now = new Date();
-     const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
-     const computedCycle = computeLeaveCycle(emp.joinDate, now);
-     const startStr = emp.startDate || computedCycle.startStr;
-     const endStr = emp.endDate || computedCycle.endStr;
-     const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
-     const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
-     const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
- 
-     document.getElementById('viewModalTitle').innerText = `${t('modalMasterDetails')}: ${emp.name} (${emp.id})`;
-     const body = document.getElementById('viewModalBody');
-     body.innerHTML = `
-         <div class="detail-item"><span class="lbl">${t('tblId')}:</span><span class="val">${emp.id}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblName')}:</span><span class="val">${emp.name}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblJoin')}:</span><span class="val">${emp.joinDate}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblYears')}:</span><span class="val">${workYears}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblEntitled')}:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblStart')}:</span><span class="val">${startStr}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblEnd')}:</span><span class="val">${endStr}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblRenewed')}:</span><span class="val">${remainingMonthsCycle}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblTotalAL')}:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblCarried')}:</span><span class="val">${(emp.carried || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblPrevUsed')}:</span><span class="val">${(emp.prevUsed || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblMonthUsed')}:</span><span class="val">${(emp.monthUsed || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblTotalUsed')}:</span><span class="val">${totalUsed.toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblExceeded')}:</span><span class="val">${(emp.exceeded || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblRemaining')}:</span><span class="val">${remaining.toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterWorkingHours')}:</span><span class="val">${(emp.workHours || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterMonthlyOT')}:</span><span class="val">${(emp.otHours || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterAnnualLeave')}:</span><span class="val">${(emp.leaveAL || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterSpecialLeave')}:</span><span class="val">${(emp.leaveSpecial || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterMaternityLeave')}:</span><span class="val">${(emp.leaveMaternity || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterTravelLeave')}:</span><span class="val">${(emp.leaveTravel || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterPersonalLeave')}:</span><span class="val">${(emp.leavePersonal || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterSickLeave')}:</span><span class="val">${(emp.leaveSick || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterOtherLeave')}:</span><span class="val">${(emp.leaveOther || 0).toFixed(2)}</span></div>
-         <div class="detail-item" style="grid-column: span 2;"><span class="lbl">${t('tblRemarks')}:</span><span class="val">${emp.remarks || '-'}</span></div>
-     `;
-     document.getElementById('viewDetailModal').style.display = 'flex';
- }
- 
- function openMonthlyDetailModal(index) {
-     const emp = employees[index];
-     const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
-     const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
- 
-     document.getElementById('viewModalTitle').innerText = `${t('modalMonthlyDetails')}: ${emp.name} (${emp.id})`;
-     const body = document.getElementById('viewModalBody');
-     body.innerHTML = `
-         <div class="detail-item"><span class="lbl">${t('tblId')}:</span><span class="val">${emp.id}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblName')}:</span><span class="val">${emp.name}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblJoin')}:</span><span class="val">${emp.joinDate}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblResignedDate')}:</span><span class="val">${emp.resignedDate || '-'}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMonthlyAttendance')}:</span><span class="val">${emp.monthlyWorkDays || 208}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMonthlyActualWork')}:</span><span class="val">${(emp.workHours || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblEntitled')}:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblTotalUsed')}:</span><span class="val">${totalUsed.toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblRemaining')}:</span><span class="val">${remaining.toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterAnnualLeave')}:</span><span class="val">${(emp.leaveAL || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterSpecialLeave')}:</span><span class="val">${(emp.leaveSpecial || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterMaternityLeave')}:</span><span class="val">${(emp.leaveMaternity || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterTravelLeave')}:</span><span class="val">${(emp.leaveTravel || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterPersonalLeave')}:</span><span class="val">${(emp.leavePersonal || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterSickLeave')}:</span><span class="val">${(emp.leaveSick || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('thMasterOtherLeave')}:</span><span class="val">${(emp.leaveOther || 0).toFixed(2)}</span></div>
-         <div class="detail-item" style="grid-column: span 2;"><span class="lbl">${t('thMasterMonthlyOT')}:</span><span class="val">${(emp.otHours || 0).toFixed(2)}</span></div>
-     `;
-     document.getElementById('viewDetailModal').style.display = 'flex';
- }
- 
- function openEmployeeDetailModal(index) {
-     const emp = employees[index];
-     const parts = emp.joinDate.split('.');
-     const join = new Date(parts[0], parts[1]-1, parts[2]);
-     const now = new Date();
-     const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
- 
-     document.getElementById('viewModalTitle').innerText = `${t('modalEmployeeDetails')}: ${emp.name} (${emp.id})`;
-     const body = document.getElementById('viewModalBody');
-     body.innerHTML = `
-         <div class="detail-item"><span class="lbl">${t('tblId')}:</span><span class="val">${emp.id}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblName')}:</span><span class="val">${emp.name}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblSex')}:</span><span class="val">${emp.sex || 'Male'}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblDob')}:</span><span class="val">${emp.dob || '-'}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblPob')}:</span><span class="val">${emp.pob || '-'}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblResidence')}:</span><span class="val">${emp.residence || '-'}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblContact')}:</span><span class="val">${emp.contact || '-'}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblEmergencyContact')}:</span><span class="val">${emp.emergencyContact || '-'}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblJoin')}:</span><span class="val">${emp.joinDate}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblYears')}:</span><span class="val">${workYears}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblStatus')}:</span><span class="val">${statusText(emp.status)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblEntitled')}:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
-         <div class="detail-item"><span class="lbl">${t('tblDepartment')}:</span><span class="val">${emp.department || '-'}</span></div>
-     `;
-     document.getElementById('viewDetailModal').style.display = 'flex';
- }
- 
+function openMasterDetailModal(index) {
+    const emp = employees[index];
+    const parts = emp.joinDate.split('.');
+    const join = new Date(parts[0], parts[1]-1, parts[2]);
+    const now = new Date();
+    const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
+    const computedCycle = computeLeaveCycle(emp.joinDate, now);
+    const startStr = emp.startDate || computedCycle.startStr;
+    const endStr = emp.endDate || computedCycle.endStr;
+    const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
+    const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
+    const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+
+    document.getElementById('viewModalTitle').innerText = `${t('modalMasterDetails')}: ${emp.name} (${emp.id})`;
+    const body = document.getElementById('viewModalBody');
+    body.innerHTML = `
+        <div class="detail-item"><span class="lbl">${t('tblId')}:</span><span class="val">${emp.id}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblName')}:</span><span class="val">${emp.name}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblDepartment')}:</span><span class="val">${emp.department || '-'}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblJoin')}:</span><span class="val">${emp.joinDate}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblYears')}:</span><span class="val">${workYears}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblEntitled')}:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblTotalAL')}:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblCarried')}:</span><span class="val">${(emp.carried || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblStart')}:</span><span class="val">${startStr}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblEnd')}:</span><span class="val">${endStr}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblRenewed')}:</span><span class="val">${remainingMonthsCycle}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblPrevUsed')}:</span><span class="val">${(emp.prevUsed || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblMonthUsed')}:</span><span class="val">${(emp.monthUsed || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblTotalUsed')}:</span><span class="val">${totalUsed.toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblExceeded')}:</span><span class="val">${(emp.exceeded || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblRemaining')}:</span><span class="val">${remaining.toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterWorkingHours')}:</span><span class="val">${(emp.workHours || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterMonthlyOT')}:</span><span class="val">${(emp.otHours || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterAnnualLeave')}:</span><span class="val">${(emp.leaveAL || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterSpecialLeave')}:</span><span class="val">${(emp.leaveSpecial || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterMaternityLeave')}:</span><span class="val">${(emp.leaveMaternity || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterTravelLeave')}:</span><span class="val">${(emp.leaveTravel || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterPersonalLeave')}:</span><span class="val">${(emp.leavePersonal || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterSickLeave')}:</span><span class="val">${(emp.leaveSick || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterOtherLeave')}:</span><span class="val">${(emp.leaveOther || 0).toFixed(2)}</span></div>
+        <div class="detail-item" style="grid-column: span 2;"><span class="lbl">${t('tblRemarks')}:</span><span class="val">${emp.remarks || '-'}</span></div>
+    `;
+    document.getElementById('viewDetailModal').style.display = 'flex';
+}
+
+function openMonthlyDetailModal(index) {
+    const emp = employees[index];
+    const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
+    const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+
+    document.getElementById('viewModalTitle').innerText = `${t('modalMonthlyDetails')}: ${emp.name} (${emp.id})`;
+    const body = document.getElementById('viewModalBody');
+    body.innerHTML = `
+        <div class="detail-item"><span class="lbl">${t('tblId')}:</span><span class="val">${emp.id}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblName')}:</span><span class="val">${emp.name}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblJoin')}:</span><span class="val">${emp.joinDate}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblResignedDate')}:</span><span class="val">${emp.resignedDate || '-'}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMonthlyAttendance')}:</span><span class="val">${emp.monthlyWorkDays || 208}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMonthlyActualWork')}:</span><span class="val">${(emp.workHours || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterMonthlyOT')}:</span><span class="val">${(emp.otHours || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblEntitled')}:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblTotalUsed')}:</span><span class="val">${totalUsed.toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblRemaining')}:</span><span class="val">${remaining.toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterAnnualLeave')}:</span><span class="val">${(emp.leaveAL || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterSpecialLeave')}:</span><span class="val">${(emp.leaveSpecial || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterMaternityLeave')}:</span><span class="val">${(emp.leaveMaternity || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterTravelLeave')}:</span><span class="val">${(emp.leaveTravel || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterPersonalLeave')}:</span><span class="val">${(emp.leavePersonal || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterSickLeave')}:</span><span class="val">${(emp.leaveSick || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterOtherLeave')}:</span><span class="val">${(emp.leaveOther || 0).toFixed(2)}</span></div>
+        <div class="detail-item" style="grid-column: span 2;"><span class="lbl">${t('tblRemarks')}:</span><span class="val">${emp.remarks || '-'}</span></div>
+    `;
+    document.getElementById('viewDetailModal').style.display = 'flex';
+}
+
+function openEmployeeDetailModal(index) {
+    const emp = employees[index];
+    const parts = emp.joinDate.split('.');
+    const join = new Date(parts[0], parts[1]-1, parts[2]);
+    const now = new Date();
+    const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
+
+    document.getElementById('viewModalTitle').innerText = `${t('modalEmployeeDetails')}: ${emp.name} (${emp.id})`;
+    const body = document.getElementById('viewModalBody');
+    body.innerHTML = `
+        <div class="detail-item"><span class="lbl">${t('tblId')}:</span><span class="val">${emp.id}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblName')}:</span><span class="val">${emp.name}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblSex')}:</span><span class="val">${emp.sex || 'Male'}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblDob')}:</span><span class="val">${emp.dob || '-'}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblPob')}:</span><span class="val">${emp.pob || '-'}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblResidence')}:</span><span class="val">${emp.residence || '-'}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblContact')}:</span><span class="val">${emp.contact || '-'}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblEmergencyContact')}:</span><span class="val">${emp.emergencyContact || '-'}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblDepartment')}:</span><span class="val">${emp.department || '-'}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblJoin')}:</span><span class="val">${emp.joinDate}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblYears')}:</span><span class="val">${workYears}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblStatus')}:</span><span class="val">${statusText(emp.status)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblEntitled')}:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
+        <div class="detail-item" style="grid-column: span 2;"><span class="lbl">${t('tblRemarks')}:</span><span class="val">${emp.remarks || '-'}</span></div>
+    `;
+    document.getElementById('viewDetailModal').style.display = 'flex';
+}
+
  function closeViewModal() {
      document.getElementById('viewDetailModal').style.display = 'none';
  }
