@@ -376,7 +376,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.22</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.24</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1352,7 +1352,7 @@
  </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.22
+     HR & Administration System Version 6.24
  </div>
 </div>
 
@@ -5240,6 +5240,11 @@ function deleteAnnouncement(firebaseKey) {
          const newLeaveSick = (emp.leaveSick || 0) + addSick;
          const newLeaveOther = (emp.leaveOther || 0) + addOther;
  
+         /* Personal Leave is unpaid (it deducts from salary directly) and is NOT drawn from the
+            Annual Leave entitlement balance, unlike Special/Maternity/Travel/Sick/Other, which
+            are all different names/reasons for using paid Annual Leave. So Personal Leave must
+            stay OUT of this sum - "Current Month Used" tracks usage against the Annual Leave
+            entitlement only. Confirmed by the business owner - do not "fix" this again. */
          const newMonthUsed = newLeaveAL + newLeaveSpecial + newLeaveMaternity + newLeaveTravel + newLeaveSick + newLeaveOther;
  
          const updatePayload = {
