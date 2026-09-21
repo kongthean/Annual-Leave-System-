@@ -371,7 +371,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.15</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.17</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1321,6 +1321,30 @@
              <tbody></tbody>
          </table>
      </div>
+
+     <!-- MONTHLY SHIFT CALENDAR (v6.17) - a calendar-style grid (employee rows x day-of-month
+          columns, like a paper attendance sheet) built from the same "shifts" data used by the
+          form and list above. Click any day cell to view or change that employee's shift. -->
+     <div class="dash-card" style="margin-top:20px;">
+         <h4 data-i18n="shiftCalTitle">Monthly Shift Calendar</h4>
+         <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="shiftCalSub">Click any day cell to view or change that employee's shift for that day.</p>
+         <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px;">
+             <div class="form-group" style="margin-bottom:0; min-width:160px;">
+                 <label data-i18n="shiftCalMonthLabel">Month</label>
+                 <input type="month" id="shiftCalMonth" onchange="renderShiftCalendarTable()">
+             </div>
+             <div class="form-group" style="margin-bottom:0; min-width:200px; flex:1;">
+                 <label data-i18n="lblSearch">Search Employee:</label>
+                 <input type="text" id="shiftCalSearchInput" onkeyup="renderShiftCalendarTable()" placeholder="Enter ID or Name...">
+             </div>
+         </div>
+         <div class="table-responsive">
+             <table class="master-tbl" id="shiftCalendarTable">
+                 <thead></thead>
+                 <tbody></tbody>
+             </table>
+         </div>
+     </div>
  </div>
 
  <!-- TAB 10: DEPARTMENTS (v5.00) -->
@@ -1351,7 +1375,7 @@
  </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.15
+     HR & Administration System Version 6.17
  </div>
 </div>
 
@@ -1563,6 +1587,33 @@
      </form>
  </div>
 </div>
+
+<!-- SHIFT CALENDAR CELL EDITOR (v6.17) - opens when a day cell in the Monthly Shift Calendar
+     is clicked, showing/letting you change or clear that one employee's shift for that day. -->
+<div class="modal" id="shiftCellModal">
+    <div class="modal-content" style="max-width: 380px; text-align:center;">
+        <div class="modal-header">
+            <h4 data-i18n="shiftCellModalTitle">Edit Shift</h4>
+            <button class="modal-close" onclick="closeShiftCellModal()">&times;</button>
+        </div>
+        <p id="shiftCellModalSub" style="font-size:13px; color:#334155; margin-bottom:14px;"></p>
+        <div class="form-group">
+            <label data-i18n="shiftType">Shift Type</label>
+            <select id="shiftCellType">
+                <option value="">-</option>
+                <option value="M">M</option>
+                <option value="F">F</option>
+                <option value="G">G</option>
+                <option value="H" data-i18n="shiftHOption">H (Rest Day)</option>
+            </select>
+        </div>
+        <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+            <button type="button" class="btn-delete" onclick="clearShiftCellEdit()" data-i18n="btnClear">Clear</button>
+            <button type="button" class="btn-submit" style="width:auto; padding:8px 20px;" onclick="saveShiftCellEdit()" data-i18n="btnSaveShift">Save Assignment</button>
+        </div>
+    </div>
+</div>
+
 
 <!-- VIEW DETAILS MODAL -->
 <div class="modal" id="viewDetailModal">
@@ -1979,6 +2030,13 @@
  }
 
  window.addEventListener('DOMContentLoaded', function() {
+     /* v6.16: restore the chosen language BEFORE anything else renders, so a
+        refresh doesn't silently flip back to English - previously the language
+        choice only lived in a JS variable that reset on every page load. */
+     try {
+         const savedLang = localStorage.getItem('appLang');
+         if (savedLang && translations[savedLang]) setLanguage(savedLang);
+     } catch (e) { /* storage unavailable */ }
      /* Restore whichever screen the person was on before a refresh, instead of
         always bouncing back to the Chooser. sessionStorage survives a refresh
         in the same tab, so we use it to pick up right where they left off. */
@@ -2000,6 +2058,7 @@
      sessionStorage.removeItem('loggedInRole');
      sessionStorage.removeItem('loggedInAccountName');
      sessionStorage.removeItem('loggedInAccountUsername');
+     sessionStorage.removeItem('activeAdminTab');
      if (inactivityTimer) clearTimeout(inactivityTimer);
      if (deviceHeartbeatTimer) { clearInterval(deviceHeartbeatTimer); deviceHeartbeatTimer = null; }
      closeAllMenus();
@@ -2222,6 +2281,19 @@
         shiftHOption: "H (Rest Day)",
         btnSaveShift: "Save Assignment",
         shiftDeleteConfirm: "Delete this shift assignment?",
+        shiftCalTitle: "Monthly Shift Calendar",
+        shiftCalSub: "Click any day cell to view or change that employee's shift for that day.",
+        shiftCalMonthLabel: "Month",
+        shiftCellClickHint: "Click to view or edit this shift",
+        shiftCellModalTitle: "Edit Shift",
+        btnClear: "Clear",
+        shiftDowSun: "sun",
+        shiftDowMon: "Mon",
+        shiftDowTue: "Tue",
+        shiftDowWed: "Wed",
+        shiftDowThu: "Thu",
+        shiftDowFri: "Fri",
+        shiftDowSat: "Sat",
         deptTitle: "Departments / Teams",
         deptSub: "Group employees into departments or teams",
         deptNewLabel: "New Department Name",
@@ -2584,6 +2656,19 @@
         shiftHOption: "H (ថ្ងៃឈប់សម្រាក)",
         btnSaveShift: "រក្សាទុកការកំណត់វេន",
         shiftDeleteConfirm: "លុបការកំណត់វេននេះ?",
+        shiftCalTitle: "ប្រតិទិនវេនប្រចាំខែ",
+        shiftCalSub: "ចុចប្រអប់ថ្ងៃណាមួយដើម្បីមើល ឬផ្លាស់ប្តូរវេនរបស់បុគ្គលិកនោះសម្រាប់ថ្ងៃនោះ។",
+        shiftCalMonthLabel: "ខែ",
+        shiftCellClickHint: "ចុចដើម្បីមើល ឬកែសម្រួលវេននេះ",
+        shiftCellModalTitle: "កែសម្រួលវេន",
+        btnClear: "សម្អាត",
+        shiftDowSun: "អា",
+        shiftDowMon: "ច",
+        shiftDowTue: "អ",
+        shiftDowWed: "ព",
+        shiftDowThu: "ព្រ",
+        shiftDowFri: "សុ",
+        shiftDowSat: "ស",
         deptTitle: "នាយកដ្ឋាន / ក្រុម",
         deptSub: "ចាត់ថ្នាក់បុគ្គលិកទៅតាមនាយកដ្ឋាន ឬក្រុម",
         deptNewLabel: "ឈ្មោះនាយកដ្ឋានថ្មី",
@@ -2939,6 +3024,19 @@
         shiftHOption: "H（休息日）",
         btnSaveShift: "保存分配",
         shiftDeleteConfirm: "删除此班次分配？",
+        shiftCalTitle: "月度排班日历",
+        shiftCalSub: "点击任意日期格子可查看或更改该员工当天的班次。",
+        shiftCalMonthLabel: "月份",
+        shiftCellClickHint: "点击查看或编辑此班次",
+        shiftCellModalTitle: "编辑班次",
+        btnClear: "清除",
+        shiftDowSun: "日",
+        shiftDowMon: "一",
+        shiftDowTue: "二",
+        shiftDowWed: "三",
+        shiftDowThu: "四",
+        shiftDowFri: "五",
+        shiftDowSat: "六",
         deptTitle: "部门 / 团队",
         deptSub: "将员工分组到部门或团队",
         deptNewLabel: "新部门名称",
@@ -3205,6 +3303,19 @@
      closeAllMenus();
      resetInactivityTimer();
      applyRoleGating();
+     restoreActiveAdminTab();
+ }
+
+ /* v6.16: companion to the "remember the tab" code in switchTab() - puts the
+    person back on whichever tab they last had open instead of always
+    defaulting to the Dashboard after a refresh. */
+ function restoreActiveAdminTab() {
+     const savedTab = sessionStorage.getItem('activeAdminTab');
+     if (!savedTab || savedTab === 'tab-home') return;
+     const panel = document.getElementById(savedTab);
+     if (!panel || !panel.classList.contains('tab-panel')) return;
+     const navBtn = document.getElementById('nav-' + savedTab.replace('tab-', ''));
+     switchTab(savedTab, navBtn);
  }
 
  /* v6.00: HR and Administration share this exact screen/tabs. This hides the
@@ -3254,6 +3365,10 @@
  
  function setLanguage(lang) {
      currentLang = lang;
+     /* v6.16: remember the chosen language across a refresh - previously this
+        only lived in a JS variable, so reloading the page (or the automatic
+        reload that follows a refresh) silently reset everything to English. */
+     try { localStorage.setItem('appLang', lang); } catch (e) { /* storage unavailable */ }
      document.getElementById('currentFlag').src = langFlags[lang];
      document.getElementById('currentLangName').innerText = langNames[lang];
      const flagEmp = document.getElementById('currentFlagEmp');
@@ -3809,6 +3924,7 @@ function deleteAnnouncement(firebaseKey) {
      const data = snapshot.val();
      shifts = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
      renderShiftTable();
+     renderShiftCalendarTable();
  });
 
  /* v5.00: Recently Deleted (soft-delete / Undo) */
@@ -3823,6 +3939,11 @@ function deleteAnnouncement(firebaseKey) {
  document.getElementById('chkDate').valueAsDate = new Date();
  document.getElementById('attDate').valueAsDate = new Date();
  document.getElementById('leaveDate').valueAsDate = new Date();
+ (function() {
+     const now = new Date();
+     const monthInput = document.getElementById('shiftCalMonth');
+     if (monthInput) monthInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+ })();
 
  function switchTab(tabId, btn) {
      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -3830,12 +3951,18 @@ function deleteAnnouncement(firebaseKey) {
      document.getElementById(tabId).classList.add('active');
      if(btn) btn.classList.add('active');
 
+     /* v6.16: remember which tab Administration/HR was looking at, so a refresh
+        (or the page being reopened) lands back on it instead of always jumping
+        back to the Dashboard. Cleared on logout along with the rest of the
+        session, same as the other "stay where you were" state. */
+     sessionStorage.setItem('activeAdminTab', tabId);
+
      if(tabId === 'tab-master') renderMaster();
      if(tabId === 'tab-monthly') renderMonthlyReport();
      if(tabId === 'tab-employee') renderEmployeeList();
      if(tabId === 'tab-home') { updateDashboardStats(); renderDashboardCharts(); }
      if(tabId === 'tab-add') document.getElementById('newId').focus();
-     if(tabId === 'tab-shift') renderShiftTable();
+     if(tabId === 'tab-shift') { renderShiftTable(); renderShiftCalendarTable(); }
      if(tabId === 'tab-dept') renderDeptTable();
  }
  
@@ -4483,6 +4610,100 @@ function deleteAnnouncement(firebaseKey) {
      if (confirm(t('shiftDeleteConfirm'))) {
          db.ref('shifts/' + firebaseKey).remove().then(() => showToast(true)).catch(() => showToast(false));
      }
+ }
+
+ /* ================= v6.17: MONTHLY SHIFT CALENDAR =================
+    A calendar-style grid (like the paper attendance sheets already in use) built on top of
+    the exact same "shifts" data as the form/list above - one employee per row, one column
+    per day of the selected month, day letter shown in each cell. Clicking a cell opens a
+    small editor to view/change/clear that one employee's shift for that one day. Nothing
+    about the existing Assign Shift form or the flat list below it was changed - this is an
+    additional way to see and edit the same data. */
+ const WEEKDAY_ABBR = ['sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+ let shiftCellCtx = { empId: '', empName: '', date: '', existingKey: null };
+
+ function renderShiftCalendarTable() {
+     const table = document.getElementById('shiftCalendarTable');
+     if (!table) return;
+     const monthInput = document.getElementById('shiftCalMonth');
+     const monthVal = (monthInput && monthInput.value) || '';
+     if (!monthVal) return;
+     const parts = monthVal.split('-');
+     const year = parseInt(parts[0], 10);
+     const month = parseInt(parts[1], 10);
+     const daysInMonth = new Date(year, month, 0).getDate();
+
+     const searchTerm = (document.getElementById('shiftCalSearchInput') ? document.getElementById('shiftCalSearchInput').value : '').toLowerCase();
+     const rows = employees
+         .filter(e => !searchTerm || (e.id || '').toLowerCase().includes(searchTerm) || (e.name || '').toLowerCase().includes(searchTerm))
+         .slice()
+         .sort((a, b) => (a.id || '').localeCompare(b.id || '', undefined, { numeric: true }));
+
+     /* index shifts by "empId|date" for fast lookup while building the grid */
+     const shiftByKey = {};
+     shifts.forEach(s => { shiftByKey[(s.empId || '') + '|' + (s.date || '')] = s; });
+
+     const thead = table.querySelector('thead');
+     const tbody = table.querySelector('tbody');
+
+     let headRow1 = '<tr><th rowspan="2" data-i18n="tblId">ID</th><th rowspan="2" data-i18n="tblName">Name</th>';
+     let headRow2 = '<tr>';
+     for (let d = 1; d <= daysInMonth; d++) {
+         const dow = new Date(year, month - 1, d).getDay();
+         const isSun = dow === 0;
+         headRow1 += '<th style="' + (isSun ? 'background:#cbd5e1;' : '') + '">' + d + '</th>';
+         headRow2 += '<th style="' + (isSun ? 'background:#cbd5e1;' : '') + ' font-weight:400; text-transform:none;">' + t('shiftDow' + WEEKDAY_ABBR[dow][0].toUpperCase() + WEEKDAY_ABBR[dow].slice(1)) + '</th>';
+     }
+     headRow1 += '</tr>';
+     headRow2 += '</tr>';
+     thead.innerHTML = headRow1 + headRow2;
+
+     if (rows.length === 0) {
+         tbody.innerHTML = '<tr><td colspan="' + (daysInMonth + 2) + '" style="text-align:center; color:#94a3b8;">-</td></tr>';
+         return;
+     }
+
+     tbody.innerHTML = rows.map(emp => {
+         let cells = '<td><b>' + emp.id + '</b></td><td style="text-align:left; white-space:nowrap;">' + emp.name + '</td>';
+         for (let d = 1; d <= daysInMonth; d++) {
+             const dateStr = year + '-' + String(month).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+             const dow = new Date(year, month - 1, d).getDay();
+             const s = shiftByKey[emp.id + '|' + dateStr];
+             const label = s ? s.type : '';
+             const safeName = (emp.name || '').replace(/'/g, "\\'");
+             cells += '<td style="cursor:pointer; ' + (dow === 0 ? 'background:#f1f5f9;' : '') + ' font-weight:700;" onclick="openShiftCellEditor(\'' + emp.id + '\', \'' + safeName + '\', \'' + dateStr + '\')" title="' + t('shiftCellClickHint') + '">' + label + '</td>';
+         }
+         return '<tr>' + cells + '</tr>';
+     }).join('');
+ }
+
+ function openShiftCellEditor(empId, empName, dateStr) {
+     const existing = shifts.find(s => s.empId === empId && s.date === dateStr);
+     shiftCellCtx = { empId: empId, empName: empName, date: dateStr, existingKey: existing ? existing.firebaseKey : null };
+     document.getElementById('shiftCellModalSub').innerText = empName + ' (' + empId + ') - ' + dateStr;
+     document.getElementById('shiftCellType').value = existing ? existing.type : '';
+     document.getElementById('shiftCellModal').style.display = 'flex';
+ }
+
+ function closeShiftCellModal() {
+     document.getElementById('shiftCellModal').style.display = 'none';
+ }
+
+ function saveShiftCellEdit() {
+     const type = document.getElementById('shiftCellType').value;
+     if (!type) { closeShiftCellModal(); return; }
+     const payload = { empId: shiftCellCtx.empId, empName: shiftCellCtx.empName, date: shiftCellCtx.date, type: type };
+     const write = shiftCellCtx.existingKey
+         ? db.ref('shifts/' + shiftCellCtx.existingKey).update(payload)
+         : db.ref('shifts').push(payload);
+     write.then(() => { closeShiftCellModal(); showToast(true); }).catch(() => showToast(false));
+ }
+
+ function clearShiftCellEdit() {
+     if (!shiftCellCtx.existingKey) { closeShiftCellModal(); return; }
+     db.ref('shifts/' + shiftCellCtx.existingKey).remove()
+         .then(() => { closeShiftCellModal(); showToast(true); })
+         .catch(() => showToast(false));
  }
 
  /* ================= v5.00: DASHBOARD CHARTS (plain inline SVG, no external library) ================= */
