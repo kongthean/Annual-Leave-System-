@@ -371,7 +371,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.18</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.19</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1283,8 +1283,13 @@
           letter straight into a day box (same as the Attendance / Actual Working Hours columns
           in Monthly Report) - no click-to-open popup needed any more. -->
      <div class="dash-card" style="margin-top:20px;">
-         <h4 data-i18n="shiftCalTitle">Monthly Shift Calendar</h4>
-         <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="shiftCalSub">Type a shift letter (M, F, G or H) directly into a day box - leave it blank to clear that day.</p>
+         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap:wrap; gap:10px;">
+             <div>
+                 <h4 data-i18n="shiftCalTitle">Monthly Shift Calendar</h4>
+                 <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="shiftCalSub">Type a shift letter (M, F, G or H) directly into a day box - leave it blank to clear that day.</p>
+             </div>
+             <button class="quick-btn green" onclick="exportShiftCalendarToExcel()" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+         </div>
          <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px;">
              <div class="form-group" style="margin-bottom:0; min-width:160px;">
                  <label data-i18n="shiftCalMonthLabel">Month</label>
@@ -1332,7 +1337,7 @@
  </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.18
+     HR & Administration System Version 6.19
  </div>
 </div>
 
@@ -4631,6 +4636,56 @@ function deleteAnnouncement(firebaseKey) {
          ? db.ref('shifts/' + existing.firebaseKey).update(payload)
          : db.ref('shifts').push(payload);
      write.then(() => showToast(true)).catch(() => showToast(false));
+ }
+
+ /* v6.19: exports exactly what's currently shown in the Monthly Shift Calendar grid (same
+    month and same employee search filter) as an .xlsx file - ID/Name columns, then one column
+    per day of the month with the shift letter, matching the on-screen layout. */
+ function exportShiftCalendarToExcel() {
+     const monthInput = document.getElementById('shiftCalMonth');
+     const monthVal = (monthInput && monthInput.value) || '';
+     if (!monthVal) return;
+     const parts = monthVal.split('-');
+     const year = parseInt(parts[0], 10);
+     const month = parseInt(parts[1], 10);
+     const daysInMonth = new Date(year, month, 0).getDate();
+
+     const searchTerm = (document.getElementById('shiftCalSearchInput') ? document.getElementById('shiftCalSearchInput').value : '').toLowerCase();
+     const rows = employees
+         .filter(e => !searchTerm || (e.id || '').toLowerCase().includes(searchTerm) || (e.name || '').toLowerCase().includes(searchTerm))
+         .slice()
+         .sort((a, b) => (a.id || '').localeCompare(b.id || '', undefined, { numeric: true }));
+
+     const shiftByKey = {};
+     shifts.forEach(s => { shiftByKey[(s.empId || '') + '|' + (s.date || '')] = s; });
+
+     const dowLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+     const headerRow1 = ['Employee ID', 'Name'];
+     const headerRow2 = ['', ''];
+     for (let d = 1; d <= daysInMonth; d++) {
+         headerRow1.push(d);
+         headerRow2.push(dowLabels[new Date(year, month - 1, d).getDay()]);
+     }
+
+     const aoa = [headerRow1, headerRow2];
+     rows.forEach(emp => {
+         const row = [emp.id, emp.name];
+         for (let d = 1; d <= daysInMonth; d++) {
+             const dateStr = year + '-' + String(month).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+             const s = shiftByKey[emp.id + '|' + dateStr];
+             row.push(s ? s.type : '');
+         }
+         aoa.push(row);
+     });
+
+     const worksheet = XLSX.utils.aoa_to_sheet(aoa);
+     worksheet['!merges'] = [
+         { s: { r: 0, c: 0 }, e: { r: 1, c: 0 } },
+         { s: { r: 0, c: 1 }, e: { r: 1, c: 1 } }
+     ];
+     const workbook = XLSX.utils.book_new();
+     XLSX.utils.book_append_sheet(workbook, worksheet, "Shift Calendar");
+     XLSX.writeFile(workbook, `Shift_Calendar_${monthVal}.xlsx`);
  }
 
  /* ================= v5.00: DASHBOARD CHARTS (plain inline SVG, no external library) ================= */
