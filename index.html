@@ -371,7 +371,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.17</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.18</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1255,79 +1255,36 @@
      <h3 data-i18n="shiftTitle">Shift Roster</h3>
      <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="shiftSub">Assign daily shift types to employees</p>
 
+     <!-- SHIFT CHECK (v6.18) - a lookup, not an assignment form: enter an Employee ID + date
+          and see that day's shift with a plain-language note on its work/rest hours (or that
+          it's a rest day). Assigning/changing a shift itself now happens directly in the
+          Monthly Shift Calendar grid below, so this replaces the old separate "Assign Shift"
+          form and the flat list/search that used to sit under it. -->
      <div class="dash-card" style="margin-bottom:16px;">
-         <h4 data-i18n="shiftTypesTitle">Shift Types</h4>
-         <div class="table-responsive">
-             <table class="master-tbl">
-                 <thead>
-                     <tr>
-                         <th data-i18n="shiftColType">Type</th>
-                         <th data-i18n="shiftColTime">Working Time</th>
-                         <th data-i18n="shiftColBreak">Break</th>
-                     </tr>
-                 </thead>
-                 <tbody>
-                     <tr><td><b>M</b></td><td data-i18n="shiftMTime">07:00 - 16:00</td><td data-i18n="shiftMBreak">11:00 - 12:00 (1 hour)</td></tr>
-                     <tr><td><b>F</b></td><td data-i18n="shiftFTime">07:00 - 17:00</td><td data-i18n="shiftFBreak">11:00 - 13:00 (2 hours)</td></tr>
-                     <tr><td><b>G</b></td><td data-i18n="shiftGTime">17:00 - 05:00</td><td data-i18n="shiftGBreak">23:00 - 01:00 (2 hours)</td></tr>
-                     <tr><td><b>H</b></td><td colspan="2" data-i18n="shiftHLabel">Rest Day</td></tr>
-                 </tbody>
-             </table>
-         </div>
-     </div>
-
-     <form class="query-box-small" style="width:auto; max-width:520px; margin:0 auto 16px auto;" onsubmit="event.preventDefault(); saveShiftAssignment();">
-         <h4 data-i18n="shiftAssignTitle">Assign Shift</h4>
-         <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
-             <div class="form-group" style="min-width:160px;">
+         <h4 data-i18n="shiftCheckTitle">Shift Check</h4>
+         <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="shiftCheckSub">Enter an Employee ID and date to see that day's shift.</p>
+         <form style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; align-items:flex-end;" onsubmit="event.preventDefault(); checkShift();">
+             <div class="form-group" style="min-width:160px; margin-bottom:0;">
                  <label data-i18n="lblEmpId">Employee ID</label>
-                 <input type="text" id="shiftEmpId" placeholder="e.g. 200001" required>
+                 <input type="text" id="shiftCheckEmpId" placeholder="e.g. 200001" required>
              </div>
-             <div class="form-group" style="min-width:160px;">
+             <div class="form-group" style="min-width:160px; margin-bottom:0;">
                  <label data-i18n="shiftDate">Date</label>
-                 <input type="date" id="shiftDate" required>
+                 <input type="date" id="shiftCheckDate" required>
              </div>
-             <div class="form-group" style="min-width:160px;">
-                 <label data-i18n="shiftType">Shift Type</label>
-                 <select id="shiftType" required>
-                     <option value="M">M</option>
-                     <option value="F">F</option>
-                     <option value="G">G</option>
-                     <option value="H" data-i18n="shiftHOption">H (Rest Day)</option>
-                 </select>
-             </div>
-         </div>
-         <button type="submit" class="btn-submit" data-i18n="btnSaveShift">Save Assignment</button>
-     </form>
-
-     <div class="search-bar-wrapper">
-         <label style="margin:0; font-weight:bold; color:#0f172a;" data-i18n="lblSearch">Search Employee:</label>
-         <input type="text" id="shiftSearchInput" onkeyup="filterShiftTable()" placeholder="Enter ID or Name...">
+             <button type="submit" class="btn-submit" style="width:auto; padding:8px 20px; margin-top:0;" data-i18n="btnCheckShift">Check</button>
+         </form>
+         <div id="shiftCheckResult" style="display:none; margin-top:14px;"></div>
      </div>
 
-     <div class="table-responsive">
-         <table class="master-tbl" id="shiftTable">
-             <thead>
-                 <tr>
-                     <th data-i18n="tblActions">Actions</th>
-                     <th data-i18n="shiftDate">Date</th>
-                     <th data-i18n="tblId">ID</th>
-                     <th data-i18n="tblName">Name</th>
-                     <th data-i18n="shiftType">Shift Type</th>
-                     <th data-i18n="shiftColTime">Working Time</th>
-                     <th data-i18n="shiftColBreak">Break</th>
-                 </tr>
-             </thead>
-             <tbody></tbody>
-         </table>
-     </div>
-
-     <!-- MONTHLY SHIFT CALENDAR (v6.17) - a calendar-style grid (employee rows x day-of-month
-          columns, like a paper attendance sheet) built from the same "shifts" data used by the
-          form and list above. Click any day cell to view or change that employee's shift. -->
+     <!-- MONTHLY SHIFT CALENDAR (v6.17, editing changed to type-directly in v6.18) - a
+          calendar-style grid (employee rows x day-of-month columns, like a paper attendance
+          sheet) built from the same "shifts" data used by Shift Check above. Type a shift
+          letter straight into a day box (same as the Attendance / Actual Working Hours columns
+          in Monthly Report) - no click-to-open popup needed any more. -->
      <div class="dash-card" style="margin-top:20px;">
          <h4 data-i18n="shiftCalTitle">Monthly Shift Calendar</h4>
-         <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="shiftCalSub">Click any day cell to view or change that employee's shift for that day.</p>
+         <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="shiftCalSub">Type a shift letter (M, F, G or H) directly into a day box - leave it blank to clear that day.</p>
          <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px;">
              <div class="form-group" style="margin-bottom:0; min-width:160px;">
                  <label data-i18n="shiftCalMonthLabel">Month</label>
@@ -1375,7 +1332,7 @@
  </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.17
+     HR & Administration System Version 6.18
  </div>
 </div>
 
@@ -1587,33 +1544,6 @@
      </form>
  </div>
 </div>
-
-<!-- SHIFT CALENDAR CELL EDITOR (v6.17) - opens when a day cell in the Monthly Shift Calendar
-     is clicked, showing/letting you change or clear that one employee's shift for that day. -->
-<div class="modal" id="shiftCellModal">
-    <div class="modal-content" style="max-width: 380px; text-align:center;">
-        <div class="modal-header">
-            <h4 data-i18n="shiftCellModalTitle">Edit Shift</h4>
-            <button class="modal-close" onclick="closeShiftCellModal()">&times;</button>
-        </div>
-        <p id="shiftCellModalSub" style="font-size:13px; color:#334155; margin-bottom:14px;"></p>
-        <div class="form-group">
-            <label data-i18n="shiftType">Shift Type</label>
-            <select id="shiftCellType">
-                <option value="">-</option>
-                <option value="M">M</option>
-                <option value="F">F</option>
-                <option value="G">G</option>
-                <option value="H" data-i18n="shiftHOption">H (Rest Day)</option>
-            </select>
-        </div>
-        <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-            <button type="button" class="btn-delete" onclick="clearShiftCellEdit()" data-i18n="btnClear">Clear</button>
-            <button type="button" class="btn-submit" style="width:auto; padding:8px 20px;" onclick="saveShiftCellEdit()" data-i18n="btnSaveShift">Save Assignment</button>
-        </div>
-    </div>
-</div>
-
 
 <!-- VIEW DETAILS MODAL -->
 <div class="modal" id="viewDetailModal">
@@ -2281,10 +2211,17 @@
         shiftHOption: "H (Rest Day)",
         btnSaveShift: "Save Assignment",
         shiftDeleteConfirm: "Delete this shift assignment?",
+        shiftCheckTitle: "Shift Check",
+        shiftCheckSub: "Enter an Employee ID and date to see that day's shift.",
+        btnCheckShift: "Check",
+        shiftCheckNoRecord: "No shift is assigned for this employee on this date.",
+        shiftCheckWorkHours: "Working Hours",
+        shiftCheckRestHours: "Rest / Break Hours",
+        shiftInvalidTypeMsg: "Only M, F, G or H are valid shift types.",
         shiftCalTitle: "Monthly Shift Calendar",
-        shiftCalSub: "Click any day cell to view or change that employee's shift for that day.",
+        shiftCalSub: "Type a shift letter (M, F, G or H) directly into a day box - leave it blank to clear that day.",
         shiftCalMonthLabel: "Month",
-        shiftCellClickHint: "Click to view or edit this shift",
+        shiftCellClickHint: "Type M, F, G or H - leave blank to clear",
         shiftCellModalTitle: "Edit Shift",
         btnClear: "Clear",
         shiftDowSun: "sun",
@@ -2656,10 +2593,17 @@
         shiftHOption: "H (ថ្ងៃឈប់សម្រាក)",
         btnSaveShift: "រក្សាទុកការកំណត់វេន",
         shiftDeleteConfirm: "លុបការកំណត់វេននេះ?",
+        shiftCheckTitle: "ពិនិត្យវេន",
+        shiftCheckSub: "បញ្ចូលអត្តលេខបុគ្គលិក និងកាលបរិច្ឆេទ ដើម្បីមើលវេនរបស់ថ្ងៃនោះ។",
+        btnCheckShift: "ពិនិត្យ",
+        shiftCheckNoRecord: "មិនមានវេនកំណត់សម្រាប់បុគ្គលិកនេះនៅថ្ងៃនេះទេ។",
+        shiftCheckWorkHours: "ម៉ោងធ្វើការ",
+        shiftCheckRestHours: "ម៉ោងសម្រាក",
+        shiftInvalidTypeMsg: "មានតែ M, F, G ឬ H ប៉ុណ្ណោះដែលជាប្រភេទវេនត្រឹមត្រូវ។",
         shiftCalTitle: "ប្រតិទិនវេនប្រចាំខែ",
-        shiftCalSub: "ចុចប្រអប់ថ្ងៃណាមួយដើម្បីមើល ឬផ្លាស់ប្តូរវេនរបស់បុគ្គលិកនោះសម្រាប់ថ្ងៃនោះ។",
+        shiftCalSub: "វាយអក្សរវេន (M, F, G ឬ H) ដោយផ្ទាល់ចូលក្នុងប្រអប់ថ្ងៃ - ទុកទទេដើម្បីលុបថ្ងៃនោះ។",
         shiftCalMonthLabel: "ខែ",
-        shiftCellClickHint: "ចុចដើម្បីមើល ឬកែសម្រួលវេននេះ",
+        shiftCellClickHint: "វាយ M, F, G ឬ H - ទុកទទេដើម្បីលុប",
         shiftCellModalTitle: "កែសម្រួលវេន",
         btnClear: "សម្អាត",
         shiftDowSun: "អា",
@@ -3024,10 +2968,17 @@
         shiftHOption: "H（休息日）",
         btnSaveShift: "保存分配",
         shiftDeleteConfirm: "删除此班次分配？",
+        shiftCheckTitle: "班次查询",
+        shiftCheckSub: "输入员工编号和日期，查看当天的班次。",
+        btnCheckShift: "查询",
+        shiftCheckNoRecord: "该员工在此日期没有排班记录。",
+        shiftCheckWorkHours: "工作时间",
+        shiftCheckRestHours: "休息时间",
+        shiftInvalidTypeMsg: "只能输入 M、F、G 或 H 作为班次类型。",
         shiftCalTitle: "月度排班日历",
-        shiftCalSub: "点击任意日期格子可查看或更改该员工当天的班次。",
+        shiftCalSub: "直接在日期格子中输入班次字母（M、F、G 或 H）- 留空即可清除当天班次。",
         shiftCalMonthLabel: "月份",
-        shiftCellClickHint: "点击查看或编辑此班次",
+        shiftCellClickHint: "输入 M、F、G 或 H - 留空可清除",
         shiftCellModalTitle: "编辑班次",
         btnClear: "清除",
         shiftDowSun: "日",
@@ -3923,7 +3874,6 @@ function deleteAnnouncement(firebaseKey) {
  db.ref('shifts').on('value', (snapshot) => {
      const data = snapshot.val();
      shifts = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
-     renderShiftTable();
      renderShiftCalendarTable();
  });
 
@@ -3962,7 +3912,7 @@ function deleteAnnouncement(firebaseKey) {
      if(tabId === 'tab-employee') renderEmployeeList();
      if(tabId === 'tab-home') { updateDashboardStats(); renderDashboardCharts(); }
      if(tabId === 'tab-add') document.getElementById('newId').focus();
-     if(tabId === 'tab-shift') { renderShiftTable(); renderShiftCalendarTable(); }
+     if(tabId === 'tab-shift') { renderShiftCalendarTable(); }
      if(tabId === 'tab-dept') renderDeptTable();
  }
  
@@ -4551,76 +4501,55 @@ function deleteAnnouncement(firebaseKey) {
  }
 
  /* ================= v5.00: SHIFT ROSTER ================= */
- const SHIFT_META = {
-     M: { time: '07:00 - 16:00', brk: '11:00 - 12:00 (1 hour)' },
-     F: { time: '07:00 - 17:00', brk: '11:00 - 13:00 (2 hours)' },
-     G: { time: '17:00 - 05:00', brk: '23:00 - 01:00 (2 hours)' },
-     H: { time: '-', brk: '-' }
- };
+ function shiftTimeBreakText(type) {
+     if (type === 'H') return { time: t('shiftHLabel'), brk: '' };
+     const timeKeyMap = { M: 'shiftMTime', F: 'shiftFTime', G: 'shiftGTime' };
+     const brkKeyMap = { M: 'shiftMBreak', F: 'shiftFBreak', G: 'shiftGBreak' };
+     return { time: t(timeKeyMap[type] || '') || '-', brk: t(brkKeyMap[type] || '') || '-' };
+ }
 
- function saveShiftAssignment() {
-     const empId = document.getElementById('shiftEmpId').value.trim();
-     const date = document.getElementById('shiftDate').value;
-     const type = document.getElementById('shiftType').value;
+ /* v6.18: "Shift Check" replaces the old "Assign Shift" form - it's a lookup (Employee ID +
+    date in, that day's shift and a plain-language work/rest-hours note out), not a way to
+    write a new assignment. Assigning or changing a shift now happens directly in the Monthly
+    Shift Calendar grid below by typing into a day box. */
+ function checkShift() {
+     const empId = document.getElementById('shiftCheckEmpId').value.trim();
+     const date = document.getElementById('shiftCheckDate').value;
+     const resultBox = document.getElementById('shiftCheckResult');
      const emp = employees.find(e => e.id === empId);
-     if (!emp) { showToast(false, t('empIdNotFound')); return; }
+     resultBox.style.display = 'block';
 
-     db.ref('shifts').push({
-         empId: emp.id,
-         empName: emp.name,
-         date: date,
-         type: type
-     }).then(() => {
-         document.getElementById('shiftEmpId').value = '';
-         showToast(true);
-     }).catch(() => showToast(false));
- }
-
- function renderShiftTable() {
-     const tbody = document.querySelector('#shiftTable tbody');
-     if (!tbody) return;
-     const searchTerm = (document.getElementById('shiftSearchInput')?.value || '').toLowerCase();
-
-     const sorted = [...shifts]
-         .filter(s => !searchTerm || (s.empId || '').toLowerCase().includes(searchTerm) || (s.empName || '').toLowerCase().includes(searchTerm))
-         .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-
-     tbody.innerHTML = sorted.map(s => {
-         const meta = SHIFT_META[s.type] || { time: '-', brk: '-' };
-         return `
-             <tr>
-                 <td><button class="btn-delete" onclick="deleteShiftAssignment('${s.firebaseKey}')" title="Delete">${ICON_DELETE}</button></td>
-                 <td>${s.date || '-'}</td>
-                 <td><b>${s.empId || '-'}</b></td>
-                 <td>${s.empName || '-'}</td>
-                 <td><b>${s.type || '-'}</b></td>
-                 <td>${s.type === 'H' ? t('shiftHLabel') : meta.time}</td>
-                 <td>${s.type === 'H' ? '-' : meta.brk}</td>
-             </tr>
-         `;
-     }).join('');
-     if (sorted.length === 0) {
-         tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">-</td></tr>`;
+     if (!emp) {
+         resultBox.innerHTML = '<p style="color:#dc2626; font-weight:600;">' + t('empIdNotFound') + '</p>';
+         return;
      }
- }
 
- function filterShiftTable() { renderShiftTable(); }
-
- function deleteShiftAssignment(firebaseKey) {
-     if (confirm(t('shiftDeleteConfirm'))) {
-         db.ref('shifts/' + firebaseKey).remove().then(() => showToast(true)).catch(() => showToast(false));
+     const s = shifts.find(x => x.empId === empId && x.date === date);
+     if (!s) {
+         resultBox.innerHTML = '<div class="dash-card" style="background:#f8fafc; text-align:left;">' +
+             '<p style="margin:0 0 6px 0;"><b>' + emp.name + '</b> (' + emp.id + ') - ' + date + '</p>' +
+             '<p style="margin:0; color:#94a3b8;">' + t('shiftCheckNoRecord') + '</p></div>';
+         return;
      }
+
+     const meta = shiftTimeBreakText(s.type);
+     const note = s.type === 'H'
+         ? meta.time
+         : (t('shiftCheckWorkHours') + ': ' + meta.time + '<br>' + t('shiftCheckRestHours') + ': ' + meta.brk);
+     resultBox.innerHTML = '<div class="dash-card" style="background:#f0fdf4; text-align:left;">' +
+         '<p style="margin:0 0 6px 0;"><b>' + emp.name + '</b> (' + emp.id + ') - ' + date + '</p>' +
+         '<p style="margin:0 0 6px 0;">' + t('shiftType') + ': <b>' + s.type + '</b></p>' +
+         '<p style="margin:0;">' + note + '</p></div>';
  }
 
- /* ================= v6.17: MONTHLY SHIFT CALENDAR =================
-    A calendar-style grid (like the paper attendance sheets already in use) built on top of
-    the exact same "shifts" data as the form/list above - one employee per row, one column
-    per day of the selected month, day letter shown in each cell. Clicking a cell opens a
-    small editor to view/change/clear that one employee's shift for that one day. Nothing
-    about the existing Assign Shift form or the flat list below it was changed - this is an
-    additional way to see and edit the same data. */
+ /* ================= v6.17/v6.18: MONTHLY SHIFT CALENDAR =================
+    A calendar-style grid (like the paper attendance sheets already in use) - one employee per
+    row, one column per day of the selected month. v6.18: each day box is a small text field
+    you type directly into (same pattern as the Attendance / Actual Working Hours columns in
+    Monthly Report) - type M, F, G or H and it saves on its own; clear the box to remove that
+    day's shift. No more click-to-open popup. */
  const WEEKDAY_ABBR = ['sun','Mon','Tue','Wed','Thu','Fri','Sat'];
- let shiftCellCtx = { empId: '', empName: '', date: '', existingKey: null };
+ const VALID_SHIFT_TYPES = ['M', 'F', 'G', 'H'];
 
  function renderShiftCalendarTable() {
      const table = document.getElementById('shiftCalendarTable');
@@ -4671,39 +4600,37 @@ function deleteAnnouncement(firebaseKey) {
              const s = shiftByKey[emp.id + '|' + dateStr];
              const label = s ? s.type : '';
              const safeName = (emp.name || '').replace(/'/g, "\\'");
-             cells += '<td style="cursor:pointer; ' + (dow === 0 ? 'background:#f1f5f9;' : '') + ' font-weight:700;" onclick="openShiftCellEditor(\'' + emp.id + '\', \'' + safeName + '\', \'' + dateStr + '\')" title="' + t('shiftCellClickHint') + '">' + label + '</td>';
+             cells += '<td style="padding:2px; ' + (dow === 0 ? 'background:#f1f5f9;' : '') + '">' +
+                 '<input type="text" maxlength="1" value="' + label + '" style="width:32px; text-align:center; text-transform:uppercase; font-weight:700; border:1px solid #e2e8f0; border-radius:4px; padding:4px 0;" ' +
+                 'onchange="updateShiftCell(\'' + emp.id + '\', \'' + safeName + '\', \'' + dateStr + '\', this.value, this)" title="' + t('shiftCellClickHint') + '"></td>';
          }
          return '<tr>' + cells + '</tr>';
      }).join('');
  }
 
- function openShiftCellEditor(empId, empName, dateStr) {
+ function updateShiftCell(empId, empName, dateStr, rawVal, inputEl) {
+     const val = (rawVal || '').trim().toUpperCase();
      const existing = shifts.find(s => s.empId === empId && s.date === dateStr);
-     shiftCellCtx = { empId: empId, empName: empName, date: dateStr, existingKey: existing ? existing.firebaseKey : null };
-     document.getElementById('shiftCellModalSub').innerText = empName + ' (' + empId + ') - ' + dateStr;
-     document.getElementById('shiftCellType').value = existing ? existing.type : '';
-     document.getElementById('shiftCellModal').style.display = 'flex';
- }
 
- function closeShiftCellModal() {
-     document.getElementById('shiftCellModal').style.display = 'none';
- }
+     if (!val) {
+         if (existing) {
+             db.ref('shifts/' + existing.firebaseKey).remove().then(() => showToast(true)).catch(() => showToast(false));
+         }
+         return;
+     }
 
- function saveShiftCellEdit() {
-     const type = document.getElementById('shiftCellType').value;
-     if (!type) { closeShiftCellModal(); return; }
-     const payload = { empId: shiftCellCtx.empId, empName: shiftCellCtx.empName, date: shiftCellCtx.date, type: type };
-     const write = shiftCellCtx.existingKey
-         ? db.ref('shifts/' + shiftCellCtx.existingKey).update(payload)
+     if (VALID_SHIFT_TYPES.indexOf(val) === -1) {
+         showToast(false, t('shiftInvalidTypeMsg'));
+         if (inputEl) inputEl.value = existing ? existing.type : '';
+         return;
+     }
+
+     if (inputEl) inputEl.value = val;
+     const payload = { empId: empId, empName: empName, date: dateStr, type: val };
+     const write = existing
+         ? db.ref('shifts/' + existing.firebaseKey).update(payload)
          : db.ref('shifts').push(payload);
-     write.then(() => { closeShiftCellModal(); showToast(true); }).catch(() => showToast(false));
- }
-
- function clearShiftCellEdit() {
-     if (!shiftCellCtx.existingKey) { closeShiftCellModal(); return; }
-     db.ref('shifts/' + shiftCellCtx.existingKey).remove()
-         .then(() => { closeShiftCellModal(); showToast(true); })
-         .catch(() => showToast(false));
+     write.then(() => showToast(true)).catch(() => showToast(false));
  }
 
  /* ================= v5.00: DASHBOARD CHARTS (plain inline SVG, no external library) ================= */
