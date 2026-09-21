@@ -376,7 +376,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.26</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.27</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1157,7 +1157,7 @@
                          <tr><td class="label" data-i18n="tblRenewed">AL Renewed At</td><td class="value" id="qRenewal">-</td></tr>
                          <tr><td class="label" data-i18n="lblMonthsService">Months of Service</td><td class="value" id="qMonths">-</td></tr>
                          <tr><td class="label" data-i18n="tblTotalAL">Total Annual Leave</td><td class="value" id="qTotalAL">-</td></tr>
-                         <tr><td class="label highlight-blue" data-i18n="tblYearRange">Year Range</td><td class="value highlight-blue" id="qYearRange">-</td></tr>
+                         <tr><td class="label" data-i18n="tblYearRange">Year Range</td><td class="value" id="qYearRange">-</td></tr>
                      </table>
                  </div>
 
@@ -1166,9 +1166,9 @@
                          <tr><td class="label" data-i18n="tblTotalUsed">Total Hours Used</td><td class="value" id="qTotalUsed">-</td></tr>
                          <tr><td class="label" data-i18n="tblMonthUsed">Current Month Used</td><td class="value" id="qCurrentMonthUsed">-</td></tr>
                          <tr><td class="label" data-i18n="tblRemaining">Total Remaining Hours</td><td class="value" id="qRemainingTotal">-</td></tr>
-                         <tr><td class="label" data-i18n="tblCarried" style="background:#fee2e2; color:#991b1b;">Carried Forward Balance</td><td class="value" id="qCarried" style="background:#fee2e2;">0</td></tr>
-                         <tr><td class="label highlight-blue" data-i18n="lblAllowedThisMonth">Allowed Available This Month</td><td class="value highlight-blue" id="qAllowedThisMonth">-</td></tr>
-                         <tr><td class="label highlight-blue" data-i18n="lblRemAfterToday">Remaining Balance After Today</td><td class="value highlight-blue" id="qRemAfterToday">-</td></tr>
+                         <tr><td class="label" id="qCarriedLabel" data-i18n="tblCarried">Carried Forward Balance</td><td class="value" id="qCarried">0</td></tr>
+                         <tr><td class="label" id="qAllowedLabel" data-i18n="lblAllowedThisMonth">Allowed Available This Month</td><td class="value" id="qAllowedThisMonth">-</td></tr>
+                         <tr><td class="label" id="qRemAfterLabel" data-i18n="lblRemAfterToday">Remaining Balance After Today</td><td class="value" id="qRemAfterToday">-</td></tr>
                          <tr><td class="label" data-i18n="thMasterWorkingHours">Working Hours</td><td class="value" id="qEligWorkHours">0</td></tr>
                          <tr><td class="label" data-i18n="thMasterMonthlyOT">Monthly Overtime</td><td class="value" id="qEligOTHours">0</td></tr>
                          <tr><td class="label" data-i18n="lblIsStarted">Is Leave Start Date Reached?</td><td class="value" id="qIsStarted">-</td></tr>
@@ -1352,7 +1352,7 @@
  </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.26
+     HR & Administration System Version 6.27
  </div>
 </div>
 
@@ -3524,13 +3524,34 @@
      document.getElementById('qTotalUsed').innerText = totalUsed.toFixed(2);
      document.getElementById('qCurrentMonthUsed').innerText = (emp.monthUsed || 0).toFixed(2);
      document.getElementById('qRemainingTotal').innerText = remainingTotal.toFixed(2);
-     document.getElementById('qCarried').innerText = (emp.carried || 0).toFixed(2);
-     document.getElementById('qAllowedThisMonth').innerText = allowedThisMonth.toFixed(2);
-     document.getElementById('qRemAfterToday').innerText = remAfterToday.toFixed(2);
-     document.getElementById('qEligWorkHours').innerText = (emp.workHours || 0).toFixed(2);
-     document.getElementById('qEligOTHours').innerText = (emp.otHours || 0).toFixed(2);
-     document.getElementById('qIsStarted').innerText = isStarted ? t('yesLabel') : t('noLabel');
-     document.getElementById('qIsExceeded').innerText = isExceeded ? t('yesLabel') : t('noLabel');
+    document.getElementById('qCarried').innerText = (emp.carried || 0).toFixed(2);
+    document.getElementById('qAllowedThisMonth').innerText = allowedThisMonth.toFixed(2);
+    document.getElementById('qRemAfterToday').innerText = remAfterToday.toFixed(2);
+    document.getElementById('qEligWorkHours').innerText = (emp.workHours || 0).toFixed(2);
+    document.getElementById('qEligOTHours').innerText = (emp.otHours || 0).toFixed(2);
+    document.getElementById('qIsStarted').innerText = isStarted ? t('yesLabel') : t('noLabel');
+    document.getElementById('qIsExceeded').innerText = isExceeded ? t('yesLabel') : t('noLabel');
+    
+    // Color-code query result indicators: green = good/positive, red = attention needed
+    function setAmountColor(labelId, valueId, isPositive) {
+        const lblEl = document.getElementById(labelId);
+        const valEl = document.getElementById(valueId);
+        const bg = isPositive ? '#dcfce7' : '#fee2e2';
+        const fg = isPositive ? '#15803d' : '#dc2626';
+        if (lblEl) { lblEl.style.background = bg; lblEl.style.color = fg; lblEl.style.fontWeight = '600'; }
+        if (valEl) { valEl.style.background = bg; valEl.style.color = fg; valEl.style.fontWeight = '600'; }
+    }
+    function setTextColor(valueId, isPositive) {
+        const valEl = document.getElementById(valueId);
+        if (!valEl) return;
+        valEl.style.color = isPositive ? '#15803d' : '#dc2626';
+        valEl.style.fontWeight = '600';
+    }
+    setAmountColor('qCarriedLabel', 'qCarried', (emp.carried || 0) > 0);
+    setAmountColor('qAllowedLabel', 'qAllowedThisMonth', allowedThisMonth > 0);
+    setAmountColor('qRemAfterLabel', 'qRemAfterToday', remAfterToday > 0);
+    setTextColor('qIsStarted', isStarted);
+    setTextColor('qIsExceeded', !isExceeded);
      document.getElementById('qYearRange').innerText = yearRangeStr || '-';
 
      const remarkContainer = document.getElementById('qRemarkContainer');
