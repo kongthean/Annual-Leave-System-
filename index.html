@@ -376,7 +376,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.27</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.28</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -471,6 +471,7 @@
                  <option value="Update Personal Information" data-i18n="reqTypePersonalInfo">Update Personal Information</option>
                  <option value="Leave Request" data-i18n="reqTypeLeave">Leave Request</option>
                  <option value="Other Request" data-i18n="reqTypeOther">Other Request</option>
+                <option value="Makeup Attendance Request" data-i18n="reqTypeMakeup">Makeup Attendance Request</option>
              </select>
          </div>
          <div class="form-group">
@@ -717,6 +718,7 @@
  <!-- New v5.00 sections, reachable only from Main Menu, same "hidden nav button" wiring pattern -->
  <button id="nav-shift" onclick="switchTab('tab-shift', this)" data-i18n="navShiftRoster" style="display:none;">Shift Roster</button>
  <button id="nav-dept" onclick="switchTab('tab-dept', this)" data-i18n="navDepartments" style="display:none;">Departments</button>
+<button id="nav-makeup" onclick="switchTab('tab-makeup', this)" data-i18n="navMakeup" style="display:none;">Makeup Attendance Record</button>
  
  <!-- TAB 1: DASHBOARD -->
  <div id="tab-home" class="tab-panel active">
@@ -783,6 +785,9 @@
          <button class="quick-btn cyan" onclick="triggerNav('tab-shift', 'nav-shift')">
              <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="15" r="2.5"/><line x1="12" y1="13" x2="12" y2="12"/></svg></span><span class="quick-btn-label" data-i18n="navShiftRoster">Shift Roster</span>
          </button>
+        <button class="quick-btn" style="background:linear-gradient(135deg,#ea580c,#c2410c);" onclick="triggerNav('tab-makeup', 'nav-makeup')">
+            <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M8 15l2 2 4-4"/></svg></span><span class="quick-btn-label" data-i18n="navMakeup">Makeup Attendance Record</span>
+        </button>
          <button class="quick-btn purple admin-only" onclick="triggerNav('tab-dept', 'nav-dept')">
              <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01"/><path d="M15 10h.01"/></svg></span><span class="quick-btn-label" data-i18n="navDepartments">Departments</span>
          </button>
@@ -1351,8 +1356,78 @@
      </div>
  </div>
 
+<!-- TAB: MAKEUP ATTENDANCE RECORD (补卡记录) -->
+<div id="tab-makeup" class="tab-panel">
+    <h3 data-i18n="makeupTitle">Makeup Attendance Record</h3>
+    <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="makeupSub">Record makeup punches for employees who forgot to check in/out, lost their card, or need another correction.</p>
+
+    <form id="makeupForm" style="max-width:960px; margin:10px auto 0 auto;" onsubmit="event.preventDefault(); saveMakeupRecord();">
+        <div style="display:flex; gap:16px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:200px;">
+                <div class="form-group">
+                    <label data-i18n="lblEmpId">Employee ID</label>
+                    <input type="text" id="makeupEmpId" placeholder="e.g. 200001" oninput="onMakeupEmpIdInput()" required>
+                </div>
+            </div>
+            <div style="flex:1; min-width:200px;">
+                <div class="form-group">
+                    <label data-i18n="lblEmpName">Employee Name</label>
+                    <input type="text" id="makeupEmpName" placeholder="e.g. Sok Heng" oninput="onMakeupEmpNameInput()" required>
+                </div>
+            </div>
+            <div style="flex:1; min-width:180px;">
+                <div class="form-group">
+                    <label data-i18n="lblReqDate">Date</label>
+                    <input type="date" id="makeupDate" required>
+                </div>
+            </div>
+            <div style="flex:1; min-width:150px;">
+                <div class="form-group">
+                    <label data-i18n="lblMakeupTimeFrom">Time From</label>
+                    <input type="time" id="makeupTimeFrom" value="07:00" required>
+                </div>
+            </div>
+            <div style="flex:1; min-width:150px;">
+                <div class="form-group">
+                    <label data-i18n="lblMakeupTimeTo">Time To</label>
+                    <input type="time" id="makeupTimeTo" value="07:00" required>
+                </div>
+            </div>
+            <div style="flex:2; min-width:240px;">
+                <div class="form-group">
+                    <label data-i18n="lblMakeupReason">Reason</label>
+                    <input type="text" id="makeupReason" placeholder="e.g. Forgot to check in" required>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn-submit" style="max-width:220px; margin:6px auto 0 auto;" data-i18n="btnSubmitMakeup">Save Record</button>
+    </form>
+
+    <div class="search-bar-wrapper">
+        <label style="margin:0; font-weight:bold; color:#0f172a;" data-i18n="lblSearch">Search Employee:</label>
+        <input type="text" id="makeupSearchInput" onkeyup="filterMakeupTable()" placeholder="Enter ID or Name...">
+    </div>
+
+    <div class="table-responsive">
+        <table class="master-tbl" id="makeupTable">
+            <thead>
+                <tr>
+                    <th data-i18n="tblActions">Actions</th>
+                    <th data-i18n="tblId">ID</th>
+                    <th data-i18n="tblName">Name</th>
+                    <th data-i18n="lblReqDate">Date</th>
+                    <th data-i18n="lblMakeupTimeFrom">Time From</th>
+                    <th data-i18n="lblMakeupTimeTo">Time To</th>
+                    <th data-i18n="lblMakeupReason">Reason</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.27
+     HR & Administration System Version 6.28
  </div>
 </div>
 
@@ -2151,6 +2226,7 @@
          reqTypePersonalInfo: "Update Personal Information",
          reqTypeLeave: "Leave Request",
          reqTypeOther: "Other Request",
+        reqTypeMakeup: "Makeup Attendance Request",
          lblReqDescription: "Description of Request",
          lblReqMethod: "Preferred Way to Get a Response",
          methodPhone: "Phone Call",
@@ -2213,6 +2289,14 @@
          empLoggedInAsPrefix: "Logged in as:",
         navShiftRoster: "Shift Roster",
         navDepartments: "Departments",
+        navMakeup: "Makeup Attendance Record",
+        makeupTitle: "Makeup Attendance Record",
+        makeupSub: "Record makeup punches for employees who forgot to check in/out, lost their card, or need another correction.",
+        lblMakeupTimeFrom: "Time From",
+        lblMakeupTimeTo: "Time To",
+        lblMakeupReason: "Reason",
+        btnSubmitMakeup: "Save Record",
+        makeupDeleteConfirm: "Delete this makeup attendance record?",
         navRecentlyDeleted: "Recently Deleted",
         navBackupNow: "Backup Now",
         tblDepartment: "Department",
@@ -2537,6 +2621,7 @@
          reqTypePersonalInfo: "ធ្វើបច្ចុប្បន្នភាពព័ត៌មានផ្ទាល់ខ្លួន",
          reqTypeLeave: "ស្នើសុំច្បាប់ឈប់សម្រាក",
          reqTypeOther: "សំណើផ្សេងទៀត",
+        reqTypeMakeup: "ស្នើសុំចុះកាតបំពេញបន្ថែម",
          lblReqDescription: "ពិពណ៌នាលម្អិតអំពីសំណើ",
          lblReqMethod: "វិធីដែលចង់ទទួលការឆ្លើយតប",
          methodPhone: "ទូរស័ព្ទ",
@@ -2599,6 +2684,14 @@
          empLoggedInAsPrefix: "បានចូលគណនីជា៖",
         navShiftRoster: "កាលវិភាគវេន",
         navDepartments: "នាយកដ្ឋាន",
+        navMakeup: "កំណត់ត្រាចុះកាតបំពេញបន្ថែម",
+        makeupTitle: "កំណត់ត្រាចុះកាតបំពេញបន្ថែម",
+        makeupSub: "កត់ត្រាការចុះកាតបំពេញបន្ថែម សម្រាប់បុគ្គលិកដែលភ្លេចចុះម៉ោងចូល/ចេញ បាត់កាត ឬត្រូវការកែតម្រូវផ្សេងទៀត។",
+        lblMakeupTimeFrom: "ម៉ោងចាប់ផ្តើម",
+        lblMakeupTimeTo: "ម៉ោងបញ្ចប់",
+        lblMakeupReason: "មូលហេតុ",
+        btnSubmitMakeup: "រក្សាទុកកំណត់ត្រា",
+        makeupDeleteConfirm: "តើអ្នកចង់លុបកំណត់ត្រាចុះកាតបំពេញបន្ថែមនេះមែនទេ?",
         navRecentlyDeleted: "បានលុបថ្មីៗ",
         navBackupNow: "បម្រុងទុកទិន្នន័យ",
         tblDepartment: "នាយកដ្ឋាន",
@@ -2916,6 +3009,7 @@
          reqTypePersonalInfo: "更新个人信息",
          reqTypeLeave: "请假申请",
          reqTypeOther: "其他请求",
+        reqTypeMakeup: "补卡申请",
          lblReqDescription: "请求详细说明",
          lblReqMethod: "希望的回复方式",
          methodPhone: "电话",
@@ -2978,6 +3072,14 @@
          empLoggedInAsPrefix: "登录身份：",
         navShiftRoster: "排班表",
         navDepartments: "部门",
+        navMakeup: "补卡记录",
+        makeupTitle: "补卡记录",
+        makeupSub: "记录员工忘记打卡、丢失卡片或需要其他更正时的补卡情况。",
+        lblMakeupTimeFrom: "开始时间",
+        lblMakeupTimeTo: "结束时间",
+        lblMakeupReason: "原因",
+        btnSubmitMakeup: "保存记录",
+        makeupDeleteConfirm: "确定要删除这条补卡记录吗？",
         navRecentlyDeleted: "最近删除",
         navBackupNow: "立即备份",
         tblDepartment: "部门",
@@ -4367,6 +4469,89 @@ function deleteAnnouncement(firebaseKey) {
      });
      db.ref().update(updates).then(() => showToast(true)).catch(() => showToast(false));
  }
+
+
+/* v6.28: Makeup Attendance Record (补卡记录) - for employees who forgot to check in/out, lost their card, or need another correction */
+let makeupRecords = [];
+db.ref('makeupRecords').on('value', (snapshot) => {
+    const data = snapshot.val();
+    makeupRecords = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+    renderMakeupTable();
+});
+
+function onMakeupEmpIdInput() {
+    const idVal = document.getElementById('makeupEmpId').value.trim();
+    const found = employees.find(e => e.id === idVal);
+    document.getElementById('makeupEmpName').value = found ? found.name : '';
+}
+
+function onMakeupEmpNameInput() {
+    const nameVal = document.getElementById('makeupEmpName').value.trim().toLowerCase();
+    if (!nameVal) { document.getElementById('makeupEmpId').value = ''; return; }
+    const found = employees.find(e => (e.name || '').toLowerCase() === nameVal);
+    if (found) document.getElementById('makeupEmpId').value = found.id;
+}
+
+function saveMakeupRecord() {
+    const id = document.getElementById('makeupEmpId').value.trim();
+    const name = document.getElementById('makeupEmpName').value.trim();
+    const date = document.getElementById('makeupDate').value;
+    const timeFrom = document.getElementById('makeupTimeFrom').value;
+    const timeTo = document.getElementById('makeupTimeTo').value;
+    const reason = document.getElementById('makeupReason').value.trim();
+
+    const found = employees.find(e => e.id === id);
+    if (!found) { showToast(false, t('empIdNotFound')); return; }
+    if (!date || !timeFrom || !timeTo || !reason) { showToast(false); return; }
+
+    db.ref('makeupRecords').push({
+        empId: id, empName: found.name, date, timeFrom, timeTo, reason,
+        createdAt: new Date().toISOString()
+    }).then(() => {
+        showToast(true);
+        document.getElementById('makeupForm').reset();
+        document.getElementById('makeupTimeFrom').value = '07:00';
+        document.getElementById('makeupTimeTo').value = '07:00';
+    }).catch(() => showToast(false));
+}
+
+function deleteMakeupRecord(firebaseKey) {
+    if (confirm(t('makeupDeleteConfirm'))) {
+        db.ref('makeupRecords/' + firebaseKey).remove().then(() => showToast(true)).catch(() => showToast(false));
+    }
+}
+
+function renderMakeupTable() {
+    const tbody = document.querySelector('#makeupTable tbody');
+    if (!tbody) return;
+    const sorted = makeupRecords.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    tbody.innerHTML = sorted.map(r => `
+        <tr>
+            <td><button class="btn-delete" onclick="deleteMakeupRecord('${r.firebaseKey}')" title="Delete">${ICON_DELETE}</button></td>
+            <td>${r.empId}</td>
+            <td>${r.empName}</td>
+            <td>${r.date || '-'}</td>
+            <td>${r.timeFrom || '-'}</td>
+            <td>${r.timeTo || '-'}</td>
+            <td>${r.reason || '-'}</td>
+        </tr>
+    `).join('');
+    if (sorted.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">-</td></tr>`;
+    }
+    filterMakeupTable();
+}
+
+function filterMakeupTable() {
+    const inputEl = document.getElementById('makeupSearchInput');
+    const input = inputEl ? inputEl.value.toLowerCase() : '';
+    document.querySelectorAll('#makeupTable tbody tr').forEach(row => {
+        if (row.cells.length < 3) return;
+        const id = row.cells[1].innerText.toLowerCase();
+        const name = row.cells[2].innerText.toLowerCase();
+        row.style.display = (id.includes(input) || name.includes(input)) ? '' : 'none';
+    });
+}
 
  /* ================= v6.00: PENDING APPROVALS (HR edits awaiting Administration review) ================= */
  function openPendingApprovalsModal() {
