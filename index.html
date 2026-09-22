@@ -315,6 +315,8 @@
      .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; }
      .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
      .detail-view-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px; font-size: 13px; }
+    .detail-view-grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 16px; font-size: 13px; }
+    @media (max-width: 700px) { .detail-view-grid-3col { grid-template-columns: 1fr; } }
      .detail-item { background: #f8fafc; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
      .detail-item span.lbl { font-weight: 600; color: #475569; }
      .detail-item span.val { font-weight: 700; color: #0f172a; }
@@ -376,7 +378,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.33</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.34</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1140,6 +1142,7 @@
                  <input type="number" id="chkHours" placeholder="e.g. 0.00">
              </div>
              <button type="submit" class="btn-submit" data-i18n="btnRunCalc">Run Calculation Query</button>
+            <button type="button" class="btn-submit" style="background:#0e7490; margin-top:8px;" onclick="runCheckDetails()" data-i18n="btnCheckDetails">Check Details</button>
          </form>
      </div>
  </div>
@@ -1213,7 +1216,61 @@
          <div style="text-align:center; margin-top:16px;"><button type="button" class="btn-submit" style="width:auto; padding:8px 30px;" onclick="closeQueryResultModal()" data-i18n="btnClose">Close</button></div>
      </div>
  </div>
- 
+
+ <!-- CHECK DETAILS modal (v6.34) - expanded 3-column breakdown, opened from the Check Record tab -->
+ <div class="modal" id="checkDetailsModal">
+     <div class="modal-content" style="max-width: 96vw; width: 1180px;">
+         <div class="modal-header">
+             <h4 data-i18n="checkDetailsModalTitle">Check Details</h4>
+             <button class="modal-close" onclick="closeCheckDetailsModal()">&times;</button>
+         </div>
+         <div class="detail-view-grid-3col">
+             <div class="detail-item"><span class="lbl" data-i18n="tblId">ID</span><span class="val" id="cdId">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="tblName">Name</span><span class="val" id="cdName">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="tblDepartment">Department</span><span class="val" id="cdDept">-</span></div>
+
+             <div class="detail-item"><span class="lbl" data-i18n="tblJoin">Join Date</span><span class="val" id="cdJoin">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="tblYears">Years of Work</span><span class="val" id="cdYears">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="tblEntitled">Entitled Hours</span><span class="val" id="cdEntitled">-</span></div>
+
+             <div class="detail-item"><span class="lbl" data-i18n="tblStart">AL Start Date</span><span class="val" id="cdStart">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="tblEnd">AL End Date</span><span class="val" id="cdEnd">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="tblRenewed">AL Renewed At</span><span class="val" id="cdRenewal">-</span></div>
+
+             <div class="detail-item"><span class="lbl" data-i18n="tblYearRange">Year Range</span><span class="val" id="cdYearRange">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="lblMonthsService">Months of Service</span><span class="val" id="cdMonths">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="tblTotalAL">Total Annual Leave</span><span class="val" id="cdTotalAL">-</span></div>
+
+             <div class="detail-item"><span class="lbl" data-i18n="tblTotalUsed">Total Hours Used</span><span class="val" id="cdTotalUsed">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="tblMonthUsed">Current Month Used</span><span class="val" id="cdCurrentMonthUsed">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="tblRemaining">Total Remaining Hours</span><span class="val" id="cdRemainingTotal">-</span></div>
+
+             <div class="detail-item" id="cdCarriedLabel"><span class="lbl" data-i18n="tblCarried">Carried Forward Balance</span><span class="val" id="cdCarried">-</span></div>
+             <div class="detail-item" id="cdAllowedLabel"><span class="lbl" data-i18n="lblAllowedThisMonth">Available This Month</span><span class="val" id="cdAllowedThisMonth">-</span></div>
+             <div class="detail-item" id="cdRemAfterLabel"><span class="lbl" data-i18n="lblRemAfterToday">Remaining Balance After Today</span><span class="val" id="cdRemAfterToday">-</span></div>
+
+             <div class="detail-item" id="cdAvailCarriedLabel"><span class="lbl" data-i18n="lblAvailableCarriedBalance">Available Carried Balance</span><span class="val" id="cdAvailCarried">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="lblIsStarted">Is Leave Start Date Reached?</span><span class="val" id="cdIsStarted">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="lblIsExceeded">Exceeds Entitled Hours?</span><span class="val" id="cdIsExceeded">-</span></div>
+
+             <div class="detail-item"><span class="lbl" data-i18n="thMasterWorkingHours">Working Hours</span><span class="val" id="cdWorkHours">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="thMasterMonthlyOT">Monthly Overtime</span><span class="val" id="cdOTHours">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="thMasterAnnualLeave">Annual Leave</span><span class="val" id="cdLeaveAL">-</span></div>
+
+             <div class="detail-item"><span class="lbl" data-i18n="thMasterPersonalLeave">Personal Leave</span><span class="val" id="cdLeavePersonal">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="thMasterSpecialLeave">Special Leave</span><span class="val" id="cdLeaveSpecial">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="thMasterMaternityLeave">Maternity Leave</span><span class="val" id="cdLeaveMaternity">-</span></div>
+
+             <div class="detail-item"><span class="lbl" data-i18n="thMasterTravelLeave">Travel Leave</span><span class="val" id="cdLeaveTravel">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="thMasterSickLeave">Sick Leave</span><span class="val" id="cdLeaveSick">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="thMasterOtherLeave">Other Leave</span><span class="val" id="cdLeaveOther">-</span></div>
+
+             <div class="detail-item" style="grid-column: 1 / -1;"><span class="lbl" data-i18n="lblRemarksHeading">Master Remarks / Notes:</span><span class="val" id="cdRemarks">-</span></div>
+         </div>
+         <div style="text-align:center; margin-top:16px;"><button type="button" class="btn-submit" style="width:auto; padding:8px 30px;" onclick="closeCheckDetailsModal()" data-i18n="btnClose">Close</button></div>
+     </div>
+ </div>
+
  <!-- TAB 8: ADD EMPLOYEE -->
  <div id="tab-add" class="tab-panel">
      <h3 data-i18n="addTitle">Register New Employee</h3>
@@ -1450,7 +1507,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.33
+     HR & Administration System Version 6.34
  </div>
 </div>
 
@@ -2266,6 +2323,9 @@
          lblQueryDate: "Query Date",
          lblTodayHours: "Today's Hours (Optional)",
          btnRunCalc: "Run Calculation Query",
+         btnCheckDetails: "Check Details",
+         checkDetailsModalTitle: "Check Details",
+         lblAvailableCarriedBalance: "Available Carried Balance",
          lblMonthsService: "Months of Service",
          lblAllowedThisMonth: "Available This Month",
          lblRemAfterToday: "Remaining Balance After Today",
@@ -2680,6 +2740,9 @@
          lblQueryDate: "កាលបរិច្ឆេទសួរ",
          lblTodayHours: "ម៉ោងថ្ងៃនេះ (ជម្រើស)",
          btnRunCalc: "គណនាសិទ្ធិឈប់សម្រាក",
+         btnCheckDetails: "ពិនិត្យព័ត៌មានលម្អិត",
+         checkDetailsModalTitle: "ពិនិត្យព័ត៌មានលម្អិត",
+         lblAvailableCarriedBalance: "សមតុល្យលើកមកបន្តដែលអាចប្រើបាន",
          lblMonthsService: "ចំនួនខែធ្វើការ",
          lblAllowedThisMonth: "សិទ្ធិអាចប្រើក្នុងខែនេះ",
          lblRemAfterToday: "សមតុល្យនៅសល់ក្រោយថ្ងៃនេះ",
@@ -3087,6 +3150,9 @@
          lblQueryDate: "查询日期",
          lblTodayHours: "今日请假 (可选)",
          btnRunCalc: "运行计算查询",
+         btnCheckDetails: "查看详情",
+         checkDetailsModalTitle: "查看详情",
+         lblAvailableCarriedBalance: "可用结转余额",
          lblMonthsService: "服务月数",
          lblAllowedThisMonth: "本月可用额度",
          lblRemAfterToday: "今日后剩余余额",
@@ -3739,23 +3805,27 @@ function checkMyShift() {
  /* CHECK RECORD (ELIGIBILITY) QUERY
     Fixed in this update: this function was referenced by the form's onsubmit
     but was never defined, so clicking "Run Calculation Query" silently did nothing. */
- function runExcelQuery() {
-     const queryDateStr = document.getElementById('chkDate').value;
-     const empId = document.getElementById('chkEmpId').value.trim();
-     const todayHours = parseFloat(document.getElementById('chkHours').value) || 0;
 
-     if (!empId) {
-         showToast(false, t('empIdNotFound'));
-         return;
-     }
+ // Color-code query result indicators: green = good/positive, red = attention needed
+ // Hoisted to global scope (v6.34) so both runExcelQuery() and runCheckDetails() can share them.
+ function setAmountColor(labelId, valueId, isPositive) {
+     const lblEl = document.getElementById(labelId);
+     const valEl = document.getElementById(valueId);
+     const bg = isPositive ? '#dcfce7' : '#fee2e2';
+     const fg = isPositive ? '#15803d' : '#dc2626';
+     if (lblEl) { lblEl.style.background = bg; lblEl.style.color = fg; lblEl.style.fontWeight = '600'; }
+     if (valEl) { valEl.style.background = bg; valEl.style.color = fg; valEl.style.fontWeight = '600'; }
+ }
+ function setTextColor(valueId, isPositive) {
+     const valEl = document.getElementById(valueId);
+     if (!valEl) return;
+     valEl.style.color = isPositive ? '#15803d' : '#dc2626';
+     valEl.style.fontWeight = '600';
+ }
 
-     const emp = employees.find(e => e.id === empId);
-     if (!emp) {
-         showToast(false, t('empIdNotFound'));
-         return;
-     }
-
-     const queryDate = queryDateStr ? new Date(queryDateStr + 'T00:00:00') : new Date();
+ // Shared calculation core for the Check Record tab, used by both the Query Result
+ // popup (runExcelQuery) and the Check Details popup (runCheckDetails). v6.34
+ function computeQueryData(emp, queryDate, todayHours) {
      const joinParts = (emp.joinDate || '').split('.');
      const join = joinParts.length === 3 ? new Date(joinParts[0], joinParts[1] - 1, joinParts[2]) : null;
 
@@ -3783,6 +3853,29 @@ function checkMyShift() {
      const startDateObj = (startParts2 && startParts2.length === 3) ? new Date(startParts2[0], startParts2[1] - 1, startParts2[2]) : null;
      const isStarted = startDateObj ? queryDate >= startDateObj : false;
 
+     return { workYears, startStr, endStr, yearRangeStr, renewalMonths, totalUsed, remainingTotal, isExceeded, monthsOfService, allowedThisMonth, remAfterToday, isStarted };
+ }
+
+ function runExcelQuery() {
+     const queryDateStr = document.getElementById('chkDate').value;
+     const empId = document.getElementById('chkEmpId').value.trim();
+     const todayHours = parseFloat(document.getElementById('chkHours').value) || 0;
+
+     if (!empId) {
+         showToast(false, t('empIdNotFound'));
+         return;
+     }
+
+     const emp = employees.find(e => e.id === empId);
+     if (!emp) {
+         showToast(false, t('empIdNotFound'));
+         return;
+     }
+
+     const queryDate = queryDateStr ? new Date(queryDateStr + 'T00:00:00') : new Date();
+     const qd = computeQueryData(emp, queryDate, todayHours);
+     const { workYears, startStr, endStr, yearRangeStr, renewalMonths, totalUsed, remainingTotal, isExceeded, monthsOfService, allowedThisMonth, remAfterToday, isStarted } = qd;
+
      document.getElementById('qName').innerText = emp.name || '-';
      document.getElementById('qJoin').innerText = emp.joinDate || '-';
      document.getElementById('qYears').innerText = workYears;
@@ -3802,22 +3895,7 @@ function checkMyShift() {
     document.getElementById('qEligOTHours').innerText = (emp.otHours || 0).toFixed(2);
     document.getElementById('qIsStarted').innerText = isStarted ? t('yesLabel') : t('noLabel');
     document.getElementById('qIsExceeded').innerText = isExceeded ? t('yesLabel') : t('noLabel');
-    
-    // Color-code query result indicators: green = good/positive, red = attention needed
-    function setAmountColor(labelId, valueId, isPositive) {
-        const lblEl = document.getElementById(labelId);
-        const valEl = document.getElementById(valueId);
-        const bg = isPositive ? '#dcfce7' : '#fee2e2';
-        const fg = isPositive ? '#15803d' : '#dc2626';
-        if (lblEl) { lblEl.style.background = bg; lblEl.style.color = fg; lblEl.style.fontWeight = '600'; }
-        if (valEl) { valEl.style.background = bg; valEl.style.color = fg; valEl.style.fontWeight = '600'; }
-    }
-    function setTextColor(valueId, isPositive) {
-        const valEl = document.getElementById(valueId);
-        if (!valEl) return;
-        valEl.style.color = isPositive ? '#15803d' : '#dc2626';
-        valEl.style.fontWeight = '600';
-    }
+
     setAmountColor('qCarriedLabel', 'qCarried', (emp.carried || 0) > 0);
     setAmountColor('qAllowedLabel', 'qAllowedThisMonth', allowedThisMonth > 0);
     setAmountColor('qRemAfterLabel', 'qRemAfterToday', remAfterToday > 0);
@@ -3840,6 +3918,77 @@ function checkMyShift() {
 
  function closeQueryResultModal() {
      document.getElementById('queryResultModal').style.display = 'none';
+ }
+
+ /* CHECK DETAILS (v6.34) - expanded 3-column read-only breakdown popup for the Check Record tab.
+    Reuses the same #chkDate/#chkEmpId/#chkHours inputs and computeQueryData() logic as
+    runExcelQuery() above, so results always match the Query Result popup. */
+ function runCheckDetails() {
+     const queryDateStr = document.getElementById('chkDate').value;
+     const empId = document.getElementById('chkEmpId').value.trim();
+     const todayHours = parseFloat(document.getElementById('chkHours').value) || 0;
+
+     if (!empId) {
+         showToast(false, t('empIdNotFound'));
+         return;
+     }
+
+     const emp = employees.find(e => e.id === empId);
+     if (!emp) {
+         showToast(false, t('empIdNotFound'));
+         return;
+     }
+
+     const queryDate = queryDateStr ? new Date(queryDateStr + 'T00:00:00') : new Date();
+     const qd = computeQueryData(emp, queryDate, todayHours);
+     const { workYears, startStr, endStr, yearRangeStr, renewalMonths, totalUsed, remainingTotal, isExceeded, monthsOfService, allowedThisMonth, remAfterToday, isStarted } = qd;
+     const carried = emp.carried || 0;
+     const hasCarried = carried > 0;
+
+     document.getElementById('cdId').innerText = emp.id || '-';
+     document.getElementById('cdName').innerText = emp.name || '-';
+     document.getElementById('cdDept').innerText = emp.department || '-';
+     document.getElementById('cdJoin').innerText = emp.joinDate || '-';
+     document.getElementById('cdYears').innerText = workYears;
+     document.getElementById('cdEntitled').innerText = (emp.entitled || 0).toFixed(2);
+     document.getElementById('cdStart').innerText = startStr || '-';
+     document.getElementById('cdEnd').innerText = endStr || '-';
+     document.getElementById('cdRenewal').innerText = renewalMonths;
+     document.getElementById('cdYearRange').innerText = yearRangeStr || '-';
+     document.getElementById('cdMonths').innerText = monthsOfService;
+     document.getElementById('cdTotalAL').innerText = (emp.entitled || 0).toFixed(2);
+     document.getElementById('cdTotalUsed').innerText = totalUsed.toFixed(2);
+     document.getElementById('cdCurrentMonthUsed').innerText = (emp.monthUsed || 0).toFixed(2);
+     document.getElementById('cdRemainingTotal').innerText = remainingTotal.toFixed(2);
+     document.getElementById('cdCarried').innerText = carried.toFixed(2);
+     document.getElementById('cdAllowedThisMonth').innerText = allowedThisMonth.toFixed(2);
+     document.getElementById('cdRemAfterToday').innerText = remAfterToday.toFixed(2);
+     document.getElementById('cdAvailCarried').innerText = hasCarried ? t('yesLabel') : t('noLabel');
+     document.getElementById('cdIsStarted').innerText = isStarted ? t('yesLabel') : t('noLabel');
+     document.getElementById('cdIsExceeded').innerText = isExceeded ? t('yesLabel') : t('noLabel');
+     document.getElementById('cdWorkHours').innerText = (emp.workHours || 0).toFixed(2);
+     document.getElementById('cdOTHours').innerText = (emp.otHours || 0).toFixed(2);
+     document.getElementById('cdLeaveAL').innerText = (emp.leaveAL || 0).toFixed(2);
+     document.getElementById('cdLeavePersonal').innerText = (emp.leavePersonal || 0).toFixed(2);
+     document.getElementById('cdLeaveSpecial').innerText = (emp.leaveSpecial || 0).toFixed(2);
+     document.getElementById('cdLeaveMaternity').innerText = (emp.leaveMaternity || 0).toFixed(2);
+     document.getElementById('cdLeaveTravel').innerText = (emp.leaveTravel || 0).toFixed(2);
+     document.getElementById('cdLeaveSick').innerText = (emp.leaveSick || 0).toFixed(2);
+     document.getElementById('cdLeaveOther').innerText = (emp.leaveOther || 0).toFixed(2);
+     document.getElementById('cdRemarks').innerText = emp.remarks ? emp.remarks : t('noRemarksText');
+
+     setAmountColor('cdCarriedLabel', 'cdCarried', hasCarried);
+     setAmountColor('cdAllowedLabel', 'cdAllowedThisMonth', allowedThisMonth > 0);
+     setAmountColor('cdRemAfterLabel', 'cdRemAfterToday', remAfterToday > 0);
+     setAmountColor('cdAvailCarriedLabel', 'cdAvailCarried', hasCarried);
+     setTextColor('cdIsStarted', isStarted);
+     setTextColor('cdIsExceeded', !isExceeded);
+
+     document.getElementById('checkDetailsModal').style.display = 'flex';
+ }
+
+ function closeCheckDetailsModal() {
+     document.getElementById('checkDetailsModal').style.display = 'none';
  }
 
  let employees = [];
