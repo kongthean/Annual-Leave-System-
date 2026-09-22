@@ -378,7 +378,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.34</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.36</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1127,7 +1127,7 @@
  <!-- TAB 7: CHECK RECORD -->
  <div id="tab-query" class="tab-panel">
      <div class="eligibility-container">
-         <form class="query-box-small" onsubmit="event.preventDefault(); runExcelQuery();">
+         <form class="query-box-small" onsubmit="event.preventDefault(); runCheckDetails();">
              <h4 data-i18n="queryParams">Query Parameters</h4>
              <div class="form-group">
                  <label data-i18n="lblQueryDate">Query Date</label>
@@ -1141,8 +1141,7 @@
                  <label data-i18n="lblTodayHours">Today's Hours (Optional)</label>
                  <input type="number" id="chkHours" placeholder="e.g. 0.00">
              </div>
-             <button type="submit" class="btn-submit" data-i18n="btnRunCalc">Run Calculation Query</button>
-            <button type="button" class="btn-submit" style="background:#0e7490; margin-top:8px;" onclick="runCheckDetails()" data-i18n="btnCheckDetails">Check Details</button>
+             <button type="submit" class="btn-submit" style="background:#0e7490;" data-i18n="btnCheckDetails">Check Details</button>
          </form>
      </div>
  </div>
@@ -1168,56 +1167,9 @@
      </div>
  </div>
 
- <!-- CHECK RECORD RESULT MODAL (pops up as a large layer after Run Calculation Query) -->
- <div class="modal" id="queryResultModal">
-     <div class="modal-content" style="max-width: 95vw; width: 960px;">
-         <div class="modal-header">
-             <h4 data-i18n="queryResultTitle">Query Result</h4>
-             <button class="modal-close" onclick="closeQueryResultModal()">&times;</button>
-         </div>
-         <div class="results-grid-2col" id="queryResult" style="flex-direction:column;">
-             <div style="display: flex; gap: 12px; width: 100%;">
-                 <div class="result-col">
-                     <table>
-                         <tr><td class="label" data-i18n="tblName">Name</td><td class="value" id="qName">-</td></tr>
-                         <tr><td class="label" data-i18n="tblJoin">Join Date</td><td class="value" id="qJoin">-</td></tr>
-                         <tr><td class="label" data-i18n="tblYears">Years of Work</td><td class="value" id="qYears">-</td></tr>
-                         <tr><td class="label" data-i18n="tblEntitled">Entitled Hours</td><td class="value" id="qEntitled">-</td></tr>
-                         <tr><td class="label" data-i18n="tblStart">AL Start Date</td><td class="value" id="qStart">-</td></tr>
-                         <tr><td class="label" data-i18n="tblEnd">AL End Date</td><td class="value" id="qEnd">-</td></tr>
-                         <tr><td class="label" data-i18n="tblRenewed">AL Renewed At</td><td class="value" id="qRenewal">-</td></tr>
-                         <tr><td class="label" data-i18n="lblMonthsService">Months of Service</td><td class="value" id="qMonths">-</td></tr>
-                         <tr><td class="label" data-i18n="tblTotalAL">Total Annual Leave</td><td class="value" id="qTotalAL">-</td></tr>
-                         <tr><td class="label" data-i18n="tblYearRange">Year Range</td><td class="value" id="qYearRange">-</td></tr>
-                     </table>
-                 </div>
-
-                 <div class="result-col">
-                     <table>
-                         <tr><td class="label" data-i18n="tblTotalUsed">Total Hours Used</td><td class="value" id="qTotalUsed">-</td></tr>
-                         <tr><td class="label" data-i18n="tblMonthUsed">Current Month Used</td><td class="value" id="qCurrentMonthUsed">-</td></tr>
-                         <tr><td class="label" data-i18n="tblRemaining">Total Remaining Hours</td><td class="value" id="qRemainingTotal">-</td></tr>
-                         <tr><td class="label" id="qCarriedLabel" data-i18n="tblCarried">Carried Forward Balance</td><td class="value" id="qCarried">0</td></tr>
-                         <tr><td class="label" id="qAllowedLabel" data-i18n="lblAllowedThisMonth">Allowed Available This Month</td><td class="value" id="qAllowedThisMonth">-</td></tr>
-                         <tr><td class="label" id="qRemAfterLabel" data-i18n="lblRemAfterToday">Remaining Balance After Today</td><td class="value" id="qRemAfterToday">-</td></tr>
-                         <tr><td class="label" data-i18n="thMasterWorkingHours">Working Hours</td><td class="value" id="qEligWorkHours">0</td></tr>
-                         <tr><td class="label" data-i18n="thMasterMonthlyOT">Monthly Overtime</td><td class="value" id="qEligOTHours">0</td></tr>
-                         <tr><td class="label" data-i18n="lblIsStarted">Is Leave Start Date Reached?</td><td class="value" id="qIsStarted">-</td></tr>
-                         <tr><td class="label" data-i18n="lblIsExceeded">Exceeds Entitled Hours?</td><td class="value" id="qIsExceeded">-</td></tr>
-                     </table>
-                 </div>
-             </div>
-
-             <div id="qRemarkContainer" class="query-remark-box">
-                 <b data-i18n="lblRemarksHeading">Master Remarks / Notes:</b>
-                 <span id="qRemarksText">-</span>
-             </div>
-         </div>
-         <div style="text-align:center; margin-top:16px;"><button type="button" class="btn-submit" style="width:auto; padding:8px 30px;" onclick="closeQueryResultModal()" data-i18n="btnClose">Close</button></div>
-     </div>
- </div>
-
- <!-- CHECK DETAILS modal (v6.34) - expanded 3-column breakdown, opened from the Check Record tab -->
+ <!-- CHECK DETAILS modal (v6.34) - expanded 3-column breakdown, opened from the Check Record tab.
+      Replaces the old 2-column "Query Result" modal (removed in v6.36) since it now shows every
+      field the old one did, plus more. -->
  <div class="modal" id="checkDetailsModal">
      <div class="modal-content" style="max-width: 96vw; width: 1180px;">
          <div class="modal-header">
@@ -1250,8 +1202,8 @@
              <div class="detail-item" id="cdRemAfterLabel"><span class="lbl" data-i18n="lblRemAfterToday">Remaining Balance After Today</span><span class="val" id="cdRemAfterToday">-</span></div>
 
              <div class="detail-item" id="cdAvailCarriedLabel"><span class="lbl" data-i18n="lblAvailableCarriedBalance">Available Carried Balance</span><span class="val" id="cdAvailCarried">-</span></div>
-             <div class="detail-item"><span class="lbl" data-i18n="lblIsStarted">Is Leave Start Date Reached?</span><span class="val" id="cdIsStarted">-</span></div>
-             <div class="detail-item"><span class="lbl" data-i18n="lblIsExceeded">Exceeds Entitled Hours?</span><span class="val" id="cdIsExceeded">-</span></div>
+             <div class="detail-item" id="cdIsStartedLabel"><span class="lbl" data-i18n="lblIsStarted">Is Leave Start Date Reached?</span><span class="val" id="cdIsStarted">-</span></div>
+             <div class="detail-item" id="cdIsExceededLabel"><span class="lbl" data-i18n="lblIsExceeded">Exceeds Entitled Hours?</span><span class="val" id="cdIsExceeded">-</span></div>
 
              <div class="detail-item"><span class="lbl" data-i18n="thMasterWorkingHours">Working Hours</span><span class="val" id="cdWorkHours">-</span></div>
              <div class="detail-item"><span class="lbl" data-i18n="thMasterMonthlyOT">Monthly Overtime</span><span class="val" id="cdOTHours">-</span></div>
@@ -1507,7 +1459,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.34
+     HR & Administration System Version 6.36
  </div>
 </div>
 
@@ -3802,12 +3754,9 @@ function checkMyShift() {
      return { startStr, endStr, yearRangeStr };
  }
 
- /* CHECK RECORD (ELIGIBILITY) QUERY
-    Fixed in this update: this function was referenced by the form's onsubmit
-    but was never defined, so clicking "Run Calculation Query" silently did nothing. */
+ /* CHECK RECORD (ELIGIBILITY) QUERY */
 
  // Color-code query result indicators: green = good/positive, red = attention needed
- // Hoisted to global scope (v6.34) so both runExcelQuery() and runCheckDetails() can share them.
  function setAmountColor(labelId, valueId, isPositive) {
      const lblEl = document.getElementById(labelId);
      const valEl = document.getElementById(valueId);
@@ -3823,8 +3772,7 @@ function checkMyShift() {
      valEl.style.fontWeight = '600';
  }
 
- // Shared calculation core for the Check Record tab, used by both the Query Result
- // popup (runExcelQuery) and the Check Details popup (runCheckDetails). v6.34
+ // Shared calculation core for the Check Record tab, used by the Check Details popup.
  function computeQueryData(emp, queryDate, todayHours) {
      const joinParts = (emp.joinDate || '').split('.');
      const join = joinParts.length === 3 ? new Date(joinParts[0], joinParts[1] - 1, joinParts[2]) : null;
@@ -3856,73 +3804,10 @@ function checkMyShift() {
      return { workYears, startStr, endStr, yearRangeStr, renewalMonths, totalUsed, remainingTotal, isExceeded, monthsOfService, allowedThisMonth, remAfterToday, isStarted };
  }
 
- function runExcelQuery() {
-     const queryDateStr = document.getElementById('chkDate').value;
-     const empId = document.getElementById('chkEmpId').value.trim();
-     const todayHours = parseFloat(document.getElementById('chkHours').value) || 0;
-
-     if (!empId) {
-         showToast(false, t('empIdNotFound'));
-         return;
-     }
-
-     const emp = employees.find(e => e.id === empId);
-     if (!emp) {
-         showToast(false, t('empIdNotFound'));
-         return;
-     }
-
-     const queryDate = queryDateStr ? new Date(queryDateStr + 'T00:00:00') : new Date();
-     const qd = computeQueryData(emp, queryDate, todayHours);
-     const { workYears, startStr, endStr, yearRangeStr, renewalMonths, totalUsed, remainingTotal, isExceeded, monthsOfService, allowedThisMonth, remAfterToday, isStarted } = qd;
-
-     document.getElementById('qName').innerText = emp.name || '-';
-     document.getElementById('qJoin').innerText = emp.joinDate || '-';
-     document.getElementById('qYears').innerText = workYears;
-     document.getElementById('qEntitled').innerText = (emp.entitled || 0).toFixed(2);
-     document.getElementById('qStart').innerText = startStr || '-';
-     document.getElementById('qEnd').innerText = endStr || '-';
-     document.getElementById('qRenewal').innerText = renewalMonths;
-     document.getElementById('qMonths').innerText = monthsOfService;
-     document.getElementById('qTotalAL').innerText = (emp.entitled || 0).toFixed(2);
-     document.getElementById('qTotalUsed').innerText = totalUsed.toFixed(2);
-     document.getElementById('qCurrentMonthUsed').innerText = (emp.monthUsed || 0).toFixed(2);
-     document.getElementById('qRemainingTotal').innerText = remainingTotal.toFixed(2);
-    document.getElementById('qCarried').innerText = (emp.carried || 0).toFixed(2);
-    document.getElementById('qAllowedThisMonth').innerText = allowedThisMonth.toFixed(2);
-    document.getElementById('qRemAfterToday').innerText = remAfterToday.toFixed(2);
-    document.getElementById('qEligWorkHours').innerText = (emp.workHours || 0).toFixed(2);
-    document.getElementById('qEligOTHours').innerText = (emp.otHours || 0).toFixed(2);
-    document.getElementById('qIsStarted').innerText = isStarted ? t('yesLabel') : t('noLabel');
-    document.getElementById('qIsExceeded').innerText = isExceeded ? t('yesLabel') : t('noLabel');
-
-    setAmountColor('qCarriedLabel', 'qCarried', (emp.carried || 0) > 0);
-    setAmountColor('qAllowedLabel', 'qAllowedThisMonth', allowedThisMonth > 0);
-    setAmountColor('qRemAfterLabel', 'qRemAfterToday', remAfterToday > 0);
-    setTextColor('qIsStarted', isStarted);
-    setTextColor('qIsExceeded', !isExceeded);
-     document.getElementById('qYearRange').innerText = yearRangeStr || '-';
-
-     const remarkContainer = document.getElementById('qRemarkContainer');
-     const remarksText = document.getElementById('qRemarksText');
-     if (emp.remarks) {
-         remarksText.innerText = emp.remarks;
-         remarkContainer.classList.remove('empty');
-     } else {
-         remarksText.innerText = t('noRemarksText');
-         remarkContainer.classList.add('empty');
-     }
-
-     document.getElementById('queryResultModal').style.display = 'flex';
- }
-
- function closeQueryResultModal() {
-     document.getElementById('queryResultModal').style.display = 'none';
- }
 
  /* CHECK DETAILS (v6.34) - expanded 3-column read-only breakdown popup for the Check Record tab.
-    Reuses the same #chkDate/#chkEmpId/#chkHours inputs and computeQueryData() logic as
-    runExcelQuery() above, so results always match the Query Result popup. */
+    Reuses the same #chkDate/#chkEmpId/#chkHours inputs, and is now the only way to run this
+    query (the old "Run Calculation Query" button/modal was removed in v6.36 as redundant). */
  function runCheckDetails() {
      const queryDateStr = document.getElementById('chkDate').value;
      const empId = document.getElementById('chkEmpId').value.trim();
@@ -3981,8 +3866,8 @@ function checkMyShift() {
      setAmountColor('cdAllowedLabel', 'cdAllowedThisMonth', allowedThisMonth > 0);
      setAmountColor('cdRemAfterLabel', 'cdRemAfterToday', remAfterToday > 0);
      setAmountColor('cdAvailCarriedLabel', 'cdAvailCarried', hasCarried);
-     setTextColor('cdIsStarted', isStarted);
-     setTextColor('cdIsExceeded', !isExceeded);
+     setAmountColor('cdIsStartedLabel', 'cdIsStarted', isStarted);
+     setAmountColor('cdIsExceededLabel', 'cdIsExceeded', !isExceeded);
 
      document.getElementById('checkDetailsModal').style.display = 'flex';
  }
