@@ -378,7 +378,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.40</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.43</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1203,8 +1203,8 @@
              <div class="detail-item" id="cdRemAfterLabel"><span class="lbl" data-i18n="lblRemAfterToday">Remaining Balance After Today</span><span class="val" id="cdRemAfterToday">-</span></div>
 
              <div class="detail-item" id="cdAvailCarriedLabel"><span class="lbl" data-i18n="lblAvailableCarriedBalance">Available Carried Balance</span><span class="val" id="cdAvailCarried">-</span></div>
-             <div class="detail-item" id="cdIsStartedLabel"><span class="lbl" data-i18n="lblIsStarted">Is Leave Start Date Reached?</span><span class="val" id="cdIsStarted">-</span></div>
-             <div class="detail-item" id="cdIsExceededLabel"><span class="lbl" data-i18n="lblIsExceeded">Exceeds Entitled Hours?</span><span class="val" id="cdIsExceeded">-</span></div>
+             <div class="detail-item" id="cdIsStartedLabel"><span class="lbl" data-i18n="lblIsStarted">Entitle Start Date</span><span class="val" id="cdIsStarted">-</span></div>
+             <div class="detail-item" id="cdIsExceededLabel"><span class="lbl" data-i18n="lblIsExceeded">Exceed Monthly Limit</span><span class="val" id="cdIsExceeded">-</span></div>
 
              <div class="detail-item"><span class="lbl" data-i18n="thMasterWorkingHours">Working Hours</span><span class="val" id="cdWorkHours">-</span></div>
              <div class="detail-item"><span class="lbl" data-i18n="thMasterMonthlyOT">Monthly Overtime</span><span class="val" id="cdOTHours">-</span></div>
@@ -1461,7 +1461,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.40
+     HR & Administration System Version 6.43
  </div>
 </div>
 
@@ -2283,8 +2283,14 @@
          lblMonthsService: "Months of Service",
          lblAllowedThisMonth: "Available This Month",
          lblRemAfterToday: "Remaining Balance After Today",
-         lblIsStarted: "Is Leave Start Date Reached?",
-         lblIsExceeded: "Exceeds Entitled Hours?",
+         lblIsStarted: "Entitle Start Date",
+         lblIsExceeded: "Exceed Monthly Limit",
+         txtExceed: "Exceed",
+         txtInLimit: "In Limit",
+         txtAvailable: "Available",
+         txtUnavailable: "Unavailable",
+         txtStartYes: "Yes",
+         txtStartNo: "No",
          addTitle: "Register New Employee",
          lblFullName: "Full Name",
          btnSaveEmp: "Save Employee",
@@ -2700,8 +2706,14 @@
          lblMonthsService: "ចំនួនខែធ្វើការ",
          lblAllowedThisMonth: "សិទ្ធិអាចប្រើក្នុងខែនេះ",
          lblRemAfterToday: "សមតុល្យនៅសល់ក្រោយថ្ងៃនេះ",
-         lblIsStarted: "ដល់ថ្ងៃចាប់ផ្តើមច្បាប់?",
-         lblIsExceeded: "ប្រើប្រាស់លើសកំណត់?",
+         lblIsStarted: "កាលបរិច្ឆេទចាប់ផ្តើមសិទ្ធិ",
+         lblIsExceeded: "លើសកំណត់ប្រចាំខែ",
+         txtExceed: "លើសកំណត់",
+         txtInLimit: "នៅក្នុងដែនកំណត់",
+         txtAvailable: "អាចប្រើបាន",
+         txtUnavailable: "មិនអាចប្រើបាន",
+         txtStartYes: "បានចាប់ផ្តើម",
+         txtStartNo: "មិនទាន់ដល់",
          addTitle: "ចុះឈ្មោះបុគ្គលិកថ្មី",
          lblFullName: "ឈ្មោះពេញ",
          btnSaveEmp: "រក្សាទុកបុគ្គលិក",
@@ -3110,8 +3122,14 @@
          lblMonthsService: "服务月数",
          lblAllowedThisMonth: "本月可用额度",
          lblRemAfterToday: "今日后剩余余额",
-         lblIsStarted: "是否已到请假开始日?",
-         lblIsExceeded: "是否超出应享额度?",
+         lblIsStarted: "享受开始日期",
+         lblIsExceeded: "超出本月限额",
+         txtExceed: "超出",
+         txtInLimit: "在限额内",
+         txtAvailable: "可用",
+         txtUnavailable: "不可用",
+         txtStartYes: "已到",
+         txtStartNo: "未到",
          addTitle: "注册新员工",
          lblFullName: "全名",
          btnSaveEmp: "保存员工",
@@ -3831,6 +3849,7 @@ function checkMyShift() {
      const { workYears, startStr, endStr, yearRangeStr, renewalMonths, totalUsed, remainingTotal, isExceeded, monthsOfService, allowedThisMonth, remAfterToday, isStarted } = qd;
      const carried = emp.carried || 0;
      const hasCarried = carried > 0;
+     const exceedsMonthlyLimit = allowedThisMonth < 0;
 
      document.getElementById('cdTitleInfo').innerText = ': ' + (emp.name || '-') + ' (' + (emp.id || '-') + ')';
      document.getElementById('cdId').innerText = emp.id || '-';
@@ -3851,9 +3870,9 @@ function checkMyShift() {
      document.getElementById('cdCarried').innerText = carried.toFixed(2);
      document.getElementById('cdAllowedThisMonth').innerText = allowedThisMonth.toFixed(2);
      document.getElementById('cdRemAfterToday').innerText = remAfterToday.toFixed(2);
-     document.getElementById('cdAvailCarried').innerText = hasCarried ? t('yesLabel') : t('noLabel');
-     document.getElementById('cdIsStarted').innerText = isStarted ? t('yesLabel') : t('noLabel');
-     document.getElementById('cdIsExceeded').innerText = isExceeded ? t('yesLabel') : t('noLabel');
+     document.getElementById('cdAvailCarried').innerText = hasCarried ? t('txtAvailable') : t('txtUnavailable');
+     document.getElementById('cdIsStarted').innerText = isStarted ? t('txtStartYes') : t('txtStartNo');
+     document.getElementById('cdIsExceeded').innerText = exceedsMonthlyLimit ? t('txtExceed') : t('txtInLimit');
      document.getElementById('cdWorkHours').innerText = (emp.workHours || 0).toFixed(2);
      document.getElementById('cdOTHours').innerText = (emp.otHours || 0).toFixed(2);
      document.getElementById('cdLeaveAL').innerText = (emp.leaveAL || 0).toFixed(2);
@@ -3870,7 +3889,7 @@ function checkMyShift() {
      setAmountColor('cdRemAfterLabel', 'cdRemAfterToday', remAfterToday > 0);
      setAmountColor('cdAvailCarriedLabel', 'cdAvailCarried', hasCarried);
      setAmountColor('cdIsStartedLabel', 'cdIsStarted', isStarted);
-     setAmountColor('cdIsExceededLabel', 'cdIsExceeded', !isExceeded);
+     setAmountColor('cdIsExceededLabel', 'cdIsExceeded', !exceedsMonthlyLimit);
 
      document.getElementById('checkDetailsModal').style.display = 'flex';
  }
