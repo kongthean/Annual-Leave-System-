@@ -378,7 +378,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.45</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.46</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1229,6 +1229,22 @@
      </div>
  </div>
 
+ <!-- LEAVE & ATTENDANCE CALENDAR: EDIT/DELETE DAY ENTRY modal (v6.46) - opened by clicking a
+      filled-in day cell in either calendar mode, so a mistaken entry (wrong hours, wrong type)
+      can be corrected or removed. Editing/deleting here always keeps the employee's cumulative
+      totals (leaveAL/leaveSpecial/.../workHours/otHours/monthUsed) in sync by the same delta,
+      so Master Sheet balances and Check Details never drift out of step with the calendar. -->
+ <div class="modal" id="acEditModal">
+     <div class="modal-content" style="max-width: 96vw; width: 520px;">
+         <div class="modal-header">
+             <h4><span data-i18n="acEditModalTitle">Edit Day Entry</span><span id="acEditTitleInfo"></span></h4>
+             <button class="modal-close" onclick="closeAttCalEditModal()">&times;</button>
+         </div>
+         <div id="acEditList"></div>
+         <div style="text-align:center; margin-top:16px;"><button type="button" class="btn-submit" style="width:auto; padding:8px 30px;" onclick="closeAttCalEditModal()" data-i18n="btnClose">Close</button></div>
+     </div>
+ </div>
+
  <!-- TAB 8: ADD EMPLOYEE -->
  <div id="tab-add" class="tab-panel">
      <h3 data-i18n="addTitle">Register New Employee</h3>
@@ -1510,7 +1526,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.45
+     HR & Administration System Version 6.46
  </div>
 </div>
 
@@ -2441,6 +2457,15 @@
         attColTotalOT: "Total OT Hours",
         attCalDescLeave: "{name} ({id}) — {month}: Total Annual Leave {annual} hrs, Total Personal Leave {personal} hrs.",
         attCalDescAtt: "{name} ({id}) — {month}: Total Working Hours {work} hrs, Total OT Hours {ot} hrs.",
+        acEditClickHint: "Click to edit or delete",
+        acEditModalTitle: "Edit Day Entry",
+        acEditNoEntries: "No entries for this day.",
+        acEditHoursLabel: "Hours",
+        acEditWorkLabel: "Working Hours",
+        acEditOtLabel: "OT Hours",
+        acEditDeleteConfirm: "Delete this entry? This will also update the employee's totals.",
+        acEditSavedMsg: "Entry updated.",
+        acEditDeletedMsg: "Entry deleted.",
         lblMakeupTimeFrom: "Time From",
         lblMakeupTimeTo: "Time To",
         lblMakeupReason: "Reason",
@@ -2877,6 +2902,15 @@
         attColTotalOT: "សរុបម៉ោងបន្ថែម",
         attCalDescLeave: "{name} ({id}) — {month}៖ សរុបច្បាប់បំណាច់ឆ្នាំ {annual} ម៉ោង, សរុបច្បាប់ផ្ទាល់ខ្លួន {personal} ម៉ោង។",
         attCalDescAtt: "{name} ({id}) — {month}៖ សរុបម៉ោងធ្វើការ {work} ម៉ោង, សរុបម៉ោងបន្ថែម {ot} ម៉ោង។",
+        acEditClickHint: "ចុចដើម្បីកែសម្រួល ឬលុប",
+        acEditModalTitle: "កែសម្រួលទិន្នន័យថ្ងៃ",
+        acEditNoEntries: "មិនមានទិន្នន័យសម្រាប់ថ្ងៃនេះទេ។",
+        acEditHoursLabel: "ម៉ោង",
+        acEditWorkLabel: "ម៉ោងធ្វើការ",
+        acEditOtLabel: "ម៉ោងបន្ថែម",
+        acEditDeleteConfirm: "លុបទិន្នន័យនេះមែនទេ? វានឹងធ្វើបច្ចុប្បន្នភាពសរុបរបស់បុគ្គលិកនេះផងដែរ។",
+        acEditSavedMsg: "ទិន្នន័យត្រូវបានធ្វើបច្ចុប្បន្នភាព។",
+        acEditDeletedMsg: "ទិន្នន័យត្រូវបានលុប។",
         lblMakeupTimeFrom: "ម៉ោងចាប់ផ្តើម",
         lblMakeupTimeTo: "ម៉ោងបញ្ចប់",
         lblMakeupReason: "មូលហេតុ",
@@ -3306,6 +3340,15 @@
         attColTotalOT: "加班时数总计",
         attCalDescLeave: "{name}（{id}）— {month}：年假总数 {annual} 小时，个人假总数 {personal} 小时。",
         attCalDescAtt: "{name}（{id}）— {month}：工作时数总计 {work} 小时，加班时数总计 {ot} 小时。",
+        acEditClickHint: "点击以编辑或删除",
+        acEditModalTitle: "编辑当日记录",
+        acEditNoEntries: "这一天没有记录。",
+        acEditHoursLabel: "小时数",
+        acEditWorkLabel: "工作时数",
+        acEditOtLabel: "加班时数",
+        acEditDeleteConfirm: "确定要删除此记录吗?这也会更新该员工的总计。",
+        acEditSavedMsg: "记录已更新。",
+        acEditDeletedMsg: "记录已删除。",
         lblMakeupTimeFrom: "开始时间",
         lblMakeupTimeTo: "结束时间",
         lblMakeupReason: "原因",
@@ -5349,7 +5392,7 @@ function filterMakeupTable() {
                  if (total > 0) {
                      const bg = isPersonal ? '#fee2e2' : '#dcfce7';
                      const fg = isPersonal ? '#dc2626' : '#15803d';
-                     content = '<div style="background:' + bg + '; color:' + fg + '; font-weight:700; border-radius:4px; padding:4px 2px;">' + formatCalHours(total) + '</div>';
+                     content = '<div style="background:' + bg + '; color:' + fg + '; font-weight:700; border-radius:4px; padding:4px 2px; cursor:pointer;" title="' + t('acEditClickHint') + '" onclick="openAttCalEditModal(\'' + emp.id + '\',\'' + dateStr + '\')">' + formatCalHours(total) + '</div>';
                  }
                  cells += '<td style="' + cellStyle + '">' + content + '</td>';
              }
@@ -5391,8 +5434,8 @@ function filterMakeupTable() {
                  let cellStyle = 'padding:2px; text-align:center; font-weight:700;' + (dow === 0 ? ' background:#f1f5f9;' : '');
                  let content = '';
                  if (sums && (sums.work > 0 || sums.ot > 0)) {
-                     content = '<span style="color:#15803d;">' + formatCalHours(sums.work) + '</span>' +
-                         (sums.ot > 0 ? '<span style="color:#94a3b8;">/</span><span style="color:#dc2626;">' + formatCalHours(sums.ot) + '</span>' : '');
+                     content = '<span style="cursor:pointer;" title="' + t('acEditClickHint') + '" onclick="openAttCalEditModal(\'' + emp.id + '\',\'' + dateStr + '\')"><span style="color:#15803d;">' + formatCalHours(sums.work) + '</span>' +
+                         (sums.ot > 0 ? '<span style="color:#94a3b8;">/</span><span style="color:#dc2626;">' + formatCalHours(sums.ot) + '</span>' : '') + '</span>';
                  }
                  cells += '<td style="' + cellStyle + '">' + content + '</td>';
              }
@@ -5411,6 +5454,181 @@ function filterMakeupTable() {
              descBox.style.display = 'none';
          }
      }
+ }
+
+ /* ================= v6.46: LEAVE & ATTENDANCE CALENDAR - EDIT/DELETE DAY ENTRY =================
+    Clicking a filled-in day cell opens acEditModal listing every leaveHistory/attendanceHistory
+    entry for that employee on that exact day. Saving a changed value or deleting an entry always
+    applies the same delta to the employee's cumulative fields (leaveAL/leaveSpecial/.../
+    monthUsed for leave, workHours/otHours for attendance) so Master Sheet balances and Check
+    Details stay consistent with what the calendar shows - never just edits the log entry alone. */
+ const LEAVE_TYPE_FIELD_MAP = {
+     thMasterAnnualLeave: 'leaveAL',
+     thMasterSpecialLeave: 'leaveSpecial',
+     thMasterMaternityLeave: 'leaveMaternity',
+     thMasterTravelLeave: 'leaveTravel',
+     thMasterSickLeave: 'leaveSick',
+     thMasterOtherLeave: 'leaveOther',
+     thMasterPersonalLeave: 'leavePersonal'
+ };
+
+ function openAttCalEditModal(empId, dateStr) {
+     const emp = employees.find(e => e.id === empId);
+     if (!emp) return;
+     const modal = document.getElementById('acEditModal');
+     modal.dataset.empId = empId;
+     modal.dataset.date = dateStr;
+     document.getElementById('acEditTitleInfo').innerText = ': ' + (emp.name || '-') + ' (' + emp.id + ') - ' + dateStr;
+     renderAttCalEditList();
+     modal.style.display = 'flex';
+ }
+
+ function closeAttCalEditModal() {
+     document.getElementById('acEditModal').style.display = 'none';
+ }
+
+ function renderAttCalEditList() {
+     const modal = document.getElementById('acEditModal');
+     const empId = modal.dataset.empId;
+     const dateStr = modal.dataset.date;
+     const listEl = document.getElementById('acEditList');
+
+     if (attCalMode === 'leave') {
+         const entries = leaveHistory.filter(h => h.empId === empId && h.date === dateStr);
+         if (entries.length === 0) {
+             listEl.innerHTML = '<p style="text-align:center; color:#94a3b8; padding:12px 0;" data-i18n="acEditNoEntries">No entries for this day.</p>';
+             return;
+         }
+         listEl.innerHTML = entries.map(h => (
+             '<div style="display:flex; align-items:center; gap:8px; padding:10px 4px; border-bottom:1px solid #e2e8f0;">' +
+                 '<span style="flex:1; font-size:13px; font-weight:600; color:#334155;">' + t(h.leaveType) + '</span>' +
+                 '<input type="number" step="0.5" min="0" id="acHours_' + h.firebaseKey + '" value="' + h.hours + '" style="width:80px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">' +
+                 '<button type="button" class="btn-edit" style="font-size:13px;" onclick="saveAttCalLeaveEntry(\'' + h.firebaseKey + '\')" data-i18n="btnSaveChanges">Save Changes</button>' +
+                 '<button type="button" class="btn-delete" style="font-size:13px;" onclick="deleteAttCalLeaveEntry(\'' + h.firebaseKey + '\')" data-i18n="btnDeleteRequest">Delete</button>' +
+             '</div>'
+         )).join('');
+     } else {
+         const entries = attendanceHistory.filter(h => h.empId === empId && h.date === dateStr);
+         if (entries.length === 0) {
+             listEl.innerHTML = '<p style="text-align:center; color:#94a3b8; padding:12px 0;" data-i18n="acEditNoEntries">No entries for this day.</p>';
+             return;
+         }
+         listEl.innerHTML = entries.map(h => (
+             '<div style="display:flex; align-items:center; gap:8px; padding:10px 4px; border-bottom:1px solid #e2e8f0; flex-wrap:wrap;">' +
+                 '<div style="flex:1; min-width:180px;">' +
+                     '<label style="display:block; font-size:11px; color:#64748b;" data-i18n="acEditWorkLabel">Working Hours</label>' +
+                     '<input type="number" step="0.5" min="0" id="acWork_' + h.firebaseKey + '" value="' + (h.workHours || 0) + '" style="width:100%; padding:6px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">' +
+                 '</div>' +
+                 '<div style="flex:1; min-width:180px;">' +
+                     '<label style="display:block; font-size:11px; color:#64748b;" data-i18n="acEditOtLabel">OT Hours</label>' +
+                     '<input type="number" step="0.5" min="0" id="acOt_' + h.firebaseKey + '" value="' + (h.otHours || 0) + '" style="width:100%; padding:6px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">' +
+                 '</div>' +
+                 '<button type="button" class="btn-edit" style="font-size:13px;" onclick="saveAttCalAttEntry(\'' + h.firebaseKey + '\')" data-i18n="btnSaveChanges">Save Changes</button>' +
+                 '<button type="button" class="btn-delete" style="font-size:13px;" onclick="deleteAttCalAttEntry(\'' + h.firebaseKey + '\')" data-i18n="btnDeleteRequest">Delete</button>' +
+             '</div>'
+         )).join('');
+     }
+ }
+
+ function saveAttCalLeaveEntry(firebaseKey) {
+     const entry = leaveHistory.find(h => h.firebaseKey === firebaseKey);
+     if (!entry) return;
+     const emp = employees.find(e => e.id === entry.empId);
+     if (!emp) return;
+     const input = document.getElementById('acHours_' + firebaseKey);
+     const newHours = parseFloat(input.value);
+     if (isNaN(newHours) || newHours < 0) { showToast(false); return; }
+
+     const oldHours = entry.hours || 0;
+     const delta = newHours - oldHours;
+     const field = LEAVE_TYPE_FIELD_MAP[entry.leaveType];
+     const updatePayload = {};
+     if (field) {
+         updatePayload[field] = (emp[field] || 0) + delta;
+         if (field !== 'leavePersonal') {
+             updatePayload.monthUsed = (emp.monthUsed || 0) + delta;
+         }
+     }
+
+     db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
+         return db.ref('leaveHistory/' + firebaseKey).update({ hours: newHours });
+     }).then(() => {
+         showToast(true, t('acEditSavedMsg'));
+         renderAttCalEditList();
+         renderAttCalTable();
+     }).catch(() => showToast(false));
+ }
+
+ function deleteAttCalLeaveEntry(firebaseKey) {
+     const entry = leaveHistory.find(h => h.firebaseKey === firebaseKey);
+     if (!entry) return;
+     if (!confirm(t('acEditDeleteConfirm'))) return;
+     const emp = employees.find(e => e.id === entry.empId);
+     if (!emp) return;
+
+     const oldHours = entry.hours || 0;
+     const field = LEAVE_TYPE_FIELD_MAP[entry.leaveType];
+     const updatePayload = {};
+     if (field) {
+         updatePayload[field] = Math.max(0, (emp[field] || 0) - oldHours);
+         if (field !== 'leavePersonal') {
+             updatePayload.monthUsed = Math.max(0, (emp.monthUsed || 0) - oldHours);
+         }
+     }
+
+     db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
+         return db.ref('leaveHistory/' + firebaseKey).remove();
+     }).then(() => {
+         showToast(true, t('acEditDeletedMsg'));
+         renderAttCalEditList();
+         renderAttCalTable();
+     }).catch(() => showToast(false));
+ }
+
+ function saveAttCalAttEntry(firebaseKey) {
+     const entry = attendanceHistory.find(h => h.firebaseKey === firebaseKey);
+     if (!entry) return;
+     const emp = employees.find(e => e.id === entry.empId);
+     if (!emp) return;
+     const newWork = parseFloat(document.getElementById('acWork_' + firebaseKey).value);
+     const newOt = parseFloat(document.getElementById('acOt_' + firebaseKey).value);
+     if (isNaN(newWork) || newWork < 0 || isNaN(newOt) || newOt < 0) { showToast(false); return; }
+
+     const deltaWork = newWork - (entry.workHours || 0);
+     const deltaOt = newOt - (entry.otHours || 0);
+     const updatePayload = {
+         workHours: (emp.workHours || 0) + deltaWork,
+         otHours: (emp.otHours || 0) + deltaOt
+     };
+
+     db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
+         return db.ref('attendanceHistory/' + firebaseKey).update({ workHours: newWork, otHours: newOt });
+     }).then(() => {
+         showToast(true, t('acEditSavedMsg'));
+         renderAttCalEditList();
+         renderAttCalTable();
+     }).catch(() => showToast(false));
+ }
+
+ function deleteAttCalAttEntry(firebaseKey) {
+     const entry = attendanceHistory.find(h => h.firebaseKey === firebaseKey);
+     if (!entry) return;
+     if (!confirm(t('acEditDeleteConfirm'))) return;
+     const emp = employees.find(e => e.id === entry.empId);
+     if (!emp) return;
+
+     const updatePayload = {
+         workHours: Math.max(0, (emp.workHours || 0) - (entry.workHours || 0)),
+         otHours: Math.max(0, (emp.otHours || 0) - (entry.otHours || 0))
+     };
+
+     db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
+         return db.ref('attendanceHistory/' + firebaseKey).remove();
+     }).then(() => {
+         showToast(true, t('acEditDeletedMsg'));
+         renderAttCalEditList();
+         renderAttCalTable();
+     }).catch(() => showToast(false));
  }
 
  /* ================= v5.00: DASHBOARD CHARTS (plain inline SVG, no external library) ================= */
