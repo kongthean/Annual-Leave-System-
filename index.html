@@ -378,7 +378,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.46</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.47</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -531,13 +531,33 @@
      </div>
     </div><!-- /#empPanelRequest -->
 
-    <div id="empPanelShift" style="display:none; max-width:480px; margin:0 auto; text-align:left;">
-        <div class="form-group">
-            <label data-i18n="lblReqDate">Date</label>
-            <input type="date" id="empShiftCheckDate">
+    <div id="empPanelShift" style="display:none; max-width:900px; margin:0 auto; text-align:left;">
+        <div style="max-width:480px;">
+            <div class="form-group">
+                <label data-i18n="lblReqDate">Date</label>
+                <input type="date" id="empShiftCheckDate">
+            </div>
+            <button type="button" class="btn-submit" style="background:#0891b2;" onclick="checkMyShift()" data-i18n="btnCheckMyShift">Check My Shift</button>
+            <div id="empShiftCheckResult" style="display:none; margin-top:14px;"></div>
         </div>
-        <button type="button" class="btn-submit" style="background:#0891b2;" onclick="checkMyShift()" data-i18n="btnCheckMyShift">Check My Shift</button>
-        <div id="empShiftCheckResult" style="display:none; margin-top:14px;"></div>
+
+        <hr style="margin:22px 0; border:none; border-top:1px solid #e2e8f0;">
+
+        <!-- v6.47: full 1st-31st calendar view of THIS employee's own shifts, alongside the
+             existing per-day check above. Gated the same way - a month only shows shifts once
+             Administration has sent "Shift Calendar Ready" for that specific month. -->
+        <h4 style="font-size:13px; color:#334155; margin-bottom:8px;" data-i18n="empShiftCalTitle">Monthly Shift Calendar</h4>
+        <div class="form-group" style="max-width:220px;">
+            <label data-i18n="shiftCalMonthLabel">Month</label>
+            <input type="month" id="empShiftCalMonth" onchange="renderEmpShiftCalendar()">
+        </div>
+        <div id="empShiftCalNote" style="display:none; margin-bottom:10px;"></div>
+        <div class="table-responsive">
+            <table class="master-tbl tbl-wide" id="empShiftCalTable">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
  </div>
 </div>
@@ -1526,7 +1546,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.46
+     HR & Administration System Version 6.47
  </div>
 </div>
 
@@ -1802,7 +1822,8 @@
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
             <button class="quick-btn amber" style="padding:8px 16px; font-size:12px;" onclick="openOneTimeNotifModal()" data-i18n="broadcastSectionTitle">Send One-Time Notification</button>
             <button class="quick-btn indigo" style="padding:8px 16px; font-size:12px;" onclick="openComposeNotification(null, null)" data-i18n="btnNewAnnouncement">New Announcement</button>
-            <button class="quick-btn cyan" style="padding:8px 16px; font-size:12px;" onclick="notifyShiftCalendarReady()" data-i18n="btnNotifyShiftReady">Notify: Shift Calendar Ready</button>
+            <button class="quick-btn cyan" style="padding:8px 16px; font-size:12px;" onclick="openNotifyShiftReadyModal()" data-i18n="btnNotifyShiftReady">Notify: Shift Calendar Ready</button>
+            <button class="quick-btn teal" style="padding:8px 16px; font-size:12px;" onclick="openCardReadyNotifModal()" data-i18n="btnNotifyCardReady">Notify: Employee Card Ready</button>
         </div>
 
         <h4 style="font-size:13px; margin-bottom:8px; color:#334155;" data-i18n="sentNotifHistoryTitle">Sent Notifications</h4>
@@ -1840,7 +1861,55 @@
         </form>
     </div>
 </div>
- 
+
+<!-- NOTIFY: SHIFT CALENDAR READY MODAL (v6.47) - lets Administration pick exactly which month
+     of the shift calendar this notice is about, instead of silently reusing whatever month
+     happened to be selected on the separate Shift Calendar tab. Sending this is also what
+     unlocks that month in every employee's Check Shift (see shiftReadyMonths). -->
+<div class="modal" id="notifyShiftReadyModal">
+    <div class="modal-content" style="max-width:420px;">
+        <div class="modal-header">
+            <h4 data-i18n="btnNotifyShiftReady">Notify: Shift Calendar Ready</h4>
+            <button class="modal-close" onclick="closeNotifyShiftReadyModal()">&times;</button>
+        </div>
+        <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="notifyShiftReadySub">Choose which month's shift calendar is ready. Employees can only check that month's shift after you send this.</p>
+        <div class="form-group">
+            <label data-i18n="shiftCalMonthLabel">Month</label>
+            <input type="month" id="notifyShiftReadyMonth">
+        </div>
+        <button type="button" class="btn-submit" style="background:#0e7490;" onclick="notifyShiftCalendarReady()" data-i18n="btnSendNotification">Send</button>
+    </div>
+</div>
+
+<!-- NOTIFY: EMPLOYEE CARD READY MODAL (v6.47) - templated notice to a single employee that
+     their ID/access card is ready for pickup, with card number and pickup location filled in. -->
+<div class="modal" id="cardReadyNotifModal">
+    <div class="modal-content" style="max-width:480px;">
+        <div class="modal-header">
+            <h4 data-i18n="cardReadyModalTitle">Employee Card Ready for Pickup</h4>
+            <button class="modal-close" onclick="closeCardReadyNotifModal()">&times;</button>
+        </div>
+        <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="cardReadySub">Send a pickup notice for a specific employee's ID/access card.</p>
+        <div class="form-group">
+            <label data-i18n="lblEmpId">Employee ID</label>
+            <input type="text" id="cardReadyEmpId" placeholder="e.g. 200001" oninput="onCardReadyEmpIdInput()">
+        </div>
+        <div class="form-group">
+            <label data-i18n="lblEmpName">Employee Name</label>
+            <input type="text" id="cardReadyEmpName" placeholder="e.g. Sok Heng" oninput="onCardReadyEmpNameInput()">
+        </div>
+        <div class="form-group">
+            <label data-i18n="lblCardNumber">Card Number</label>
+            <input type="text" id="cardReadyCardNumber" placeholder="e.g. C-10234">
+        </div>
+        <div class="form-group">
+            <label data-i18n="lblCardLocation">Pickup Location</label>
+            <input type="text" id="cardReadyLocation" placeholder="e.g. HR Office, Ground Floor">
+        </div>
+        <button type="button" class="btn-submit" style="background:#0d9488;" onclick="notifyCardReady()" data-i18n="btnSendNotification">Send</button>
+    </div>
+</div>
+
 <script>
  /* FIREBASE DATABASE REFERENCE */
  const db = firebase.database();
@@ -2475,6 +2544,17 @@
         manageNotifTitle: "Manage Notifications",
         manageNotifSub: "Send one-time or template notifications to employees, and review what has been sent.",
         btnNotifyShiftReady: "Notify: Shift Calendar Ready",
+        notifyShiftReadySub: "Choose which month's shift calendar is ready. Employees can only check that month's shift after you send this.",
+        shiftMonthRequiredMsg: "Please choose a month first.",
+        shiftNotYetReadyMsg: "The shift calendar for this month has not been published yet. Please check again later.",
+        btnNotifyCardReady: "Notify: Employee Card Ready",
+        cardReadyModalTitle: "Employee Card Ready for Pickup",
+        cardReadySub: "Send a pickup notice for a specific employee's ID/access card.",
+        lblCardNumber: "Card Number",
+        lblCardLocation: "Pickup Location",
+        cardReadyFieldsRequiredMsg: "Please enter the Employee ID, Card Number and Pickup Location.",
+        notifCardReadyTitle: "Employee Card {id} Ready for pick up",
+        notifCardReadyMsg: "Dear {name}!<br><br>Your Employee card ready for pick up at {location}. Please ensure you can come to pick up on any working day.",
         sentNotifHistoryTitle: "Sent Notifications",
         colSentAt: "Sent At",
         deleteNotifConfirm: "Delete this notification?",
@@ -2488,6 +2568,7 @@
         empMenuRequest: "Request",
         empMenuCheckShift: "Check Shift",
         btnCheckMyShift: "Check My Shift",
+        empShiftCalTitle: "Monthly Shift Calendar",
         notifSeeManageHint: "For general announcements, use Manage Notifications from the Main Menu.",
         manageNotifFromMgmtHint: "Send one-time or template notifications to employees, and review what has been sent, from Manage Notifications.",
         navRecentlyDeleted: "Recently Deleted",
@@ -2920,6 +3001,17 @@
         manageNotifTitle: "គ្រប់គ្រងការជូនដំណឹង",
         manageNotifSub: "ផ្ញើការជូនដំណឹងតែម្តង ឬតាមគំរូទៅបុគ្គលិក និងពិនិត្យមើលអ្វីដែលបានផ្ញើរួច។",
         btnNotifyShiftReady: "ជូនដំណឹង៖ កាលវិភាគវេនរួចរាល់",
+        notifyShiftReadySub: "ជ្រើសរើសខែនៃកាលវិភាគវេនដែលរួចរាល់។ បុគ្គលិកនឹងអាចពិនិត្យវេនប្រចាំខែនោះបានលុះត្រាតែអ្នកផ្ញើសារនេះ។",
+        shiftMonthRequiredMsg: "សូមជ្រើសរើសខែជាមុនសិន។",
+        shiftNotYetReadyMsg: "កាលវិភាគវេនសម្រាប់ខែនេះមិនទាន់ត្រូវបានប្រកាសនៅឡើយទេ។ សូមពិនិត្យម្តងទៀតពេលក្រោយ។",
+        btnNotifyCardReady: "ជូនដំណឹង៖ កាតបុគ្គលិករួចរាល់",
+        cardReadyModalTitle: "កាតបុគ្គលិករួចរាល់សម្រាប់មករើក",
+        cardReadySub: "ផ្ញើសារជូនដំណឹងឲ្យបុគ្គលិកម្នាក់មករើកកាតអត្តសញ្ញាណ/កាតចូលរបស់ខ្លួន។",
+        lblCardNumber: "លេខកាត",
+        lblCardLocation: "ទីតាំងសម្រាប់មករើក",
+        cardReadyFieldsRequiredMsg: "សូមបញ្ចូលអត្តលេខបុគ្គលិក លេខកាត និងទីតាំងសម្រាប់មករើក។",
+        notifCardReadyTitle: "កាតបុគ្គលិក {id} រួចរាល់សម្រាប់មករើក",
+        notifCardReadyMsg: "សួស្តី {name}!<br><br>កាតបុគ្គលិករបស់អ្នករួចរាល់សម្រាប់មករើកនៅ {location}។ សូមប្រាកដថាអ្នកអាចមករើកបានក្នុងថ្ងៃធ្វើការណាមួយ។",
         sentNotifHistoryTitle: "ការជូនដំណឹងដែលបានផ្ញើ",
         colSentAt: "ពេលវេលាផ្ញើ",
         deleteNotifConfirm: "តើអ្នកចង់លុបការជូនដំណឹងនេះមែនទេ?",
@@ -2933,6 +3025,7 @@
         empMenuRequest: "សំណើ",
         empMenuCheckShift: "ពិនិត្យវេន",
         btnCheckMyShift: "ពិនិត្យវេនរបស់ខ្ញុំ",
+        empShiftCalTitle: "កាលវិភាគវេនប្រចាំខែ",
         notifSeeManageHint: "សម្រាប់សេចក្ដីប្រកាសទូទៅ សូមប្រើ \u201cគ្រប់គ្រងការជូនដំណឹង\u201d ពីម៉ឺនុយសំខាន់។",
         manageNotifFromMgmtHint: "ផ្ញើការជូនដំណឹងតែម្តង ឬតាមគំរូទៅបុគ្គលិក និងពិនិត្យមើលអ្វីដែលបានផ្ញើរួច សូមចូលទៅ \u201cគ្រប់គ្រងការជូនដំណឹង\u201d។",
         navRecentlyDeleted: "បានលុបថ្មីៗ",
@@ -3358,6 +3451,17 @@
         manageNotifTitle: "管理通知",
         manageNotifSub: "向员工发送一次性或模板通知，并查看已发送的记录。",
         btnNotifyShiftReady: "通知：排班表已可查看",
+        notifyShiftReadySub: "选择哪个月份的排班表已经准备好。发送后，员工才能查看该月份的排班。",
+        shiftMonthRequiredMsg: "请先选择月份。",
+        shiftNotYetReadyMsg: "本月的排班表尚未发布，请稍后再查看。",
+        btnNotifyCardReady: "通知：员工卡已可领取",
+        cardReadyModalTitle: "员工卡已可领取",
+        cardReadySub: "向指定员工发送领取工卡/门禁卡的通知。",
+        lblCardNumber: "卡号",
+        lblCardLocation: "领取地点",
+        cardReadyFieldsRequiredMsg: "请输入员工编号、卡号和领取地点。",
+        notifCardReadyTitle: "员工卡 {id} 已可领取",
+        notifCardReadyMsg: "亲爱的{name}！<br><br>您的员工卡已可在{location}领取，请确保在任意工作日前来领取。",
         sentNotifHistoryTitle: "已发送通知",
         colSentAt: "发送时间",
         deleteNotifConfirm: "确定要删除此通知吗？",
@@ -3371,6 +3475,7 @@
         empMenuRequest: "申请",
         empMenuCheckShift: "查看排班",
         btnCheckMyShift: "查看我的排班",
+        empShiftCalTitle: "每月排班表",
         notifSeeManageHint: "如需发送一般公告，请使用主菜单中的「管理通知」。",
         manageNotifFromMgmtHint: "向员工发送一次性或模板通知，并查看已发送的记录，请前往「管理通知」。",
         navRecentlyDeleted: "最近删除",
@@ -3652,6 +3757,13 @@ function checkMyShift() {
         resultBox.innerHTML = '<p style="color:#dc2626; font-weight:600;">' + t('empIdNotFound') + '</p>';
         return;
     }
+    /* v6.47: this month's shifts stay hidden from the employee until Administration has sent
+       "Notify: Shift Calendar Ready" for that specific month, even if shifts already exist. */
+    const monthKey = date.slice(0, 7);
+    if (!shiftReadyMonths[monthKey]) {
+        resultBox.innerHTML = '<p style="color:#dc2626; font-weight:600;">' + t('shiftNotYetReadyMsg') + '</p>';
+        return;
+    }
     const s = shifts.find(x => x.empId === empId && x.date === date);
     if (!s) {
         resultBox.innerHTML = '<div class="dash-card" style="background:#f8fafc; text-align:left;">' +
@@ -3667,6 +3779,65 @@ function checkMyShift() {
         '<p style="margin:0 0 6px 0;"><b>' + emp.name + '</b> (' + emp.id + ') - ' + date + '</p>' +
         '<p style="margin:0 0 6px 0;">' + t('shiftType') + ': <b>' + s.type + '</b></p>' +
         '<p style="margin:0;">' + note + '</p></div>';
+}
+
+/* v6.47: 1st-31st calendar view of the logged-in employee's own shifts (their row only, from
+   the shared Monthly Shift Calendar data) - alongside the per-day check above. Same "Shift
+   Calendar Ready" gate: a month with no shiftReadyMonths entry shows a message instead of
+   whatever shifts already happen to be saved for it. */
+function renderEmpShiftCalendar() {
+    const table = document.getElementById('empShiftCalTable');
+    if (!table) return;
+    const monthInput = document.getElementById('empShiftCalMonth');
+    const monthVal = (monthInput && monthInput.value) || '';
+    const note = document.getElementById('empShiftCalNote');
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    thead.innerHTML = '';
+    tbody.innerHTML = '';
+    if (note) note.style.display = 'none';
+    if (!monthVal) return;
+
+    const empId = sessionStorage.getItem('empLoggedInId');
+    const emp = employees.find(e => e.id === empId);
+    if (!emp) return;
+
+    if (!shiftReadyMonths[monthVal]) {
+        if (note) {
+            note.style.display = 'block';
+            note.innerHTML = '<p style="color:#dc2626; font-weight:600; margin:0;">' + t('shiftNotYetReadyMsg') + '</p>';
+        }
+        return;
+    }
+
+    const parts = monthVal.split('-');
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const shiftByDate = {};
+    shifts.filter(s => s.empId === empId).forEach(s => { shiftByDate[s.date] = s; });
+
+    let headRow1 = '<tr>';
+    let headRow2 = '<tr>';
+    for (let d = 1; d <= daysInMonth; d++) {
+        const dow = new Date(year, month - 1, d).getDay();
+        const isSun = dow === 0;
+        headRow1 += '<th style="' + (isSun ? 'background:#cbd5e1;' : '') + '">' + d + '</th>';
+        headRow2 += '<th style="' + (isSun ? 'background:#cbd5e1;' : '') + ' font-weight:400; text-transform:none;">' + t('shiftDow' + WEEKDAY_ABBR[dow][0].toUpperCase() + WEEKDAY_ABBR[dow].slice(1)) + '</th>';
+    }
+    headRow1 += '</tr>';
+    headRow2 += '</tr>';
+    thead.innerHTML = headRow1 + headRow2;
+
+    let cells = '';
+    for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = year + '-' + String(month).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+        const dow = new Date(year, month - 1, d).getDay();
+        const s = shiftByDate[dateStr];
+        const label = s ? s.type : '';
+        cells += '<td style="padding:4px; text-align:center; font-weight:700;' + (dow === 0 ? ' background:#f1f5f9;' : '') + '">' + label + '</td>';
+    }
+    tbody.innerHTML = '<tr>' + cells + '</tr>';
 }
 
 
@@ -3698,6 +3869,12 @@ function checkMyShift() {
          if (nameField) nameField.value = found.name;
          renderEmpNotifBadge();
          renderMyRequests();
+         const empShiftCalMonthInput = document.getElementById('empShiftCalMonth');
+         if (empShiftCalMonthInput && !empShiftCalMonthInput.value) {
+             const now = new Date();
+             empShiftCalMonthInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+         }
+         renderEmpShiftCalendar();
      } else {
          sessionStorage.removeItem('empLoggedInId');
          showEmpLoginScreen();
@@ -4386,6 +4563,17 @@ function deleteAnnouncement(firebaseKey) {
      const data = snapshot.val();
      shifts = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
      renderShiftCalendarTable();
+     renderEmpShiftCalendar();
+ });
+
+ /* v6.47: which months' shift calendars have been announced as ready via "Notify: Shift
+    Calendar Ready" (keyed "YYYY-MM" -> true). Employee Check Shift (both the per-day lookup
+    and the 1st-31st calendar) refuses to show a month's shifts until its key appears here,
+    even if the admin already filled shifts in for that month on the Shift Calendar tab. */
+ let shiftReadyMonths = {};
+ db.ref('shiftReadyMonths').on('value', (snapshot) => {
+     shiftReadyMonths = snapshot.val() || {};
+     renderEmpShiftCalendar();
  });
 
  /* v5.00: Recently Deleted (soft-delete / Undo) */
@@ -6646,17 +6834,33 @@ function deleteSentNotif(firebaseKey) {
     }
 }
 
-function notifyShiftCalendarReady() {
-    const monthInput = document.getElementById('shiftCalMonth');
-    const monthVal = monthInput ? monthInput.value : '';
-    let monthLabel = monthVal || t('navShiftRoster');
-    if (monthVal) {
-        const parts = monthVal.split('-');
-        const localeMap = { zh: 'zh-CN', km: 'km-KH', en: 'en-US' };
-        try {
-            monthLabel = new Date(parts[0], parts[1] - 1, 1).toLocaleString(localeMap[currentLang] || 'en-US', { month: 'long', year: 'numeric' });
-        } catch (e) { monthLabel = monthVal; }
+/* v6.47: opened from Manage Notifications - the admin now picks the month right here instead
+   of this silently reusing whatever month happened to be left selected on the separate Shift
+   Calendar tab (which may be a different month, or never visited this session at all). */
+function openNotifyShiftReadyModal() {
+    closeAllMenus();
+    const monthInput = document.getElementById('notifyShiftReadyMonth');
+    if (monthInput && !monthInput.value) {
+        const now = new Date();
+        monthInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
     }
+    document.getElementById('notifyShiftReadyModal').style.display = 'flex';
+}
+
+function closeNotifyShiftReadyModal() {
+    document.getElementById('notifyShiftReadyModal').style.display = 'none';
+}
+
+function notifyShiftCalendarReady() {
+    const monthInput = document.getElementById('notifyShiftReadyMonth');
+    const monthVal = monthInput ? monthInput.value : '';
+    if (!monthVal) { showToast(false, t('shiftMonthRequiredMsg')); return; }
+    let monthLabel = monthVal;
+    const parts = monthVal.split('-');
+    const localeMap = { zh: 'zh-CN', km: 'km-KH', en: 'en-US' };
+    try {
+        monthLabel = new Date(parts[0], parts[1] - 1, 1).toLocaleString(localeMap[currentLang] || 'en-US', { month: 'long', year: 'numeric' });
+    } catch (e) { monthLabel = monthVal; }
     const description = fillTemplate(t('notifShiftCalendarReadyMsg'), { month: monthLabel });
     if (!confirm(t('confirmSendToAll') + '\n\n' + description)) return;
     db.ref('notifications').push({
@@ -6665,7 +6869,67 @@ function notifyShiftCalendarReady() {
         description: description,
         relatedRequestKey: null,
         timestamp: Date.now()
-    }).then(() => showToast(true)).catch(() => showToast(false));
+    }).then(() => {
+        /* v6.47: this is the flag Employee Check Shift actually gates on - unlocks this exact
+           month for every employee, independent of whatever shifts are or aren't filled in. */
+        return db.ref('shiftReadyMonths/' + monthVal).set(true);
+    }).then(() => {
+        showToast(true);
+        closeNotifyShiftReadyModal();
+    }).catch(() => showToast(false));
+}
+
+/* v6.47: NOTIFY - EMPLOYEE CARD READY. Auto-links Employee ID <-> Name the same way Leave
+   Records does, then sends a single templated notification to that one employee. */
+function onCardReadyEmpIdInput() {
+    const idVal = document.getElementById('cardReadyEmpId').value.trim();
+    const found = employees.find(e => e.id === idVal);
+    document.getElementById('cardReadyEmpName').value = found ? found.name : '';
+}
+
+function onCardReadyEmpNameInput() {
+    const nameVal = document.getElementById('cardReadyEmpName').value.trim().toLowerCase();
+    if (!nameVal) { document.getElementById('cardReadyEmpId').value = ''; return; }
+    const found = employees.find(e => (e.name || '').toLowerCase() === nameVal);
+    if (found) document.getElementById('cardReadyEmpId').value = found.id;
+}
+
+function openCardReadyNotifModal() {
+    closeAllMenus();
+    document.getElementById('cardReadyEmpId').value = '';
+    document.getElementById('cardReadyEmpName').value = '';
+    document.getElementById('cardReadyCardNumber').value = '';
+    document.getElementById('cardReadyLocation').value = '';
+    document.getElementById('cardReadyNotifModal').style.display = 'flex';
+}
+
+function closeCardReadyNotifModal() {
+    document.getElementById('cardReadyNotifModal').style.display = 'none';
+}
+
+function notifyCardReady() {
+    const id = document.getElementById('cardReadyEmpId').value.trim();
+    const cardNumber = document.getElementById('cardReadyCardNumber').value.trim();
+    const location = document.getElementById('cardReadyLocation').value.trim();
+    const emp = employees.find(e => e.id === id);
+    if (!emp) { showToast(false, t('empIdNotFound')); return; }
+    if (!cardNumber || !location) { showToast(false, t('cardReadyFieldsRequiredMsg')); return; }
+
+    const title = fillTemplate(t('notifCardReadyTitle'), { id: id });
+    const description = fillTemplate(t('notifCardReadyMsg'), { name: emp.name, location: location });
+    if (!confirm(title + '\n\n' + description.replace(/<br\s*\/?>/gi, '\n'))) return;
+
+    db.ref('notifications').push({
+        targetId: id,
+        message: title,
+        description: description,
+        cardNumber: cardNumber,
+        relatedRequestKey: null,
+        timestamp: Date.now()
+    }).then(() => {
+        showToast(true);
+        closeCardReadyNotifModal();
+    }).catch(() => showToast(false));
 }
 
 
