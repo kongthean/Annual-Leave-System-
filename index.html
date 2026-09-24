@@ -378,7 +378,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.43</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.44</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -741,6 +741,7 @@
  <button id="nav-shift" onclick="switchTab('tab-shift', this)" data-i18n="navShiftRoster" style="display:none;">Shift Roster</button>
  <button id="nav-dept" onclick="switchTab('tab-dept', this)" data-i18n="navDepartments" style="display:none;">Departments</button>
 <button id="nav-makeup" onclick="switchTab('tab-makeup', this)" data-i18n="navMakeup" style="display:none;">Makeup Attendance Record</button>
+<button id="nav-attcal" onclick="switchTab('tab-attcal', this)" data-i18n="navAttCal" style="display:none;">Leave &amp; Attendance Calendar</button>
  
  <!-- TAB 1: DASHBOARD -->
  <div id="tab-home" class="tab-panel active">
@@ -809,6 +810,9 @@
          </button>
         <button class="quick-btn" style="background:linear-gradient(135deg,#ea580c,#c2410c);" onclick="triggerNav('tab-makeup', 'nav-makeup')">
             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M8 15l2 2 4-4"/></svg></span><span class="quick-btn-label" data-i18n="navMakeup">Makeup Attendance Record</span>
+        </button>
+        <button class="quick-btn" style="background:linear-gradient(135deg,#0f766e,#134e4a);" onclick="triggerNav('tab-attcal', 'nav-attcal')">
+            <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><rect x="7" y="13" width="4" height="4"/></svg></span><span class="quick-btn-label" data-i18n="navAttCal">Leave &amp; Attendance Calendar</span>
         </button>
          <button class="quick-btn purple admin-only" onclick="triggerNav('tab-dept', 'nav-dept')">
              <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01"/><path d="M15 10h.01"/></svg></span><span class="quick-btn-label" data-i18n="navDepartments">Departments</span>
@@ -1460,8 +1464,52 @@
     </div>
 </div>
 
+<!-- LEAVE & ATTENDANCE CALENDAR (v6.44) - a single grid, employee rows x day-of-month columns,
+     like the Monthly Shift Calendar. A toggle switches the same grid between two data sources:
+     Leave Calendar (reads the dated leaveHistory log, v6.29+) and Attendance Calendar (reads the
+     new dated attendanceHistory log, v6.44+, started fresh from this update - workHours/otHours
+     entered before this update have no date on record so cannot appear here). -->
+<div id="tab-attcal" class="tab-panel">
+    <h3 data-i18n="attCalTitle">Leave &amp; Attendance Calendar</h3>
+    <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="attCalSub">Pick Leave Calendar or Attendance Calendar, choose a month, and search by Employee ID or Name.</p>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+        <button type="button" id="attCalModeLeaveBtn" class="quick-btn purple" style="width:auto; min-width:160px; min-height:auto; padding:10px 18px; flex-direction:row; gap:8px;" onclick="setAttCalMode('leave')">
+            <span class="quick-btn-label" data-i18n="attCalModeLeave">Leave Calendar</span>
+        </button>
+        <button type="button" id="attCalModeAttBtn" class="quick-btn" style="width:auto; min-width:160px; min-height:auto; padding:10px 18px; flex-direction:row; gap:8px; background:#e2e8f0; color:#334155;" onclick="setAttCalMode('attendance')">
+            <span class="quick-btn-label" data-i18n="attCalModeAtt">Attendance Calendar</span>
+        </button>
+    </div>
+
+    <div class="dash-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div>
+                <h4 id="attCalGridTitle" data-i18n="attCalModeLeave">Leave Calendar</h4>
+                <p id="attCalLegend" style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="attCalLegendLeave">Green = other leave types. Red = Personal Leave.</p>
+            </div>
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px;">
+            <div class="form-group" style="margin-bottom:0; min-width:160px;">
+                <label data-i18n="shiftCalMonthLabel">Month</label>
+                <input type="month" id="attCalMonth" onchange="renderAttCalTable()">
+            </div>
+            <div class="form-group" style="margin-bottom:0; min-width:200px; flex:1;">
+                <label data-i18n="lblSearch">Search Employee:</label>
+                <input type="text" id="attCalSearchInput" onkeyup="renderAttCalTable()" placeholder="Enter ID or Name...">
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="master-tbl tbl-wide" id="attCalTable">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.43
+     HR & Administration System Version 6.44
  </div>
 </div>
 
@@ -2379,6 +2427,13 @@
         navMakeup: "Makeup Attendance Record",
         makeupTitle: "Makeup Attendance Record",
         makeupSub: "Record makeup punches for employees who forgot to check in/out, lost their card, or need another correction.",
+        navAttCal: "Leave & Attendance Calendar",
+        attCalTitle: "Leave & Attendance Calendar",
+        attCalSub: "Pick Leave Calendar or Attendance Calendar, choose a month, and search by Employee ID or Name.",
+        attCalModeLeave: "Leave Calendar",
+        attCalModeAtt: "Attendance Calendar",
+        attCalLegendLeave: "Green = other leave types. Red = Personal Leave.",
+        attCalLegendAtt: "Green = working hours. Red = overtime hours.",
         lblMakeupTimeFrom: "Time From",
         lblMakeupTimeTo: "Time To",
         lblMakeupReason: "Reason",
@@ -2802,6 +2857,13 @@
         navMakeup: "កំណត់ត្រាចុះកាតបំពេញបន្ថែម",
         makeupTitle: "កំណត់ត្រាចុះកាតបំពេញបន្ថែម",
         makeupSub: "កត់ត្រាការចុះកាតបំពេញបន្ថែម សម្រាប់បុគ្គលិកដែលភ្លេចចុះម៉ោងចូល/ចេញ បាត់កាត ឬត្រូវការកែតម្រូវផ្សេងទៀត។",
+        navAttCal: "ប្រតិទិនច្បាប់ និងវត្តមាន",
+        attCalTitle: "ប្រតិទិនច្បាប់ និងវត្តមាន",
+        attCalSub: "ជ្រើសរើសប្រតិទិនច្បាប់ ឬប្រតិទិនវត្តមាន ជ្រើសខែ ហើយស្វែងរកតាមលេខសម្គាល់ ឬឈ្មោះបុគ្គលិក។",
+        attCalModeLeave: "ប្រតិទិនច្បាប់",
+        attCalModeAtt: "ប្រតិទិនវត្តមាន",
+        attCalLegendLeave: "បៃតង = ប្រភេទច្បាប់ផ្សេងទៀត។ ក្រហម = ច្បាប់ផ្ទាល់ខ្លួន។",
+        attCalLegendAtt: "បៃតង = ម៉ោងធ្វើការ។ ក្រហម = ម៉ោងបន្ថែម។",
         lblMakeupTimeFrom: "ម៉ោងចាប់ផ្តើម",
         lblMakeupTimeTo: "ម៉ោងបញ្ចប់",
         lblMakeupReason: "មូលហេតុ",
@@ -3218,6 +3280,13 @@
         navMakeup: "补卡记录",
         makeupTitle: "补卡记录",
         makeupSub: "记录员工忘记打卡、丢失卡片或需要其他更正时的补卡情况。",
+        navAttCal: "请假与考勤日历",
+        attCalTitle: "请假与考勤日历",
+        attCalSub: "选择请假日历或考勤日历，选择月份，并按员工编号或姓名搜索。",
+        attCalModeLeave: "请假日历",
+        attCalModeAtt: "考勤日历",
+        attCalLegendLeave: "绿色 = 其他请假类型。红色 = 个人假。",
+        attCalLegendAtt: "绿色 = 工作时数。红色 = 加班时数。",
         lblMakeupTimeFrom: "开始时间",
         lblMakeupTimeTo: "结束时间",
         lblMakeupReason: "原因",
@@ -4273,6 +4342,8 @@ function deleteAnnouncement(firebaseKey) {
      const now = new Date();
      const monthInput = document.getElementById('shiftCalMonth');
      if (monthInput) monthInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+     const attCalMonthInput = document.getElementById('attCalMonth');
+     if (attCalMonthInput) attCalMonthInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
  })();
 
  function switchTab(tabId, btn) {
@@ -4294,6 +4365,7 @@ function deleteAnnouncement(firebaseKey) {
      if(tabId === 'tab-add') document.getElementById('newId').focus();
      if(tabId === 'tab-shift') { renderShiftCalendarTable(); }
      if(tabId === 'tab-dept') renderDeptTable();
+     if(tabId === 'tab-attcal') { renderAttCalTable(); }
  }
  
  function triggerNav(tabId, navBtnId) {
@@ -5135,6 +5207,154 @@ function filterMakeupTable() {
      XLSX.writeFile(workbook, `Shift_Calendar_${monthVal}.xlsx`);
  }
 
+ /* ================= v6.44: LEAVE & ATTENDANCE CALENDAR =================
+    One grid (employee rows x day-of-month columns, same shape as the Monthly Shift Calendar)
+    that switches between two read-only data sources via setAttCalMode():
+      - "leave": sums leaveHistory entries per employee per day. A day with any Personal Leave
+        hours logged shows red; any other leave type shows green (per business rule, an employee
+        only ever has one or the other on a given day, never both).
+      - "attendance": sums attendanceHistory entries per employee per day, showing "work/OT"
+        with the working-hours number in green and the OT number in red.
+    Both sources are dated logs only from the version that introduced them (leaveHistory: v6.29,
+    attendanceHistory: v6.44) - entries from before that were never recorded with a date, so they
+    cannot appear here. This does not touch or change any of the existing monthly totals. */
+ let attCalMode = 'leave';
+
+ function setAttCalMode(mode) {
+     attCalMode = mode;
+     const leaveBtn = document.getElementById('attCalModeLeaveBtn');
+     const attBtn = document.getElementById('attCalModeAttBtn');
+     const titleEl = document.getElementById('attCalGridTitle');
+     const legendEl = document.getElementById('attCalLegend');
+     if (mode === 'leave') {
+         leaveBtn.className = 'quick-btn purple';
+         leaveBtn.style.background = '';
+         leaveBtn.style.color = '';
+         attBtn.className = 'quick-btn';
+         attBtn.style.background = '#e2e8f0';
+         attBtn.style.color = '#334155';
+         titleEl.setAttribute('data-i18n', 'attCalModeLeave');
+         titleEl.innerText = t('attCalModeLeave');
+         legendEl.setAttribute('data-i18n', 'attCalLegendLeave');
+         legendEl.innerText = t('attCalLegendLeave');
+     } else {
+         attBtn.className = 'quick-btn purple';
+         attBtn.style.background = '';
+         attBtn.style.color = '';
+         leaveBtn.className = 'quick-btn';
+         leaveBtn.style.background = '#e2e8f0';
+         leaveBtn.style.color = '#334155';
+         titleEl.setAttribute('data-i18n', 'attCalModeAtt');
+         titleEl.innerText = t('attCalModeAtt');
+         legendEl.setAttribute('data-i18n', 'attCalLegendAtt');
+         legendEl.innerText = t('attCalLegendAtt');
+     }
+     renderAttCalTable();
+ }
+
+ /* Trims trailing zeros so whole numbers show as "8" instead of "8.00", but keeps decimals
+    like "4.5" when they matter. */
+ function formatCalHours(n) {
+     const rounded = Math.round(n * 100) / 100;
+     return rounded % 1 === 0 ? String(rounded) : String(rounded);
+ }
+
+ function renderAttCalTable() {
+     const table = document.getElementById('attCalTable');
+     if (!table) return;
+     const monthInput = document.getElementById('attCalMonth');
+     const monthVal = (monthInput && monthInput.value) || '';
+     if (!monthVal) return;
+     const parts = monthVal.split('-');
+     const year = parseInt(parts[0], 10);
+     const month = parseInt(parts[1], 10);
+     const daysInMonth = new Date(year, month, 0).getDate();
+
+     const searchTerm = (document.getElementById('attCalSearchInput') ? document.getElementById('attCalSearchInput').value : '').toLowerCase();
+     const rows = employees
+         .filter(e => !searchTerm || (e.id || '').toLowerCase().includes(searchTerm) || (e.name || '').toLowerCase().includes(searchTerm))
+         .slice()
+         .sort((a, b) => (a.id || '').localeCompare(b.id || '', undefined, { numeric: true }));
+
+     const thead = table.querySelector('thead');
+     const tbody = table.querySelector('tbody');
+
+     let headRow1 = '<tr><th rowspan="2" data-i18n="tblId">ID</th><th rowspan="2" data-i18n="tblName">Name</th>';
+     let headRow2 = '<tr>';
+     for (let d = 1; d <= daysInMonth; d++) {
+         const dow = new Date(year, month - 1, d).getDay();
+         const isSun = dow === 0;
+         headRow1 += '<th style="' + (isSun ? 'background:#cbd5e1;' : '') + '">' + d + '</th>';
+         headRow2 += '<th style="' + (isSun ? 'background:#cbd5e1;' : '') + ' font-weight:400; text-transform:none;">' + t('shiftDow' + WEEKDAY_ABBR[dow][0].toUpperCase() + WEEKDAY_ABBR[dow].slice(1)) + '</th>';
+     }
+     headRow1 += '</tr>';
+     headRow2 += '</tr>';
+     thead.innerHTML = headRow1 + headRow2;
+
+     if (rows.length === 0) {
+         tbody.innerHTML = '<tr><td colspan="' + (daysInMonth + 2) + '" style="text-align:center; color:#94a3b8;">-</td></tr>';
+         return;
+     }
+
+     if (attCalMode === 'leave') {
+         /* index leaveHistory entries by "empId|date", keeping every entry for that key since
+            more than one leave submission can land on the same day */
+         const entriesByKey = {};
+         leaveHistory.forEach(h => {
+             const key = (h.empId || '') + '|' + (h.date || '');
+             if (!entriesByKey[key]) entriesByKey[key] = [];
+             entriesByKey[key].push(h);
+         });
+
+         tbody.innerHTML = rows.map(emp => {
+             let cells = '<td><b>' + emp.id + '</b></td><td style="text-align:left; white-space:nowrap;">' + emp.name + '</td>';
+             for (let d = 1; d <= daysInMonth; d++) {
+                 const dateStr = year + '-' + String(month).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+                 const dow = new Date(year, month - 1, d).getDay();
+                 const dayEntries = entriesByKey[emp.id + '|' + dateStr] || [];
+                 const total = dayEntries.reduce((sum, h) => sum + (h.hours || 0), 0);
+                 const isPersonal = dayEntries.some(h => h.leaveType === 'thMasterPersonalLeave');
+                 let cellStyle = 'padding:2px; text-align:center;' + (dow === 0 ? ' background:#f1f5f9;' : '');
+                 let content = '';
+                 if (total > 0) {
+                     const bg = isPersonal ? '#fee2e2' : '#dcfce7';
+                     const fg = isPersonal ? '#dc2626' : '#15803d';
+                     content = '<div style="background:' + bg + '; color:' + fg + '; font-weight:700; border-radius:4px; padding:4px 2px;">' + formatCalHours(total) + '</div>';
+                 }
+                 cells += '<td style="' + cellStyle + '">' + content + '</td>';
+             }
+             return '<tr>' + cells + '</tr>';
+         }).join('');
+     } else {
+         /* attendance mode: index attendanceHistory entries by "empId|date" and sum, in case a
+            department batch was submitted more than once for the same employee/date */
+         const sumsByKey = {};
+         attendanceHistory.forEach(h => {
+             const key = (h.empId || '') + '|' + (h.date || '');
+             if (!sumsByKey[key]) sumsByKey[key] = { work: 0, ot: 0 };
+             sumsByKey[key].work += (h.workHours || 0);
+             sumsByKey[key].ot += (h.otHours || 0);
+         });
+
+         tbody.innerHTML = rows.map(emp => {
+             let cells = '<td><b>' + emp.id + '</b></td><td style="text-align:left; white-space:nowrap;">' + emp.name + '</td>';
+             for (let d = 1; d <= daysInMonth; d++) {
+                 const dateStr = year + '-' + String(month).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+                 const dow = new Date(year, month - 1, d).getDay();
+                 const sums = sumsByKey[emp.id + '|' + dateStr];
+                 let cellStyle = 'padding:2px; text-align:center; font-weight:700;' + (dow === 0 ? ' background:#f1f5f9;' : '');
+                 let content = '';
+                 if (sums && (sums.work > 0 || sums.ot > 0)) {
+                     content = '<span style="color:#15803d;">' + formatCalHours(sums.work) + '</span>' +
+                         (sums.ot > 0 ? '<span style="color:#94a3b8;">/</span><span style="color:#dc2626;">' + formatCalHours(sums.ot) + '</span>' : '');
+                 }
+                 cells += '<td style="' + cellStyle + '">' + content + '</td>';
+             }
+             return '<tr>' + cells + '</tr>';
+         }).join('');
+     }
+ }
+
  /* ================= v5.00: DASHBOARD CHARTS (plain inline SVG, no external library) ================= */
  function renderDashboardCharts() {
      renderStatusChart();
@@ -5750,6 +5970,16 @@ db.ref('leaveHistory').on('value', (snapshot) => {
     leaveHistory = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
 });
 
+/* v6.44: attendanceHistory log - a dated record of each attendance-by-department batch entry,
+   used only by the Leave & Attendance Calendar's Attendance Calendar view. Started fresh from
+   this update; workHours/otHours entered before v6.44 were never logged with a date, so they
+   cannot appear on the calendar (same limitation leaveHistory has for pre-v6.29 leave). */
+let attendanceHistory = [];
+db.ref('attendanceHistory').on('value', (snapshot) => {
+    const data = snapshot.val();
+    attendanceHistory = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+});
+
 function fillTemplate(str, vars) {
     return (str || '').replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? vars[k] : m));
 }
@@ -5803,6 +6033,7 @@ function fillTemplate(str, vars) {
      });
 
      const updates = {};
+     const historyEntries = []; /* v6.44: dated log for the Attendance Calendar, one row per employee in this batch */
      let countUpdated = 0;
      Object.keys(byEmp).forEach(key => {
          const entry = byEmp[key];
@@ -5811,6 +6042,7 @@ function fillTemplate(str, vars) {
          if (!emp) return;
          updates['employees/' + key + '/workHours'] = (emp.workHours || 0) + entry.work;
          updates['employees/' + key + '/otHours'] = (emp.otHours || 0) + entry.ot;
+         historyEntries.push({ empId: emp.id, empName: emp.name, workHours: entry.work, otHours: entry.ot, date: date, timestamp: Date.now() });
          countUpdated++;
      });
 
@@ -5818,6 +6050,7 @@ function fillTemplate(str, vars) {
 
      db.ref().update(updates).then(() => {
          showToast(true);
+         historyEntries.forEach(function(h) { db.ref('attendanceHistory').push(h); });
          loadAttendanceDeptTable(); /* refresh the boxes back to blank so the same batch can't be added twice by accident */
      }).catch(() => showToast(false));
  }
