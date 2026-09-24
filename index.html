@@ -378,7 +378,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.44</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.45</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1499,6 +1499,7 @@
                 <input type="text" id="attCalSearchInput" onkeyup="renderAttCalTable()" placeholder="Enter ID or Name...">
             </div>
         </div>
+        <div id="attCalDescription" style="display:none; background:#f0f9ff; border:1px solid #bae6fd; border-radius:6px; padding:10px 14px; margin-bottom:12px; font-size:13px; color:#0c4a6e;"></div>
         <div class="table-responsive">
             <table class="master-tbl tbl-wide" id="attCalTable">
                 <thead></thead>
@@ -1509,7 +1510,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.44
+     HR & Administration System Version 6.45
  </div>
 </div>
 
@@ -2434,6 +2435,12 @@
         attCalModeAtt: "Attendance Calendar",
         attCalLegendLeave: "Green = other leave types. Red = Personal Leave.",
         attCalLegendAtt: "Green = working hours. Red = overtime hours.",
+        attColTotalAnnual: "Total Annual Leave",
+        attColTotalPersonal: "Total Personal Leave",
+        attColTotalWork: "Total Working Hours",
+        attColTotalOT: "Total OT Hours",
+        attCalDescLeave: "{name} ({id}) — {month}: Total Annual Leave {annual} hrs, Total Personal Leave {personal} hrs.",
+        attCalDescAtt: "{name} ({id}) — {month}: Total Working Hours {work} hrs, Total OT Hours {ot} hrs.",
         lblMakeupTimeFrom: "Time From",
         lblMakeupTimeTo: "Time To",
         lblMakeupReason: "Reason",
@@ -2864,6 +2871,12 @@
         attCalModeAtt: "ប្រតិទិនវត្តមាន",
         attCalLegendLeave: "បៃតង = ប្រភេទច្បាប់ផ្សេងទៀត។ ក្រហម = ច្បាប់ផ្ទាល់ខ្លួន។",
         attCalLegendAtt: "បៃតង = ម៉ោងធ្វើការ។ ក្រហម = ម៉ោងបន្ថែម។",
+        attColTotalAnnual: "សរុបច្បាប់បំណាច់ឆ្នាំ",
+        attColTotalPersonal: "សរុបច្បាប់ផ្ទាល់ខ្លួន",
+        attColTotalWork: "សរុបម៉ោងធ្វើការ",
+        attColTotalOT: "សរុបម៉ោងបន្ថែម",
+        attCalDescLeave: "{name} ({id}) — {month}៖ សរុបច្បាប់បំណាច់ឆ្នាំ {annual} ម៉ោង, សរុបច្បាប់ផ្ទាល់ខ្លួន {personal} ម៉ោង។",
+        attCalDescAtt: "{name} ({id}) — {month}៖ សរុបម៉ោងធ្វើការ {work} ម៉ោង, សរុបម៉ោងបន្ថែម {ot} ម៉ោង។",
         lblMakeupTimeFrom: "ម៉ោងចាប់ផ្តើម",
         lblMakeupTimeTo: "ម៉ោងបញ្ចប់",
         lblMakeupReason: "មូលហេតុ",
@@ -3287,6 +3300,12 @@
         attCalModeAtt: "考勤日历",
         attCalLegendLeave: "绿色 = 其他请假类型。红色 = 个人假。",
         attCalLegendAtt: "绿色 = 工作时数。红色 = 加班时数。",
+        attColTotalAnnual: "年假总数",
+        attColTotalPersonal: "个人假总数",
+        attColTotalWork: "工作时数总计",
+        attColTotalOT: "加班时数总计",
+        attCalDescLeave: "{name}（{id}）— {month}：年假总数 {annual} 小时，个人假总数 {personal} 小时。",
+        attCalDescAtt: "{name}（{id}）— {month}：工作时数总计 {work} 小时，加班时数总计 {ot} 小时。",
         lblMakeupTimeFrom: "开始时间",
         lblMakeupTimeTo: "结束时间",
         lblMakeupReason: "原因",
@@ -5269,6 +5288,7 @@ function filterMakeupTable() {
      const year = parseInt(parts[0], 10);
      const month = parseInt(parts[1], 10);
      const daysInMonth = new Date(year, month, 0).getDate();
+     const monthPrefix = year + '-' + String(month).padStart(2, '0');
 
      const searchTerm = (document.getElementById('attCalSearchInput') ? document.getElementById('attCalSearchInput').value : '').toLowerCase();
      const rows = employees
@@ -5278,6 +5298,11 @@ function filterMakeupTable() {
 
      const thead = table.querySelector('thead');
      const tbody = table.querySelector('tbody');
+     const descBox = document.getElementById('attCalDescription');
+
+     const totalHeaderCells = attCalMode === 'leave'
+         ? '<th rowspan="2" style="background:#dcfce7; color:#15803d;" data-i18n="attColTotalAnnual">Total Annual Leave</th><th rowspan="2" style="background:#fee2e2; color:#dc2626;" data-i18n="attColTotalPersonal">Total Personal Leave</th>'
+         : '<th rowspan="2" style="background:#dcfce7; color:#15803d;" data-i18n="attColTotalWork">Total Working Hours</th><th rowspan="2" style="background:#fee2e2; color:#dc2626;" data-i18n="attColTotalOT">Total OT Hours</th>';
 
      let headRow1 = '<tr><th rowspan="2" data-i18n="tblId">ID</th><th rowspan="2" data-i18n="tblName">Name</th>';
      let headRow2 = '<tr>';
@@ -5287,12 +5312,13 @@ function filterMakeupTable() {
          headRow1 += '<th style="' + (isSun ? 'background:#cbd5e1;' : '') + '">' + d + '</th>';
          headRow2 += '<th style="' + (isSun ? 'background:#cbd5e1;' : '') + ' font-weight:400; text-transform:none;">' + t('shiftDow' + WEEKDAY_ABBR[dow][0].toUpperCase() + WEEKDAY_ABBR[dow].slice(1)) + '</th>';
      }
-     headRow1 += '</tr>';
+     headRow1 += totalHeaderCells + '</tr>';
      headRow2 += '</tr>';
      thead.innerHTML = headRow1 + headRow2;
 
      if (rows.length === 0) {
-         tbody.innerHTML = '<tr><td colspan="' + (daysInMonth + 2) + '" style="text-align:center; color:#94a3b8;">-</td></tr>';
+         tbody.innerHTML = '<tr><td colspan="' + (daysInMonth + 4) + '" style="text-align:center; color:#94a3b8;">-</td></tr>';
+         descBox.style.display = 'none';
          return;
      }
 
@@ -5306,14 +5332,18 @@ function filterMakeupTable() {
              entriesByKey[key].push(h);
          });
 
+         const totalsByEmp = {};
+
          tbody.innerHTML = rows.map(emp => {
              let cells = '<td><b>' + emp.id + '</b></td><td style="text-align:left; white-space:nowrap;">' + emp.name + '</td>';
+             let totalAnnual = 0, totalPersonal = 0;
              for (let d = 1; d <= daysInMonth; d++) {
-                 const dateStr = year + '-' + String(month).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+                 const dateStr = monthPrefix + '-' + String(d).padStart(2, '0');
                  const dow = new Date(year, month - 1, d).getDay();
                  const dayEntries = entriesByKey[emp.id + '|' + dateStr] || [];
                  const total = dayEntries.reduce((sum, h) => sum + (h.hours || 0), 0);
                  const isPersonal = dayEntries.some(h => h.leaveType === 'thMasterPersonalLeave');
+                 if (isPersonal) totalPersonal += total; else totalAnnual += total;
                  let cellStyle = 'padding:2px; text-align:center;' + (dow === 0 ? ' background:#f1f5f9;' : '');
                  let content = '';
                  if (total > 0) {
@@ -5323,8 +5353,20 @@ function filterMakeupTable() {
                  }
                  cells += '<td style="' + cellStyle + '">' + content + '</td>';
              }
+             totalsByEmp[emp.id] = { totalAnnual, totalPersonal };
+             cells += '<td style="text-align:center; font-weight:700; color:#15803d; background:#f0fdf4;">' + formatCalHours(totalAnnual) + '</td>';
+             cells += '<td style="text-align:center; font-weight:700; color:#dc2626; background:#fef2f2;">' + formatCalHours(totalPersonal) + '</td>';
              return '<tr>' + cells + '</tr>';
          }).join('');
+
+         if (rows.length === 1) {
+             const emp = rows[0];
+             const tot = totalsByEmp[emp.id];
+             descBox.innerHTML = fillTemplate(t('attCalDescLeave'), { name: emp.name, id: emp.id, month: monthVal, annual: formatCalHours(tot.totalAnnual), personal: formatCalHours(tot.totalPersonal) });
+             descBox.style.display = 'block';
+         } else {
+             descBox.style.display = 'none';
+         }
      } else {
          /* attendance mode: index attendanceHistory entries by "empId|date" and sum, in case a
             department batch was submitted more than once for the same employee/date */
@@ -5336,12 +5378,16 @@ function filterMakeupTable() {
              sumsByKey[key].ot += (h.otHours || 0);
          });
 
+         const totalsByEmp = {};
+
          tbody.innerHTML = rows.map(emp => {
              let cells = '<td><b>' + emp.id + '</b></td><td style="text-align:left; white-space:nowrap;">' + emp.name + '</td>';
+             let totalWork = 0, totalOT = 0;
              for (let d = 1; d <= daysInMonth; d++) {
-                 const dateStr = year + '-' + String(month).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+                 const dateStr = monthPrefix + '-' + String(d).padStart(2, '0');
                  const dow = new Date(year, month - 1, d).getDay();
                  const sums = sumsByKey[emp.id + '|' + dateStr];
+                 if (sums) { totalWork += sums.work; totalOT += sums.ot; }
                  let cellStyle = 'padding:2px; text-align:center; font-weight:700;' + (dow === 0 ? ' background:#f1f5f9;' : '');
                  let content = '';
                  if (sums && (sums.work > 0 || sums.ot > 0)) {
@@ -5350,8 +5396,20 @@ function filterMakeupTable() {
                  }
                  cells += '<td style="' + cellStyle + '">' + content + '</td>';
              }
+             totalsByEmp[emp.id] = { totalWork, totalOT };
+             cells += '<td style="text-align:center; font-weight:700; color:#15803d; background:#f0fdf4;">' + formatCalHours(totalWork) + '</td>';
+             cells += '<td style="text-align:center; font-weight:700; color:#dc2626; background:#fef2f2;">' + formatCalHours(totalOT) + '</td>';
              return '<tr>' + cells + '</tr>';
          }).join('');
+
+         if (rows.length === 1) {
+             const emp = rows[0];
+             const tot = totalsByEmp[emp.id];
+             descBox.innerHTML = fillTemplate(t('attCalDescAtt'), { name: emp.name, id: emp.id, month: monthVal, work: formatCalHours(tot.totalWork), ot: formatCalHours(tot.totalOT) });
+             descBox.style.display = 'block';
+         } else {
+             descBox.style.display = 'none';
+         }
      }
  }
 
