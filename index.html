@@ -310,6 +310,14 @@
  
      /* Large Edit / View Modal Popup */
      .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); align-items: center; justify-content: center; }
+     /* v6.48: composeModal ("New Announcement" / "Respond") can be opened WHILE another modal
+        (Manage Notifications, or the Requests bell) is still open behind it. All .modal elements
+        share the same z-index, so two open at once stack purely by HTML order on the page -
+        and composeModal's markup sits earlier in the file than Manage Notifications', so it was
+        rendering UNDERNEATH it (looked like nothing happened until Manage Notifications was
+        closed). Giving it a higher z-index makes it always appear on top, regardless of where
+        either modal's HTML happens to sit. */
+     #composeModal { z-index: 110; }
      .modal-content { background: white; padding: 24px; border-radius: 8px; width: 100%; max-width: 900px; max-height: 95vh; overflow-y: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
      .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
      .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; }
@@ -378,7 +386,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.47</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.48</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1546,7 +1554,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.47
+     HR & Administration System Version 6.48
  </div>
 </div>
 
