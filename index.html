@@ -386,7 +386,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.48</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.49</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1554,7 +1554,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.48
+     HR & Administration System Version 6.49
  </div>
 </div>
 
@@ -2284,8 +2284,29 @@
      } catch (e) { /* storage unavailable */ }
      /* Restore whichever screen the person was on before a refresh, instead of
         always bouncing back to the Chooser. sessionStorage survives a refresh
-        in the same tab, so we use it to pick up right where they left off. */
-     if (sessionStorage.getItem('isLoggedIn') === 'true') {
+        in the same tab, so we use it to pick up right where they left off.
+        v6.49: this now reads activeView - the screen actually on view - rather than just
+        picking whichever login flag happens to be set. Administration/HR and Employee logins
+        can both be active at once in the same tab (e.g. "Switch to Administration System" or
+        "Return to Choose System" from the Employee System's power menu do not log the
+        employee out), and the old code always favored isLoggedIn (Administration/HR) first -
+        so refreshing while actually looking at the Employee System could silently bounce back
+        to Administration. activeView is set every time showAdminView()/showEmployeeView()/
+        showChooserView() runs, so it always reflects the screen last actually shown. The old
+        priority order is kept as a fallback for a session that predates this fix (no activeView
+        saved yet) so nobody gets stuck with neither branch matching. */
+     const activeView = sessionStorage.getItem('activeView');
+     if (activeView === 'admin' && sessionStorage.getItem('isLoggedIn') === 'true') {
+         showAdminView();
+         recordDeviceSession(sessionStorage.getItem('loggedInRole'), sessionStorage.getItem('loggedInAccountName'));
+     } else if (activeView === 'employee') {
+         showEmployeeView();
+         if (sessionStorage.getItem('empLoggedInId')) {
+             recordDeviceSession('employee', sessionStorage.getItem('empLoggedInId'));
+         }
+     } else if (activeView === 'chooser') {
+         showChooserView();
+     } else if (sessionStorage.getItem('isLoggedIn') === 'true') {
          showAdminView();
          recordDeviceSession(sessionStorage.getItem('loggedInRole'), sessionStorage.getItem('loggedInAccountName'));
      } else if (sessionStorage.getItem('empLoggedInId')) {
@@ -3725,6 +3746,10 @@
      document.getElementById('employeeApp').style.display = 'none';
      document.getElementById('adminApp').style.display = 'none';
      document.getElementById('chooserApp').style.display = 'flex';
+     /* v6.49: remember that the Chooser is the screen actually on view, so a refresh from
+        here stays on the Chooser instead of being redirected by a leftover login flag - see
+        the DOMContentLoaded restore logic and the comment on activeView below. */
+     sessionStorage.setItem('activeView', 'chooser');
      closeAllMenus();
      applySystemLockState();
  }
@@ -3733,6 +3758,11 @@
      document.getElementById('chooserApp').style.display = 'none';
      document.getElementById('adminApp').style.display = 'none';
      document.getElementById('employeeApp').style.display = 'block';
+     /* v6.49: see showChooserView() above - this is what makes a refresh stay on the
+        Employee System even when an Administration/HR session is also still active in the
+        same browser tab (e.g. after using "Switch to Administration System" earlier and
+        then coming back here without fully logging out of either side). */
+     sessionStorage.setItem('activeView', 'employee');
      closeAllMenus();
      refreshEmployeeGate();
      applySystemLockState();
@@ -3908,6 +3938,10 @@ function renderEmpShiftCalendar() {
      document.getElementById('chooserApp').style.display = 'none';
      document.getElementById('employeeApp').style.display = 'none';
      document.getElementById('adminApp').style.display = 'block';
+     /* v6.49: see showChooserView()/showEmployeeView() - this is what makes a refresh stay
+        on the Administration/HR System even when an Employee session is also still active in
+        the same browser tab. */
+     sessionStorage.setItem('activeView', 'admin');
      closeAllMenus();
      resetInactivityTimer();
      applyRoleGating();
