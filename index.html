@@ -386,7 +386,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.55</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.56</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -930,7 +930,10 @@
              <h3 data-i18n="masterTitle">Employee Master Management</h3>
              <p style="font-size:11px; color:#64748b;" data-i18n="masterSub">Complete employee management ledger</p>
          </div>
-         <button class="quick-btn green" onclick="exportToExcel('master')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+         <div style="display:flex; gap:8px; flex-wrap:wrap;">
+             <button class="quick-btn green" onclick="exportToExcel('master')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+             <button class="quick-btn amber" onclick="openLeaveReportModal()" data-i18n="btnExportLeaveReport">Export Leave Report</button>
+         </div>
      </div>
  
      <div class="search-bar-wrapper">
@@ -1198,6 +1201,35 @@
              </select>
          </div>
          <button class="btn-submit" onclick="confirmBackupNow()" data-i18n="btnConfirmBackup">Download Backup</button>
+     </div>
+ </div>
+
+ <!-- v6.56: EXPORT LEAVE REPORT MODAL - a printable month-end report, either "Available This
+      Month" (remaining annual leave usable this month) or "Exceeded Hours" (hours used beyond
+      entitlement), for every employee, in the language the admin picks. -->
+ <div class="modal" id="leaveReportModal">
+     <div class="modal-content" style="max-width: 420px;">
+         <div class="modal-header">
+             <h4 data-i18n="leaveReportModalTitle">Export Leave Report</h4>
+             <button class="modal-close" onclick="closeLeaveReportModal()">&times;</button>
+         </div>
+         <p style="font-size:13px; color:#334155; margin-bottom:14px;" data-i18n="leaveReportModalSub">Choose which report to export and which language to use, then confirm to download.</p>
+         <div class="form-group">
+             <label data-i18n="leaveReportTypeLabel">Report Type</label>
+             <select id="leaveReportTypeSelect">
+                 <option value="available" data-i18n="leaveReportTypeAvailable">Remaining Annual Leave (Available This Month)</option>
+                 <option value="exceeded" data-i18n="leaveReportTypeExceeded">Exceeded Hours</option>
+             </select>
+         </div>
+         <div class="form-group">
+             <label data-i18n="backupLangModalLabel">Backup Language</label>
+             <select id="leaveReportLangSelect">
+                 <option value="en">English</option>
+                 <option value="km">ខ្មែរ (Khmer)</option>
+                 <option value="zh">中文 (Chinese)</option>
+             </select>
+         </div>
+         <button class="btn-submit" onclick="confirmLeaveReportExport()" data-i18n="btnDownloadReport">Download Report</button>
      </div>
  </div>
 
@@ -1556,7 +1588,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.55
+     HR & Administration System Version 6.56
  </div>
 </div>
 
@@ -2757,6 +2789,15 @@
         backupLangModalSub: "Choose which language to use for the exported Excel file, then confirm to download.",
         backupLangModalLabel: "Backup Language",
         btnConfirmBackup: "Download Backup",
+        btnExportLeaveReport: "Export Leave Report",
+        leaveReportModalTitle: "Export Leave Report",
+        leaveReportModalSub: "Choose which report to export and which language to use, then confirm to download.",
+        leaveReportTypeLabel: "Report Type",
+        leaveReportTypeAvailable: "Remaining Annual Leave (Available This Month)",
+        leaveReportTypeExceeded: "Exceeded Hours",
+        btnDownloadReport: "Download Report",
+        leaveReportTitleAvailable: "Remaining Annual Leave for {month}",
+        leaveReportTitleExceeded: "Remaining Exceeded Hours for Annual Leave for {month}",
         navLockSystem: "Lock System",
         lockSystemModalTitle: "Lock System",
         lockSystemModalSub: "Temporarily block access to Employee and/or HR System, for example during maintenance. Administration is never locked out.",
@@ -3214,6 +3255,15 @@
         backupLangModalSub: "ជ្រើសរើសភាសាសម្រាប់ឯកសារ Excel នាំចេញ រួចបញ្ជាក់ដើម្បីទាញយក។",
         backupLangModalLabel: "ភាសាបម្រុងទុក",
         btnConfirmBackup: "ទាញយកឯកសារបម្រុងទុក",
+        btnExportLeaveReport: "នាំចេញរបាយការណ៍ច្បាប់ឈប់សម្រាក",
+        leaveReportModalTitle: "នាំចេញរបាយការណ៍ច្បាប់ឈប់សម្រាក",
+        leaveReportModalSub: "សូមជ្រើសរើសរបាយការណ៍ដែលត្រូវនាំចេញ និងភាសាដែលត្រូវប្រើ រួចបញ្ជាក់ដើម្បីទាញយក។",
+        leaveReportTypeLabel: "ប្រភេទរបាយការណ៍",
+        leaveReportTypeAvailable: "ច្បាប់ឈប់សម្រាកនៅសល់ (អាចប្រើបានខែនេះ)",
+        leaveReportTypeExceeded: "ម៉ោងប្រើលើស",
+        btnDownloadReport: "ទាញយករបាយការណ៍",
+        leaveReportTitleAvailable: "ច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំនៅសល់សម្រាប់ខែ {month}",
+        leaveReportTitleExceeded: "ម៉ោងប្រើលើសនៃច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំសម្រាប់ខែ {month}",
         navLockSystem: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalTitle: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalSub: "ទប់ស្កាត់ការចូលប្រើប្រព័ន្ធបុគ្គលិក និង/ឬ ធនធានមនុស្សជាបណ្តោះអាសន្ន ឧទាហរណ៍ក្នុងអំឡុងពេលថែទាំប្រព័ន្ធ។ ប្រព័ន្ធរដ្ឋបាលមិនត្រូវបានចាក់សោឡើយ។",
@@ -3671,6 +3721,15 @@
         backupLangModalSub: "选择导出Excel文件所使用的语言，然后确认下载。",
         backupLangModalLabel: "备份语言",
         btnConfirmBackup: "下载备份文件",
+        btnExportLeaveReport: "导出休假报告",
+        leaveReportModalTitle: "导出休假报告",
+        leaveReportModalSub: "请选择要导出的报告类型和使用的语言，然后确认下载。",
+        leaveReportTypeLabel: "报告类型",
+        leaveReportTypeAvailable: "剩余年假（本月可用额度）",
+        leaveReportTypeExceeded: "超出小时数",
+        btnDownloadReport: "下载报告",
+        leaveReportTitleAvailable: "{month}剩余年假",
+        leaveReportTitleExceeded: "{month}年假超出小时数",
         navLockSystem: "锁定系统",
         lockSystemModalTitle: "锁定系统",
         lockSystemModalSub: "临时阻止员工系统和/或人力资源系统的访问，例如在系统维护期间。行政管理系统永远不会被锁定。",
@@ -6094,6 +6153,78 @@ function filterMakeupTable() {
      }
 
      XLSX.writeFile(wb, `Full_Backup_${new Date().toISOString().slice(0,10)}.xlsx`);
+     showToast(true, t('toastBackupDone'));
+ }
+
+ /* ================= v6.56: EXPORT LEAVE REPORT (month-end "Available This Month" / "Exceeded
+    Hours" report, in the admin's choice of language) =================
+    Both reports share the same 10 columns except the second-to-last one, and both use the exact
+    same figures Master Sheet and Check Details already show/compute for every employee - nothing
+    new is calculated here, this just packages it into a printable, dated report. */
+ function openLeaveReportModal() {
+     document.getElementById('leaveReportModal').style.display = 'flex';
+ }
+
+ function closeLeaveReportModal() {
+     document.getElementById('leaveReportModal').style.display = 'none';
+ }
+
+ function confirmLeaveReportExport() {
+     const type = document.getElementById('leaveReportTypeSelect').value;
+     const lang = document.getElementById('leaveReportLangSelect').value;
+     closeLeaveReportModal();
+     exportLeaveReport(type, lang);
+ }
+
+ function exportLeaveReport(type, lang) {
+     lang = lang || 'en';
+     if (employees.length === 0) {
+         showToast(false, t('backupEmptyMsg'));
+         return;
+     }
+
+     const now = new Date();
+     const localeMap = { zh: 'zh-CN', km: 'km-KH', en: 'en-US' };
+     let monthLabel;
+     try {
+         monthLabel = now.toLocaleString(localeMap[lang] || 'en-US', { month: 'long', year: 'numeric' });
+     } catch (e) { monthLabel = (now.getMonth() + 1) + '/' + now.getFullYear(); }
+
+     const titleKey = type === 'exceeded' ? 'leaveReportTitleExceeded' : 'leaveReportTitleAvailable';
+     const title = fillTemplate(tLang(titleKey, lang), { month: monthLabel });
+
+     const lastColKey = type === 'exceeded' ? 'tblExceeded' : 'lblAllowedThisMonth';
+     const headerRow = [
+         tLang('tblId', lang), tLang('tblName', lang), tLang('tblJoin', lang),
+         tLang('tblStart', lang), tLang('tblEnd', lang), tLang('tblTotalAL', lang),
+         tLang('tblTotalUsed', lang), tLang('tblRemaining', lang), tLang(lastColKey, lang),
+         tLang('tblRemarks', lang)
+     ];
+
+     const sortedEmployees = employees.slice().sort((a, b) => (a.id || '').localeCompare(b.id || '', undefined, { numeric: true }));
+     const aoa = [[title], headerRow];
+     sortedEmployees.forEach(emp => {
+         const computedCycle = computeLeaveCycle(emp.joinDate, now);
+         const startStr = emp.startDate || computedCycle.startStr;
+         const endStr = emp.endDate || computedCycle.endStr;
+         const qd = computeQueryData(emp, now, 0);
+         const lastColVal = type === 'exceeded' ? (parseFloat(emp.exceeded) || 0) : qd.allowedThisMonth;
+         aoa.push([
+             emp.id, emp.name, emp.joinDate, startStr, endStr,
+             Number((parseFloat(emp.entitled) || 0).toFixed(2)),
+             Number(qd.totalUsed.toFixed(2)),
+             Number(qd.remainingTotal.toFixed(2)),
+             Number(lastColVal.toFixed(2)),
+             emp.remarks || ''
+         ]);
+     });
+
+     const worksheet = XLSX.utils.aoa_to_sheet(aoa);
+     worksheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: headerRow.length - 1 } }];
+     const workbook = XLSX.utils.book_new();
+     XLSX.utils.book_append_sheet(workbook, worksheet, "Leave Report");
+     const fileTag = type === 'exceeded' ? 'Exceeded_Hours' : 'Available_This_Month';
+     XLSX.writeFile(workbook, `Leave_Report_${fileTag}_${now.toISOString().slice(0,10)}.xlsx`);
      showToast(true, t('toastBackupDone'));
  }
 
