@@ -386,7 +386,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.53</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.54</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1555,7 +1555,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.53
+     HR & Administration System Version 6.54
  </div>
 </div>
 
@@ -5276,11 +5276,33 @@ function filterMakeupTable() {
  function approvePendingEdit(firebaseKey) {
      const p = pendingEdits.find(x => x.firebaseKey === firebaseKey);
      if (!p) return;
-     const apply = p.isNew
-         ? db.ref('employees').push(p.newRecord)
-         : (p.newRecord
-             ? db.ref('employees/' + p.employeeKey).set(p.newRecord)
-             : db.ref('employees/' + p.employeeKey).update({ [p.field]: p.newValue }));
+
+     let apply;
+     if (p.isNew) {
+         apply = db.ref('employees').push(p.newRecord);
+     } else if (p.newRecord && p.oldRecord) {
+         /* v6.54: apply ONLY the fields HR actually changed (a merge via update()), never a
+            full set() of the whole record as HR's edit form snapshot had it. HR's snapshot is
+            taken the moment they open "Edit Record" - if Leave Records or Attendance gets
+            recorded for this same employee anytime before Administration approves this edit,
+            a full set() here would silently overwrite it back to the old value the instant
+            the edit is approved, even though nobody touched that field on purpose. Diffing
+            against oldRecord means only the field(s) HR meant to change are written, and
+            everything else keeps whatever is live in Firebase right now. */
+         const diff = {};
+         Object.keys(p.newRecord).forEach(k => {
+             if (k === 'firebaseKey') return;
+             const oldVal = p.oldRecord[k] === undefined ? '' : p.oldRecord[k];
+             const newVal = p.newRecord[k];
+             if (String(oldVal) !== String(newVal)) diff[k] = newVal;
+         });
+         apply = Object.keys(diff).length > 0
+             ? db.ref('employees/' + p.employeeKey).update(diff)
+             : Promise.resolve();
+     } else {
+         apply = db.ref('employees/' + p.employeeKey).update({ [p.field]: p.newValue });
+     }
+
      apply.then(() => db.ref('pendingEdits/' + firebaseKey).remove())
          .then(() => showToast(true, t('toastApproved')))
          .catch(() => showToast(false));
