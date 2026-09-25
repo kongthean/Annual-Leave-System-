@@ -386,7 +386,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.51</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.53</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1555,7 +1555,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.51
+     HR & Administration System Version 6.53
  </div>
 </div>
 
@@ -2425,6 +2425,7 @@
          thMonthlyAttendance: "Attendance",
          thMonthlyActualWork: "Actual Working Hours",
          tblRemarks: "Remarks",
+         masterRowErrorMsg: "Could not display this record - data may be corrupted. Please check this employee in Edit Record.",
          lblRemarksHeading: "Master Remarks / Notes:",
          noRemarksText: "No specific remarks or notes logged for this employee.",
          tblStatus: "Status",
@@ -2575,6 +2576,7 @@
         acEditClickHint: "Click to edit or delete",
         acEditModalTitle: "Edit Day Entry",
         acEditNoEntries: "No entries for this day.",
+        acEditDateLabel: "Date",
         acEditHoursLabel: "Hours",
         acEditWorkLabel: "Working Hours",
         acEditOtLabel: "OT Hours",
@@ -2886,6 +2888,7 @@
          thMonthlyAttendance: "ថ្ងៃធ្វើការកំណត់",
          thMonthlyActualWork: "ម៉ោងធ្វើការជាក់ស្តែង",
          tblRemarks: "កំណត់សម្គាល់",
+        masterRowErrorMsg: "មិនអាចបង្ហាញទិន្នន័យនេះបានទេ - ទិន្នន័យអាចខូច។ សូមពិនិត្យបុគ្គលិកនេះនៅក្នុងកែសម្រួលទិន្នន័យ។",
          lblRemarksHeading: "កំណត់សម្គាល់ចម្បង:",
          noRemarksText: "គ្មានកំណត់សម្គាល់សម្រាប់បុគ្គលិកនេះទេ។",
          tblStatus: "ស្ថានភាព",
@@ -3036,6 +3039,7 @@
         acEditClickHint: "ចុចដើម្បីកែសម្រួល ឬលុប",
         acEditModalTitle: "កែសម្រួលទិន្នន័យថ្ងៃ",
         acEditNoEntries: "មិនមានទិន្នន័យសម្រាប់ថ្ងៃនេះទេ។",
+        acEditDateLabel: "កាលបរិច្ឆេទ",
         acEditHoursLabel: "ម៉ោង",
         acEditWorkLabel: "ម៉ោងធ្វើការ",
         acEditOtLabel: "ម៉ោងបន្ថែម",
@@ -3340,6 +3344,7 @@
          thMonthlyAttendance: "标准出勤",
          thMonthlyActualWork: "实际工作时间",
          tblRemarks: "备注",
+        masterRowErrorMsg: "无法显示此记录 - 数据可能已损坏。请在编辑记录中检查该员工。",
          lblRemarksHeading: "主控表备注/说明:",
          noRemarksText: "该员工无特定备注或说明。",
          tblStatus: "状态",
@@ -3490,6 +3495,7 @@
         acEditClickHint: "点击以编辑或删除",
         acEditModalTitle: "编辑当日记录",
         acEditNoEntries: "这一天没有记录。",
+        acEditDateLabel: "日期",
         acEditHoursLabel: "小时数",
         acEditWorkLabel: "工作时数",
         acEditOtLabel: "加班时数",
@@ -4181,14 +4187,14 @@ function renderEmpShiftCalendar() {
      const yearRangeStr = emp.yearRange || computedCycle.yearRangeStr;
      const renewalMonths = getRemainingCycleMonths(startStr, endStr, queryDate);
 
-     const totalUsed = (emp.prevUsed || 0) + (emp.monthUsed || 0) - (emp.exceeded || 0);
-     const remainingTotal = (emp.entitled || 0) - totalUsed + (emp.carried || 0);
+     const totalUsed = (parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0) - (parseFloat(emp.exceeded) || 0);
+     const remainingTotal = (parseFloat(emp.entitled) || 0) - totalUsed + (parseFloat(emp.carried) || 0);
      const isExceeded = remainingTotal < 0;
 
      // Months of Service: based on AL Start Date, calendar-month-boundary counting (1-12, resets each cycle)
      const monthsOfService = computeMonthsOfService(startStr, queryDate);
      // Allowed Available This Month = (1.5 * Months of Service * 8) + Carried Forward - Total Hours Used
-     const allowedThisMonth = (1.5 * monthsOfService * 8) + (emp.carried || 0) - totalUsed;
+     const allowedThisMonth = (1.5 * monthsOfService * 8) + (parseFloat(emp.carried) || 0) - totalUsed;
      // Remaining Balance After Today = Allowed Available This Month - Today Hours
      const remAfterToday = allowedThisMonth - todayHours;
 
@@ -4232,15 +4238,15 @@ function renderEmpShiftCalendar() {
      document.getElementById('cdDept').innerText = emp.department || '-';
      document.getElementById('cdJoin').innerText = emp.joinDate || '-';
      document.getElementById('cdYears').innerText = workYears;
-     document.getElementById('cdEntitled').innerText = (emp.entitled || 0).toFixed(2);
+     document.getElementById('cdEntitled').innerText = (parseFloat(emp.entitled) || 0).toFixed(2);
      document.getElementById('cdStart').innerText = startStr || '-';
      document.getElementById('cdEnd').innerText = endStr || '-';
      document.getElementById('cdRenewal').innerText = renewalMonths;
      document.getElementById('cdYearRange').innerText = yearRangeStr || '-';
      document.getElementById('cdMonths').innerText = monthsOfService;
-     document.getElementById('cdTotalAL').innerText = (emp.entitled || 0).toFixed(2);
+     document.getElementById('cdTotalAL').innerText = (parseFloat(emp.entitled) || 0).toFixed(2);
      document.getElementById('cdTotalUsed').innerText = totalUsed.toFixed(2);
-     document.getElementById('cdCurrentMonthUsed').innerText = (emp.monthUsed || 0).toFixed(2);
+     document.getElementById('cdCurrentMonthUsed').innerText = (parseFloat(emp.monthUsed) || 0).toFixed(2);
      document.getElementById('cdRemainingTotal').innerText = remainingTotal.toFixed(2);
      document.getElementById('cdCarried').innerText = carried.toFixed(2);
      document.getElementById('cdAllowedThisMonth').innerText = allowedThisMonth.toFixed(2);
@@ -4248,15 +4254,15 @@ function renderEmpShiftCalendar() {
      document.getElementById('cdAvailCarried').innerText = hasCarried ? t('txtAvailable') : t('txtUnavailable');
      document.getElementById('cdIsStarted').innerText = isStarted ? t('txtStartYes') : t('txtStartNo');
      document.getElementById('cdIsExceeded').innerText = exceedsMonthlyLimit ? t('txtExceed') : t('txtInLimit');
-     document.getElementById('cdWorkHours').innerText = (emp.workHours || 0).toFixed(2);
-     document.getElementById('cdOTHours').innerText = (emp.otHours || 0).toFixed(2);
-     document.getElementById('cdLeaveAL').innerText = (emp.leaveAL || 0).toFixed(2);
-     document.getElementById('cdLeavePersonal').innerText = (emp.leavePersonal || 0).toFixed(2);
-     document.getElementById('cdLeaveSpecial').innerText = (emp.leaveSpecial || 0).toFixed(2);
-     document.getElementById('cdLeaveMaternity').innerText = (emp.leaveMaternity || 0).toFixed(2);
-     document.getElementById('cdLeaveTravel').innerText = (emp.leaveTravel || 0).toFixed(2);
-     document.getElementById('cdLeaveSick').innerText = (emp.leaveSick || 0).toFixed(2);
-     document.getElementById('cdLeaveOther').innerText = (emp.leaveOther || 0).toFixed(2);
+     document.getElementById('cdWorkHours').innerText = (parseFloat(emp.workHours) || 0).toFixed(2);
+     document.getElementById('cdOTHours').innerText = (parseFloat(emp.otHours) || 0).toFixed(2);
+     document.getElementById('cdLeaveAL').innerText = (parseFloat(emp.leaveAL) || 0).toFixed(2);
+     document.getElementById('cdLeavePersonal').innerText = (parseFloat(emp.leavePersonal) || 0).toFixed(2);
+     document.getElementById('cdLeaveSpecial').innerText = (parseFloat(emp.leaveSpecial) || 0).toFixed(2);
+     document.getElementById('cdLeaveMaternity').innerText = (parseFloat(emp.leaveMaternity) || 0).toFixed(2);
+     document.getElementById('cdLeaveTravel').innerText = (parseFloat(emp.leaveTravel) || 0).toFixed(2);
+     document.getElementById('cdLeaveSick').innerText = (parseFloat(emp.leaveSick) || 0).toFixed(2);
+     document.getElementById('cdLeaveOther').innerText = (parseFloat(emp.leaveOther) || 0).toFixed(2);
      document.getElementById('cdRemarks').innerText = emp.remarks ? emp.remarks : t('noRemarksText');
 
      setAmountColor('cdCarriedLabel', 'cdCarried', hasCarried);
@@ -4754,7 +4760,13 @@ function deleteAnnouncement(firebaseKey) {
      tbody.innerHTML = '';
      const isAdminRole = (sessionStorage.getItem('loggedInRole') || 'admin') === 'admin';
 
+     /* v6.53: one bad/unexpected value on a single employee record must never stop the whole
+        Master Sheet from rendering - wrap each row so an error on employee #3 doesn't also
+        hide every correct row after it (that used to look exactly like "my entry never
+        recorded" for employees who came later in the list, when the real problem was an
+        earlier row throwing mid-render). */
      employees.forEach((emp, index) => {
+       try {
          const parts = emp.joinDate.split('.');
          const join = new Date(parts[0], parts[1]-1, parts[2]);
          const now = new Date();
@@ -4767,8 +4779,8 @@ function deleteAnnouncement(firebaseKey) {
          const yearRangeStr = emp.yearRange || computedCycle.yearRangeStr;
          const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
  
-         const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
-         const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+         const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
+         const remaining = (emp.entitled - totalUsed) + (parseFloat(emp.carried) || 0);
  
          tbody.innerHTML += `
              <tr>
@@ -4782,41 +4794,47 @@ function deleteAnnouncement(firebaseKey) {
                  <td>${emp.department || '-'}</td>
                  <td>${emp.joinDate}</td>
                  <td>${workYears}</td>
-                 <td>${(emp.entitled || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.entitled) || 0).toFixed(2)}</td>
                  <td>${startStr}</td>
                  <td>${endStr}</td>
                  <td>${yearRangeStr}</td>
                  <td><b>${remainingMonthsCycle}</b></td>
-                 <td>${(emp.entitled || 0).toFixed(2)}</td>
-                 <td>${(emp.carried || 0).toFixed(2)}</td>
-                 <td>${(emp.prevUsed || 0).toFixed(2)}</td>
-                 <td>${(emp.monthUsed || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.entitled) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.carried) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.prevUsed) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.monthUsed) || 0).toFixed(2)}</td>
                  <td><b>${totalUsed.toFixed(2)}</b></td>
-                 <td style="color:${emp.exceeded > 0 ? '#dc2626':'#64748b'}; font-weight:bold;">${(emp.exceeded || 0).toFixed(2)}</td>
+                 <td style="color:${emp.exceeded > 0 ? '#dc2626':'#64748b'}; font-weight:bold;">${(parseFloat(emp.exceeded) || 0).toFixed(2)}</td>
                  <td style="color:${remaining < 0 ? '#dc2626':'#15803d'}; font-weight:bold;">${remaining.toFixed(2)}</td>
-                 <td>${(emp.workHours || 0).toFixed(2)}</td>
-                 <td>${(emp.otHours || 0).toFixed(2)}</td>
-                 <td>${(emp.leaveAL || 0).toFixed(2)}</td>
-                 <td>${(emp.leaveSpecial || 0).toFixed(2)}</td>
-                 <td>${(emp.leaveMaternity || 0).toFixed(2)}</td>
-                 <td>${(emp.leaveTravel || 0).toFixed(2)}</td>
-                 <td>${(emp.leavePersonal || 0).toFixed(2)}</td>
-                 <td>${(emp.leaveSick || 0).toFixed(2)}</td>
-                 <td>${(emp.leaveOther || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.workHours) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.otHours) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leaveAL) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leaveSpecial) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leaveMaternity) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leaveTravel) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leavePersonal) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leaveSick) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leaveOther) || 0).toFixed(2)}</td>
                  <td>${emp.remarks || '-'}</td>
              </tr>
          `;
+       } catch (rowError) {
+         tbody.innerHTML += '<tr><td colspan="28" style="text-align:center; color:#dc2626;">' +
+             t('masterRowErrorMsg') + ' (' + (emp.id || '?') + ' - ' + (emp.name || '?') + ')</td></tr>';
+       }
      });
      filterMasterTable();
  }
- 
+
  function renderMonthlyReport() {
      const tbody = document.querySelector('#monthlyReportTable tbody');
      tbody.innerHTML = '';
- 
+
+     /* v6.53: same one-bad-row-shouldn't-hide-the-rest protection as renderMaster(). */
      employees.forEach((emp, index) => {
-         const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
-         const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+       try {
+         const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
+         const remaining = (emp.entitled - totalUsed) + (parseFloat(emp.carried) || 0);
  
          tbody.innerHTML += `
              <tr>
@@ -4831,29 +4849,35 @@ function deleteAnnouncement(firebaseKey) {
                  <td>${emp.resignedDate || '-'}</td>
                  <td><input type="number" value="${emp.monthlyWorkDays || 208}" step="1" style="width:75px;" onchange="updateEmpMonthlyField('${emp.firebaseKey}', 'monthlyWorkDays', this.value)"></td>
                  <td><input type="number" value="${emp.workHours || 0}" step="0.5" style="width:75px;" onchange="updateEmpMonthlyField('${emp.firebaseKey}', 'workHours', this.value)"></td>
-                 <td>${(emp.entitled || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.entitled) || 0).toFixed(2)}</td>
                  <td><b>${totalUsed.toFixed(2)}</b></td>
                  <td style="color:${remaining < 0 ? '#dc2626':'#15803d'}; font-weight:bold;">${remaining.toFixed(2)}</td>
-                 <td>${(emp.leaveAL || 0).toFixed(2)}</td>
-                 <td>${(emp.leaveSpecial || 0).toFixed(2)}</td>
-                 <td>${(emp.leaveMaternity || 0).toFixed(2)}</td>
-                 <td>${(emp.leaveTravel || 0).toFixed(2)}</td>
-                 <td>${(emp.leavePersonal || 0).toFixed(2)}</td>
-                 <td>${(emp.leaveSick || 0).toFixed(2)}</td>
-                 <td>${(emp.leaveOther || 0).toFixed(2)}</td>
-                 <td>${(emp.otHours || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leaveAL) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leaveSpecial) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leaveMaternity) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leaveTravel) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leavePersonal) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leaveSick) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.leaveOther) || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.otHours) || 0).toFixed(2)}</td>
              </tr>
          `;
+       } catch (rowError) {
+         tbody.innerHTML += '<tr><td colspan="19" style="text-align:center; color:#dc2626;">' +
+             t('masterRowErrorMsg') + ' (' + (emp.id || '?') + ' - ' + (emp.name || '?') + ')</td></tr>';
+       }
      });
      filterMonthlyTable();
  }
- 
+
  function renderEmployeeList() {
      const tbody = document.querySelector('#employeeTable tbody');
      tbody.innerHTML = '';
      const isAdminRole = (sessionStorage.getItem('loggedInRole') || 'admin') === 'admin';
 
+     /* v6.53: same one-bad-row-shouldn't-hide-the-rest protection as renderMaster(). */
      employees.forEach((emp, index) => {
+       try {
          const parts = emp.joinDate.split('.');
          const join = new Date(parts[0], parts[1]-1, parts[2]);
          const now = new Date();
@@ -4876,11 +4900,15 @@ function deleteAnnouncement(firebaseKey) {
                  <td>${emp.emergencyContact || '-'}</td>
                  <td>${emp.joinDate}</td>
                  <td>${workYears}</td>
-                 <td>${(emp.entitled || 0).toFixed(2)}</td>
+                 <td>${(parseFloat(emp.entitled) || 0).toFixed(2)}</td>
                  <td>${emp.department || '-'}</td>
                  <td><span class="${emp.status === 'Resigned' ? 'bg-red' : 'bg-green'}" style="padding:2px 6px; border-radius:4px;">${statusText(emp.status)}</span></td>
              </tr>
          `;
+       } catch (rowError) {
+         tbody.innerHTML += '<tr><td colspan="15" style="text-align:center; color:#dc2626;">' +
+             t('masterRowErrorMsg') + ' (' + (emp.id || '?') + ' - ' + (emp.name || '?') + ')</td></tr>';
+       }
      });
      filterEmployeeTable();
  }
@@ -5766,9 +5794,16 @@ function filterMakeupTable() {
              return;
          }
          listEl.innerHTML = entries.map(h => (
-             '<div style="display:flex; align-items:center; gap:8px; padding:10px 4px; border-bottom:1px solid #e2e8f0;">' +
-                 '<span style="flex:1; font-size:13px; font-weight:600; color:#334155;">' + t(h.leaveType) + '</span>' +
-                 '<input type="number" step="0.5" min="0" id="acHours_' + h.firebaseKey + '" value="' + h.hours + '" style="width:80px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">' +
+             '<div style="display:flex; align-items:center; gap:8px; padding:10px 4px; border-bottom:1px solid #e2e8f0; flex-wrap:wrap;">' +
+                 '<span style="flex:1; min-width:120px; font-size:13px; font-weight:600; color:#334155;">' + t(h.leaveType) + '</span>' +
+                 '<div>' +
+                     '<label style="display:block; font-size:11px; color:#64748b;" data-i18n="acEditDateLabel">Date</label>' +
+                     '<input type="date" id="acDate_' + h.firebaseKey + '" value="' + h.date + '" style="padding:6px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">' +
+                 '</div>' +
+                 '<div>' +
+                     '<label style="display:block; font-size:11px; color:#64748b;" data-i18n="acEditHoursLabel">Hours</label>' +
+                     '<input type="number" step="0.5" min="0" id="acHours_' + h.firebaseKey + '" value="' + h.hours + '" style="width:80px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">' +
+                 '</div>' +
                  '<button type="button" class="btn-edit" style="font-size:13px;" onclick="saveAttCalLeaveEntry(\'' + h.firebaseKey + '\')" data-i18n="btnSaveChanges">Save Changes</button>' +
                  '<button type="button" class="btn-delete" style="font-size:13px;" onclick="deleteAttCalLeaveEntry(\'' + h.firebaseKey + '\')" data-i18n="btnDeleteRequest">Delete</button>' +
              '</div>'
@@ -5781,11 +5816,15 @@ function filterMakeupTable() {
          }
          listEl.innerHTML = entries.map(h => (
              '<div style="display:flex; align-items:center; gap:8px; padding:10px 4px; border-bottom:1px solid #e2e8f0; flex-wrap:wrap;">' +
-                 '<div style="flex:1; min-width:180px;">' +
+                 '<div style="flex:1; min-width:150px;">' +
+                     '<label style="display:block; font-size:11px; color:#64748b;" data-i18n="acEditDateLabel">Date</label>' +
+                     '<input type="date" id="acDate_' + h.firebaseKey + '" value="' + h.date + '" style="width:100%; padding:6px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">' +
+                 '</div>' +
+                 '<div style="flex:1; min-width:150px;">' +
                      '<label style="display:block; font-size:11px; color:#64748b;" data-i18n="acEditWorkLabel">Working Hours</label>' +
                      '<input type="number" step="0.5" min="0" id="acWork_' + h.firebaseKey + '" value="' + (h.workHours || 0) + '" style="width:100%; padding:6px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">' +
                  '</div>' +
-                 '<div style="flex:1; min-width:180px;">' +
+                 '<div style="flex:1; min-width:150px;">' +
                      '<label style="display:block; font-size:11px; color:#64748b;" data-i18n="acEditOtLabel">OT Hours</label>' +
                      '<input type="number" step="0.5" min="0" id="acOt_' + h.firebaseKey + '" value="' + (h.otHours || 0) + '" style="width:100%; padding:6px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">' +
                  '</div>' +
@@ -5804,20 +5843,25 @@ function filterMakeupTable() {
      const input = document.getElementById('acHours_' + firebaseKey);
      const newHours = parseFloat(input.value);
      if (isNaN(newHours) || newHours < 0) { showToast(false); return; }
+     const dateInput = document.getElementById('acDate_' + firebaseKey);
+     const newDate = (dateInput && dateInput.value) ? dateInput.value : entry.date;
 
      const oldHours = entry.hours || 0;
      const delta = newHours - oldHours;
      const field = LEAVE_TYPE_FIELD_MAP[entry.leaveType];
      const updatePayload = {};
      if (field) {
-         updatePayload[field] = (emp[field] || 0) + delta;
+         /* v6.53: parseFloat guards against a field that somehow got stored as a string in
+            Firebase (e.g. from a manual DB edit) - a raw "+" on a string would silently
+            concatenate text instead of adding, corrupting the Master Sheet total. */
+         updatePayload[field] = (parseFloat(emp[field]) || 0) + delta;
          if (field !== 'leavePersonal') {
-             updatePayload.monthUsed = (emp.monthUsed || 0) + delta;
+             updatePayload.monthUsed = (parseFloat(emp.monthUsed) || 0) + delta;
          }
      }
 
      db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
-         return db.ref('leaveHistory/' + firebaseKey).update({ hours: newHours });
+         return db.ref('leaveHistory/' + firebaseKey).update({ hours: newHours, date: newDate });
      }).then(() => {
          showToast(true, t('acEditSavedMsg'));
          renderAttCalEditList();
@@ -5836,9 +5880,9 @@ function filterMakeupTable() {
      const field = LEAVE_TYPE_FIELD_MAP[entry.leaveType];
      const updatePayload = {};
      if (field) {
-         updatePayload[field] = Math.max(0, (emp[field] || 0) - oldHours);
+         updatePayload[field] = Math.max(0, (parseFloat(emp[field]) || 0) - oldHours);
          if (field !== 'leavePersonal') {
-             updatePayload.monthUsed = Math.max(0, (emp.monthUsed || 0) - oldHours);
+             updatePayload.monthUsed = Math.max(0, (parseFloat(emp.monthUsed) || 0) - oldHours);
          }
      }
 
@@ -5859,16 +5903,18 @@ function filterMakeupTable() {
      const newWork = parseFloat(document.getElementById('acWork_' + firebaseKey).value);
      const newOt = parseFloat(document.getElementById('acOt_' + firebaseKey).value);
      if (isNaN(newWork) || newWork < 0 || isNaN(newOt) || newOt < 0) { showToast(false); return; }
+     const dateInput = document.getElementById('acDate_' + firebaseKey);
+     const newDate = (dateInput && dateInput.value) ? dateInput.value : entry.date;
 
      const deltaWork = newWork - (entry.workHours || 0);
      const deltaOt = newOt - (entry.otHours || 0);
      const updatePayload = {
-         workHours: (emp.workHours || 0) + deltaWork,
-         otHours: (emp.otHours || 0) + deltaOt
+         workHours: (parseFloat(emp.workHours) || 0) + deltaWork,
+         otHours: (parseFloat(emp.otHours) || 0) + deltaOt
      };
 
      db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
-         return db.ref('attendanceHistory/' + firebaseKey).update({ workHours: newWork, otHours: newOt });
+         return db.ref('attendanceHistory/' + firebaseKey).update({ workHours: newWork, otHours: newOt, date: newDate });
      }).then(() => {
          showToast(true, t('acEditSavedMsg'));
          renderAttCalEditList();
@@ -5884,8 +5930,8 @@ function filterMakeupTable() {
      if (!emp) return;
 
      const updatePayload = {
-         workHours: Math.max(0, (emp.workHours || 0) - (entry.workHours || 0)),
-         otHours: Math.max(0, (emp.otHours || 0) - (entry.otHours || 0))
+         workHours: Math.max(0, (parseFloat(emp.workHours) || 0) - (entry.workHours || 0)),
+         otHours: Math.max(0, (parseFloat(emp.otHours) || 0) - (entry.otHours || 0))
      };
 
      db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
@@ -5941,7 +5987,7 @@ function filterMakeupTable() {
          { key: 'leaveSick', label: t('thMasterSickLeave'), color: '#4f46e5' },
          { key: 'leaveOther', label: t('thMasterOtherLeave'), color: '#64748b' }
      ];
-     const totals = types.map(tp => ({ ...tp, total: employees.reduce((sum, e) => sum + (e[tp.key] || 0), 0) }));
+     const totals = types.map(tp => ({ ...tp, total: employees.reduce((sum, e) => sum + (parseFloat(e[tp.key]) || 0), 0) }));
      const maxVal = Math.max(1, ...totals.map(tp => tp.total));
 
      el.innerHTML = totals.map(tp => `
@@ -6038,38 +6084,38 @@ function filterMakeupTable() {
              const startStr = emp.startDate || computedCycle.startStr;
              const endStr = emp.endDate || computedCycle.endStr;
              const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
-             const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
-             const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+             const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
+             const remaining = (emp.entitled - totalUsed) + (parseFloat(emp.carried) || 0);
  
              return {
                  "Employee ID": emp.id, "Name": emp.name, "Department": emp.department || "", "Sex": emp.sex || "Male", "Join Date": emp.joinDate,
-                 "Years of Work": workYears, "Entitled Hours": Number((emp.entitled || 0).toFixed(2)),
+                 "Years of Work": workYears, "Entitled Hours": Number((parseFloat(emp.entitled) || 0).toFixed(2)),
                  "AL Start Date": startStr, "AL End Date": endStr, "Year Range": emp.yearRange || computedCycle.yearRangeStr,
-                 "Months Until AL Renewal": remainingMonthsCycle, "Total AL": Number((emp.entitled || 0).toFixed(2)),
-                 "Carried Forward": Number((emp.carried || 0).toFixed(2)), "Prev Month Used": Number((emp.prevUsed || 0).toFixed(2)),
-                 "Current Month Used": Number((emp.monthUsed || 0).toFixed(2)), "Total Used Hours": Number(totalUsed.toFixed(2)),
-                 "Exceeded Hours": Number((emp.exceeded || 0).toFixed(2)), "Remaining Hours": Number(remaining.toFixed(2)),
-                 "Working Hours": Number((emp.workHours || 0).toFixed(2)), "Monthly Overtime": Number((emp.otHours || 0).toFixed(2)),
-                 "Annual Leave": Number((emp.leaveAL || 0).toFixed(2)), "Special Leave": Number((emp.leaveSpecial || 0).toFixed(2)),
-                 "Maternity Leave": Number((emp.leaveMaternity || 0).toFixed(2)), "Travel Leave": Number((emp.leaveTravel || 0).toFixed(2)),
-                 "Personal Leave": Number((emp.leavePersonal || 0).toFixed(2)), "Sick Leave": Number((emp.leaveSick || 0).toFixed(2)),
-                 "Other Leave": Number((emp.leaveOther || 0).toFixed(2)), "Remarks": emp.remarks || ""
+                 "Months Until AL Renewal": remainingMonthsCycle, "Total AL": Number((parseFloat(emp.entitled) || 0).toFixed(2)),
+                 "Carried Forward": Number((parseFloat(emp.carried) || 0).toFixed(2)), "Prev Month Used": Number((parseFloat(emp.prevUsed) || 0).toFixed(2)),
+                 "Current Month Used": Number((parseFloat(emp.monthUsed) || 0).toFixed(2)), "Total Used Hours": Number(totalUsed.toFixed(2)),
+                 "Exceeded Hours": Number((parseFloat(emp.exceeded) || 0).toFixed(2)), "Remaining Hours": Number(remaining.toFixed(2)),
+                 "Working Hours": Number((parseFloat(emp.workHours) || 0).toFixed(2)), "Monthly Overtime": Number((parseFloat(emp.otHours) || 0).toFixed(2)),
+                 "Annual Leave": Number((parseFloat(emp.leaveAL) || 0).toFixed(2)), "Special Leave": Number((parseFloat(emp.leaveSpecial) || 0).toFixed(2)),
+                 "Maternity Leave": Number((parseFloat(emp.leaveMaternity) || 0).toFixed(2)), "Travel Leave": Number((parseFloat(emp.leaveTravel) || 0).toFixed(2)),
+                 "Personal Leave": Number((parseFloat(emp.leavePersonal) || 0).toFixed(2)), "Sick Leave": Number((parseFloat(emp.leaveSick) || 0).toFixed(2)),
+                 "Other Leave": Number((parseFloat(emp.leaveOther) || 0).toFixed(2)), "Remarks": emp.remarks || ""
              };
          });
      } else if (type === 'monthly') {
          filename = `Monthly_Report_${new Date().toISOString().slice(0,10)}.xlsx`;
          data = employees.map(emp => {
-             const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
-             const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+             const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
+             const remaining = (emp.entitled - totalUsed) + (parseFloat(emp.carried) || 0);
              return {
                  "Employee ID": emp.id, "Name": emp.name, "Join Date": emp.joinDate, "Resigned Date": emp.resignedDate || "",
-                 "Attendance": emp.monthlyWorkDays || 208, "Actual Working Hours": Number((emp.workHours || 0).toFixed(2)),
-                 "Entitled Hours": Number((emp.entitled || 0).toFixed(2)), "Total Hours Used": Number(totalUsed.toFixed(2)),
-                 "Total Remaining Hours": Number(remaining.toFixed(2)), "Annual Leave": Number((emp.leaveAL || 0).toFixed(2)),
-                 "Special Leave": Number((emp.leaveSpecial || 0).toFixed(2)), "Maternity Leave": Number((emp.leaveMaternity || 0).toFixed(2)),
-                 "Travel Leave": Number((emp.leaveTravel || 0).toFixed(2)), "Personal Leave": Number((emp.leavePersonal || 0).toFixed(2)),
-                 "Sick Leave": Number((emp.leaveSick || 0).toFixed(2)), "Other Leave": Number((emp.leaveOther || 0).toFixed(2)),
-                 "Monthly Overtime": Number((emp.otHours || 0).toFixed(2))
+                 "Attendance": emp.monthlyWorkDays || 208, "Actual Working Hours": Number((parseFloat(emp.workHours) || 0).toFixed(2)),
+                 "Entitled Hours": Number((parseFloat(emp.entitled) || 0).toFixed(2)), "Total Hours Used": Number(totalUsed.toFixed(2)),
+                 "Total Remaining Hours": Number(remaining.toFixed(2)), "Annual Leave": Number((parseFloat(emp.leaveAL) || 0).toFixed(2)),
+                 "Special Leave": Number((parseFloat(emp.leaveSpecial) || 0).toFixed(2)), "Maternity Leave": Number((parseFloat(emp.leaveMaternity) || 0).toFixed(2)),
+                 "Travel Leave": Number((parseFloat(emp.leaveTravel) || 0).toFixed(2)), "Personal Leave": Number((parseFloat(emp.leavePersonal) || 0).toFixed(2)),
+                 "Sick Leave": Number((parseFloat(emp.leaveSick) || 0).toFixed(2)), "Other Leave": Number((parseFloat(emp.leaveOther) || 0).toFixed(2)),
+                 "Monthly Overtime": Number((parseFloat(emp.otHours) || 0).toFixed(2))
              };
          });
      } else if (type === 'employee') {
@@ -6083,7 +6129,7 @@ function filterMakeupTable() {
                  "Employee ID": emp.id, "Name": emp.name, "Sex": emp.sex || "Male", "Date of Birth": emp.dob || "",
                  "Place of Birth": emp.pob || "", "Current Residence": emp.residence || "", "Contact Number": emp.contact || "",
                 "Emergency Contact": emp.emergencyContact || "",
-                 "Join Date": emp.joinDate, "Years of Work": workYears, "Entitled Hours": Number((emp.entitled || 0).toFixed(2)), "Status": emp.status || "Active"
+                 "Join Date": emp.joinDate, "Years of Work": workYears, "Entitled Hours": Number((parseFloat(emp.entitled) || 0).toFixed(2)), "Status": emp.status || "Active"
              };
          });
      }
@@ -6105,8 +6151,8 @@ function openMasterDetailModal(index) {
     const startStr = emp.startDate || computedCycle.startStr;
     const endStr = emp.endDate || computedCycle.endStr;
     const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
-    const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
-    const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+    const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
+    const remaining = (emp.entitled - totalUsed) + (parseFloat(emp.carried) || 0);
 
     document.getElementById('viewModalTitle').innerText = `${t('modalMasterDetails')}: ${emp.name} (${emp.id})`;
     const body = document.getElementById('viewModalBody');
@@ -6116,26 +6162,26 @@ function openMasterDetailModal(index) {
         <div class="detail-item"><span class="lbl">${t('tblDepartment')}:</span><span class="val">${emp.department || '-'}</span></div>
         <div class="detail-item"><span class="lbl">${t('tblJoin')}:</span><span class="val">${emp.joinDate}</span></div>
         <div class="detail-item"><span class="lbl">${t('tblYears')}:</span><span class="val">${workYears}</span></div>
-        <div class="detail-item"><span class="lbl">${t('tblEntitled')}:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('tblTotalAL')}:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('tblCarried')}:</span><span class="val">${(emp.carried || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblEntitled')}:</span><span class="val">${(parseFloat(emp.entitled) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblTotalAL')}:</span><span class="val">${(parseFloat(emp.entitled) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblCarried')}:</span><span class="val">${(parseFloat(emp.carried) || 0).toFixed(2)}</span></div>
         <div class="detail-item"><span class="lbl">${t('tblStart')}:</span><span class="val">${startStr}</span></div>
         <div class="detail-item"><span class="lbl">${t('tblEnd')}:</span><span class="val">${endStr}</span></div>
         <div class="detail-item"><span class="lbl">${t('tblRenewed')}:</span><span class="val">${remainingMonthsCycle}</span></div>
-        <div class="detail-item"><span class="lbl">${t('tblPrevUsed')}:</span><span class="val">${(emp.prevUsed || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('tblMonthUsed')}:</span><span class="val">${(emp.monthUsed || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblPrevUsed')}:</span><span class="val">${(parseFloat(emp.prevUsed) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblMonthUsed')}:</span><span class="val">${(parseFloat(emp.monthUsed) || 0).toFixed(2)}</span></div>
         <div class="detail-item"><span class="lbl">${t('tblTotalUsed')}:</span><span class="val">${totalUsed.toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('tblExceeded')}:</span><span class="val">${(emp.exceeded || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblExceeded')}:</span><span class="val">${(parseFloat(emp.exceeded) || 0).toFixed(2)}</span></div>
         <div class="detail-item"><span class="lbl">${t('tblRemaining')}:</span><span class="val">${remaining.toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterWorkingHours')}:</span><span class="val">${(emp.workHours || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterMonthlyOT')}:</span><span class="val">${(emp.otHours || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterAnnualLeave')}:</span><span class="val">${(emp.leaveAL || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterSpecialLeave')}:</span><span class="val">${(emp.leaveSpecial || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterMaternityLeave')}:</span><span class="val">${(emp.leaveMaternity || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterTravelLeave')}:</span><span class="val">${(emp.leaveTravel || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterPersonalLeave')}:</span><span class="val">${(emp.leavePersonal || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterSickLeave')}:</span><span class="val">${(emp.leaveSick || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterOtherLeave')}:</span><span class="val">${(emp.leaveOther || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterWorkingHours')}:</span><span class="val">${(parseFloat(emp.workHours) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterMonthlyOT')}:</span><span class="val">${(parseFloat(emp.otHours) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterAnnualLeave')}:</span><span class="val">${(parseFloat(emp.leaveAL) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterSpecialLeave')}:</span><span class="val">${(parseFloat(emp.leaveSpecial) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterMaternityLeave')}:</span><span class="val">${(parseFloat(emp.leaveMaternity) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterTravelLeave')}:</span><span class="val">${(parseFloat(emp.leaveTravel) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterPersonalLeave')}:</span><span class="val">${(parseFloat(emp.leavePersonal) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterSickLeave')}:</span><span class="val">${(parseFloat(emp.leaveSick) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterOtherLeave')}:</span><span class="val">${(parseFloat(emp.leaveOther) || 0).toFixed(2)}</span></div>
         <div class="detail-item" style="grid-column: span 2;"><span class="lbl">${t('tblRemarks')}:</span><span class="val">${emp.remarks || '-'}</span></div>
     `;
     document.getElementById('viewDetailModal').style.display = 'flex';
@@ -6143,8 +6189,8 @@ function openMasterDetailModal(index) {
 
 function openMonthlyDetailModal(index) {
     const emp = employees[index];
-    const totalUsed = (emp.prevUsed + emp.monthUsed) - (emp.exceeded || 0);
-    const remaining = (emp.entitled - totalUsed) + (emp.carried || 0);
+    const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
+    const remaining = (emp.entitled - totalUsed) + (parseFloat(emp.carried) || 0);
 
     document.getElementById('viewModalTitle').innerText = `${t('modalMonthlyDetails')}: ${emp.name} (${emp.id})`;
     const body = document.getElementById('viewModalBody');
@@ -6154,18 +6200,18 @@ function openMonthlyDetailModal(index) {
         <div class="detail-item"><span class="lbl">${t('tblJoin')}:</span><span class="val">${emp.joinDate}</span></div>
         <div class="detail-item"><span class="lbl">${t('tblResignedDate')}:</span><span class="val">${emp.resignedDate || '-'}</span></div>
         <div class="detail-item"><span class="lbl">${t('thMonthlyAttendance')}:</span><span class="val">${emp.monthlyWorkDays || 208}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMonthlyActualWork')}:</span><span class="val">${(emp.workHours || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterMonthlyOT')}:</span><span class="val">${(emp.otHours || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('tblEntitled')}:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMonthlyActualWork')}:</span><span class="val">${(parseFloat(emp.workHours) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterMonthlyOT')}:</span><span class="val">${(parseFloat(emp.otHours) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblEntitled')}:</span><span class="val">${(parseFloat(emp.entitled) || 0).toFixed(2)}</span></div>
         <div class="detail-item"><span class="lbl">${t('tblTotalUsed')}:</span><span class="val">${totalUsed.toFixed(2)}</span></div>
         <div class="detail-item"><span class="lbl">${t('tblRemaining')}:</span><span class="val">${remaining.toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterAnnualLeave')}:</span><span class="val">${(emp.leaveAL || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterSpecialLeave')}:</span><span class="val">${(emp.leaveSpecial || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterMaternityLeave')}:</span><span class="val">${(emp.leaveMaternity || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterTravelLeave')}:</span><span class="val">${(emp.leaveTravel || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterPersonalLeave')}:</span><span class="val">${(emp.leavePersonal || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterSickLeave')}:</span><span class="val">${(emp.leaveSick || 0).toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('thMasterOtherLeave')}:</span><span class="val">${(emp.leaveOther || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterAnnualLeave')}:</span><span class="val">${(parseFloat(emp.leaveAL) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterSpecialLeave')}:</span><span class="val">${(parseFloat(emp.leaveSpecial) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterMaternityLeave')}:</span><span class="val">${(parseFloat(emp.leaveMaternity) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterTravelLeave')}:</span><span class="val">${(parseFloat(emp.leaveTravel) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterPersonalLeave')}:</span><span class="val">${(parseFloat(emp.leavePersonal) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterSickLeave')}:</span><span class="val">${(parseFloat(emp.leaveSick) || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('thMasterOtherLeave')}:</span><span class="val">${(parseFloat(emp.leaveOther) || 0).toFixed(2)}</span></div>
         <div class="detail-item" style="grid-column: span 2;"><span class="lbl">${t('tblRemarks')}:</span><span class="val">${emp.remarks || '-'}</span></div>
     `;
     document.getElementById('viewDetailModal').style.display = 'flex';
@@ -6193,7 +6239,7 @@ function openEmployeeDetailModal(index) {
         <div class="detail-item"><span class="lbl">${t('tblJoin')}:</span><span class="val">${emp.joinDate}</span></div>
         <div class="detail-item"><span class="lbl">${t('tblYears')}:</span><span class="val">${workYears}</span></div>
         <div class="detail-item"><span class="lbl">${t('tblStatus')}:</span><span class="val">${statusText(emp.status)}</span></div>
-        <div class="detail-item"><span class="lbl">${t('tblEntitled')}:</span><span class="val">${(emp.entitled || 0).toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">${t('tblEntitled')}:</span><span class="val">${(parseFloat(emp.entitled) || 0).toFixed(2)}</span></div>
         <div class="detail-item" style="grid-column: span 2;"><span class="lbl">${t('tblRemarks')}:</span><span class="val">${emp.remarks || '-'}</span></div>
     `;
     document.getElementById('viewDetailModal').style.display = 'flex';
@@ -6417,13 +6463,17 @@ document.getElementById('leaveForm').addEventListener('submit', function(e){
     let emp = employees.find(e => e.id === id);
 
     if(emp) {
-        const newLeaveAL = (emp.leaveAL || 0) + addAL;
-        const newLeaveSpecial = (emp.leaveSpecial || 0) + addSpecial;
-        const newLeaveMaternity = (emp.leaveMaternity || 0) + addMaternity;
-        const newLeaveTravel = (emp.leaveTravel || 0) + addTravel;
-        const newLeavePersonal = (emp.leavePersonal || 0) + addPersonal;
-        const newLeaveSick = (emp.leaveSick || 0) + addSick;
-        const newLeaveOther = (emp.leaveOther || 0) + addOther;
+        /* v6.53: parseFloat guards against a field that somehow got stored as a string in
+           Firebase (e.g. from a manual DB edit) - a raw "+" on a string would silently
+           concatenate text instead of adding, so the new hours would never actually sum
+           into the Master Sheet / Current Month Used totals even though the form said it saved. */
+        const newLeaveAL = (parseFloat(emp.leaveAL) || 0) + addAL;
+        const newLeaveSpecial = (parseFloat(emp.leaveSpecial) || 0) + addSpecial;
+        const newLeaveMaternity = (parseFloat(emp.leaveMaternity) || 0) + addMaternity;
+        const newLeaveTravel = (parseFloat(emp.leaveTravel) || 0) + addTravel;
+        const newLeavePersonal = (parseFloat(emp.leavePersonal) || 0) + addPersonal;
+        const newLeaveSick = (parseFloat(emp.leaveSick) || 0) + addSick;
+        const newLeaveOther = (parseFloat(emp.leaveOther) || 0) + addOther;
 
         /* Personal Leave is unpaid (it deducts from salary directly) and is NOT drawn from the
            Annual Leave entitlement balance, unlike Special/Maternity/Travel/Sick/Other, which
@@ -6456,8 +6506,8 @@ document.getElementById('leaveForm').addEventListener('submit', function(e){
                see the comment above) that also reports the employee's running total of Personal
                Leave hours for the calendar month of the leave date entered. */
             const monthKey = selectedDate ? selectedDate.slice(0, 7) : '';
-            const newTotalUsed = (emp.prevUsed || 0) + newMonthUsed - (emp.exceeded || 0);
-            const newRemaining = (emp.entitled || 0) - newTotalUsed + (emp.carried || 0);
+            const newTotalUsed = (parseFloat(emp.prevUsed) || 0) + newMonthUsed - (parseFloat(emp.exceeded) || 0);
+            const newRemaining = (parseFloat(emp.entitled) || 0) - newTotalUsed + (parseFloat(emp.carried) || 0);
             const entitlementTypes = [
                 { addVal: addAL, labelKey: 'thMasterAnnualLeave' },
                 { addVal: addSpecial, labelKey: 'thMasterSpecialLeave' },
@@ -6582,8 +6632,11 @@ function fillTemplate(str, vars) {
          if (entry.work === 0 && entry.ot === 0) return; /* nothing typed for this employee - leave them untouched */
          const emp = employees.find(e => e.firebaseKey === key);
          if (!emp) return;
-         updates['employees/' + key + '/workHours'] = (emp.workHours || 0) + entry.work;
-         updates['employees/' + key + '/otHours'] = (emp.otHours || 0) + entry.ot;
+         /* v6.53: parseFloat guards against a workHours/otHours value that somehow got stored
+            as a string in Firebase - a raw "+" on a string would silently concatenate text
+            instead of adding, so the new hours would never actually sum into the total. */
+         updates['employees/' + key + '/workHours'] = (parseFloat(emp.workHours) || 0) + entry.work;
+         updates['employees/' + key + '/otHours'] = (parseFloat(emp.otHours) || 0) + entry.ot;
          historyEntries.push({ empId: emp.id, empName: emp.name, workHours: entry.work, otHours: entry.ot, date: date, timestamp: Date.now() });
          countUpdated++;
      });
