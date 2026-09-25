@@ -386,7 +386,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.56</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.57</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1588,7 +1588,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.56
+     HR & Administration System Version 6.57
  </div>
 </div>
 
@@ -2798,6 +2798,8 @@
         btnDownloadReport: "Download Report",
         leaveReportTitleAvailable: "Remaining Annual Leave for {month}",
         leaveReportTitleExceeded: "Remaining Exceeded Hours for Annual Leave for {month}",
+        leaveReportNoneAvailableMsg: "No employees have hours available this month - everyone has exceeded.",
+        leaveReportNoneExceededMsg: "No employees have exceeded hours this month.",
         navLockSystem: "Lock System",
         lockSystemModalTitle: "Lock System",
         lockSystemModalSub: "Temporarily block access to Employee and/or HR System, for example during maintenance. Administration is never locked out.",
@@ -3264,6 +3266,8 @@
         btnDownloadReport: "ទាញយករបាយការណ៍",
         leaveReportTitleAvailable: "ច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំនៅសល់សម្រាប់ខែ {month}",
         leaveReportTitleExceeded: "ម៉ោងប្រើលើសនៃច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំសម្រាប់ខែ {month}",
+        leaveReportNoneAvailableMsg: "គ្មានបុគ្គលិកណាម្នាក់មានម៉ោងសល់ក្នុងខែនេះទេ - គ្រប់គ្នាប្រើលើសអស់ហើយ។",
+        leaveReportNoneExceededMsg: "គ្មានបុគ្គលិកណាម្នាក់ប្រើលើសម៉ោងក្នុងខែនេះទេ។",
         navLockSystem: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalTitle: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalSub: "ទប់ស្កាត់ការចូលប្រើប្រព័ន្ធបុគ្គលិក និង/ឬ ធនធានមនុស្សជាបណ្តោះអាសន្ន ឧទាហរណ៍ក្នុងអំឡុងពេលថែទាំប្រព័ន្ធ។ ប្រព័ន្ធរដ្ឋបាលមិនត្រូវបានចាក់សោឡើយ។",
@@ -3730,6 +3734,8 @@
         btnDownloadReport: "下载报告",
         leaveReportTitleAvailable: "{month}剩余年假",
         leaveReportTitleExceeded: "{month}年假超出小时数",
+        leaveReportNoneAvailableMsg: "本月没有员工有剩余可用小时数 - 所有人都已超出。",
+        leaveReportNoneExceededMsg: "本月没有员工超出小时数。",
         navLockSystem: "锁定系统",
         lockSystemModalTitle: "锁定系统",
         lockSystemModalSub: "临时阻止员工系统和/或人力资源系统的访问，例如在系统维护期间。行政管理系统永远不会被锁定。",
@@ -6201,14 +6207,27 @@ function filterMakeupTable() {
          tLang('tblRemarks', lang)
      ];
 
+     /* v6.57: "Available This Month" and "Exceeded Hours" are the SAME Check Details figure
+        (allowedThisMonth) read two ways, exactly as the admin explained: a positive/zero result
+        means that employee has hours available this month, a negative result means they've gone
+        over - and the magnitude of that negative number IS the exceeded amount. So each report
+        is a FILTER on that one number, not two different data sources: "Available This Month"
+        only lists employees whose allowedThisMonth is >= 0, "Exceeded Hours" only lists
+        employees whose allowedThisMonth is negative (shown as a positive exceeded amount). An
+        employee with the opposite sign for the report chosen is left out entirely, not shown as
+        zero, per the admin's "will have only the name of those people that have..." request. */
      const sortedEmployees = employees.slice().sort((a, b) => (a.id || '').localeCompare(b.id || '', undefined, { numeric: true }));
      const aoa = [[title], headerRow];
      sortedEmployees.forEach(emp => {
+         const qd = computeQueryData(emp, now, 0);
+         const isExceeded = qd.allowedThisMonth < 0;
+         if (type === 'exceeded' && !isExceeded) return;
+         if (type === 'available' && isExceeded) return;
+
          const computedCycle = computeLeaveCycle(emp.joinDate, now);
          const startStr = emp.startDate || computedCycle.startStr;
          const endStr = emp.endDate || computedCycle.endStr;
-         const qd = computeQueryData(emp, now, 0);
-         const lastColVal = type === 'exceeded' ? (parseFloat(emp.exceeded) || 0) : qd.allowedThisMonth;
+         const lastColVal = type === 'exceeded' ? Math.abs(qd.allowedThisMonth) : qd.allowedThisMonth;
          aoa.push([
              emp.id, emp.name, emp.joinDate, startStr, endStr,
              Number((parseFloat(emp.entitled) || 0).toFixed(2)),
@@ -6218,6 +6237,11 @@ function filterMakeupTable() {
              emp.remarks || ''
          ]);
      });
+
+     if (aoa.length <= 2) {
+         showToast(false, type === 'exceeded' ? t('leaveReportNoneExceededMsg') : t('leaveReportNoneAvailableMsg'));
+         return;
+     }
 
      const worksheet = XLSX.utils.aoa_to_sheet(aoa);
      worksheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: headerRow.length - 1 } }];
