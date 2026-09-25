@@ -386,7 +386,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.50</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.51</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1555,7 +1555,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.50
+     HR & Administration System Version 6.51
  </div>
 </div>
 
@@ -1804,7 +1804,11 @@
          </div>
          <div class="form-group" id="composeSpecificIdGroup">
              <label data-i18n="lblEmpId">Employee ID</label>
-             <input type="text" id="composeSpecificId" placeholder="e.g. 200001">
+             <!-- v6.51: one or more Employee ID rows, so a general notification can go to a
+                  handful of specific people (3, 5, whatever) in a single send instead of
+                  repeating the whole form once per person. -->
+             <div id="composeSpecificIdList"></div>
+             <button type="button" class="btn-edit" style="font-size:12px; padding:4px 0;" onclick="addComposeIdRow()" data-i18n="btnAddAnotherId">+ Add Another Employee ID</button>
          </div>
          <div class="form-group">
              <label data-i18n="lblComposeMessage">Response / Notification Title</label>
@@ -2527,6 +2531,8 @@
          lblComposeTarget: "Send To",
          targetSpecific: "Specific Employee ID",
          targetAll: "All Employees (General Notification)",
+         btnAddAnotherId: "+ Add Another Employee ID",
+         composeIdsRequiredMsg: "Please enter at least one Employee ID.",
          lblComposeMessage: "Response / Notification Title",
          lblNotifImageOptional: "Picture (optional)",
          notifImageErrorMsg: "Couldn't process that picture. Please try a different image file.",
@@ -2986,6 +2992,8 @@
          lblComposeTarget: "ផ្ញើទៅ",
          targetSpecific: "អត្តលេខបុគ្គលិកជាក់លាក់",
          targetAll: "បុគ្គលិកទាំងអស់ (ការជូនដំណឹងទូទៅ)",
+         btnAddAnotherId: "+ បន្ថែមអត្តលេខបុគ្គលិកផ្សេងទៀត",
+         composeIdsRequiredMsg: "សូមបញ្ចូលអត្តលេខបុគ្គលិកយ៉ាងហោចណាស់មួយ។",
          lblComposeMessage: "ចំណងជើងចម្លើយ / ការជូនដំណឹង",
          lblNotifImageOptional: "រូបភាព (ស្រេចចិត្ត)",
          notifImageErrorMsg: "មិនអាចដំណើរការរូបភាពនេះបានទេ។ សូមសាកល្បងរូបភាពផ្សេងទៀត។",
@@ -3438,6 +3446,8 @@
          lblComposeTarget: "发送对象",
          targetSpecific: "指定员工编号",
          targetAll: "所有员工（全体通知）",
+         btnAddAnotherId: "+ 添加另一个员工编号",
+         composeIdsRequiredMsg: "请至少输入一个员工编号。",
          lblComposeMessage: "回复 / 通知标题",
          lblNotifImageOptional: "图片（可选）",
          notifImageErrorMsg: "无法处理该图片，请尝试其他图片文件。",
@@ -6828,19 +6838,65 @@ function fillTemplate(str, vars) {
      renderSentNotifTable();
  });
 
- /* ---- Admin: compose a response (tied to a request) or a general announcement (to all) ---- */
+ /* v6.51: repeatable Employee ID rows for composeModal, so "New Announcement" can target a
+    handful of specific people (3, 5, whatever) in one send. Always keeps at least one row -
+    the remove button on each row only shows once there's a second row to remove down to. */
+ function addComposeIdRow(value) {
+     const list = document.getElementById('composeSpecificIdList');
+     const row = document.createElement('div');
+     row.className = 'compose-id-row';
+     row.style.cssText = 'display:flex; gap:6px; margin-bottom:6px;';
+     const safeValue = (value || '').replace(/"/g, '&quot;');
+     row.innerHTML = '<input type="text" class="compose-specific-id" placeholder="e.g. 200001" style="flex:1;" value="' + safeValue + '">' +
+         '<button type="button" class="btn-delete" onclick="removeComposeIdRow(this)" title="' + t('btnDeleteRequest') + '">&times;</button>';
+     list.appendChild(row);
+     updateComposeIdRemoveButtons();
+ }
+
+ function removeComposeIdRow(btn) {
+     const list = document.getElementById('composeSpecificIdList');
+     if (list.children.length <= 1) return;
+     btn.closest('.compose-id-row').remove();
+     updateComposeIdRemoveButtons();
+ }
+
+ function updateComposeIdRemoveButtons() {
+     const rows = document.querySelectorAll('#composeSpecificIdList .compose-id-row');
+     rows.forEach(row => {
+         const btn = row.querySelector('.btn-delete');
+         if (btn) btn.style.display = rows.length > 1 ? 'inline-block' : 'none';
+     });
+ }
+
+ function resetComposeIdList(initialValue) {
+     const list = document.getElementById('composeSpecificIdList');
+     list.innerHTML = '';
+     addComposeIdRow(initialValue || '');
+ }
+
+ function getComposeSpecificIds() {
+     const inputs = document.querySelectorAll('#composeSpecificIdList .compose-specific-id');
+     const ids = [];
+     inputs.forEach(inp => {
+         const v = inp.value.trim();
+         if (v && ids.indexOf(v) === -1) ids.push(v);
+     });
+     return ids;
+ }
+
+ /* ---- Admin: compose a response (tied to a request) or a general announcement (to all,
+    or to one or more specific Employee IDs) ---- */
  function openComposeNotification(targetId, relatedKey) {
      closeAllMenus();
      document.getElementById('composeForm').reset();
      document.getElementById('composeRelatedKey').value = relatedKey || '';
+     resetComposeIdList(targetId || '');
      if (targetId) {
          document.getElementById('composeTargetType').value = 'SPECIFIC';
-         document.getElementById('composeSpecificId').value = targetId;
          document.getElementById('composeSpecificIdGroup').style.display = 'block';
          document.getElementById('composeModalTitle').innerText = t('composeRespondTitle');
      } else {
          document.getElementById('composeTargetType').value = 'ALL';
-         document.getElementById('composeSpecificId').value = '';
          document.getElementById('composeSpecificIdGroup').style.display = 'none';
          document.getElementById('composeModalTitle').innerText = t('composeAnnounceTitle');
      }
@@ -7071,25 +7127,33 @@ function notifyCardReady() {
  document.getElementById('composeForm').addEventListener('submit', function(e) {
      e.preventDefault();
      const targetType = document.getElementById('composeTargetType').value;
-     const targetId = targetType === 'ALL' ? 'ALL' : document.getElementById('composeSpecificId').value.trim();
+     /* v6.51: SPECIFIC can now be a list of Employee IDs, not just one - each gets its own
+        notification entry (same message/description/picture), so nothing else about how a
+        notification is stored, filtered, or shown to an employee has to change. */
+     const targetIds = targetType === 'ALL' ? ['ALL'] : getComposeSpecificIds();
 
-     if (targetType === 'SPECIFIC' && !targetId) {
-         alert('Please enter an Employee ID to send this to.');
+     if (targetType === 'SPECIFIC' && targetIds.length === 0) {
+         alert(t('composeIdsRequiredMsg'));
          return;
      }
 
      const relatedKey = document.getElementById('composeRelatedKey').value;
 
      fileToCompressedDataUrl(document.getElementById('composeImage'), 1000).then(imageData => {
-         const payload = {
-             targetId: targetId,
-             message: document.getElementById('composeMessage').value.trim(),
-             description: document.getElementById('composeDescription').value.trim(),
-             relatedRequestKey: relatedKey || null,
-             timestamp: Date.now()
-         };
-         if (imageData) payload.imageData = imageData;
-         return db.ref('notifications').push(payload);
+         const message = document.getElementById('composeMessage').value.trim();
+         const description = document.getElementById('composeDescription').value.trim();
+         const pushes = targetIds.map(function(targetId) {
+             const payload = {
+                 targetId: targetId,
+                 message: message,
+                 description: description,
+                 relatedRequestKey: relatedKey || null,
+                 timestamp: Date.now()
+             };
+             if (imageData) payload.imageData = imageData;
+             return db.ref('notifications').push(payload);
+         });
+         return Promise.all(pushes);
      }).then(() => {
          if (relatedKey) {
              db.ref('requests/' + relatedKey).update({ status: 'processed' });
