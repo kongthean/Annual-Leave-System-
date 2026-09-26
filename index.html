@@ -386,7 +386,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.61</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.62</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1273,6 +1273,19 @@
      </div>
  </div>
 
+ <!-- PRINT COLOR TAG modal (v6.62): marks files that belong together (like a paperclip color) -
+      picking a swatch applies it immediately, no separate save step. -->
+ <div class="modal" id="printColorModal">
+     <div class="modal-content" style="max-width: 340px;">
+         <div class="modal-header">
+             <h4 data-i18n="printColorModalTitle">File Color</h4>
+             <button class="modal-close" onclick="closePrintColorModal()">&times;</button>
+         </div>
+         <p style="font-size:12px; color:#64748b; margin-bottom:12px;" data-i18n="printColorModalSub">Pick a color to mark files that belong together, like a paperclip color.</p>
+         <div id="printColorSwatches" style="display:flex; flex-wrap:wrap; gap:12px;"></div>
+     </div>
+ </div>
+
  <!-- CHECK DETAILS modal (v6.34) - expanded 3-column breakdown, opened from the Check Record tab.
       Replaces the old 2-column "Query Result" modal (removed in v6.36) since it now shows every
       field the old one did, plus more. -->
@@ -1645,7 +1658,7 @@
             <button type="button" class="quick-btn green" style="width:auto; min-width:140px; min-height:auto; padding:10px 16px; flex-direction:row; gap:8px;" onclick="document.getElementById('printFileInput').click()">
                 <span class="quick-btn-label" data-i18n="btnUploadFile">Upload File</span>
             </button>
-            <input type="file" id="printFileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none;" onchange="handlePrintFileUpload(this)">
+            <input type="file" id="printFileInput" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none;" onchange="handlePrintFileUpload(this)">
             <input type="file" id="printReplaceInput" accept=".pdf,.doc,.docx,.xls,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none;" onchange="handlePrintFileReplace(this)">
         </div>
 
@@ -1654,7 +1667,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.61
+     HR & Administration System Version 6.62
  </div>
 </div>
 
@@ -2897,6 +2910,13 @@
         btnClose: "Close",
         btnDownloadAndEdit: "Download and Edit",
         printToastNoticeSaved: "Print notice saved.",
+        printToastUploadedMulti: "{count} files uploaded.",
+        printToastUploadedPartial: "{uploaded} uploaded, {skipped} skipped (too large).",
+        btnPrintColor: "Color",
+        printColorModalTitle: "File Color",
+        printColorModalSub: "Pick a color to mark files that belong together, like a paperclip color.",
+        printColorNone: "No color",
+        printToastColorSaved: "Color saved.",
         navLockSystem: "Lock System",
         lockSystemModalTitle: "Lock System",
         lockSystemModalSub: "Temporarily block access to Employee and/or HR System, for example during maintenance. Administration is never locked out.",
@@ -3396,6 +3416,13 @@
         btnClose: "បិទ",
         btnDownloadAndEdit: "ទាញយក ហើយកែសម្រួល",
         printToastNoticeSaved: "បានរក្សាទុកសេចក្តីជូនដំណឹងរួចរាល់។",
+        printToastUploadedMulti: "បានអាប់ឡូតឯកសារចំនួន {count} ។",
+        printToastUploadedPartial: "បានអាប់ឡូត {uploaded} ។ រំលងចោល {skipped} (ធំពេក)។",
+        btnPrintColor: "ពណ៌",
+        printColorModalTitle: "ពណ៌ឯកសារ",
+        printColorModalSub: "ជ្រើសរើសពណ៌ដើម្បីសម្គាល់ឯកសារដែលទាក់ទងគ្នា ដូចជាពណ៌ក្តាប់ក្រដាស។",
+        printColorNone: "គ្មានពណ៌",
+        printToastColorSaved: "បានរក្សាទុកពណ៌រួចរាល់។",
         navLockSystem: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalTitle: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalSub: "ទប់ស្កាត់ការចូលប្រើប្រព័ន្ធបុគ្គលិក និង/ឬ ធនធានមនុស្សជាបណ្តោះអាសន្ន ឧទាហរណ៍ក្នុងអំឡុងពេលថែទាំប្រព័ន្ធ។ ប្រព័ន្ធរដ្ឋបាលមិនត្រូវបានចាក់សោឡើយ។",
@@ -3895,6 +3922,13 @@
         btnClose: "关闭",
         btnDownloadAndEdit: "下载并编辑",
         printToastNoticeSaved: "打印提示已保存。",
+        printToastUploadedMulti: "已上传 {count} 个文件。",
+        printToastUploadedPartial: "已上传 {uploaded} 个，跳过 {skipped} 个（文件过大）。",
+        btnPrintColor: "颜色",
+        printColorModalTitle: "文件颜色",
+        printColorModalSub: "选择一种颜色来标记需要放在一起的文件，就像回形针的颜色一样。",
+        printColorNone: "无颜色",
+        printToastColorSaved: "颜色已保存。",
         navLockSystem: "锁定系统",
         lockSystemModalTitle: "锁定系统",
         lockSystemModalSub: "临时阻止员工系统和/或人力资源系统的访问，例如在系统维护期间。行政管理系统永远不会被锁定。",
@@ -6968,6 +7002,42 @@ function printFileIconColor(name) {
     return '#dc2626';
 }
 
+/* v6.62: a fixed palette a file can be tagged with, purely visual (a colored left edge on its
+   row plus a matching dot on the Color button), so files meant to be printed/paperclipped
+   together can be marked the same color even if they sit in different folders or aren't next
+   to each other in the order. Stored as item.colorTag (a hex string, or null/absent for none). */
+const PRINT_COLOR_PALETTE = ['#dc2626', '#d97706', '#eab308', '#16a34a', '#0d9488', '#2563eb', '#7c3aed', '#db2777'];
+
+function openPrintColorModal(key) {
+    const file = printFiles.find(f => f.firebaseKey === key);
+    if (!file) return;
+    const modal = document.getElementById('printColorModal');
+    modal.dataset.fileKey = key;
+    const current = file.colorTag || null;
+    const swatchesEl = document.getElementById('printColorSwatches');
+    let html = PRINT_COLOR_PALETTE.map(c => {
+        const selected = c === current;
+        return '<div onclick="setPrintFileColor(\'' + c + '\')" style="width:32px; height:32px; border-radius:50%; background:' + c + '; cursor:pointer; border:' + (selected ? '3px solid #0f172a' : '3px solid transparent') + ';"></div>';
+    }).join('');
+    html += '<div onclick="setPrintFileColor(null)" style="width:32px; height:32px; border-radius:50%; background:#fff; border:2px dashed #94a3b8; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; color:#94a3b8;" title="' + t('printColorNone') + '">&times;</div>';
+    swatchesEl.innerHTML = html;
+    modal.style.display = 'flex';
+}
+
+function closePrintColorModal() {
+    document.getElementById('printColorModal').style.display = 'none';
+}
+
+function setPrintFileColor(color) {
+    const modal = document.getElementById('printColorModal');
+    const key = modal.dataset.fileKey;
+    if (!key) return;
+    db.ref('printFiles/' + key).update({ colorTag: color }).then(() => {
+        closePrintColorModal();
+        showToast(true, t('printToastColorSaved'));
+    }).catch(() => showToast(false));
+}
+
 function getPrintChildren(folderId) {
     const folders = printFolders.filter(f => (f.parentId || 'root') === folderId).map(f => Object.assign({ __type: 'folder' }, f));
     const files = printFiles.filter(f => (f.folderId || 'root') === folderId).map(f => Object.assign({ __type: 'file' }, f));
@@ -7032,7 +7102,13 @@ function renderPrintingView() {
             : '';
         const noticeBtn = isFolder ? '' :
             '<button type="button" class="btn-edit" style="font-size:13px;" onclick="openPrintNoticeSetModal(\'' + item.firebaseKey + '\')" data-i18n="btnPrintNotice">Notice</button>';
-        return '<div style="display:flex; align-items:center; gap:8px; padding:10px 6px; border-bottom:1px solid #e2e8f0; flex-wrap:wrap;">' +
+        /* v6.62: a small colored-dot button per file opens the Color picker; the file's chosen
+           color also shows as a left-edge stripe on its whole row (rowBorder below) so files
+           tagged the same color are easy to spot as "these go together" even across a scroll. */
+        const colorBtn = isFolder ? '' :
+            '<button type="button" class="btn-edit" style="font-size:13px; padding:4px 10px;" title="' + t('btnPrintColor') + '" onclick="openPrintColorModal(\'' + item.firebaseKey + '\')"><span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:' + (item.colorTag || '#cbd5e1') + '; vertical-align:middle;"></span></button>';
+        const rowBorder = !isFolder && item.colorTag ? ('border-left:6px solid ' + item.colorTag + ';') : 'border-left:6px solid transparent;';
+        return '<div style="display:flex; align-items:center; gap:8px; padding:10px 6px 10px 10px; border-bottom:1px solid #e2e8f0; flex-wrap:wrap; ' + rowBorder + '">' +
             '<span style="width:20px; text-align:center; color:#94a3b8; font-weight:600; flex-shrink:0;">' + (idx + 1) + '</span>' +
             icon +
             '<div style="flex:1; min-width:120px;">' + nameHtml + sizeLabel + noticeBadge + '</div>' +
@@ -7041,6 +7117,7 @@ function renderPrintingView() {
             downloadBtn +
             replaceBtn +
             noticeBtn +
+            colorBtn +
             '<button type="button" class="btn-edit" style="font-size:13px;" onclick="renamePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\')" data-i18n="btnRename">Rename</button>' +
             '<button type="button" class="btn-delete" style="font-size:13px;" onclick="deletePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\')" data-i18n="btnDeleteRequest">Delete</button>' +
             '</div>';
@@ -7060,32 +7137,57 @@ function createPrintFolder() {
     }).then(() => showToast(true, t('printToastFolderCreated'))).catch(() => showToast(false));
 }
 
+/* v6.62: uploads every file the person selected, not just the first one, so a batch of
+   documents can be added in one go instead of repeating the Upload File step for each one.
+   Files are read and pushed to Firebase ONE AT A TIME (chained, not parallel) - reading many
+   multi-MB files into base64 strings all at once would spike memory, and going one at a time
+   also guarantees the "order" field assigned to each file matches the order they were picked
+   in. A file over the 5MB cap is skipped (not aborting the rest of the batch), and the final
+   toast reports how many made it in vs. how many were skipped for size. */
 function handlePrintFileUpload(inputEl) {
-    const file = inputEl.files && inputEl.files[0];
-    if (!file) return;
-    if (file.size > PRINT_FILE_MAX_BYTES) {
-        showToast(false, t('printErrTooLarge'));
-        inputEl.value = '';
-        return;
+    const files = inputEl.files ? Array.from(inputEl.files) : [];
+    if (files.length === 0) return;
+    const folderId = currentPrintFolderId;
+    const siblings = getPrintChildren(folderId);
+    let nextOrder = siblings.reduce((m, c) => Math.max(m, c.order || 0), 0);
+    let uploadedCount = 0;
+    let skippedCount = 0;
+
+    function readAndPushOne(file) {
+        return new Promise((resolve) => {
+            if (file.size > PRINT_FILE_MAX_BYTES) {
+                skippedCount++;
+                resolve();
+                return;
+            }
+            nextOrder += 1;
+            const order = nextOrder;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                db.ref('printFiles').push({
+                    name: file.name,
+                    folderId: folderId,
+                    order: order,
+                    dataUrl: e.target.result,
+                    size: file.size,
+                    mimeType: file.type || 'application/octet-stream',
+                    uploadedAt: Date.now()
+                }).then(() => { uploadedCount++; resolve(); }).catch(() => { skippedCount++; resolve(); });
+            };
+            reader.onerror = function() { skippedCount++; resolve(); };
+            reader.readAsDataURL(file);
+        });
     }
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const siblings = getPrintChildren(currentPrintFolderId);
-        const maxOrder = siblings.reduce((m, c) => Math.max(m, c.order || 0), 0);
-        db.ref('printFiles').push({
-            name: file.name,
-            folderId: currentPrintFolderId,
-            order: maxOrder + 1,
-            dataUrl: e.target.result,
-            size: file.size,
-            mimeType: file.type || 'application/octet-stream',
-            uploadedAt: Date.now()
-        }).then(() => {
-            showToast(true, t('printToastUploaded'));
-        }).catch(() => showToast(false));
-    };
-    reader.onerror = function() { showToast(false); };
-    reader.readAsDataURL(file);
+
+    files.reduce((chain, file) => chain.then(() => readAndPushOne(file)), Promise.resolve()).then(() => {
+        if (uploadedCount > 0 && skippedCount === 0) {
+            showToast(true, files.length === 1 ? t('printToastUploaded') : fillTemplate(t('printToastUploadedMulti'), { count: uploadedCount }));
+        } else if (uploadedCount > 0 && skippedCount > 0) {
+            showToast(false, fillTemplate(t('printToastUploadedPartial'), { uploaded: uploadedCount, skipped: skippedCount }));
+        } else {
+            showToast(false, t('printErrTooLarge'));
+        }
+    });
     inputEl.value = '';
 }
 
