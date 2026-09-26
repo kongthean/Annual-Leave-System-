@@ -386,7 +386,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.57</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.58</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1588,7 +1588,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.57
+     HR & Administration System Version 6.58
  </div>
 </div>
 
@@ -5771,15 +5771,26 @@ function filterMakeupTable() {
                  const dateStr = monthPrefix + '-' + String(d).padStart(2, '0');
                  const dow = new Date(year, month - 1, d).getDay();
                  const dayEntries = entriesByKey[emp.id + '|' + dateStr] || [];
-                 const total = dayEntries.reduce((sum, h) => sum + (h.hours || 0), 0);
-                 const isPersonal = dayEntries.some(h => h.leaveType === 'thMasterPersonalLeave');
-                 if (isPersonal) totalPersonal += total; else totalAnnual += total;
-                 let cellStyle = 'padding:2px; text-align:center;' + (dow === 0 ? ' background:#f1f5f9;' : '');
+                 /* v6.58: split the day's entries into "annual-related" (every leave type except
+                    Personal) and "Personal" instead of summing them all into one number and
+                    labeling the whole thing Personal if ANY entry that day was Personal Leave.
+                    Previously Annual 7h + Personal 1h on the same day wrongly showed as 8h all
+                    under Personal. Now shown side by side like the Attendance Calendar's work/OT
+                    format (e.g. 7/1), and each bucket is added to its own running total below. */
+                 const personalEntries = dayEntries.filter(h => h.leaveType === 'thMasterPersonalLeave');
+                 const annualEntries = dayEntries.filter(h => h.leaveType !== 'thMasterPersonalLeave');
+                 const annualTotal = annualEntries.reduce((sum, h) => sum + (h.hours || 0), 0);
+                 const personalTotal = personalEntries.reduce((sum, h) => sum + (h.hours || 0), 0);
+                 totalAnnual += annualTotal;
+                 totalPersonal += personalTotal;
+                 let cellStyle = 'padding:2px; text-align:center; font-weight:700;' + (dow === 0 ? ' background:#f1f5f9;' : '');
                  let content = '';
-                 if (total > 0) {
-                     const bg = isPersonal ? '#fee2e2' : '#dcfce7';
-                     const fg = isPersonal ? '#dc2626' : '#15803d';
-                     content = '<div style="background:' + bg + '; color:' + fg + '; font-weight:700; border-radius:4px; padding:4px 2px; cursor:pointer;" title="' + t('acEditClickHint') + '" onclick="openAttCalEditModal(\'' + emp.id + '\',\'' + dateStr + '\')">' + formatCalHours(total) + '</div>';
+                 if (annualTotal > 0 || personalTotal > 0) {
+                     content = '<span style="cursor:pointer;" title="' + t('acEditClickHint') + '" onclick="openAttCalEditModal(\'' + emp.id + '\',\'' + dateStr + '\')">' +
+                         (annualTotal > 0 ? '<span style="color:#15803d;">' + formatCalHours(annualTotal) + '</span>' : '') +
+                         (annualTotal > 0 && personalTotal > 0 ? '<span style="color:#94a3b8;">/</span>' : '') +
+                         (personalTotal > 0 ? '<span style="color:#dc2626;">' + formatCalHours(personalTotal) + '</span>' : '') +
+                         '</span>';
                  }
                  cells += '<td style="' + cellStyle + '">' + content + '</td>';
              }
