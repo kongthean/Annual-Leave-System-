@@ -386,7 +386,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.59</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.60</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1609,7 +1609,8 @@
             <button type="button" class="quick-btn green" style="width:auto; min-width:140px; min-height:auto; padding:10px 16px; flex-direction:row; gap:8px;" onclick="document.getElementById('printFileInput').click()">
                 <span class="quick-btn-label" data-i18n="btnUploadFile">Upload File</span>
             </button>
-            <input type="file" id="printFileInput" accept="application/pdf,.pdf" style="display:none;" onchange="handlePrintFileUpload(this)">
+            <input type="file" id="printFileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none;" onchange="handlePrintFileUpload(this)">
+            <input type="file" id="printReplaceInput" accept=".pdf,.doc,.docx,.xls,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none;" onchange="handlePrintFileReplace(this)">
         </div>
 
         <div id="printItemList"></div>
@@ -1617,7 +1618,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.59
+     HR & Administration System Version 6.60
  </div>
 </div>
 
@@ -2847,7 +2848,9 @@
         printToastRenamed: "Renamed.",
         printToastDeleted: "Deleted.",
         printToastUploaded: "File uploaded.",
-        printErrTooLarge: "This file is too large (max 5 MB). Please choose a smaller PDF.",
+        printErrTooLarge: "This file is too large (max 5 MB). Please choose a smaller file.",
+        btnReplaceFile: "Replace",
+        printToastReplaced: "File replaced.",
         navLockSystem: "Lock System",
         lockSystemModalTitle: "Lock System",
         lockSystemModalSub: "Temporarily block access to Employee and/or HR System, for example during maintenance. Administration is never locked out.",
@@ -3334,7 +3337,9 @@
         printToastRenamed: "បានប្តូរឈ្មោះរួចរាល់។",
         printToastDeleted: "បានលុបរួចរាល់។",
         printToastUploaded: "បានអាប់ឡូតឯកសាររួចរាល់។",
-        printErrTooLarge: "ឯកសារនេះធំពេក (អតិបរមា 5 MB)។ សូមជ្រើសរើសឯកសារ PDF តូចជាងនេះ។",
+        printErrTooLarge: "ឯកសារនេះធំពេក (អតិបរមា 5 MB)។ សូមជ្រើសរើសឯកសារតូចជាងនេះ។",
+        btnReplaceFile: "ជំនួស",
+        printToastReplaced: "បានជំនួសឯកសាររួចរាល់។",
         navLockSystem: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalTitle: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalSub: "ទប់ស្កាត់ការចូលប្រើប្រព័ន្ធបុគ្គលិក និង/ឬ ធនធានមនុស្សជាបណ្តោះអាសន្ន ឧទាហរណ៍ក្នុងអំឡុងពេលថែទាំប្រព័ន្ធ។ ប្រព័ន្ធរដ្ឋបាលមិនត្រូវបានចាក់សោឡើយ។",
@@ -3821,7 +3826,9 @@
         printToastRenamed: "已重命名。",
         printToastDeleted: "已删除。",
         printToastUploaded: "文件已上传。",
-        printErrTooLarge: "此文件过大（最大 5 MB）。请选择较小的 PDF 文件。",
+        printErrTooLarge: "此文件过大（最大 5 MB）。请选择较小的文件。",
+        btnReplaceFile: "替换",
+        printToastReplaced: "文件已替换。",
         navLockSystem: "锁定系统",
         lockSystemModalTitle: "锁定系统",
         lockSystemModalSub: "临时阻止员工系统和/或人力资源系统的访问，例如在系统维护期间。行政管理系统永远不会被锁定。",
@@ -6867,6 +6874,9 @@ let printFiles = [];
 let currentPrintFolderId = 'root';
 let printFolderPath = [{ id: 'root', name: null }];
 const PRINT_FILE_MAX_BYTES = 5 * 1024 * 1024;
+/* v6.60: which file's key the hidden #printReplaceInput is currently armed for - set right
+   before that input is clicked, read once when its change event fires. */
+let pendingReplaceKey = null;
 
 db.ref('printFolders').on('value', (snapshot) => {
     const data = snapshot.val();
@@ -6881,6 +6891,15 @@ db.ref('printFiles').on('value', (snapshot) => {
 
 function escapePrintText(str) {
     return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* v6.60: color-codes the file icon by extension so PDFs, Word and Excel files are easy to
+   tell apart at a glance now that the Printing folders can hold all three (not just PDF). */
+function printFileIconColor(name) {
+    const ext = (name || '').toLowerCase().split('.').pop();
+    if (ext === 'doc' || ext === 'docx') return '#2563eb';
+    if (ext === 'xls' || ext === 'xlsx') return '#16a34a';
+    return '#dc2626';
 }
 
 function getPrintChildren(folderId) {
@@ -6926,13 +6945,19 @@ function renderPrintingView() {
         const isFolder = item.__type === 'folder';
         const icon = isFolder
             ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#d97706" stroke-width="2" style="flex-shrink:0;"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>'
-            : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#dc2626" stroke-width="2" style="flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+            : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="' + printFileIconColor(item.name) + '" stroke-width="2" style="flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
         const nameHtml = isFolder
             ? '<span style="cursor:pointer; font-weight:600; color:#334155;" onclick="openPrintFolder(\'' + item.firebaseKey + '\')">' + escapePrintText(item.name) + '</span>'
             : '<span style="cursor:pointer; font-weight:600; color:#334155;" onclick="openPrintFile(\'' + item.firebaseKey + '\')">' + escapePrintText(item.name) + '</span>';
         const sizeLabel = !isFolder && item.size ? '<span style="font-size:11px; color:#94a3b8; margin-left:6px;">(' + (item.size / 1024).toFixed(0) + ' KB)</span>' : '';
         const downloadBtn = isFolder ? '' :
             '<button type="button" class="btn-edit" style="font-size:13px;" onclick="downloadPrintFile(\'' + item.firebaseKey + '\')" data-i18n="btnDownloadReport">Download</button>';
+        /* v6.60: a file that needs monthly editing (a schedule, a payroll sheet, etc.) doesn't
+           need to be deleted and re-uploaded every month - Replace swaps its content (and name,
+           in case the new month's file is named differently) in place, keeping the same position
+           in the print order. Folders don't get this button, only files. */
+        const replaceBtn = isFolder ? '' :
+            '<button type="button" class="btn-edit" style="font-size:13px;" onclick="triggerReplacePrintFile(\'' + item.firebaseKey + '\')" data-i18n="btnReplaceFile">Replace</button>';
         return '<div style="display:flex; align-items:center; gap:8px; padding:10px 6px; border-bottom:1px solid #e2e8f0; flex-wrap:wrap;">' +
             '<span style="width:20px; text-align:center; color:#94a3b8; font-weight:600; flex-shrink:0;">' + (idx + 1) + '</span>' +
             icon +
@@ -6940,6 +6965,7 @@ function renderPrintingView() {
             '<button type="button" class="btn-edit" title="' + t('btnMoveUp') + '" style="padding:4px 8px; font-size:13px;"' + (idx === 0 ? ' disabled' : '') + ' onclick="movePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\',\'up\')">&uarr;</button>' +
             '<button type="button" class="btn-edit" title="' + t('btnMoveDown') + '" style="padding:4px 8px; font-size:13px;"' + (idx === children.length - 1 ? ' disabled' : '') + ' onclick="movePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\',\'down\')">&darr;</button>' +
             downloadBtn +
+            replaceBtn +
             '<button type="button" class="btn-edit" style="font-size:13px;" onclick="renamePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\')" data-i18n="btnRename">Rename</button>' +
             '<button type="button" class="btn-delete" style="font-size:13px;" onclick="deletePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\')" data-i18n="btnDeleteRequest">Delete</button>' +
             '</div>';
@@ -6977,10 +7003,46 @@ function handlePrintFileUpload(inputEl) {
             order: maxOrder + 1,
             dataUrl: e.target.result,
             size: file.size,
-            mimeType: file.type || 'application/pdf',
+            mimeType: file.type || 'application/octet-stream',
             uploadedAt: Date.now()
         }).then(() => {
             showToast(true, t('printToastUploaded'));
+        }).catch(() => showToast(false));
+    };
+    reader.onerror = function() { showToast(false); };
+    reader.readAsDataURL(file);
+    inputEl.value = '';
+}
+
+function triggerReplacePrintFile(key) {
+    pendingReplaceKey = key;
+    document.getElementById('printReplaceInput').click();
+}
+
+function handlePrintFileReplace(inputEl) {
+    const file = inputEl.files && inputEl.files[0];
+    const key = pendingReplaceKey;
+    pendingReplaceKey = null;
+    if (!file || !key) return;
+    if (file.size > PRINT_FILE_MAX_BYTES) {
+        showToast(false, t('printErrTooLarge'));
+        inputEl.value = '';
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        /* v6.60: only the content fields are updated via update() - name is refreshed to the
+           new file's name too (a monthly file is often re-saved under a new month's filename),
+           but folderId/order are left untouched so the file keeps its exact position in the
+           print order instead of jumping to the end like a fresh upload would. */
+        db.ref('printFiles/' + key).update({
+            name: file.name,
+            dataUrl: e.target.result,
+            size: file.size,
+            mimeType: file.type || 'application/octet-stream',
+            uploadedAt: Date.now()
+        }).then(() => {
+            showToast(true, t('printToastReplaced'));
         }).catch(() => showToast(false));
     };
     reader.onerror = function() { showToast(false); };
