@@ -386,7 +386,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.60</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.61</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1237,6 +1237,42 @@
      </div>
  </div>
 
+ <!-- PRINT NOTICE - SET modal (v6.61): flags a Printing file as "needs edit before printing" with
+      an optional note, so opening it later warns whoever clicks it instead of just printing it. -->
+ <div class="modal" id="printNoticeSetModal">
+     <div class="modal-content" style="max-width: 420px;">
+         <div class="modal-header">
+             <h4 data-i18n="printNoticeSetTitle">Print Notice</h4>
+             <button class="modal-close" onclick="closePrintNoticeSetModal()">&times;</button>
+         </div>
+         <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+             <input type="checkbox" id="printNoticeEnabledCheckbox" style="width:auto;">
+             <label style="margin:0;" data-i18n="printNoticeEnabledLabel">This file needs to be edited before printing</label>
+         </div>
+         <div class="form-group">
+             <label data-i18n="printNoticeNoteLabel">Note (optional)</label>
+             <textarea id="printNoticeNoteInput" rows="3" placeholder="e.g. Update the date and amounts before printing"></textarea>
+         </div>
+         <button class="btn-submit" onclick="savePrintNotice()" data-i18n="btnSaveChanges">Save Changes</button>
+     </div>
+ </div>
+
+ <!-- PRINT NOTICE - ALERT modal (v6.61): shown instead of opening the file when it's flagged. -->
+ <div class="modal" id="printNoticeAlertModal">
+     <div class="modal-content" style="max-width: 420px;">
+         <div class="modal-header">
+             <h4 data-i18n="printNoticeAlertTitle">Edit Before Printing</h4>
+             <button class="modal-close" onclick="closePrintNoticeAlertModal()">&times;</button>
+         </div>
+         <p style="font-size:13px; color:#334155; margin-bottom:10px;" data-i18n="printNoticeAlertMsg">This file needs to be edited before printing.</p>
+         <p id="printNoticeAlertNote" style="font-size:13px; color:#92400e; background:#fef3c7; border-radius:6px; padding:10px; margin-bottom:14px; display:none;"></p>
+         <div style="display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
+             <button type="button" class="btn-edit" onclick="closePrintNoticeAlertModal()" data-i18n="btnClose">Close</button>
+             <button type="button" class="btn-submit" style="width:auto;" onclick="downloadAndEditFromNotice()" data-i18n="btnDownloadAndEdit">Download and Edit</button>
+         </div>
+     </div>
+ </div>
+
  <!-- CHECK DETAILS modal (v6.34) - expanded 3-column breakdown, opened from the Check Record tab.
       Replaces the old 2-column "Query Result" modal (removed in v6.36) since it now shows every
       field the old one did, plus more. -->
@@ -1618,7 +1654,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.60
+     HR & Administration System Version 6.61
  </div>
 </div>
 
@@ -2851,6 +2887,16 @@
         printErrTooLarge: "This file is too large (max 5 MB). Please choose a smaller file.",
         btnReplaceFile: "Replace",
         printToastReplaced: "File replaced.",
+        btnPrintNotice: "Notice",
+        printNeedsEditBadge: "Needs Edit",
+        printNoticeSetTitle: "Print Notice",
+        printNoticeEnabledLabel: "This file needs to be edited before printing",
+        printNoticeNoteLabel: "Note (optional)",
+        printNoticeAlertTitle: "Edit Before Printing",
+        printNoticeAlertMsg: "This file needs to be edited before printing.",
+        btnClose: "Close",
+        btnDownloadAndEdit: "Download and Edit",
+        printToastNoticeSaved: "Print notice saved.",
         navLockSystem: "Lock System",
         lockSystemModalTitle: "Lock System",
         lockSystemModalSub: "Temporarily block access to Employee and/or HR System, for example during maintenance. Administration is never locked out.",
@@ -3340,6 +3386,16 @@
         printErrTooLarge: "ឯកសារនេះធំពេក (អតិបរមា 5 MB)។ សូមជ្រើសរើសឯកសារតូចជាងនេះ។",
         btnReplaceFile: "ជំនួស",
         printToastReplaced: "បានជំនួសឯកសាររួចរាល់។",
+        btnPrintNotice: "សេចក្តីជូនដំណឹង",
+        printNeedsEditBadge: "ត្រូវកែសម្រួល",
+        printNoticeSetTitle: "សេចក្តីជូនដំណឹងបោះពុម្ព",
+        printNoticeEnabledLabel: "ឯកសារនេះត្រូវការកែសម្រួលមុននឹងបោះពុម្ព",
+        printNoticeNoteLabel: "កំណត់ចំណាំ (មិនចាំបាច់)",
+        printNoticeAlertTitle: "សូមកែសម្រួលមុនបោះពុម្ព",
+        printNoticeAlertMsg: "ឯកសារនេះត្រូវការកែសម្រួលមុននឹងបោះពុម្ព។",
+        btnClose: "បិទ",
+        btnDownloadAndEdit: "ទាញយក ហើយកែសម្រួល",
+        printToastNoticeSaved: "បានរក្សាទុកសេចក្តីជូនដំណឹងរួចរាល់។",
         navLockSystem: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalTitle: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalSub: "ទប់ស្កាត់ការចូលប្រើប្រព័ន្ធបុគ្គលិក និង/ឬ ធនធានមនុស្សជាបណ្តោះអាសន្ន ឧទាហរណ៍ក្នុងអំឡុងពេលថែទាំប្រព័ន្ធ។ ប្រព័ន្ធរដ្ឋបាលមិនត្រូវបានចាក់សោឡើយ។",
@@ -3829,6 +3885,16 @@
         printErrTooLarge: "此文件过大（最大 5 MB）。请选择较小的文件。",
         btnReplaceFile: "替换",
         printToastReplaced: "文件已替换。",
+        btnPrintNotice: "提示",
+        printNeedsEditBadge: "需编辑",
+        printNoticeSetTitle: "打印提示",
+        printNoticeEnabledLabel: "此文件在打印前需要编辑",
+        printNoticeNoteLabel: "备注（可选）",
+        printNoticeAlertTitle: "打印前请先编辑",
+        printNoticeAlertMsg: "此文件在打印前需要编辑。",
+        btnClose: "关闭",
+        btnDownloadAndEdit: "下载并编辑",
+        printToastNoticeSaved: "打印提示已保存。",
         navLockSystem: "锁定系统",
         lockSystemModalTitle: "锁定系统",
         lockSystemModalSub: "临时阻止员工系统和/或人力资源系统的访问，例如在系统维护期间。行政管理系统永远不会被锁定。",
@@ -6958,14 +7024,23 @@ function renderPrintingView() {
            in the print order. Folders don't get this button, only files. */
         const replaceBtn = isFolder ? '' :
             '<button type="button" class="btn-edit" style="font-size:13px;" onclick="triggerReplacePrintFile(\'' + item.firebaseKey + '\')" data-i18n="btnReplaceFile">Replace</button>';
+        /* v6.61: files flagged "needs edit before printing" get a small warning badge next to
+           their name so it's visible at a glance without having to click into them, and a
+           Notice button (files only) to turn the flag on/off and set/change its note. */
+        const noticeBadge = !isFolder && item.needsEdit
+            ? '<span style="background:#fef3c7; color:#92400e; font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; margin-left:6px; white-space:nowrap;" data-i18n="printNeedsEditBadge">Needs Edit</span>'
+            : '';
+        const noticeBtn = isFolder ? '' :
+            '<button type="button" class="btn-edit" style="font-size:13px;" onclick="openPrintNoticeSetModal(\'' + item.firebaseKey + '\')" data-i18n="btnPrintNotice">Notice</button>';
         return '<div style="display:flex; align-items:center; gap:8px; padding:10px 6px; border-bottom:1px solid #e2e8f0; flex-wrap:wrap;">' +
             '<span style="width:20px; text-align:center; color:#94a3b8; font-weight:600; flex-shrink:0;">' + (idx + 1) + '</span>' +
             icon +
-            '<div style="flex:1; min-width:120px;">' + nameHtml + sizeLabel + '</div>' +
+            '<div style="flex:1; min-width:120px;">' + nameHtml + sizeLabel + noticeBadge + '</div>' +
             '<button type="button" class="btn-edit" title="' + t('btnMoveUp') + '" style="padding:4px 8px; font-size:13px;"' + (idx === 0 ? ' disabled' : '') + ' onclick="movePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\',\'up\')">&uarr;</button>' +
             '<button type="button" class="btn-edit" title="' + t('btnMoveDown') + '" style="padding:4px 8px; font-size:13px;"' + (idx === children.length - 1 ? ' disabled' : '') + ' onclick="movePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\',\'down\')">&darr;</button>' +
             downloadBtn +
             replaceBtn +
+            noticeBtn +
             '<button type="button" class="btn-edit" style="font-size:13px;" onclick="renamePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\')" data-i18n="btnRename">Rename</button>' +
             '<button type="button" class="btn-delete" style="font-size:13px;" onclick="deletePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\')" data-i18n="btnDeleteRequest">Delete</button>' +
             '</div>';
@@ -7110,9 +7185,28 @@ function movePrintItem(type, key, direction) {
     db.ref().update(updates);
 }
 
+/* v6.61: which file the Print Notice alert modal is currently showing/downloading for. */
+let pendingNoticeAlertKey = null;
+
 function openPrintFile(key) {
     const file = printFiles.find(f => f.firebaseKey === key);
     if (!file || !file.dataUrl) { showToast(false); return; }
+    /* v6.61: a file flagged "needs edit before printing" doesn't open/print directly - it shows
+       a warning (with whatever note was left on it) and only Download-and-Edit or Close, so it
+       can't accidentally be printed in its stale, not-yet-updated state. */
+    if (file.needsEdit) {
+        pendingNoticeAlertKey = key;
+        const noteEl = document.getElementById('printNoticeAlertNote');
+        if (file.editNote && file.editNote.trim()) {
+            noteEl.innerText = file.editNote;
+            noteEl.style.display = 'block';
+        } else {
+            noteEl.innerText = '';
+            noteEl.style.display = 'none';
+        }
+        document.getElementById('printNoticeAlertModal').style.display = 'flex';
+        return;
+    }
     const a = document.createElement('a');
     a.href = file.dataUrl;
     a.target = '_blank';
@@ -7120,6 +7214,46 @@ function openPrintFile(key) {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+}
+
+function closePrintNoticeAlertModal() {
+    document.getElementById('printNoticeAlertModal').style.display = 'none';
+    pendingNoticeAlertKey = null;
+}
+
+function downloadAndEditFromNotice() {
+    const key = pendingNoticeAlertKey;
+    closePrintNoticeAlertModal();
+    if (key) downloadPrintFile(key);
+}
+
+function openPrintNoticeSetModal(key) {
+    const file = printFiles.find(f => f.firebaseKey === key);
+    if (!file) return;
+    const modal = document.getElementById('printNoticeSetModal');
+    modal.dataset.fileKey = key;
+    document.getElementById('printNoticeEnabledCheckbox').checked = !!file.needsEdit;
+    document.getElementById('printNoticeNoteInput').value = file.editNote || '';
+    modal.style.display = 'flex';
+}
+
+function closePrintNoticeSetModal() {
+    document.getElementById('printNoticeSetModal').style.display = 'none';
+}
+
+function savePrintNotice() {
+    const modal = document.getElementById('printNoticeSetModal');
+    const key = modal.dataset.fileKey;
+    if (!key) return;
+    const enabled = document.getElementById('printNoticeEnabledCheckbox').checked;
+    const note = document.getElementById('printNoticeNoteInput').value.trim();
+    db.ref('printFiles/' + key).update({
+        needsEdit: enabled,
+        editNote: note
+    }).then(() => {
+        closePrintNoticeSetModal();
+        showToast(true, t('printToastNoticeSaved'));
+    }).catch(() => showToast(false));
 }
 
 function downloadPrintFile(key) {
