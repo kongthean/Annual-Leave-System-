@@ -386,7 +386,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.58</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.59</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -772,7 +772,8 @@
  <button id="nav-dept" onclick="switchTab('tab-dept', this)" data-i18n="navDepartments" style="display:none;">Departments</button>
 <button id="nav-makeup" onclick="switchTab('tab-makeup', this)" data-i18n="navMakeup" style="display:none;">Makeup Attendance Record</button>
 <button id="nav-attcal" onclick="switchTab('tab-attcal', this)" data-i18n="navAttCal" style="display:none;">Leave &amp; Attendance Calendar</button>
- 
+<button id="nav-printing" onclick="switchTab('tab-printing', this)" data-i18n="navPrinting" style="display:none;">Printing</button>
+
  <!-- TAB 1: DASHBOARD -->
  <div id="tab-home" class="tab-panel active">
      <h3 style="margin-bottom: 12px; color: #0f172a;" data-i18n="dashOverview">Overview Dashboard</h3>
@@ -843,6 +844,9 @@
         </button>
         <button class="quick-btn" style="background:linear-gradient(135deg,#0f766e,#134e4a);" onclick="triggerNav('tab-attcal', 'nav-attcal')">
             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><rect x="7" y="13" width="4" height="4"/></svg></span><span class="quick-btn-label" data-i18n="navAttCal">Leave &amp; Attendance Calendar</span>
+        </button>
+         <button class="quick-btn" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);" onclick="triggerNav('tab-printing', 'nav-printing')">
+            <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span><span class="quick-btn-label" data-i18n="navPrinting">Printing</span>
         </button>
          <button class="quick-btn purple admin-only" onclick="triggerNav('tab-dept', 'nav-dept')">
              <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01"/><path d="M15 10h.01"/></svg></span><span class="quick-btn-label" data-i18n="navDepartments">Departments</span>
@@ -1587,8 +1591,33 @@
     </div>
 </div>
 
+<!-- TAB: PRINTING (v6.59) - folder-based file manager for documents kept for printing.
+     Data lives in printFolders/printFiles (separate Firebase collections from everything
+     else in the app), so this feature cannot touch employee, leave, attendance or Master
+     Sheet data in any way. -->
+<div id="tab-printing" class="tab-panel">
+    <h3 data-i18n="printingTitle">Printing</h3>
+    <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="printingSub">Create folders, upload files, rename or delete them, and use the arrows to arrange the order you want things printed.</p>
+
+    <div class="dash-card">
+        <div id="printBreadcrumb" style="font-size:13px; margin-bottom:12px; color:#334155; word-break:break-word;"></div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
+            <button type="button" class="quick-btn amber" style="width:auto; min-width:140px; min-height:auto; padding:10px 16px; flex-direction:row; gap:8px;" onclick="createPrintFolder()">
+                <span class="quick-btn-label" data-i18n="btnNewFolder">New Folder</span>
+            </button>
+            <button type="button" class="quick-btn green" style="width:auto; min-width:140px; min-height:auto; padding:10px 16px; flex-direction:row; gap:8px;" onclick="document.getElementById('printFileInput').click()">
+                <span class="quick-btn-label" data-i18n="btnUploadFile">Upload File</span>
+            </button>
+            <input type="file" id="printFileInput" accept="application/pdf,.pdf" style="display:none;" onchange="handlePrintFileUpload(this)">
+        </div>
+
+        <div id="printItemList"></div>
+    </div>
+</div>
+
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.58
+     HR & Administration System Version 6.59
  </div>
 </div>
 
@@ -2800,6 +2829,25 @@
         leaveReportTitleExceeded: "Remaining Exceeded Hours for Annual Leave for {month}",
         leaveReportNoneAvailableMsg: "No employees have hours available this month - everyone has exceeded.",
         leaveReportNoneExceededMsg: "No employees have exceeded hours this month.",
+        navPrinting: "Printing",
+        printingTitle: "Printing",
+        printingSub: "Create folders, upload files, rename or delete them, and use the arrows to arrange the order you want things printed.",
+        printRootLabel: "Printing",
+        btnNewFolder: "New Folder",
+        btnUploadFile: "Upload File",
+        printEmptyMsg: "This folder is empty.",
+        btnMoveUp: "Move Up",
+        btnMoveDown: "Move Down",
+        btnRename: "Rename",
+        printFolderNamePrompt: "Enter folder name:",
+        printRenamePrompt: "Enter new name:",
+        printDeleteFolderConfirm: "Delete this folder and everything inside it? This cannot be undone.",
+        printDeleteFileConfirm: "Delete this file? This cannot be undone.",
+        printToastFolderCreated: "Folder created.",
+        printToastRenamed: "Renamed.",
+        printToastDeleted: "Deleted.",
+        printToastUploaded: "File uploaded.",
+        printErrTooLarge: "This file is too large (max 5 MB). Please choose a smaller PDF.",
         navLockSystem: "Lock System",
         lockSystemModalTitle: "Lock System",
         lockSystemModalSub: "Temporarily block access to Employee and/or HR System, for example during maintenance. Administration is never locked out.",
@@ -3268,6 +3316,25 @@
         leaveReportTitleExceeded: "ម៉ោងប្រើលើសនៃច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំសម្រាប់ខែ {month}",
         leaveReportNoneAvailableMsg: "គ្មានបុគ្គលិកណាម្នាក់មានម៉ោងសល់ក្នុងខែនេះទេ - គ្រប់គ្នាប្រើលើសអស់ហើយ។",
         leaveReportNoneExceededMsg: "គ្មានបុគ្គលិកណាម្នាក់ប្រើលើសម៉ោងក្នុងខែនេះទេ។",
+        navPrinting: "បោះពុម្ព",
+        printingTitle: "បោះពុម្ព",
+        printingSub: "បង្កើតថត អាប់ឡូតឯកសារ ប្តូរឈ្មោះ ឬលុបវា ហើយប្រើព្រួញដើម្បីរៀបចំលំដាប់ដែលអ្នកចង់បោះពុម្ព។",
+        printRootLabel: "បោះពុម្ព",
+        btnNewFolder: "ថតថ្មី",
+        btnUploadFile: "អាប់ឡូតឯកសារ",
+        printEmptyMsg: "ថតនេះទទេ។",
+        btnMoveUp: "ផ្លាស់ទីឡើងលើ",
+        btnMoveDown: "ផ្លាស់ទីចុះក្រោម",
+        btnRename: "ប្តូរឈ្មោះ",
+        printFolderNamePrompt: "បញ្ចូលឈ្មោះថត៖",
+        printRenamePrompt: "បញ្ចូលឈ្មោះថ្មី៖",
+        printDeleteFolderConfirm: "លុបថតនេះ និងអ្វីៗគ្រប់យ៉ាងនៅខាងក្នុងវា? សកម្មភាពនេះមិនអាចមិនធ្វើវិញបានទេ។",
+        printDeleteFileConfirm: "លុបឯកសារនេះ? សកម្មភាពនេះមិនអាចមិនធ្វើវិញបានទេ។",
+        printToastFolderCreated: "បានបង្កើតថតរួចរាល់។",
+        printToastRenamed: "បានប្តូរឈ្មោះរួចរាល់។",
+        printToastDeleted: "បានលុបរួចរាល់។",
+        printToastUploaded: "បានអាប់ឡូតឯកសាររួចរាល់។",
+        printErrTooLarge: "ឯកសារនេះធំពេក (អតិបរមា 5 MB)។ សូមជ្រើសរើសឯកសារ PDF តូចជាងនេះ។",
         navLockSystem: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalTitle: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalSub: "ទប់ស្កាត់ការចូលប្រើប្រព័ន្ធបុគ្គលិក និង/ឬ ធនធានមនុស្សជាបណ្តោះអាសន្ន ឧទាហរណ៍ក្នុងអំឡុងពេលថែទាំប្រព័ន្ធ។ ប្រព័ន្ធរដ្ឋបាលមិនត្រូវបានចាក់សោឡើយ។",
@@ -3736,6 +3803,25 @@
         leaveReportTitleExceeded: "{month}年假超出小时数",
         leaveReportNoneAvailableMsg: "本月没有员工有剩余可用小时数 - 所有人都已超出。",
         leaveReportNoneExceededMsg: "本月没有员工超出小时数。",
+        navPrinting: "打印",
+        printingTitle: "打印",
+        printingSub: "创建文件夹、上传文件、重命名或删除它们，并使用箭头排列您想要打印的顺序。",
+        printRootLabel: "打印",
+        btnNewFolder: "新建文件夹",
+        btnUploadFile: "上传文件",
+        printEmptyMsg: "此文件夹为空。",
+        btnMoveUp: "上移",
+        btnMoveDown: "下移",
+        btnRename: "重命名",
+        printFolderNamePrompt: "请输入文件夹名称：",
+        printRenamePrompt: "请输入新名称：",
+        printDeleteFolderConfirm: "删除此文件夹及其中的所有内容？此操作无法撤销。",
+        printDeleteFileConfirm: "删除此文件？此操作无法撤销。",
+        printToastFolderCreated: "文件夹已创建。",
+        printToastRenamed: "已重命名。",
+        printToastDeleted: "已删除。",
+        printToastUploaded: "文件已上传。",
+        printErrTooLarge: "此文件过大（最大 5 MB）。请选择较小的 PDF 文件。",
         navLockSystem: "锁定系统",
         lockSystemModalTitle: "锁定系统",
         lockSystemModalSub: "临时阻止员工系统和/或人力资源系统的访问，例如在系统维护期间。行政管理系统永远不会被锁定。",
@@ -4771,6 +4857,7 @@ function deleteAnnouncement(firebaseKey) {
      if(tabId === 'tab-shift') { renderShiftCalendarTable(); }
      if(tabId === 'tab-dept') renderDeptTable();
      if(tabId === 'tab-attcal') { renderAttCalTable(); }
+     if(tabId === 'tab-printing') { renderPrintingView(); }
  }
  
  function triggerNav(tabId, navBtnId) {
@@ -6765,6 +6852,224 @@ db.ref('attendanceHistory').on('value', (snapshot) => {
     const data = snapshot.val();
     attendanceHistory = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
 });
+
+/* ================= v6.59: PRINTING - folder-based file manager =================
+   Two brand-new, independent Firebase collections (printFolders/printFiles) power a simple
+   folder tree for documents kept for printing. Nothing here reads or writes employees,
+   leaveHistory, attendanceHistory or any other existing collection, so it cannot affect
+   Master Sheet, Check Record or any recorded data. Files are stored as base64 data URLs
+   directly in the Realtime Database (no Firebase Storage needed), capped at 5MB each to
+   keep the database responsive. Folders and files share one combined, drag-free "order"
+   number per parent folder, adjusted with Move Up/Down buttons, so admins can arrange both
+   subfolders and files into the single sequence they intend to print them in. */
+let printFolders = [];
+let printFiles = [];
+let currentPrintFolderId = 'root';
+let printFolderPath = [{ id: 'root', name: null }];
+const PRINT_FILE_MAX_BYTES = 5 * 1024 * 1024;
+
+db.ref('printFolders').on('value', (snapshot) => {
+    const data = snapshot.val();
+    printFolders = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+    renderPrintingView();
+});
+db.ref('printFiles').on('value', (snapshot) => {
+    const data = snapshot.val();
+    printFiles = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+    renderPrintingView();
+});
+
+function escapePrintText(str) {
+    return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function getPrintChildren(folderId) {
+    const folders = printFolders.filter(f => (f.parentId || 'root') === folderId).map(f => Object.assign({ __type: 'folder' }, f));
+    const files = printFiles.filter(f => (f.folderId || 'root') === folderId).map(f => Object.assign({ __type: 'file' }, f));
+    return folders.concat(files).sort((a, b) => (a.order || 0) - (b.order || 0));
+}
+
+function renderPrintBreadcrumb() {
+    const el = document.getElementById('printBreadcrumb');
+    if (!el) return;
+    el.innerHTML = printFolderPath.map((node, idx) => {
+        const label = idx === 0 ? t('printRootLabel') : escapePrintText(node.name);
+        const isLast = idx === printFolderPath.length - 1;
+        if (isLast) return '<b>' + label + '</b>';
+        return '<span style="color:#2563eb; cursor:pointer; text-decoration:underline;" onclick="navigatePrintBreadcrumb(' + idx + ')">' + label + '</span> / ';
+    }).join('');
+}
+
+function navigatePrintBreadcrumb(index) {
+    printFolderPath = printFolderPath.slice(0, index + 1);
+    currentPrintFolderId = printFolderPath[printFolderPath.length - 1].id;
+    renderPrintingView();
+}
+
+function openPrintFolder(id) {
+    const folder = printFolders.find(f => f.firebaseKey === id);
+    printFolderPath.push({ id, name: folder ? folder.name : '' });
+    currentPrintFolderId = id;
+    renderPrintingView();
+}
+
+function renderPrintingView() {
+    const listEl = document.getElementById('printItemList');
+    if (!listEl) return;
+    renderPrintBreadcrumb();
+    const children = getPrintChildren(currentPrintFolderId);
+    if (children.length === 0) {
+        listEl.innerHTML = '<p style="text-align:center; color:#94a3b8; padding:16px 0;" data-i18n="printEmptyMsg">This folder is empty.</p>';
+        return;
+    }
+    listEl.innerHTML = children.map((item, idx) => {
+        const isFolder = item.__type === 'folder';
+        const icon = isFolder
+            ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#d97706" stroke-width="2" style="flex-shrink:0;"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>'
+            : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#dc2626" stroke-width="2" style="flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+        const nameHtml = isFolder
+            ? '<span style="cursor:pointer; font-weight:600; color:#334155;" onclick="openPrintFolder(\'' + item.firebaseKey + '\')">' + escapePrintText(item.name) + '</span>'
+            : '<span style="cursor:pointer; font-weight:600; color:#334155;" onclick="openPrintFile(\'' + item.firebaseKey + '\')">' + escapePrintText(item.name) + '</span>';
+        const sizeLabel = !isFolder && item.size ? '<span style="font-size:11px; color:#94a3b8; margin-left:6px;">(' + (item.size / 1024).toFixed(0) + ' KB)</span>' : '';
+        const downloadBtn = isFolder ? '' :
+            '<button type="button" class="btn-edit" style="font-size:13px;" onclick="downloadPrintFile(\'' + item.firebaseKey + '\')" data-i18n="btnDownloadReport">Download</button>';
+        return '<div style="display:flex; align-items:center; gap:8px; padding:10px 6px; border-bottom:1px solid #e2e8f0; flex-wrap:wrap;">' +
+            '<span style="width:20px; text-align:center; color:#94a3b8; font-weight:600; flex-shrink:0;">' + (idx + 1) + '</span>' +
+            icon +
+            '<div style="flex:1; min-width:120px;">' + nameHtml + sizeLabel + '</div>' +
+            '<button type="button" class="btn-edit" title="' + t('btnMoveUp') + '" style="padding:4px 8px; font-size:13px;"' + (idx === 0 ? ' disabled' : '') + ' onclick="movePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\',\'up\')">&uarr;</button>' +
+            '<button type="button" class="btn-edit" title="' + t('btnMoveDown') + '" style="padding:4px 8px; font-size:13px;"' + (idx === children.length - 1 ? ' disabled' : '') + ' onclick="movePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\',\'down\')">&darr;</button>' +
+            downloadBtn +
+            '<button type="button" class="btn-edit" style="font-size:13px;" onclick="renamePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\')" data-i18n="btnRename">Rename</button>' +
+            '<button type="button" class="btn-delete" style="font-size:13px;" onclick="deletePrintItem(\'' + item.__type + '\',\'' + item.firebaseKey + '\')" data-i18n="btnDeleteRequest">Delete</button>' +
+            '</div>';
+    }).join('');
+}
+
+function createPrintFolder() {
+    const name = prompt(t('printFolderNamePrompt'));
+    if (!name || !name.trim()) return;
+    const siblings = getPrintChildren(currentPrintFolderId);
+    const maxOrder = siblings.reduce((m, c) => Math.max(m, c.order || 0), 0);
+    db.ref('printFolders').push({
+        name: name.trim(),
+        parentId: currentPrintFolderId,
+        order: maxOrder + 1,
+        createdAt: Date.now()
+    }).then(() => showToast(true, t('printToastFolderCreated'))).catch(() => showToast(false));
+}
+
+function handlePrintFileUpload(inputEl) {
+    const file = inputEl.files && inputEl.files[0];
+    if (!file) return;
+    if (file.size > PRINT_FILE_MAX_BYTES) {
+        showToast(false, t('printErrTooLarge'));
+        inputEl.value = '';
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const siblings = getPrintChildren(currentPrintFolderId);
+        const maxOrder = siblings.reduce((m, c) => Math.max(m, c.order || 0), 0);
+        db.ref('printFiles').push({
+            name: file.name,
+            folderId: currentPrintFolderId,
+            order: maxOrder + 1,
+            dataUrl: e.target.result,
+            size: file.size,
+            mimeType: file.type || 'application/pdf',
+            uploadedAt: Date.now()
+        }).then(() => {
+            showToast(true, t('printToastUploaded'));
+        }).catch(() => showToast(false));
+    };
+    reader.onerror = function() { showToast(false); };
+    reader.readAsDataURL(file);
+    inputEl.value = '';
+}
+
+function renamePrintItem(type, key) {
+    const collection = type === 'folder' ? printFolders : printFiles;
+    const item = collection.find(c => c.firebaseKey === key);
+    if (!item) return;
+    const newName = prompt(t('printRenamePrompt'), item.name || '');
+    if (!newName || !newName.trim() || newName.trim() === item.name) return;
+    const path = (type === 'folder' ? 'printFolders/' : 'printFiles/') + key;
+    db.ref(path).update({ name: newName.trim() }).then(() => showToast(true, t('printToastRenamed'))).catch(() => showToast(false));
+}
+
+function deletePrintItem(type, key) {
+    if (type === 'file') {
+        if (!confirm(t('printDeleteFileConfirm'))) return;
+        db.ref('printFiles/' + key).remove().then(() => showToast(true, t('printToastDeleted'))).catch(() => showToast(false));
+        return;
+    }
+    if (!confirm(t('printDeleteFolderConfirm'))) return;
+    /* v6.59: deleting a folder also deletes every nested subfolder and file inside it - walk the
+       tree breadth-first collecting every descendant folder key, then every file whose folderId
+       matches any of those, and remove them all in one multi-location update() so nothing is
+       left orphaned in Firebase pointing at a folder that no longer exists. */
+    const foldersToDelete = [key];
+    let frontier = [key];
+    while (frontier.length > 0) {
+        const next = [];
+        printFolders.forEach(f => {
+            if (frontier.indexOf(f.parentId) !== -1 && foldersToDelete.indexOf(f.firebaseKey) === -1) {
+                foldersToDelete.push(f.firebaseKey);
+                next.push(f.firebaseKey);
+            }
+        });
+        frontier = next;
+    }
+    const filesToDelete = printFiles.filter(f => foldersToDelete.indexOf(f.folderId) !== -1).map(f => f.firebaseKey);
+    const updates = {};
+    foldersToDelete.forEach(k => { updates['printFolders/' + k] = null; });
+    filesToDelete.forEach(k => { updates['printFiles/' + k] = null; });
+    db.ref().update(updates).then(() => {
+        if (foldersToDelete.indexOf(currentPrintFolderId) !== -1) {
+            const idx = printFolderPath.findIndex(p => p.id === key);
+            printFolderPath = idx > 0 ? printFolderPath.slice(0, idx) : [{ id: 'root', name: null }];
+            currentPrintFolderId = printFolderPath[printFolderPath.length - 1].id;
+        }
+        showToast(true, t('printToastDeleted'));
+    }).catch(() => showToast(false));
+}
+
+function movePrintItem(type, key, direction) {
+    const children = getPrintChildren(currentPrintFolderId);
+    const idx = children.findIndex(c => c.__type === type && c.firebaseKey === key);
+    if (idx < 0) return;
+    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= children.length) return;
+    const a = children[idx], b = children[swapIdx];
+    const updates = {};
+    updates[(a.__type === 'folder' ? 'printFolders/' : 'printFiles/') + a.firebaseKey + '/order'] = b.order || 0;
+    updates[(b.__type === 'folder' ? 'printFolders/' : 'printFiles/') + b.firebaseKey + '/order'] = a.order || 0;
+    db.ref().update(updates);
+}
+
+function openPrintFile(key) {
+    const file = printFiles.find(f => f.firebaseKey === key);
+    if (!file || !file.dataUrl) { showToast(false); return; }
+    const a = document.createElement('a');
+    a.href = file.dataUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+function downloadPrintFile(key) {
+    const file = printFiles.find(f => f.firebaseKey === key);
+    if (!file || !file.dataUrl) { showToast(false); return; }
+    const a = document.createElement('a');
+    a.href = file.dataUrl;
+    a.download = file.name || 'document.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
 
 function fillTemplate(str, vars) {
     return (str || '').replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? vars[k] : m));
