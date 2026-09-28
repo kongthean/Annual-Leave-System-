@@ -386,7 +386,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.62</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.63</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -935,7 +935,7 @@
              <p style="font-size:11px; color:#64748b;" data-i18n="masterSub">Complete employee management ledger</p>
          </div>
          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-             <button class="quick-btn green" onclick="exportToExcel('master')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+             <button class="quick-btn green" onclick="openExportLangModal('master')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
              <button class="quick-btn amber" onclick="openLeaveReportModal()" data-i18n="btnExportLeaveReport">Export Leave Report</button>
          </div>
      </div>
@@ -997,7 +997,7 @@
                  <input type="number" id="bulkWorkDaysInput" value="208" step="1" style="width: 70px; padding: 4px;">
                  <button class="quick-btn" style="padding: 4px 8px; font-size:11px;" onclick="applyBulkWorkingHours()" data-i18n="btnApplyAll">Apply to All</button>
              </div>
-             <button class="quick-btn green" onclick="exportToExcel('monthly')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+             <button class="quick-btn green" onclick="openExportLangModal('monthly')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
          </div>
      </div>
  
@@ -1132,7 +1132,7 @@
              <h3 data-i18n="employeeListTitle">Employee List</h3>
              <p style="font-size:11px; color:#64748b;" data-i18n="employeeListSub">Manage employee directory & statuses</p>
          </div>
-         <button class="quick-btn green" onclick="exportToExcel('employee')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+         <button class="quick-btn green" onclick="openExportLangModal('employee')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
      </div>
  
      <div class="search-bar-wrapper">
@@ -1205,6 +1205,29 @@
              </select>
          </div>
          <button class="btn-submit" onclick="confirmBackupNow()" data-i18n="btnConfirmBackup">Download Backup</button>
+     </div>
+ </div>
+
+ <!-- v6.63: shared language picker for exports that were previously English-only - Master Sheet,
+      Monthly Report, Employee Directory, and Shift Calendar. Which export to run on confirm is
+      remembered by openExportLangModal(kind)/pendingExportKind rather than baked into the modal,
+      so one small modal covers all four instead of four near-identical copies. -->
+ <div class="modal" id="exportLangModal">
+     <div class="modal-content" style="max-width: 380px;">
+         <div class="modal-header">
+             <h4 data-i18n="exportLangModalTitle">Choose Export Language</h4>
+             <button class="modal-close" onclick="closeExportLangModal()">&times;</button>
+         </div>
+         <p style="font-size:13px; color:#334155; margin-bottom:14px;" data-i18n="exportLangModalSub">Choose which language to use for the exported Excel file, then confirm to download.</p>
+         <div class="form-group">
+             <label data-i18n="backupLangModalLabel">Backup Language</label>
+             <select id="exportLangModalSelect">
+                 <option value="en">English</option>
+                 <option value="km">ខ្មែរ (Khmer)</option>
+                 <option value="zh">中文 (Chinese)</option>
+             </select>
+         </div>
+         <button class="btn-submit" onclick="confirmExportLangModal()" data-i18n="btnDownloadReport">Download Report</button>
      </div>
  </div>
 
@@ -1477,7 +1500,7 @@
                  <h4 data-i18n="shiftCalTitle">Monthly Shift Calendar</h4>
                  <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="shiftCalSub">Type a shift letter (M, F, G or H) directly into a day box - leave it blank to clear that day.</p>
              </div>
-             <button class="quick-btn green" onclick="exportShiftCalendarToExcel()" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+             <button class="quick-btn green" onclick="openExportLangModal('shift')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
          </div>
          <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px;">
              <div class="form-group" style="margin-bottom:0; min-width:160px;">
@@ -1667,7 +1690,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.62
+     HR & Administration System Version 6.63
  </div>
 </div>
 
@@ -2917,6 +2940,8 @@
         printColorModalSub: "Pick a color to mark files that belong together, like a paperclip color.",
         printColorNone: "No color",
         printToastColorSaved: "Color saved.",
+        exportLangModalTitle: "Choose Export Language",
+        exportLangModalSub: "Choose which language to use for the exported Excel file, then confirm to download.",
         navLockSystem: "Lock System",
         lockSystemModalTitle: "Lock System",
         lockSystemModalSub: "Temporarily block access to Employee and/or HR System, for example during maintenance. Administration is never locked out.",
@@ -3423,6 +3448,8 @@
         printColorModalSub: "ជ្រើសរើសពណ៌ដើម្បីសម្គាល់ឯកសារដែលទាក់ទងគ្នា ដូចជាពណ៌ក្តាប់ក្រដាស។",
         printColorNone: "គ្មានពណ៌",
         printToastColorSaved: "បានរក្សាទុកពណ៌រួចរាល់។",
+        exportLangModalTitle: "ជ្រើសរើសភាសាសម្រាប់នាំចេញ",
+        exportLangModalSub: "ជ្រើសរើសភាសាដែលត្រូវប្រើសម្រាប់ឯកសារ Excel ដែលបាននាំចេញ រួចបញ្ជាក់ដើម្បីទាញយក។",
         navLockSystem: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalTitle: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalSub: "ទប់ស្កាត់ការចូលប្រើប្រព័ន្ធបុគ្គលិក និង/ឬ ធនធានមនុស្សជាបណ្តោះអាសន្ន ឧទាហរណ៍ក្នុងអំឡុងពេលថែទាំប្រព័ន្ធ។ ប្រព័ន្ធរដ្ឋបាលមិនត្រូវបានចាក់សោឡើយ។",
@@ -3929,6 +3956,8 @@
         printColorModalSub: "选择一种颜色来标记需要放在一起的文件，就像回形针的颜色一样。",
         printColorNone: "无颜色",
         printToastColorSaved: "颜色已保存。",
+        exportLangModalTitle: "选择导出语言",
+        exportLangModalSub: "选择导出的 Excel 文件使用的语言，然后确认下载。",
         navLockSystem: "锁定系统",
         lockSystemModalTitle: "锁定系统",
         lockSystemModalSub: "临时阻止员工系统和/或人力资源系统的访问，例如在系统维护期间。行政管理系统永远不会被锁定。",
@@ -5803,7 +5832,8 @@ function filterMakeupTable() {
  /* v6.19: exports exactly what's currently shown in the Monthly Shift Calendar grid (same
     month and same employee search filter) as an .xlsx file - ID/Name columns, then one column
     per day of the month with the shift letter, matching the on-screen layout. */
- function exportShiftCalendarToExcel() {
+ function exportShiftCalendarToExcel(lang) {
+     lang = lang || 'en';
      const monthInput = document.getElementById('shiftCalMonth');
      const monthVal = (monthInput && monthInput.value) || '';
      if (!monthVal) return;
@@ -5821,12 +5851,16 @@ function filterMakeupTable() {
      const shiftByKey = {};
      shifts.forEach(s => { shiftByKey[(s.empId || '') + '|' + (s.date || '')] = s; });
 
-     const dowLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-     const headerRow1 = ['Employee ID', 'Name'];
+     /* v6.63: day-of-week labels now come from the same tLang('shiftDow...') keys the on-screen
+        Shift Calendar and Leave & Attendance Calendar already use, instead of a hardcoded
+        English ['Sun','Mon',...] array, so the exported file's weekday row matches whatever
+        language was chosen instead of always English. */
+     const headerRow1 = [tLang('tblId', lang), tLang('tblName', lang)];
      const headerRow2 = ['', ''];
      for (let d = 1; d <= daysInMonth; d++) {
+         const dow = new Date(year, month - 1, d).getDay();
          headerRow1.push(d);
-         headerRow2.push(dowLabels[new Date(year, month - 1, d).getDay()]);
+         headerRow2.push(tLang('shiftDow' + WEEKDAY_ABBR[dow][0].toUpperCase() + WEEKDAY_ABBR[dow].slice(1), lang));
      }
 
      const aoa = [headerRow1, headerRow2];
@@ -5846,7 +5880,7 @@ function filterMakeupTable() {
          { s: { r: 0, c: 1 }, e: { r: 1, c: 1 } }
      ];
      const workbook = XLSX.utils.book_new();
-     XLSX.utils.book_append_sheet(workbook, worksheet, "Shift Calendar");
+     XLSX.utils.book_append_sheet(workbook, worksheet, tLang('shiftCalTitle', lang).slice(0, 31));
      XLSX.writeFile(workbook, `Shift_Calendar_${monthVal}.xlsx`);
  }
 
@@ -6338,6 +6372,35 @@ function filterMakeupTable() {
      backupNow(lang);
  }
 
+ /* v6.63: shared language picker in front of the Master Sheet, Monthly Report, Employee
+    Directory and Shift Calendar exports - which one to run on confirm is remembered here rather
+    than baked into the modal, since all four now need the exact same "pick a language, then
+    download" step that Backup Now and the Leave Report export already had. */
+ let pendingExportKind = null;
+
+ function openExportLangModal(kind) {
+     pendingExportKind = kind;
+     document.getElementById('exportLangModal').style.display = 'flex';
+ }
+
+ function closeExportLangModal() {
+     document.getElementById('exportLangModal').style.display = 'none';
+     pendingExportKind = null;
+ }
+
+ function confirmExportLangModal() {
+     const langSelect = document.getElementById('exportLangModalSelect');
+     const lang = langSelect ? langSelect.value : 'en';
+     const kind = pendingExportKind;
+     pendingExportKind = null;
+     document.getElementById('exportLangModal').style.display = 'none';
+     if (kind === 'shift') {
+         exportShiftCalendarToExcel(lang);
+     } else if (kind) {
+         exportToExcel(kind, lang);
+     }
+ }
+
  function backupNow(lang) {
      lang = lang || 'en';
      const empHeaders = getEmployeeHeaderMap(lang);
@@ -6457,76 +6520,132 @@ function filterMakeupTable() {
      showToast(true, t('toastBackupDone'));
  }
 
- function exportToExcel(type) {
-     let data = [];
-     let filename = "";
- 
-     if (type === 'master') {
-         filename = `Master_Leave_Report_${new Date().toISOString().slice(0,10)}.xlsx`;
-         data = employees.map(emp => {
-             const parts = emp.joinDate.split('.');
-             const join = new Date(parts[0], parts[1]-1, parts[2]);
-             const now = new Date();
-             const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
-             const computedCycle = computeLeaveCycle(emp.joinDate, now);
-             const startStr = emp.startDate || computedCycle.startStr;
-             const endStr = emp.endDate || computedCycle.endStr;
-             const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
-             const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
-             const remaining = (emp.entitled - totalUsed) + (parseFloat(emp.carried) || 0);
- 
-             return {
-                 "Employee ID": emp.id, "Name": emp.name, "Department": emp.department || "", "Sex": emp.sex || "Male", "Join Date": emp.joinDate,
-                 "Years of Work": workYears, "Entitled Hours": Number((parseFloat(emp.entitled) || 0).toFixed(2)),
-                 "AL Start Date": startStr, "AL End Date": endStr, "Year Range": emp.yearRange || computedCycle.yearRangeStr,
-                 "Months Until AL Renewal": remainingMonthsCycle, "Total AL": Number((parseFloat(emp.entitled) || 0).toFixed(2)),
-                 "Carried Forward": Number((parseFloat(emp.carried) || 0).toFixed(2)), "Prev Month Used": Number((parseFloat(emp.prevUsed) || 0).toFixed(2)),
-                 "Current Month Used": Number((parseFloat(emp.monthUsed) || 0).toFixed(2)), "Total Used Hours": Number(totalUsed.toFixed(2)),
-                 "Exceeded Hours": Number((parseFloat(emp.exceeded) || 0).toFixed(2)), "Remaining Hours": Number(remaining.toFixed(2)),
-                 "Working Hours": Number((parseFloat(emp.workHours) || 0).toFixed(2)), "Monthly Overtime": Number((parseFloat(emp.otHours) || 0).toFixed(2)),
-                 "Annual Leave": Number((parseFloat(emp.leaveAL) || 0).toFixed(2)), "Special Leave": Number((parseFloat(emp.leaveSpecial) || 0).toFixed(2)),
-                 "Maternity Leave": Number((parseFloat(emp.leaveMaternity) || 0).toFixed(2)), "Travel Leave": Number((parseFloat(emp.leaveTravel) || 0).toFixed(2)),
-                 "Personal Leave": Number((parseFloat(emp.leavePersonal) || 0).toFixed(2)), "Sick Leave": Number((parseFloat(emp.leaveSick) || 0).toFixed(2)),
-                 "Other Leave": Number((parseFloat(emp.leaveOther) || 0).toFixed(2)), "Remarks": emp.remarks || ""
-             };
-         });
-     } else if (type === 'monthly') {
-         filename = `Monthly_Report_${new Date().toISOString().slice(0,10)}.xlsx`;
-         data = employees.map(emp => {
-             const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
-             const remaining = (emp.entitled - totalUsed) + (parseFloat(emp.carried) || 0);
-             return {
-                 "Employee ID": emp.id, "Name": emp.name, "Join Date": emp.joinDate, "Resigned Date": emp.resignedDate || "",
-                 "Attendance": emp.monthlyWorkDays || 208, "Actual Working Hours": Number((parseFloat(emp.workHours) || 0).toFixed(2)),
-                 "Entitled Hours": Number((parseFloat(emp.entitled) || 0).toFixed(2)), "Total Hours Used": Number(totalUsed.toFixed(2)),
-                 "Total Remaining Hours": Number(remaining.toFixed(2)), "Annual Leave": Number((parseFloat(emp.leaveAL) || 0).toFixed(2)),
-                 "Special Leave": Number((parseFloat(emp.leaveSpecial) || 0).toFixed(2)), "Maternity Leave": Number((parseFloat(emp.leaveMaternity) || 0).toFixed(2)),
-                 "Travel Leave": Number((parseFloat(emp.leaveTravel) || 0).toFixed(2)), "Personal Leave": Number((parseFloat(emp.leavePersonal) || 0).toFixed(2)),
-                 "Sick Leave": Number((parseFloat(emp.leaveSick) || 0).toFixed(2)), "Other Leave": Number((parseFloat(emp.leaveOther) || 0).toFixed(2)),
-                 "Monthly Overtime": Number((parseFloat(emp.otHours) || 0).toFixed(2))
-             };
-         });
-     } else if (type === 'employee') {
-         filename = `Employee_Directory_${new Date().toISOString().slice(0,10)}.xlsx`;
-         data = employees.map(emp => {
-             const parts = emp.joinDate.split('.');
-             const join = new Date(parts[0], parts[1]-1, parts[2]);
-             const now = new Date();
-             const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
-             return {
-                 "Employee ID": emp.id, "Name": emp.name, "Sex": emp.sex || "Male", "Date of Birth": emp.dob || "",
-                 "Place of Birth": emp.pob || "", "Current Residence": emp.residence || "", "Contact Number": emp.contact || "",
-                "Emergency Contact": emp.emergencyContact || "",
-                 "Join Date": emp.joinDate, "Years of Work": workYears, "Entitled Hours": Number((parseFloat(emp.entitled) || 0).toFixed(2)), "Status": emp.status || "Active"
-             };
-         });
-     }
- 
-     const worksheet = XLSX.utils.json_to_sheet(data);
-     const workbook = XLSX.utils.book_new();
-     XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-     XLSX.writeFile(workbook, filename);
- }
+/* v6.63: header-translation maps for exportToExcel, one per report type, so the Master Sheet,
+    Monthly Report and Employee Directory exports can be downloaded in English, Khmer or Chinese
+    instead of always English. Every header reuses the exact same translation key already shown
+    on that report's on-screen table, so the export always matches what's on screen. The
+    underlying data objects below are still built with fixed English keys (unchanged from
+    before) and only relabeled to the chosen language at the very end via relabelForBackup -
+    this keeps the calculation logic identical and isolates the language change to display only. */
+function getMasterExportHeaderMap(lang) {
+    return {
+        "Employee ID": tLang('tblId', lang), "Name": tLang('tblName', lang), "Department": tLang('tblDepartment', lang),
+        "Sex": tLang('tblSex', lang), "Join Date": tLang('tblJoin', lang), "Years of Work": tLang('tblYears', lang),
+        "Entitled Hours": tLang('tblEntitled', lang), "AL Start Date": tLang('tblStart', lang), "AL End Date": tLang('tblEnd', lang),
+        "Year Range": tLang('tblYearRange', lang), "Months Until AL Renewal": tLang('tblRenewed', lang), "Total AL": tLang('tblTotalAL', lang),
+        "Carried Forward": tLang('tblCarried', lang), "Prev Month Used": tLang('tblPrevUsed', lang), "Current Month Used": tLang('tblMonthUsed', lang),
+        "Total Used Hours": tLang('tblTotalUsed', lang), "Exceeded Hours": tLang('tblExceeded', lang), "Remaining Hours": tLang('tblRemaining', lang),
+        "Working Hours": tLang('thMasterWorkingHours', lang), "Monthly Overtime": tLang('thMasterMonthlyOT', lang),
+        "Annual Leave": tLang('thMasterAnnualLeave', lang), "Special Leave": tLang('thMasterSpecialLeave', lang),
+        "Maternity Leave": tLang('thMasterMaternityLeave', lang), "Travel Leave": tLang('thMasterTravelLeave', lang),
+        "Personal Leave": tLang('thMasterPersonalLeave', lang), "Sick Leave": tLang('thMasterSickLeave', lang),
+        "Other Leave": tLang('thMasterOtherLeave', lang), "Remarks": tLang('tblRemarks', lang)
+    };
+}
+
+function getMonthlyExportHeaderMap(lang) {
+    return {
+        "Employee ID": tLang('tblId', lang), "Name": tLang('tblName', lang), "Join Date": tLang('tblJoin', lang),
+        "Resigned Date": tLang('tblResignedDate', lang), "Attendance": tLang('thMonthlyAttendance', lang),
+        "Actual Working Hours": tLang('thMonthlyActualWork', lang), "Entitled Hours": tLang('tblEntitled', lang),
+        "Total Hours Used": tLang('tblTotalUsed', lang), "Total Remaining Hours": tLang('tblRemaining', lang),
+        "Annual Leave": tLang('thMasterAnnualLeave', lang), "Special Leave": tLang('thMasterSpecialLeave', lang),
+        "Maternity Leave": tLang('thMasterMaternityLeave', lang), "Travel Leave": tLang('thMasterTravelLeave', lang),
+        "Personal Leave": tLang('thMasterPersonalLeave', lang), "Sick Leave": tLang('thMasterSickLeave', lang),
+        "Other Leave": tLang('thMasterOtherLeave', lang), "Monthly Overtime": tLang('thMasterMonthlyOT', lang)
+    };
+}
+
+function getEmployeeExportHeaderMap(lang) {
+    return {
+        "Employee ID": tLang('tblId', lang), "Name": tLang('tblName', lang), "Sex": tLang('tblSex', lang),
+        "Date of Birth": tLang('tblDob', lang), "Place of Birth": tLang('tblPob', lang), "Current Residence": tLang('tblResidence', lang),
+        "Contact Number": tLang('tblContact', lang), "Emergency Contact": tLang('tblEmergencyContact', lang),
+        "Join Date": tLang('tblJoin', lang), "Years of Work": tLang('tblYears', lang), "Entitled Hours": tLang('tblEntitled', lang),
+        "Status": tLang('tblStatus', lang)
+    };
+}
+
+function exportToExcel(type, lang) {
+    lang = lang || 'en';
+    let data = [];
+    let filename = "";
+    let headerMap = {};
+    let sheetName = "Report";
+
+    if (type === 'master') {
+        filename = `Master_Leave_Report_${new Date().toISOString().slice(0,10)}.xlsx`;
+        headerMap = getMasterExportHeaderMap(lang);
+        sheetName = tLang('navMaster', lang);
+        data = employees.map(emp => {
+            const parts = emp.joinDate.split('.');
+            const join = new Date(parts[0], parts[1]-1, parts[2]);
+            const now = new Date();
+            const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
+            const computedCycle = computeLeaveCycle(emp.joinDate, now);
+            const startStr = emp.startDate || computedCycle.startStr;
+            const endStr = emp.endDate || computedCycle.endStr;
+            const remainingMonthsCycle = getRemainingCycleMonths(startStr, endStr, now);
+            const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
+            const remaining = (emp.entitled - totalUsed) + (parseFloat(emp.carried) || 0);
+
+            return {
+                "Employee ID": emp.id, "Name": emp.name, "Department": emp.department || "", "Sex": emp.sex || "Male", "Join Date": emp.joinDate,
+                "Years of Work": workYears, "Entitled Hours": Number((parseFloat(emp.entitled) || 0).toFixed(2)),
+                "AL Start Date": startStr, "AL End Date": endStr, "Year Range": emp.yearRange || computedCycle.yearRangeStr,
+                "Months Until AL Renewal": remainingMonthsCycle, "Total AL": Number((parseFloat(emp.entitled) || 0).toFixed(2)),
+                "Carried Forward": Number((parseFloat(emp.carried) || 0).toFixed(2)), "Prev Month Used": Number((parseFloat(emp.prevUsed) || 0).toFixed(2)),
+                "Current Month Used": Number((parseFloat(emp.monthUsed) || 0).toFixed(2)), "Total Used Hours": Number(totalUsed.toFixed(2)),
+                "Exceeded Hours": Number((parseFloat(emp.exceeded) || 0).toFixed(2)), "Remaining Hours": Number(remaining.toFixed(2)),
+                "Working Hours": Number((parseFloat(emp.workHours) || 0).toFixed(2)), "Monthly Overtime": Number((parseFloat(emp.otHours) || 0).toFixed(2)),
+                "Annual Leave": Number((parseFloat(emp.leaveAL) || 0).toFixed(2)), "Special Leave": Number((parseFloat(emp.leaveSpecial) || 0).toFixed(2)),
+                "Maternity Leave": Number((parseFloat(emp.leaveMaternity) || 0).toFixed(2)), "Travel Leave": Number((parseFloat(emp.leaveTravel) || 0).toFixed(2)),
+                "Personal Leave": Number((parseFloat(emp.leavePersonal) || 0).toFixed(2)), "Sick Leave": Number((parseFloat(emp.leaveSick) || 0).toFixed(2)),
+                "Other Leave": Number((parseFloat(emp.leaveOther) || 0).toFixed(2)), "Remarks": emp.remarks || ""
+            };
+        });
+    } else if (type === 'monthly') {
+        filename = `Monthly_Report_${new Date().toISOString().slice(0,10)}.xlsx`;
+        headerMap = getMonthlyExportHeaderMap(lang);
+        sheetName = tLang('navMonthlyReport', lang);
+        data = employees.map(emp => {
+            const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
+            const remaining = (emp.entitled - totalUsed) + (parseFloat(emp.carried) || 0);
+            return {
+                "Employee ID": emp.id, "Name": emp.name, "Join Date": emp.joinDate, "Resigned Date": emp.resignedDate || "",
+                "Attendance": emp.monthlyWorkDays || 208, "Actual Working Hours": Number((parseFloat(emp.workHours) || 0).toFixed(2)),
+                "Entitled Hours": Number((parseFloat(emp.entitled) || 0).toFixed(2)), "Total Hours Used": Number(totalUsed.toFixed(2)),
+                "Total Remaining Hours": Number(remaining.toFixed(2)), "Annual Leave": Number((parseFloat(emp.leaveAL) || 0).toFixed(2)),
+                "Special Leave": Number((parseFloat(emp.leaveSpecial) || 0).toFixed(2)), "Maternity Leave": Number((parseFloat(emp.leaveMaternity) || 0).toFixed(2)),
+                "Travel Leave": Number((parseFloat(emp.leaveTravel) || 0).toFixed(2)), "Personal Leave": Number((parseFloat(emp.leavePersonal) || 0).toFixed(2)),
+                "Sick Leave": Number((parseFloat(emp.leaveSick) || 0).toFixed(2)), "Other Leave": Number((parseFloat(emp.leaveOther) || 0).toFixed(2)),
+                "Monthly Overtime": Number((parseFloat(emp.otHours) || 0).toFixed(2))
+            };
+        });
+    } else if (type === 'employee') {
+        filename = `Employee_Directory_${new Date().toISOString().slice(0,10)}.xlsx`;
+        headerMap = getEmployeeExportHeaderMap(lang);
+        sheetName = tLang('navEmployee', lang);
+        data = employees.map(emp => {
+            const parts = emp.joinDate.split('.');
+            const join = new Date(parts[0], parts[1]-1, parts[2]);
+            const now = new Date();
+            const workYears = Math.floor(((now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth())) / 12);
+            return {
+                "Employee ID": emp.id, "Name": emp.name, "Sex": emp.sex || "Male", "Date of Birth": emp.dob || "",
+                "Place of Birth": emp.pob || "", "Current Residence": emp.residence || "", "Contact Number": emp.contact || "",
+               "Emergency Contact": emp.emergencyContact || "",
+                "Join Date": emp.joinDate, "Years of Work": workYears, "Entitled Hours": Number((parseFloat(emp.entitled) || 0).toFixed(2)), "Status": emp.status || "Active"
+            };
+        });
+    }
+
+    const relabeled = data.map(row => relabelForBackup(row, headerMap));
+    const worksheet = XLSX.utils.json_to_sheet(relabeled);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName.slice(0, 31));
+    XLSX.writeFile(workbook, filename);
+}
  
  /* MODAL VIEW FUNCTIONS FOR POPUP LAYERS - NOW FULLY TRANSLATED */
 function openMasterDetailModal(index) {
