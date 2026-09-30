@@ -7,8 +7,17 @@
  <!-- XLSX Library for Exporting to Excel -->
  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
  <!-- v6.67: mammoth.js - converts an uploaded .docx file's content to HTML so it can be loaded
-      into the in-browser Word-like editor (Document Library). -->
+      into the Document Library's Word-like editor (CKEditor 5, see v6.68 below). -->
  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.0/mammoth.browser.min.js"></script>
+ <!-- v6.68: jspreadsheet CE (+ its jsuites dependency) - a mature, Excel-like spreadsheet widget
+      used by the Document Library's grid editor, replacing the v6.67 hand-built grid editor. -->
+ <script src="https://cdn.jsdelivr.net/npm/jsuites@4/dist/jsuites.js"></script>
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsuites@4/dist/jsuites.css" type="text/css">
+ <script src="https://cdn.jsdelivr.net/npm/jspreadsheet-ce@4/dist/index.js"></script>
+ <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jspreadsheet-ce@4/dist/jspreadsheet.css" type="text/css">
+ <!-- v6.68: CKEditor 5 (Classic build) - a mature, Word-like rich text editor used by the
+      Document Library's document editor, replacing the v6.67 hand-built contenteditable editor. -->
+ <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
  <!-- Firebase SDK Scripts -->
  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -392,7 +401,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.67</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.68</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1419,39 +1428,20 @@
      </div>
  </div>
 
- <!-- DOCUMENT GRID EDITOR modal (v6.67): a simple, in-browser spreadsheet-style editor for
-      Document Library files whose type is Excel (.xls/.xlsx). No formula engine - basic cell
-      editing, bold/italic, alignment, borders, merge/unmerge, insert/delete row or column, a
-      distinct "totals" style row, and column width - enough to produce a clean printable
-      monthly sheet. Save persists printFiles/{key}/editedGrid to Firebase; Export to PDF is a
-      separate, non-saving action that opens a print-styled window of the current on-screen
-      state (same technique as the Leave/Attendance Calendar PDF export). -->
+ <!-- DOCUMENT GRID EDITOR modal (v6.68): a real, Excel-like spreadsheet editor for Document
+      Library files whose type is Excel (.xls/.xlsx), built on jspreadsheet CE. Its own built-in
+      toolbar/context-menu/keyboard-nav/copy-paste/undo-redo are used as-is (see openDocGridEditor)
+      instead of any hand-built toolbar. Save persists printFiles/{key}/editedGrid to Firebase;
+      Export to PDF is a separate, non-saving action that opens a print-styled window of the
+      current in-memory state (same technique as the Leave/Attendance Calendar PDF export). -->
  <div class="modal" id="docGridEditorModal">
      <div class="modal-content" style="max-width:96vw; width:1400px; max-height:95vh; padding:0; display:flex; flex-direction:column; overflow:hidden;">
          <div class="modal-header" style="flex-shrink:0; padding:18px 22px 8px 22px; margin-bottom:0;">
              <h4><span data-i18n="docGridEditorTitle">Edit Spreadsheet</span> - <span id="docGridEditorFileName" style="font-weight:400; font-size:13px; color:#64748b;"></span></h4>
              <button class="modal-close" onclick="closeDocGridEditor()">&times;</button>
          </div>
-         <div style="flex-shrink:0; padding:8px 22px; border-bottom:1px solid #e2e8f0; display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridToggleBold()" data-i18n="btnBold">Bold</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridToggleItalic()" data-i18n="btnItalic">Italic</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridSetAlign('left')" data-i18n="btnAlignLeft">Align Left</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridSetAlign('center')" data-i18n="btnAlignCenter">Align Center</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridSetAlign('right')" data-i18n="btnAlignRight">Align Right</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridToggleBorder()" data-i18n="btnToggleBorder">Border</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridMergeCells()" data-i18n="btnMergeCells">Merge Cells</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridUnmergeCells()" data-i18n="btnUnmergeCells">Unmerge Cells</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridInsertRow()" data-i18n="btnInsertRow">Insert Row</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridDeleteRow()" data-i18n="btnDeleteRow">Delete Row</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridInsertColumn()" data-i18n="btnInsertColumn">Insert Column</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridDeleteColumn()" data-i18n="btnDeleteColumn">Delete Column</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridColWidthAdjust(-20)" data-i18n="btnColWidthNarrower">Narrower</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridColWidthAdjust(20)" data-i18n="btnColWidthWider">Wider</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridAddTotalsRow()" data-i18n="btnAddTotalsRow">Add Totals Row</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docGridRemoveTotalsRow()" data-i18n="btnRemoveTotalsRow">Remove Totals Row</button>
-         </div>
          <div style="flex:1; overflow:auto; padding:14px 22px;">
-             <table id="docGridEditorTable" style="border-collapse:collapse;"></table>
+             <div id="docGridEditorContainer"></div>
          </div>
          <div style="flex-shrink:0; padding:12px 22px; border-top:1px solid #e2e8f0; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
              <button type="button" class="btn-edit" onclick="closeDocGridEditor()" data-i18n="btnClose">Close</button>
@@ -1461,33 +1451,20 @@
      </div>
  </div>
 
- <!-- DOCUMENT RICH-TEXT (Word-like) EDITOR modal (v6.67): a simple in-browser editor for
-      Document Library files whose type is Word (.doc/.docx), using a contenteditable div and
-      document.execCommand for basic formatting. Save persists printFiles/{key}/editedHtml to
-      Firebase; Export to PDF is a separate, non-saving action (same print-window technique). -->
+ <!-- DOCUMENT RICH-TEXT (Word-like) EDITOR modal (v6.68): a real, Word-like ribbon editor for
+      Document Library files whose type is Word (.doc/.docx), built on CKEditor 5 (Classic build).
+      Its own built-in ribbon toolbar (bold/italic/underline/headings/lists/alignment/undo-redo/
+      etc.) is used as-is (see openDocWordEditor) instead of any hand-built toolbar. Save persists
+      printFiles/{key}/editedHtml to Firebase; Export to PDF is a separate, non-saving action
+      (same print-window technique). -->
  <div class="modal" id="docWordEditorModal">
      <div class="modal-content" style="max-width:96vw; width:1000px; max-height:95vh; padding:0; display:flex; flex-direction:column; overflow:hidden;">
          <div class="modal-header" style="flex-shrink:0; padding:18px 22px 8px 22px; margin-bottom:0;">
              <h4><span data-i18n="docWordEditorTitle">Edit Document</span> - <span id="docWordEditorFileName" style="font-weight:400; font-size:13px; color:#64748b;"></span></h4>
              <button class="modal-close" onclick="closeDocWordEditor()">&times;</button>
          </div>
-         <div style="flex-shrink:0; padding:8px 22px; border-bottom:1px solid #e2e8f0; display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docWordExec('bold')" data-i18n="btnBold">Bold</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docWordExec('italic')" data-i18n="btnItalic">Italic</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docWordExec('underline')" data-i18n="btnUnderline">Underline</button>
-             <select id="docWordHeadingSelect" style="font-size:12px; padding:4px 6px;" onchange="docWordSetHeading(this.value)">
-                 <option value="P" data-i18n="headingParagraph">Paragraph</option>
-                 <option value="H1" data-i18n="headingH1">Heading 1</option>
-                 <option value="H2" data-i18n="headingH2">Heading 2</option>
-             </select>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docWordExec('insertUnorderedList')" data-i18n="btnBulletList">Bullet List</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docWordExec('insertOrderedList')" data-i18n="btnNumberedList">Numbered List</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docWordExec('justifyLeft')" data-i18n="btnAlignLeft">Align Left</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docWordExec('justifyCenter')" data-i18n="btnAlignCenter">Align Center</button>
-             <button type="button" class="btn-edit" style="font-size:12px;" onclick="docWordExec('justifyRight')" data-i18n="btnAlignRight">Align Right</button>
-         </div>
          <div style="flex:1; overflow:auto; padding:16px 22px;">
-             <div id="docWordEditorContent" contenteditable="true" style="min-height:400px; border:1px solid #e2e8f0; border-radius:6px; padding:16px; font-size:14px; line-height:1.6; background:#fff;"></div>
+             <div id="docWordEditorContent"></div>
          </div>
          <div style="flex-shrink:0; padding:12px 22px; border-top:1px solid #e2e8f0; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
              <button type="button" class="btn-edit" onclick="closeDocWordEditor()" data-i18n="btnClose">Close</button>
@@ -1963,7 +1940,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.67
+     HR & Administration System Version 6.68
  </div>
 </div>
 
@@ -3388,31 +3365,8 @@
         btnEditHere: "Edit Here",
         docGridEditorTitle: "Edit Spreadsheet",
         docWordEditorTitle: "Edit Document",
-        btnBold: "Bold",
-        btnItalic: "Italic",
-        btnUnderline: "Underline",
-        btnAlignLeft: "Align Left",
-        btnAlignCenter: "Align Center",
-        btnAlignRight: "Align Right",
-        btnToggleBorder: "Border",
-        btnMergeCells: "Merge Cells",
-        btnUnmergeCells: "Unmerge Cells",
-        btnInsertRow: "Insert Row",
-        btnDeleteRow: "Delete Row",
-        btnInsertColumn: "Insert Column",
-        btnDeleteColumn: "Delete Column",
-        btnColWidthWider: "Wider",
-        btnColWidthNarrower: "Narrower",
-        btnAddTotalsRow: "Add Totals Row",
-        btnRemoveTotalsRow: "Remove Totals Row",
-        btnBulletList: "Bullet List",
-        btnNumberedList: "Numbered List",
-        headingParagraph: "Paragraph",
-        headingH1: "Heading 1",
-        headingH2: "Heading 2",
         docEditorToastSaved: "Edit saved.",
         docEditorParseErrorMsg: "Could not read this file's content for editing.",
-        docGridNoTotalsRowMsg: "The last row is not a totals row."
      },
      km: {
          appTitle: "ប្រព័ន្ធគ្រប់គ្រងបុគ្គលិក",
@@ -4023,31 +3977,8 @@
         btnEditHere: "កែសម្រួលនៅទីនេះ",
         docGridEditorTitle: "កែសម្រួលសៀវភៅបញ្ជី",
         docWordEditorTitle: "កែសម្រួលឯកសារ",
-        btnBold: "ដិត",
-        btnItalic: "ទ្រេត",
-        btnUnderline: "គូសបន្ទាត់ក្រោម",
-        btnAlignLeft: "តម្រឹមឆ្វេង",
-        btnAlignCenter: "តម្រឹមកណ្តាល",
-        btnAlignRight: "តម្រឹមស្តាំ",
-        btnToggleBorder: "ស៊ុម",
-        btnMergeCells: "បញ្ចូលក្រឡាចូលគ្នា",
-        btnUnmergeCells: "ញែកក្រឡាវិញ",
-        btnInsertRow: "បញ្ចូលជួរដេក",
-        btnDeleteRow: "លុបជួរដេក",
-        btnInsertColumn: "បញ្ចូលជួរឈរ",
-        btnDeleteColumn: "លុបជួរឈរ",
-        btnColWidthWider: "ធំជាង",
-        btnColWidthNarrower: "តូចជាង",
-        btnAddTotalsRow: "បន្ថែមជួរសរុប",
-        btnRemoveTotalsRow: "លុបជួរសរុប",
-        btnBulletList: "បញ្ជីចំណុច",
-        btnNumberedList: "បញ្ជីលេខរៀង",
-        headingParagraph: "កថាខណ្ឌ",
-        headingH1: "ចំណងជើង ១",
-        headingH2: "ចំណងជើង ២",
         docEditorToastSaved: "បានរក្សាទុកការកែសម្រួល។",
         docEditorParseErrorMsg: "មិនអាចអានមាតិកាឯកសារនេះដើម្បីកែសម្រួលបានទេ។",
-        docGridNoTotalsRowMsg: "ជួរដេកចុងក្រោយមិនមែនជាជួរសរុបទេ។"
      },
      zh: {
          appTitle: "行政管理系统",
@@ -4658,31 +4589,8 @@
         btnEditHere: "在此编辑",
         docGridEditorTitle: "编辑表格",
         docWordEditorTitle: "编辑文档",
-        btnBold: "加粗",
-        btnItalic: "斜体",
-        btnUnderline: "下划线",
-        btnAlignLeft: "左对齐",
-        btnAlignCenter: "居中对齐",
-        btnAlignRight: "右对齐",
-        btnToggleBorder: "边框",
-        btnMergeCells: "合并单元格",
-        btnUnmergeCells: "取消合并",
-        btnInsertRow: "插入行",
-        btnDeleteRow: "删除行",
-        btnInsertColumn: "插入列",
-        btnDeleteColumn: "删除列",
-        btnColWidthWider: "加宽",
-        btnColWidthNarrower: "变窄",
-        btnAddTotalsRow: "添加合计行",
-        btnRemoveTotalsRow: "删除合计行",
-        btnBulletList: "项目符号列表",
-        btnNumberedList: "编号列表",
-        headingParagraph: "正文",
-        headingH1: "标题 1",
-        headingH2: "标题 2",
         docEditorToastSaved: "编辑已保存。",
         docEditorParseErrorMsg: "无法读取此文件的内容以进行编辑。",
-        docGridNoTotalsRowMsg: "最后一行不是合计行。"
      }
  };
  
@@ -8538,16 +8446,24 @@ function fillTemplate(str, vars) {
     return (str || '').replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? vars[k] : m));
 }
 
-/* ================= v6.67: IN-BROWSER DOCUMENT EDITORS (Document Library) =================
-   Two simple, additive editors for Document Library files that need monthly editing: a basic
-   spreadsheet-style grid editor for Excel files (.xls/.xlsx) and a simplified rich-text editor
-   for Word files (.doc/.docx). Neither touches employees/leaveHistory/attendanceHistory or any
-   other collection - the only new Firebase fields are printFiles/{key}/editedGrid (grid editor)
-   and printFiles/{key}/editedHtml (rich-text editor). Opening a file with no saved edit yet
+/* ================= v6.68: IN-BROWSER DOCUMENT EDITORS (Document Library) =================
+   Two real, mature-library editors for Document Library files that need monthly editing,
+   replacing the v6.67 hand-built editors after user feedback that those "didn't feel like Word
+   or Excel": a spreadsheet-style grid editor for Excel files (.xls/.xlsx) built on jspreadsheet
+   CE, and a rich-text editor for Word files (.doc/.docx) built on CKEditor 5 (Classic build).
+   Both libraries are loaded via CDN <script>/<link> tags in <head> (see the XLSX/mammoth tags
+   above). Neither touches employees/leaveHistory/attendanceHistory or any other collection - the
+   only new Firebase fields are printFiles/{key}/editedGrid (grid editor) and
+   printFiles/{key}/editedHtml (rich-text editor) - same field names as v6.67, though editedGrid's
+   internal shape now reflects jspreadsheet's own state (data/columns/mergeCells/style) instead of
+   the old hand-rolled {rows, colWidths, rowHeights} shape. Opening a file with no saved edit yet
    converts its ORIGINAL uploaded content (via XLSX/mammoth) into the editor; opening it again
    loads the last SAVED edit instead of re-converting the original. Export to PDF never writes
-   anything to Firebase - it only opens a print-styled window of whatever is on screen right now
-   (same print-window + window.print() technique as the Leave/Attendance Calendar PDF export). */
+   anything to Firebase - it only opens a print-styled window of whatever is in memory right now
+   (same print-window + window.print() technique as the Leave/Attendance Calendar PDF export).
+   Both editors get real click-and-drag selection, keyboard navigation, copy/paste, undo/redo and
+   a proper toolbar/ribbon + (grid) right-click context menu for free from their libraries - none
+   of that is hand-built here. */
 
 function getPrintFileKind(item) {
     const name = (item && item.name || '').toLowerCase();
@@ -8574,309 +8490,166 @@ function dataUrlToArrayBuffer(dataUrl) {
     return bytes.buffer;
 }
 
-/* ---------- 7a. GRID EDITOR (Excel-like) ---------- */
+/* ---------- 7a. GRID EDITOR (Excel-like, jspreadsheet CE) ---------- */
 let docGridEditorKey = null;
-let docGridEditorData = null;
-let docGridSelStart = { r: 0, c: 0 };
-let docGridSelEnd = { r: 0, c: 0 };
+let docGridEditorInstance = null;
 const DOC_GRID_MIN_ROWS = 20;
 const DOC_GRID_MIN_COLS = 10;
-const DOC_GRID_DEFAULT_COL_WIDTH = 90;
 
-function makeEmptyDocGridCell() {
-    return { value: '', bold: false, italic: false, align: 'left', border: false, colspan: 1, rowspan: 1, covered: false, totalsBg: false };
-}
-
-function buildDocGridFromRows(rawRows) {
+/* Normalizes a ragged 2D array (as produced by XLSX.utils.sheet_to_json) into a rectangular
+   array of strings padded to at least DOC_GRID_MIN_ROWS x DOC_GRID_MIN_COLS - jspreadsheet's
+   `data` option expects a rectangular array. */
+function buildDocGridDataFromRows(rawRows) {
     rawRows = rawRows || [];
     const nRows = Math.max(DOC_GRID_MIN_ROWS, rawRows.length);
     const rawCols = rawRows.reduce((m, r) => Math.max(m, r ? r.length : 0), 0);
     const nCols = Math.max(DOC_GRID_MIN_COLS, rawCols);
-    const rows = [];
+    const data = [];
     for (let r = 0; r < nRows; r++) {
         const row = [];
         for (let c = 0; c < nCols; c++) {
-            const cell = makeEmptyDocGridCell();
-            if (rawRows[r] && rawRows[r][c] !== undefined && rawRows[r][c] !== null) {
-                cell.value = String(rawRows[r][c]);
-            }
-            row.push(cell);
+            const v = rawRows[r] ? rawRows[r][c] : undefined;
+            row.push(v === undefined || v === null ? '' : String(v));
         }
-        rows.push(row);
+        data.push(row);
     }
-    return { rows: rows, colWidths: new Array(nCols).fill(DOC_GRID_DEFAULT_COL_WIDTH), rowHeights: [] };
+    return data;
+}
+
+/* Destroys any live jspreadsheet instance in the modal's container so reopening never stacks
+   two instances on the same DOM element (jspreadsheet.destroy(element) is the library's own
+   documented teardown call). */
+function docGridDestroyInstance() {
+    const container = document.getElementById('docGridEditorContainer');
+    if (docGridEditorInstance) {
+        try {
+            if (typeof jspreadsheet !== 'undefined' && typeof jspreadsheet.destroy === 'function' && container) {
+                jspreadsheet.destroy(container);
+            }
+        } catch (e) { /* best effort - fall through to clearing the container below */ }
+        docGridEditorInstance = null;
+    }
+    if (container) container.innerHTML = '';
 }
 
 function openDocGridEditor(key, file) {
     docGridEditorKey = key;
-    docGridSelStart = { r: 0, c: 0 };
-    docGridSelEnd = { r: 0, c: 0 };
     const nameEl = document.getElementById('docGridEditorFileName');
     if (nameEl) nameEl.innerText = file.name || '';
     document.getElementById('docGridEditorModal').style.display = 'flex';
-    /* Re-opening a file that already has a saved edit continues from that save instead of
-       re-importing the original file every time. */
-    if (file.editedGrid && file.editedGrid.rows && file.editedGrid.rows.length) {
-        docGridEditorData = JSON.parse(JSON.stringify(file.editedGrid));
-        renderDocGridEditorTable();
-        return;
+    docGridDestroyInstance();
+    const container = document.getElementById('docGridEditorContainer');
+    if (!container || typeof jspreadsheet === 'undefined') return;
+
+    /* Re-opening a file that already has a saved edit continues from that save (jspreadsheet's
+       own state: data/columns/mergeCells/style) instead of re-importing the original file. */
+    let options;
+    if (file.editedGrid && Array.isArray(file.editedGrid.data) && file.editedGrid.data.length) {
+        options = {
+            data: file.editedGrid.data,
+            columns: file.editedGrid.columns || undefined,
+            mergeCells: file.editedGrid.mergeCells || undefined,
+            style: file.editedGrid.style || undefined
+        };
+    } else {
+        let rawRows = [];
+        if (typeof XLSX !== 'undefined' && file.dataUrl) {
+            try {
+                const buf = dataUrlToArrayBuffer(file.dataUrl);
+                const wb = XLSX.read(buf, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                rawRows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+            } catch (e) {
+                rawRows = [];
+                showToast(false, t('docEditorParseErrorMsg'));
+            }
+        }
+        options = { data: buildDocGridDataFromRows(rawRows) };
     }
-    if (typeof XLSX === 'undefined' || !file.dataUrl) {
-        docGridEditorData = buildDocGridFromRows([]);
-        renderDocGridEditorTable();
-        return;
-    }
-    try {
-        const buf = dataUrlToArrayBuffer(file.dataUrl);
-        const wb = XLSX.read(buf, { type: 'array' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const rawRows = XLSX.utils.sheet_to_json(ws, { header: 1 });
-        docGridEditorData = buildDocGridFromRows(rawRows);
-    } catch (e) {
-        docGridEditorData = buildDocGridFromRows([]);
-        showToast(false, t('docEditorParseErrorMsg'));
-    }
-    renderDocGridEditorTable();
+    /* toolbar + contextMenu give the real Excel-like ribbon and right-click menu (insert/delete
+       row & column, etc.) for free, straight from the library - nothing hand-built here. Native
+       drag-select, keyboard nav (arrows/Tab/Enter), copy/paste and undo/redo come the same way. */
+    options.toolbar = true;
+    options.contextMenu = true;
+    options.allowExport = true;
+    docGridEditorInstance = jspreadsheet(container, options);
 }
 
 function closeDocGridEditor() {
     document.getElementById('docGridEditorModal').style.display = 'none';
+    docGridDestroyInstance();
     docGridEditorKey = null;
-    docGridEditorData = null;
 }
 
-function docGridSelRect() {
+/* Reads the sheet's current full state back out for Save / Export-to-PDF: getData() for cell
+   values, getConfig() for the columns/mergeCells/style jspreadsheet is tracking - the documented
+   CE v4 API for capturing a sheet's state (this is what actually needs to round-trip back into
+   the `options` shape openDocGridEditor() above passes into the constructor). */
+function docGridGetSaveState() {
+    const inst = docGridEditorInstance;
+    if (!inst || typeof inst.getData !== 'function') return null;
+    const cfg = (typeof inst.getConfig === 'function') ? (inst.getConfig() || {}) : {};
     return {
-        r1: Math.min(docGridSelStart.r, docGridSelEnd.r),
-        r2: Math.max(docGridSelStart.r, docGridSelEnd.r),
-        c1: Math.min(docGridSelStart.c, docGridSelEnd.c),
-        c2: Math.max(docGridSelStart.c, docGridSelEnd.c)
+        data: inst.getData(),
+        columns: cfg.columns || [],
+        mergeCells: cfg.mergeCells || {},
+        style: cfg.style || {}
     };
 }
 
-function docGridInSelection(r, c) {
-    const rect = docGridSelRect();
-    return r >= rect.r1 && r <= rect.r2 && c >= rect.c1 && c <= rect.c2;
-}
-
-/* mousedown (not click) so the browser still gets to place the text caret in this same,
-   un-replaced cell right after - re-rendering the whole table here would wipe that out. */
-function docGridCellMouseDown(evt, r, c) {
-    if (evt.shiftKey) {
-        docGridSelEnd = { r, c };
-    } else {
-        docGridSelStart = { r, c };
-        docGridSelEnd = { r, c };
-    }
-    updateDocGridSelectionHighlight();
-}
-
-function updateDocGridSelectionHighlight() {
-    const tbl = document.getElementById('docGridEditorTable');
-    if (!tbl || !docGridEditorData) return;
-    Array.prototype.forEach.call(tbl.querySelectorAll('td[data-r]'), td => {
-        const r = parseInt(td.getAttribute('data-r'), 10);
-        const c = parseInt(td.getAttribute('data-c'), 10);
-        const cell = docGridEditorData.rows[r][c];
-        td.style.background = docGridInSelection(r, c) ? '#dbeafe' : (cell.totalsBg ? '#fef3c7' : '#fff');
-    });
-}
-
-/* Updates the model as the user types, without re-rendering the table (re-rendering mid-type
-   would destroy the caret position inside the contenteditable cell). */
-function docGridCellInput(evt, r, c) {
-    if (!docGridEditorData) return;
-    docGridEditorData.rows[r][c].value = evt.target.innerText;
-}
-
-function docGridApplyToSelection(fn) {
-    if (!docGridEditorData) return;
-    const rect = docGridSelRect();
-    for (let r = rect.r1; r <= rect.r2; r++) {
-        for (let c = rect.c1; c <= rect.c2; c++) {
-            const cell = docGridEditorData.rows[r][c];
-            if (cell.covered) continue;
-            fn(cell);
-        }
-    }
-    renderDocGridEditorTable();
-}
-
-function docGridToggleBold() { docGridApplyToSelection(cell => { cell.bold = !cell.bold; }); }
-function docGridToggleItalic() { docGridApplyToSelection(cell => { cell.italic = !cell.italic; }); }
-function docGridSetAlign(align) { docGridApplyToSelection(cell => { cell.align = align; }); }
-function docGridToggleBorder() { docGridApplyToSelection(cell => { cell.border = !cell.border; }); }
-
-function docGridInsertRow() {
-    if (!docGridEditorData) return;
-    const rect = docGridSelRect();
-    const nCols = docGridEditorData.rows[0].length;
-    const newRow = [];
-    for (let c = 0; c < nCols; c++) newRow.push(makeEmptyDocGridCell());
-    docGridEditorData.rows.splice(rect.r1, 0, newRow);
-    renderDocGridEditorTable();
-}
-
-function docGridDeleteRow() {
-    if (!docGridEditorData || docGridEditorData.rows.length <= 1) return;
-    const rect = docGridSelRect();
-    docGridEditorData.rows.splice(rect.r1, 1);
-    docGridSelStart = { r: Math.min(rect.r1, docGridEditorData.rows.length - 1), c: rect.c1 };
-    docGridSelEnd = docGridSelStart;
-    renderDocGridEditorTable();
-}
-
-function docGridInsertColumn() {
-    if (!docGridEditorData) return;
-    const rect = docGridSelRect();
-    docGridEditorData.rows.forEach(row => row.splice(rect.c1, 0, makeEmptyDocGridCell()));
-    docGridEditorData.colWidths.splice(rect.c1, 0, DOC_GRID_DEFAULT_COL_WIDTH);
-    renderDocGridEditorTable();
-}
-
-function docGridDeleteColumn() {
-    if (!docGridEditorData || docGridEditorData.rows[0].length <= 1) return;
-    const rect = docGridSelRect();
-    docGridEditorData.rows.forEach(row => row.splice(rect.c1, 1));
-    docGridEditorData.colWidths.splice(rect.c1, 1);
-    docGridSelStart = { r: rect.r1, c: Math.min(rect.c1, docGridEditorData.rows[0].length - 1) };
-    docGridSelEnd = docGridSelStart;
-    renderDocGridEditorTable();
-}
-
-/* Merges the selected rectangle into one cell: the top-left cell gets colspan/rowspan spanning
-   the range, every other covered cell is marked "covered" so it's skipped entirely on render
-   (standard HTML table merge behaviour). */
-function docGridMergeCells() {
-    if (!docGridEditorData) return;
-    const rect = docGridSelRect();
-    if (rect.r1 === rect.r2 && rect.c1 === rect.c2) return;
-    const top = docGridEditorData.rows[rect.r1][rect.c1];
-    top.colspan = rect.c2 - rect.c1 + 1;
-    top.rowspan = rect.r2 - rect.r1 + 1;
-    top.covered = false;
-    for (let r = rect.r1; r <= rect.r2; r++) {
-        for (let c = rect.c1; c <= rect.c2; c++) {
-            if (r === rect.r1 && c === rect.c1) continue;
-            docGridEditorData.rows[r][c].covered = true;
-            docGridEditorData.rows[r][c].colspan = 1;
-            docGridEditorData.rows[r][c].rowspan = 1;
-        }
-    }
-    docGridSelStart = { r: rect.r1, c: rect.c1 };
-    docGridSelEnd = docGridSelStart;
-    renderDocGridEditorTable();
-}
-
-function docGridUnmergeCells() {
-    if (!docGridEditorData) return;
-    const rect = docGridSelRect();
-    const top = docGridEditorData.rows[rect.r1][rect.c1];
-    if (!top || (top.colspan <= 1 && top.rowspan <= 1)) return;
-    const r2 = rect.r1 + top.rowspan - 1;
-    const c2 = rect.c1 + top.colspan - 1;
-    for (let r = rect.r1; r <= r2; r++) {
-        for (let c = rect.c1; c <= c2; c++) {
-            if (r === rect.r1 && c === rect.c1) continue;
-            docGridEditorData.rows[r][c].covered = false;
-        }
-    }
-    top.colspan = 1;
-    top.rowspan = 1;
-    renderDocGridEditorTable();
-}
-
-function docGridColWidthAdjust(delta) {
-    if (!docGridEditorData) return;
-    const rect = docGridSelRect();
-    for (let c = rect.c1; c <= rect.c2; c++) {
-        const w = docGridEditorData.colWidths[c] || DOC_GRID_DEFAULT_COL_WIDTH;
-        docGridEditorData.colWidths[c] = Math.max(30, w + delta);
-    }
-    renderDocGridEditorTable();
-}
-
-/* "Totals row" is purely a styled row (distinct background, bold) - no formula calculation is
-   in scope, the user types the total(s) manually. */
-function docGridAddTotalsRow() {
-    if (!docGridEditorData) return;
-    const nCols = docGridEditorData.rows[0].length;
-    const newRow = [];
-    for (let c = 0; c < nCols; c++) {
-        const cell = makeEmptyDocGridCell();
-        cell.totalsBg = true;
-        cell.bold = true;
-        newRow.push(cell);
-    }
-    docGridEditorData.rows.push(newRow);
-    renderDocGridEditorTable();
-}
-
-function docGridRemoveTotalsRow() {
-    if (!docGridEditorData || docGridEditorData.rows.length === 0) return;
-    const lastRow = docGridEditorData.rows[docGridEditorData.rows.length - 1];
-    if (!lastRow.some(cell => cell.totalsBg)) { showToast(false, t('docGridNoTotalsRowMsg')); return; }
-    docGridEditorData.rows.pop();
-    renderDocGridEditorTable();
-}
-
-function docGridCellStyle(cell, colWidth, selected) {
-    return 'min-width:' + colWidth + 'px; max-width:' + colWidth + 'px; ' +
-        'border:' + (cell.border ? '1px solid #334155' : '1px solid #e2e8f0') + '; ' +
-        'font-weight:' + (cell.bold ? '700' : '400') + '; ' +
-        'font-style:' + (cell.italic ? 'italic' : 'normal') + '; ' +
-        'text-align:' + (cell.align || 'left') + '; ' +
-        'background:' + (selected ? '#dbeafe' : (cell.totalsBg ? '#fef3c7' : '#fff')) + '; ' +
-        'padding:4px 6px; font-size:12px; min-height:24px; vertical-align:top; word-break:break-word;';
-}
-
-function renderDocGridEditorTable() {
-    const tbl = document.getElementById('docGridEditorTable');
-    if (!tbl || !docGridEditorData) return;
-    const data = docGridEditorData;
-    let html = '<tbody>';
-    for (let r = 0; r < data.rows.length; r++) {
-        html += '<tr>';
-        for (let c = 0; c < data.rows[r].length; c++) {
-            const cell = data.rows[r][c];
-            if (cell.covered) continue;
-            const colWidth = (data.colWidths && data.colWidths[c]) || DOC_GRID_DEFAULT_COL_WIDTH;
-            const selected = docGridInSelection(r, c);
-            html += '<td contenteditable="true" data-r="' + r + '" data-c="' + c + '" colspan="' + (cell.colspan || 1) + '" rowspan="' + (cell.rowspan || 1) + '"' +
-                ' style="' + docGridCellStyle(cell, colWidth, selected) + '"' +
-                ' onmousedown="docGridCellMouseDown(event,' + r + ',' + c + ')" oninput="docGridCellInput(event,' + r + ',' + c + ')">' +
-                escapePrintText(cell.value || '') + '</td>';
-        }
-        html += '</tr>';
-    }
-    html += '</tbody>';
-    tbl.innerHTML = html;
-}
-
 function saveDocGridEditor() {
-    if (!docGridEditorKey || !docGridEditorData) return;
+    if (!docGridEditorKey || !docGridEditorInstance) return;
     const file = printFiles.find(f => f.firebaseKey === docGridEditorKey);
-    db.ref('printFiles/' + docGridEditorKey).update({ editedGrid: docGridEditorData }).then(() => {
+    const state = docGridGetSaveState();
+    if (!state) return;
+    db.ref('printFiles/' + docGridEditorKey).update({ editedGrid: state }).then(() => {
         logActivity('document_edited', 'printFile', docGridEditorKey, file ? file.name : '', 'grid');
         showToast(true, t('docEditorToastSaved'));
     }).catch(() => showToast(false));
 }
 
-/* Builds the printable table HTML straight from the in-memory model (not from the live DOM),
-   so it reflects the CURRENT on-screen state - including any unsaved edits - without carrying
-   over contenteditable/selection-highlight artifacts into the print output. */
-function buildDocGridPrintHtml(data) {
+/* A-1-style column letters (A, B, ... Z, AA, AB, ...) used to build cell references such as
+   "A1" - the same reference format jspreadsheet's own style/mergeCells maps use as keys. */
+function docGridColLetter(index) {
+    let n = index + 1;
+    let s = '';
+    while (n > 0) {
+        const rem = (n - 1) % 26;
+        s = String.fromCharCode(65 + rem) + s;
+        n = Math.floor((n - 1) / 26);
+    }
+    return s;
+}
+
+/* Builds the printable table HTML straight from the CURRENT in-memory sheet state (data +
+   style + mergeCells read the same way Save reads them), so it reflects any unsaved edits
+   without writing anything to Firebase. */
+function buildDocGridPrintHtml(state) {
+    const data = state.data || [];
+    const style = state.style || {};
+    const mergeCells = state.mergeCells || {};
+    const skip = {};
     let html = '<table style="border-collapse:collapse;">';
-    for (let r = 0; r < data.rows.length; r++) {
+    for (let r = 0; r < data.length; r++) {
         html += '<tr>';
-        for (let c = 0; c < data.rows[r].length; c++) {
-            const cell = data.rows[r][c];
-            if (cell.covered) continue;
-            const colWidth = (data.colWidths && data.colWidths[c]) || DOC_GRID_DEFAULT_COL_WIDTH;
-            const style = 'width:' + colWidth + 'px; border:' + (cell.border ? '1px solid #000' : '1px solid transparent') + ';' +
-                'font-weight:' + (cell.bold ? '700' : '400') + '; font-style:' + (cell.italic ? 'italic' : 'normal') + ';' +
-                'text-align:' + (cell.align || 'left') + '; background:' + (cell.totalsBg ? '#f1f5f9' : '#fff') + '; padding:4px 6px; font-size:12px;';
-            html += '<td colspan="' + (cell.colspan || 1) + '" rowspan="' + (cell.rowspan || 1) + '" style="' + style + '">' + escapePrintText(cell.value || '') + '</td>';
+        for (let c = 0; c < data[r].length; c++) {
+            const ref = docGridColLetter(c) + (r + 1);
+            if (skip[ref]) continue;
+            let colspan = 1, rowspan = 1;
+            if (mergeCells[ref]) {
+                colspan = mergeCells[ref][0] || 1;
+                rowspan = mergeCells[ref][1] || 1;
+                for (let mr = 0; mr < rowspan; mr++) {
+                    for (let mc = 0; mc < colspan; mc++) {
+                        if (mr === 0 && mc === 0) continue;
+                        skip[docGridColLetter(c + mc) + (r + 1 + mr)] = true;
+                    }
+                }
+            }
+            const cellStyle = 'border:1px solid #94a3b8; padding:4px 6px; font-size:12px;' + (style[ref] || '');
+            const val = data[r][c];
+            html += '<td colspan="' + colspan + '" rowspan="' + rowspan + '" style="' + cellStyle + '">' +
+                escapePrintText(val === undefined || val === null ? '' : String(val)) + '</td>';
         }
         html += '</tr>';
     }
@@ -8885,7 +8658,8 @@ function buildDocGridPrintHtml(data) {
 }
 
 function exportDocGridToPDF() {
-    if (!docGridEditorData) return;
+    const state = docGridGetSaveState();
+    if (!state) return;
     const file = printFiles.find(f => f.firebaseKey === docGridEditorKey);
     const title = file ? file.name : t('docGridEditorTitle');
     const win = window.open('', '_blank');
@@ -8894,67 +8668,86 @@ function exportDocGridToPDF() {
         '<!doctype html><html><head><meta charset="utf-8"><title>' + escapePrintText(title) + '</title>' +
         '<style>body{font-family:Arial,sans-serif; padding:16px; color:#0f172a;} @media print { @page { margin: 10mm; } }</style>' +
         '</head><body>' +
-        buildDocGridPrintHtml(docGridEditorData) +
+        buildDocGridPrintHtml(state) +
         '<script>window.onload = function(){ window.print(); };<\/script>' +
         '</body></html>'
     );
     win.document.close();
 }
 
-/* ---------- 7b. RICH-TEXT EDITOR (Word-like) ---------- */
+/* ---------- 7b. RICH-TEXT EDITOR (Word-like, CKEditor 5 Classic build) ---------- */
 let docWordEditorKey = null;
+let docWordEditorInstance = null;
+
+/* Destroys any live CKEditor instance attached to the modal's content element, returning its
+   destroy Promise, so reopening never stacks multiple editor instances on the same element (a
+   well-known CKEditor integration pitfall). */
+function docWordDestroyInstance() {
+    if (docWordEditorInstance) {
+        const inst = docWordEditorInstance;
+        docWordEditorInstance = null;
+        try {
+            return inst.destroy();
+        } catch (e) { /* fall through */ }
+    }
+    return Promise.resolve();
+}
 
 function openDocWordEditor(key, file) {
     docWordEditorKey = key;
     const nameEl = document.getElementById('docWordEditorFileName');
     if (nameEl) nameEl.innerText = file.name || '';
     document.getElementById('docWordEditorModal').style.display = 'flex';
-    const contentEl = document.getElementById('docWordEditorContent');
+
     /* Re-opening a file that already has a saved edit continues from that save instead of
        re-converting the original file every time. */
+    let htmlPromise;
     if (typeof file.editedHtml === 'string' && file.editedHtml) {
-        contentEl.innerHTML = file.editedHtml;
-        return;
-    }
-    contentEl.innerHTML = '';
-    if (typeof mammoth === 'undefined' || !file.dataUrl) {
-        return;
-    }
-    try {
-        const buf = dataUrlToArrayBuffer(file.dataUrl);
-        mammoth.convertToHtml({ arrayBuffer: buf }).then(function (result) {
-            if (docWordEditorKey !== key) return; /* modal was closed/reopened meanwhile */
-            contentEl.innerHTML = (result && result.value) || '';
-        }).catch(function () {
-            if (docWordEditorKey !== key) return;
+        htmlPromise = Promise.resolve(file.editedHtml);
+    } else if (typeof mammoth !== 'undefined' && file.dataUrl) {
+        try {
+            const buf = dataUrlToArrayBuffer(file.dataUrl);
+            htmlPromise = mammoth.convertToHtml({ arrayBuffer: buf }).then(function (result) {
+                return (result && result.value) || '';
+            }).catch(function () {
+                showToast(false, t('docEditorParseErrorMsg'));
+                return '';
+            });
+        } catch (e) {
             showToast(false, t('docEditorParseErrorMsg'));
-        });
-    } catch (e) {
-        showToast(false, t('docEditorParseErrorMsg'));
+            htmlPromise = Promise.resolve('');
+        }
+    } else {
+        htmlPromise = Promise.resolve('');
     }
+
+    docWordDestroyInstance().then(function () {
+        if (docWordEditorKey !== key) return; /* modal was closed/reopened meanwhile */
+        const el = document.getElementById('docWordEditorContent');
+        if (!el || typeof ClassicEditor === 'undefined') return;
+        el.innerHTML = '';
+        return ClassicEditor.create(el).then(function (editor) {
+            if (docWordEditorKey !== key) { editor.destroy(); return; } /* closed/reopened meanwhile */
+            docWordEditorInstance = editor;
+            return htmlPromise.then(function (html) {
+                if (docWordEditorKey === key) editor.setData(html || '');
+            });
+        });
+    }).catch(function () {
+        showToast(false, t('docEditorParseErrorMsg'));
+    });
 }
 
 function closeDocWordEditor() {
     document.getElementById('docWordEditorModal').style.display = 'none';
+    docWordDestroyInstance();
     docWordEditorKey = null;
 }
 
-function docWordExec(cmd, value) {
-    const el = document.getElementById('docWordEditorContent');
-    if (el) el.focus();
-    document.execCommand(cmd, false, value || null);
-}
-
-function docWordSetHeading(tag) {
-    const el = document.getElementById('docWordEditorContent');
-    if (el) el.focus();
-    document.execCommand('formatBlock', false, tag);
-}
-
 function saveDocWordEditor() {
-    if (!docWordEditorKey) return;
+    if (!docWordEditorKey || !docWordEditorInstance) return;
     const file = printFiles.find(f => f.firebaseKey === docWordEditorKey);
-    const html = document.getElementById('docWordEditorContent').innerHTML;
+    const html = docWordEditorInstance.getData();
     db.ref('printFiles/' + docWordEditorKey).update({ editedHtml: html }).then(() => {
         logActivity('document_edited', 'printFile', docWordEditorKey, file ? file.name : '', 'richtext');
         showToast(true, t('docEditorToastSaved'));
@@ -8962,7 +8755,8 @@ function saveDocWordEditor() {
 }
 
 function exportDocWordToPDF() {
-    const html = document.getElementById('docWordEditorContent').innerHTML;
+    if (!docWordEditorInstance) return;
+    const html = docWordEditorInstance.getData();
     const file = printFiles.find(f => f.firebaseKey === docWordEditorKey);
     const title = file ? file.name : t('docWordEditorTitle');
     const win = window.open('', '_blank');
