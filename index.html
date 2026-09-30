@@ -389,7 +389,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.64</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.65</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -719,6 +719,13 @@
      <div class="header-right">
          <span class="header-brand">Admin</span>
 
+         <!-- v6.65: Global Search -->
+         <div class="lang-dropdown">
+             <button class="lang-btn" onclick="openGlobalSearch(event)" title="Search" id="globalSearchBtn">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+             </button>
+         </div>
+
          <!-- Notification Bell -->
          <div class="lang-dropdown">
              <button class="lang-btn" onclick="toggleNotifPanel(event)" title="Notifications" id="notifBellBtn">
@@ -776,6 +783,8 @@
 <button id="nav-makeup" onclick="switchTab('tab-makeup', this)" data-i18n="navMakeup" style="display:none;">Makeup Attendance Record</button>
 <button id="nav-attcal" onclick="switchTab('tab-attcal', this)" data-i18n="navAttCal" style="display:none;">Leave &amp; Attendance Calendar</button>
 <button id="nav-printing" onclick="switchTab('tab-printing', this)" data-i18n="navPrinting" style="display:none;">Document Library</button>
+<button id="nav-auditlog" onclick="switchTab('tab-auditlog', this)" data-i18n="navAuditLog" style="display:none;">Activity Log</button>
+<button id="nav-certificates" onclick="switchTab('tab-certificates', this)" data-i18n="navCertificates" style="display:none;">Certificates</button>
 
  <!-- TAB 1: DASHBOARD -->
  <div id="tab-home" class="tab-panel active">
@@ -848,8 +857,9 @@
         <button class="quick-btn" style="background:linear-gradient(135deg,#0f766e,#134e4a);" onclick="triggerNav('tab-attcal', 'nav-attcal')">
             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><rect x="7" y="13" width="4" height="4"/></svg></span><span class="quick-btn-label" data-i18n="navAttCal">Leave &amp; Attendance Calendar</span>
         </button>
-         <button class="quick-btn" style="background:linear-gradient(135deg,#7c3aed,#5b21b6);" onclick="triggerNav('tab-printing', 'nav-printing')">
+         <button class="quick-btn" style="background:linear-gradient(135deg,#7c3aed,#5b21b6); position:relative;" onclick="triggerNav('tab-printing', 'nav-printing')">
             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></span><span class="quick-btn-label" data-i18n="navPrinting">Document Library</span>
+            <span id="docLibraryNeedsEditBadge" class="notif-badge" style="display:none; top:2px; right:2px;">0</span>
         </button>
          <button class="quick-btn purple admin-only" onclick="triggerNav('tab-dept', 'nav-dept')">
              <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01"/><path d="M15 10h.01"/></svg></span><span class="quick-btn-label" data-i18n="navDepartments">Departments</span>
@@ -877,6 +887,14 @@
  </button>
 <button class="quick-btn" style="background:linear-gradient(135deg,#0369a1,#075985);" onclick="openManageNotifModal()">
     <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><span class="quick-btn-label" data-i18n="navManageNotif">Manage Notifications</span>
+</button>
+<!-- v6.65: Activity Log (admin-only) -->
+<button class="quick-btn admin-only" style="background:linear-gradient(135deg,#475569,#1e293b);" onclick="triggerNav('tab-auditlog', 'nav-auditlog')">
+    <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg></span><span class="quick-btn-label" data-i18n="navAuditLog">Activity Log</span>
+</button>
+<!-- v6.65: Employment Certificate generator (Admin+HR, not employee - not admin-only) -->
+<button class="quick-btn" style="background:linear-gradient(135deg,#065f46,#064e3b);" onclick="triggerNav('tab-certificates', 'nav-certificates')">
+    <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg></span><span class="quick-btn-label" data-i18n="navCertificates">Certificates</span>
 </button>
      </div>
  
@@ -1278,6 +1296,47 @@
      </div>
  </div>
 
+ <!-- v6.65: BULK UPDATE EXISTING EMPLOYEES MODAL (admin-only) - separate from Bulk Import above.
+      Only overwrites entitled/department/status/remarks/monthlyWorkDays for rows whose Employee
+      ID matches an existing employee; joinDate/dob/leave-usage-history/computed fields are never
+      touched by this path. Download Current Data Template exports today's values pre-filled so
+      the person edits in Excel and re-uploads, safer than a blank template for an update. -->
+ <div class="modal" id="bulkUpdateModal">
+     <div class="modal-content" style="max-width: 520px;">
+         <div class="modal-header">
+             <h4 data-i18n="bulkUpdateModalTitle">Bulk Update Employees</h4>
+             <button class="modal-close" onclick="closeBulkUpdateModal()">&times;</button>
+         </div>
+         <p style="font-size:13px; color:#334155; margin-bottom:14px;" data-i18n="bulkUpdateModalSub">Download the current data template, edit only the values you want to change, then upload it here. Only Entitled Hours, Department, Status, Remarks and Monthly Work Days can be updated this way - each row must match an existing Employee ID, and a blank cell leaves that field unchanged.</p>
+         <button type="button" class="btn-submit" style="margin-bottom:14px;" onclick="downloadBulkUpdateTemplate()" data-i18n="btnDownloadUpdateTemplate">Download Current Data Template</button>
+         <div class="form-group">
+             <label data-i18n="bulkImportFileLabel">Select .xlsx File</label>
+             <input type="file" id="bulkUpdateFileInput" accept=".xlsx">
+         </div>
+         <button type="button" class="btn-submit" onclick="runBulkUpdate()" data-i18n="btnRunBulkUpdate">Upload &amp; Update</button>
+         <div id="bulkUpdateResults" style="display:none; margin-top:16px; max-height:280px; overflow-y:auto;">
+             <h4 style="margin-bottom:8px;" data-i18n="bulkImportResultsTitle">Import Results</h4>
+             <p id="bulkUpdateSummaryLine" style="font-size:13px; font-weight:600; margin-bottom:8px;"></p>
+             <ul id="bulkUpdateSkipList" style="font-size:12px; color:#dc2626; padding-left:18px; margin:0;"></ul>
+         </div>
+     </div>
+ </div>
+
+ <!-- v6.65: GLOBAL SEARCH overlay - client-side filter over already-loaded employees[] and
+      printFiles[], grouped results, live-filtered as you type. -->
+ <div class="modal" id="globalSearchModal" onclick="if(event.target===this) closeGlobalSearch()">
+     <div class="modal-content" style="max-width: 480px;">
+         <div class="modal-header">
+             <h4 data-i18n="globalSearchTitle">Search</h4>
+             <button class="modal-close" onclick="closeGlobalSearch()">&times;</button>
+         </div>
+         <div class="form-group">
+             <input type="text" id="globalSearchInput" oninput="onGlobalSearchInput()" placeholder="Search employees or documents...">
+         </div>
+         <div id="globalSearchResults" style="max-height:400px; overflow-y:auto;"></div>
+     </div>
+ </div>
+
  <!-- v6.56: EXPORT LEAVE REPORT MODAL - a printable month-end report, either "Available This
       Month" (remaining annual leave usable this month) or "Exceeded Hours" (hours used beyond
       entitlement), for every employee, in the language the admin picks. -->
@@ -1437,6 +1496,7 @@
          <div class="toast-msg" id="addToast">✓ Employee saved successfully!</div>
          <div class="admin-only" style="margin-bottom:14px; text-align:right;">
              <button type="button" class="btn-primary" style="background:linear-gradient(135deg,#0f766e,#134e4a);" onclick="openBulkImportModal()" data-i18n="btnBulkImport">Bulk Import Employees</button>
+             <button type="button" class="btn-primary" style="background:linear-gradient(135deg,#0369a1,#075985); margin-left:8px;" onclick="openBulkUpdateModal()" data-i18n="btnBulkUpdate">Bulk Update Employees</button>
          </div>
 
          <form id="addEmpForm">
@@ -1692,6 +1752,7 @@
                 <h4 id="attCalGridTitle" data-i18n="attCalModeLeave">Leave Calendar</h4>
                 <p id="attCalLegend" style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="attCalLegendLeave">Green = other leave types. Red = Personal Leave.</p>
             </div>
+            <button type="button" class="quick-btn" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; flex-direction:row; gap:6px; background:#334155;" onclick="exportAttCalToPDF()" data-i18n="btnExportPDF">Export as PDF</button>
         </div>
         <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px;">
             <div class="form-group" style="margin-bottom:0; min-width:160px;">
@@ -1739,8 +1800,88 @@
     </div>
 </div>
 
+<!-- TAB: ACTIVITY LOG (v6.65, admin-only) - read-only audit trail of key write-actions taken
+     across the system, newest first, with a date-range and action-type filter and an export
+     to Excel in the established 3-language pattern. -->
+<div id="tab-auditlog" class="tab-panel">
+    <h3 data-i18n="auditLogTitle">Activity Log</h3>
+    <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="auditLogSub">A read-only record of key actions taken in this system - who did what, and when.</p>
+
+    <div class="dash-card">
+        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:14px;">
+            <div class="form-group" style="margin-bottom:0; min-width:150px;">
+                <label data-i18n="auditFilterFrom">From</label>
+                <input type="date" id="auditFilterFrom" onchange="renderAuditLogTable()">
+            </div>
+            <div class="form-group" style="margin-bottom:0; min-width:150px;">
+                <label data-i18n="auditFilterTo">To</label>
+                <input type="date" id="auditFilterTo" onchange="renderAuditLogTable()">
+            </div>
+            <div class="form-group" style="margin-bottom:0; min-width:180px;">
+                <label data-i18n="auditFilterAction">Action Type</label>
+                <select id="auditFilterAction" onchange="renderAuditLogTable()">
+                    <option value="" data-i18n="auditFilterAllActions">All Actions</option>
+                </select>
+            </div>
+            <button type="button" class="quick-btn" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; flex-direction:row; gap:6px;" onclick="clearAuditLogFilters()" data-i18n="auditClearFilters">Clear Filters</button>
+            <button type="button" class="quick-btn green" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; flex-direction:row; gap:6px;" onclick="openExportLangModal('auditlog')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+        </div>
+        <div class="table-responsive">
+            <table class="master-tbl tbl-wide">
+                <thead>
+                    <tr>
+                        <th data-i18n="auditColDateTime">Date/Time</th>
+                        <th data-i18n="auditColActor">Actor</th>
+                        <th data-i18n="auditColAction">Action</th>
+                        <th data-i18n="auditColTarget">Target</th>
+                        <th data-i18n="auditColDetails">Details</th>
+                    </tr>
+                </thead>
+                <tbody id="auditLogTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB: EMPLOYMENT CERTIFICATE GENERATOR (v6.65, Admin+HR - not admin-only, hidden from
+     Employee role the same way the rest of #adminApp already is). Generates a printable
+     Certificate of Employment in EN/KM/ZH via a print-styled new window, same technique as
+     the Leave & Attendance Calendar PDF export. -->
+<div id="tab-certificates" class="tab-panel">
+    <h3 data-i18n="certTabTitle">Employment Certificate</h3>
+    <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="certTabSub">Generate a printable Certificate of Employment for an employee, for official use (banks, embassies, visas, etc).</p>
+
+    <div class="dash-card" style="max-width:560px;">
+        <div class="form-group">
+            <label data-i18n="lblEmpId">Employee ID</label>
+            <input type="text" id="certEmpId" placeholder="e.g. 200001" oninput="onCertEmpIdInput()">
+        </div>
+        <div class="form-group">
+            <label data-i18n="lblEmpName">Employee Name</label>
+            <input type="text" id="certEmpName" placeholder="e.g. Sok Heng" oninput="onCertEmpNameInput()">
+        </div>
+        <div class="form-group">
+            <label data-i18n="certCompanyNameLabel">Company Name</label>
+            <input type="text" id="certCompanyName" placeholder="e.g. ABC Manufacturing Co., Ltd.">
+        </div>
+        <div class="form-group">
+            <label data-i18n="certPurposeLabel">Purpose / Remarks</label>
+            <textarea id="certPurpose" rows="2" placeholder="e.g. For visa application"></textarea>
+        </div>
+        <div class="form-group">
+            <label data-i18n="certLangLabel">Certificate Language</label>
+            <select id="certLangSelect">
+                <option value="en">English</option>
+                <option value="km">ខ្មែរ (Khmer)</option>
+                <option value="zh">中文 (Chinese)</option>
+            </select>
+        </div>
+        <button type="button" class="btn-submit" onclick="generateCertificate()" data-i18n="btnGenerateCertificate">Generate Certificate</button>
+    </div>
+</div>
+
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.64
+     HR & Administration System Version 6.65
  </div>
 </div>
 
@@ -3091,7 +3232,75 @@
         dashAnniversaryTodayLabel: "Work Anniversary Today",
         dashUpcomingLabel: "Upcoming (Next 7 Days)",
         dashBirthdaysNone: "No birthdays or anniversaries coming up.",
-        dashAnniversaryYears: "{years} year(s)"
+        dashAnniversaryYears: "{years} year(s)",
+
+        /* v6.65: Nav labels for the 2 new tabs */
+        navAuditLog: "Activity Log",
+        navCertificates: "Certificates",
+
+        /* v6.65: Activity / Audit Log */
+        auditLogTitle: "Activity Log",
+        auditLogSub: "A read-only record of key actions taken in this system - who did what, and when.",
+        auditFilterFrom: "From",
+        auditFilterTo: "To",
+        auditFilterAction: "Action Type",
+        auditFilterAllActions: "All Actions",
+        auditClearFilters: "Clear Filters",
+        auditColDateTime: "Date/Time",
+        auditColActor: "Actor",
+        auditColAction: "Action",
+        auditColTarget: "Target",
+        auditColDetails: "Details",
+        auditLogEmpty: "No activity recorded yet.",
+        btnDismiss: "Dismiss",
+
+        /* v6.65: Global Search */
+        globalSearchTitle: "Search",
+        globalSearchNoResults: "No matching employees or documents found.",
+        globalSearchEmployeesGroup: "Employees",
+        globalSearchDocumentsGroup: "Documents",
+
+        /* v6.65: Needs Attention -> push notifications */
+        notifNeedsAttentionRenewalTitle: "Annual Leave Renewal This Month",
+        notifNeedsAttentionRenewalMsg: "{name} ({id})'s annual leave cycle renews this month.",
+        notifNeedsAttentionExceededTitle: "Employee Exceeding Monthly Limit",
+        notifNeedsAttentionExceededMsg: "{name} ({id}) has exceeded their allowed leave hours this month.",
+
+        /* v6.65: Document Library edit reminders */
+        notifDocNeedsEditTitle: "Documents Need Editing",
+        notifDocNeedsEditMsg: "{count} file(s) in the Document Library are flagged as needing an edit before printing.",
+
+        /* v6.65: Bulk Update Existing Employees */
+        btnBulkUpdate: "Bulk Update Employees",
+        bulkUpdateModalTitle: "Bulk Update Employees",
+        bulkUpdateModalSub: "Download the current data template, edit only the values you want to change, then upload it here. Only Entitled Hours, Department, Status, Remarks and Monthly Work Days can be updated this way - each row must match an existing Employee ID, and a blank cell leaves that field unchanged.",
+        btnDownloadUpdateTemplate: "Download Current Data Template",
+        btnRunBulkUpdate: "Upload & Update",
+        bulkUpdateReasonNoId: "Row {row}: Employee ID is blank - skipped.",
+        bulkUpdateReasonIdNotFound: "Row {row}: Employee ID \"{id}\" not found - skipped.",
+        bulkUpdateReasonNoChanges: "Row {row} ({id}): no updatable fields had a value - skipped.",
+        bulkUpdateSummaryUpdated: "Updated: {count}.",
+        toastBulkUpdateDone: "Bulk update complete.",
+
+        /* v6.65: Leave/Attendance Calendar PDF export */
+        btnExportPDF: "Export as PDF",
+
+        /* v6.65: Employment Certificate generator */
+        certTabTitle: "Employment Certificate",
+        certTabSub: "Generate a printable Certificate of Employment for an employee, for official use (banks, embassies, visas, etc).",
+        certCompanyNameLabel: "Company Name",
+        certPurposeLabel: "Purpose / Remarks",
+        certLangLabel: "Certificate Language",
+        btnGenerateCertificate: "Generate Certificate",
+        certCompanyRequiredMsg: "Please enter the Company Name.",
+        certDocTitle: "CERTIFICATE OF EMPLOYMENT",
+        certBodyActive: "This is to certify that {name} (Employee ID: {id}) is currently employed at {company} in the {department} department, since {joinDate}.",
+        certBodyResigned: "This is to certify that {name} (Employee ID: {id}) was employed at {company} in the {department} department, from {joinDate} to {endDate}.",
+        certPurposeLine: "This certificate is issued upon request for the purpose of: {purpose}.",
+        certIssuedOnLine: "Issued on {date}.",
+        certSignatureLine: "Authorized Signature",
+        certSignatureRole: "HR Manager",
+        btnPrintSaveAsPDF: "Print / Save as PDF"
      },
      km: {
          appTitle: "ប្រព័ន្ធគ្រប់គ្រងបុគ្គលិក",
@@ -3636,7 +3845,67 @@
         dashAnniversaryTodayLabel: "ខួបការងារថ្ងៃនេះ",
         dashUpcomingLabel: "នៅខាងមុខ (៧ថ្ងៃខាងមុខ)",
         dashBirthdaysNone: "គ្មានថ្ងៃកំណើត ឬខួបការងារនៅខាងមុខទេ។",
-        dashAnniversaryYears: "{years} ឆ្នាំ"
+        dashAnniversaryYears: "{years} ឆ្នាំ",
+
+        navAuditLog: "កំណត់ត្រាសកម្មភាព",
+        navCertificates: "វិញ្ញាបនបត្រ",
+
+        auditLogTitle: "កំណត់ត្រាសកម្មភាព",
+        auditLogSub: "កំណត់ត្រាសម្រាប់អានតែប៉ុណ្ណោះនៃសកម្មភាពសំខាន់ៗដែលបានធ្វើក្នុងប្រព័ន្ធនេះ - នរណា ធ្វើអ្វី និងនៅពេលណា។",
+        auditFilterFrom: "ពីថ្ងៃ",
+        auditFilterTo: "ដល់ថ្ងៃ",
+        auditFilterAction: "ប្រភេទសកម្មភាព",
+        auditFilterAllActions: "សកម្មភាពទាំងអស់",
+        auditClearFilters: "សម្អាតតម្រង",
+        auditColDateTime: "កាលបរិច្ឆេទ/ម៉ោង",
+        auditColActor: "អ្នកធ្វើសកម្មភាព",
+        auditColAction: "សកម្មភាព",
+        auditColTarget: "គោលដៅ",
+        auditColDetails: "លម្អិត",
+        auditLogEmpty: "មិនទាន់មានកំណត់ត្រាសកម្មភាពនៅឡើយទេ។",
+        btnDismiss: "បិទ",
+
+        globalSearchTitle: "ស្វែងរក",
+        globalSearchNoResults: "រកមិនឃើញបុគ្គលិក ឬឯកសារដែលត្រូវគ្នាទេ។",
+        globalSearchEmployeesGroup: "បុគ្គលិក",
+        globalSearchDocumentsGroup: "ឯកសារ",
+
+        notifNeedsAttentionRenewalTitle: "ការបន្តសិទ្ធិឈប់សម្រាកប្រចាំឆ្នាំខែនេះ",
+        notifNeedsAttentionRenewalMsg: "សិទ្ធិឈប់សម្រាកប្រចាំឆ្នាំរបស់ {name} ({id}) នឹងបន្តក្នុងខែនេះ។",
+        notifNeedsAttentionExceededTitle: "បុគ្គលិកប្រើលើសកំណត់ប្រចាំខែ",
+        notifNeedsAttentionExceededMsg: "{name} ({id}) បានប្រើម៉ោងឈប់សម្រាកលើសកំណត់ដែលអនុញ្ញាតក្នុងខែនេះ។",
+
+        notifDocNeedsEditTitle: "ឯកសារត្រូវការកែសម្រួល",
+        notifDocNeedsEditMsg: "ឯកសារចំនួន {count} នៅក្នុងបណ្ណាល័យឯកសារត្រូវបានសម្គាល់ថាត្រូវការកែសម្រួលមុនបោះពុម្ព។",
+
+        btnBulkUpdate: "ធ្វើបច្ចុប្បន្នភាពបុគ្គលិកច្រើន",
+        bulkUpdateModalTitle: "ធ្វើបច្ចុប្បន្នភាពបុគ្គលិកច្រើន",
+        bulkUpdateModalSub: "ទាញយកទម្រង់ទិន្នន័យបច្ចុប្បន្ន កែប្រែតែតម្លៃដែលអ្នកចង់ផ្លាស់ប្តូរ រួចបញ្ចូលឡើងវិញនៅទីនេះ។ មានតែម៉ោងសិទ្ធិ នាយកដ្ឋាន ស្ថានភាព កំណត់សម្គាល់ និងថ្ងៃធ្វើការប្រចាំខែប៉ុណ្ណោះដែលអាចធ្វើបច្ចុប្បន្នភាពតាមវិធីនេះ - ជួរនីមួយៗត្រូវតែផ្គូផ្គងនឹងអត្តលេខបុគ្គលិកដែលមានស្រាប់ ហើយប្រអប់ទទេនឹងទុកតម្លៃដដែល។",
+        btnDownloadUpdateTemplate: "ទាញយកទម្រង់ទិន្នន័យបច្ចុប្បន្ន",
+        btnRunBulkUpdate: "បញ្ចូល និងធ្វើបច្ចុប្បន្នភាព",
+        bulkUpdateReasonNoId: "ជួរទី {row}៖ អត្តលេខបុគ្គលិកទទេ - លុបចោល។",
+        bulkUpdateReasonIdNotFound: "ជួរទី {row}៖ រកមិនឃើញអត្តលេខបុគ្គលិក \"{id}\" ទេ - លុបចោល។",
+        bulkUpdateReasonNoChanges: "ជួរទី {row} ({id})៖ គ្មានប្រអប់ណាមួយមានតម្លៃត្រូវផ្លាស់ប្តូរទេ - លុបចោល។",
+        bulkUpdateSummaryUpdated: "បានធ្វើបច្ចុប្បន្នភាព៖ {count}។",
+        toastBulkUpdateDone: "ការធ្វើបច្ចុប្បន្នភាពបានបញ្ចប់។",
+
+        btnExportPDF: "នាំចេញជា PDF",
+
+        certTabTitle: "លិខិតបញ្ជាក់ការងារ",
+        certTabSub: "បង្កើតលិខិតបញ្ជាក់ការងារសម្រាប់បោះពុម្ពសម្រាប់បុគ្គលិកម្នាក់ សម្រាប់ការប្រើប្រាស់ផ្លូវការ (ធនាគារ ស្ថានទូត វីសា។ល។)។",
+        certCompanyNameLabel: "ឈ្មោះក្រុមហ៊ុន",
+        certPurposeLabel: "គោលបំណង / កំណត់សម្គាល់",
+        certLangLabel: "ភាសាវិញ្ញាបនបត្រ",
+        btnGenerateCertificate: "បង្កើតវិញ្ញាបនបត្រ",
+        certCompanyRequiredMsg: "សូមបញ្ចូលឈ្មោះក្រុមហ៊ុន។",
+        certDocTitle: "លិខិតបញ្ជាក់ការងារ",
+        certBodyActive: "នេះដើម្បីបញ្ជាក់ថា {name} (អត្តលេខបុគ្គលិក៖ {id}) កំពុងបម្រើការងារនៅ {company} ក្នុងផ្នែក {department} តាំងពីថ្ងៃទី {joinDate}។",
+        certBodyResigned: "នេះដើម្បីបញ្ជាក់ថា {name} (អត្តលេខបុគ្គលិក៖ {id}) ធ្លាប់បានបម្រើការងារនៅ {company} ក្នុងផ្នែក {department} ពីថ្ងៃទី {joinDate} ដល់ថ្ងៃទី {endDate}។",
+        certPurposeLine: "លិខិតបញ្ជាក់នេះត្រូវបានចេញតាមសំណើ សម្រាប់គោលបំណង៖ {purpose}។",
+        certIssuedOnLine: "ចេញនៅថ្ងៃទី {date}។",
+        certSignatureLine: "ហត្ថលេខាអនុញ្ញាត",
+        certSignatureRole: "អ្នកគ្រប់គ្រងធនធានមនុស្ស",
+        btnPrintSaveAsPDF: "បោះពុម្ព / រក្សាទុកជា PDF"
      },
      zh: {
          appTitle: "行政管理系统",
@@ -4181,7 +4450,67 @@
         dashAnniversaryTodayLabel: "今日工作周年",
         dashUpcomingLabel: "即将到来（未来7天）",
         dashBirthdaysNone: "近期没有生日或工作周年。",
-        dashAnniversaryYears: "{years} 年"
+        dashAnniversaryYears: "{years} 年",
+
+        navAuditLog: "活动日志",
+        navCertificates: "证明书",
+
+        auditLogTitle: "活动日志",
+        auditLogSub: "系统中关键操作的只读记录——谁做了什么，以及何时做的。",
+        auditFilterFrom: "起始日期",
+        auditFilterTo: "结束日期",
+        auditFilterAction: "操作类型",
+        auditFilterAllActions: "所有操作",
+        auditClearFilters: "清除筛选",
+        auditColDateTime: "日期/时间",
+        auditColActor: "操作人",
+        auditColAction: "操作",
+        auditColTarget: "对象",
+        auditColDetails: "详情",
+        auditLogEmpty: "尚无活动记录。",
+        btnDismiss: "关闭",
+
+        globalSearchTitle: "搜索",
+        globalSearchNoResults: "未找到匹配的员工或文件。",
+        globalSearchEmployeesGroup: "员工",
+        globalSearchDocumentsGroup: "文件",
+
+        notifNeedsAttentionRenewalTitle: "本月年假续期",
+        notifNeedsAttentionRenewalMsg: "{name}（{id}）的年假周期将于本月续期。",
+        notifNeedsAttentionExceededTitle: "员工超出本月限额",
+        notifNeedsAttentionExceededMsg: "{name}（{id}）本月使用的休假时数已超出允许限额。",
+
+        notifDocNeedsEditTitle: "文件需要修改",
+        notifDocNeedsEditMsg: "文件库中有 {count} 个文件被标记为打印前需要修改。",
+
+        btnBulkUpdate: "批量更新员工",
+        bulkUpdateModalTitle: "批量更新员工",
+        bulkUpdateModalSub: "下载当前数据模板，只修改您想更改的数值，然后在此上传。此方式仅可更新可用小时数、部门、状态、备注和每月工作天数——每行必须对应一个已存在的员工编号，空白单元格表示该字段保持不变。",
+        btnDownloadUpdateTemplate: "下载当前数据模板",
+        btnRunBulkUpdate: "上传并更新",
+        bulkUpdateReasonNoId: "第 {row} 行：员工编号为空 - 已跳过。",
+        bulkUpdateReasonIdNotFound: "第 {row} 行：未找到员工编号 \"{id}\" - 已跳过。",
+        bulkUpdateReasonNoChanges: "第 {row} 行（{id}）：没有可更新字段填写数值 - 已跳过。",
+        bulkUpdateSummaryUpdated: "已更新：{count}。",
+        toastBulkUpdateDone: "批量更新完成。",
+
+        btnExportPDF: "导出为 PDF",
+
+        certTabTitle: "在职证明",
+        certTabSub: "为员工生成可打印的在职证明，供正式用途使用（银行、使馆、签证等）。",
+        certCompanyNameLabel: "公司名称",
+        certPurposeLabel: "用途/备注",
+        certLangLabel: "证明书语言",
+        btnGenerateCertificate: "生成证明书",
+        certCompanyRequiredMsg: "请输入公司名称。",
+        certDocTitle: "在职证明",
+        certBodyActive: "兹证明 {name}（员工编号：{id}）自 {joinDate} 起在 {company} {department} 部门任职至今。",
+        certBodyResigned: "兹证明 {name}（员工编号：{id}）曾于 {joinDate} 至 {endDate} 期间在 {company} {department} 部门任职。",
+        certPurposeLine: "本证明应要求出具，用途为：{purpose}。",
+        certIssuedOnLine: "出具日期：{date}。",
+        certSignatureLine: "授权签名",
+        certSignatureRole: "人力资源经理",
+        btnPrintSaveAsPDF: "打印 / 另存为 PDF"
      }
  };
  
@@ -5155,6 +5484,8 @@ function deleteAnnouncement(firebaseKey) {
      if(tabId === 'tab-dept') renderDeptTable();
      if(tabId === 'tab-attcal') { renderAttCalTable(); }
      if(tabId === 'tab-printing') { renderPrintingView(); }
+     if(tabId === 'tab-auditlog') { renderAuditLogTable(); populateAuditActionFilter(); }
+     if(tabId === 'tab-certificates') { /* no data load needed - form fields only */ }
  }
  
  function triggerNav(tabId, navBtnId) {
@@ -5221,6 +5552,7 @@ function deleteAnnouncement(firebaseKey) {
      renderDashNeedsAttention();
      renderDashWhosOff();
      renderDashBirthdays();
+     if (typeof checkNeedsAttentionNotifications === 'function') checkNeedsAttentionNotifications();
  }
 
  /* Jumps to the Check Record tab and runs Check Details for a specific employee - used by every
@@ -5608,6 +5940,7 @@ function deleteAnnouncement(firebaseKey) {
              db.ref('deletedEmployees/' + firebaseKey).set(record).then(() => {
                  return db.ref('employees/' + firebaseKey).remove();
              }).then(() => {
+                 logActivity('employee_delete', 'employee', record.id || firebaseKey, name, '');
                  showToast(true, t('toastDeletedToRecycle'));
              }).catch(() => showToast(false));
          }).catch(() => showToast(false));
@@ -5919,13 +6252,20 @@ function filterMakeupTable() {
      }
 
      apply.then(() => db.ref('pendingEdits/' + firebaseKey).remove())
-         .then(() => showToast(true, t('toastApproved')))
+         .then(() => {
+             logActivity('pending_edit_approve', p.isNew ? 'employee' : 'leaveRequest', p.empId || p.employeeKey || '', p.empName || '', p.isNew ? 'New employee approved' : 'Edit approved');
+             showToast(true, t('toastApproved'));
+         })
          .catch(() => showToast(false));
  }
 
  function rejectPendingEdit(firebaseKey) {
      if (!confirm(t('rejectConfirmMsg'))) return;
-     db.ref('pendingEdits/' + firebaseKey).remove().then(() => showToast(true, t('toastRejected'))).catch(() => showToast(false));
+     const p = pendingEdits.find(x => x.firebaseKey === firebaseKey);
+     db.ref('pendingEdits/' + firebaseKey).remove().then(() => {
+         if (p) logActivity('pending_edit_reject', p.isNew ? 'employee' : 'leaveRequest', p.empId || p.employeeKey || '', p.empName || '', p.isNew ? 'New employee rejected' : 'Edit rejected');
+         showToast(true, t('toastRejected'));
+     }).catch(() => showToast(false));
  }
 
  /* ================= v6.00: MANAGEMENT (accounts + one-time broadcast) ================= */
@@ -6717,6 +7057,8 @@ function filterMakeupTable() {
      document.getElementById('exportLangModal').style.display = 'none';
      if (kind === 'shift') {
          exportShiftCalendarToExcel(lang);
+     } else if (kind === 'auditlog') {
+         exportAuditLogToExcel(lang);
      } else if (kind) {
          exportToExcel(kind, lang);
      }
@@ -7195,13 +7537,14 @@ function openEmployeeDetailModal(index) {
      }
 
      db.ref('employees/' + firebaseKey).set(updatedData).then(() => {
+         logActivity('employee_edit', 'employee', updatedData.id || firebaseKey, updatedData.name || '', '');
          closeModal();
          showToast(true);
      }).catch(error => {
          showToast(false);
      });
  });
- 
+
  document.getElementById('addEmpForm').addEventListener('submit', function(e){
      e.preventDefault();
      const joinInput = document.getElementById('newJoinDate').value.replace(/-/g, '.');
@@ -7253,6 +7596,7 @@ function openEmployeeDetailModal(index) {
      }
 
      db.ref('employees').push(emp).then(() => {
+         logActivity('employee_add', 'employee', emp.id, emp.name, '');
          this.reset();
          document.getElementById('newEntitled').value = "160";
          document.getElementById('newId').focus();
@@ -7430,6 +7774,9 @@ function openEmployeeDetailModal(index) {
          }
 
          Promise.all(validRecords.map(emp => db.ref('employees').push(emp))).then(() => {
+             if (validRecords.length > 0) {
+                 logActivity('bulk_import', 'employee', '', '', fillTemplate(t('bulkImportSummaryImported'), { count: validRecords.length }));
+             }
              document.getElementById('bulkImportResults').style.display = 'block';
              document.getElementById('bulkImportSummaryLine').innerText =
                  fillTemplate(t('bulkImportSummaryImported'), { count: validRecords.length }) + ' ' +
@@ -7609,6 +7956,7 @@ db.ref('printFiles').on('value', (snapshot) => {
     const data = snapshot.val();
     printFiles = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
     renderPrintingView();
+    if (typeof renderDocLibraryBadge === 'function') renderDocLibraryBadge();
 });
 
 function escapePrintText(str) {
@@ -7794,7 +8142,7 @@ function handlePrintFileUpload(inputEl) {
                     size: file.size,
                     mimeType: file.type || 'application/octet-stream',
                     uploadedAt: Date.now()
-                }).then(() => { uploadedCount++; resolve(); }).catch(() => { skippedCount++; resolve(); });
+                }).then(() => { uploadedCount++; logActivity('print_file_upload', 'printFile', file.name, file.name, ''); resolve(); }).catch(() => { skippedCount++; resolve(); });
             };
             reader.onerror = function() { skippedCount++; resolve(); };
             reader.readAsDataURL(file);
@@ -7841,6 +8189,7 @@ function handlePrintFileReplace(inputEl) {
             mimeType: file.type || 'application/octet-stream',
             uploadedAt: Date.now()
         }).then(() => {
+            logActivity('print_file_replace', 'printFile', key, file.name, '');
             showToast(true, t('printToastReplaced'));
         }).catch(() => showToast(false));
     };
@@ -7862,7 +8211,11 @@ function renamePrintItem(type, key) {
 function deletePrintItem(type, key) {
     if (type === 'file') {
         if (!confirm(t('printDeleteFileConfirm'))) return;
-        db.ref('printFiles/' + key).remove().then(() => showToast(true, t('printToastDeleted'))).catch(() => showToast(false));
+        const fileRec = printFiles.find(f => f.firebaseKey === key);
+        db.ref('printFiles/' + key).remove().then(() => {
+            logActivity('print_file_delete', 'printFile', key, fileRec ? fileRec.name : '', '');
+            showToast(true, t('printToastDeleted'));
+        }).catch(() => showToast(false));
         return;
     }
     if (!confirm(t('printDeleteFolderConfirm'))) return;
@@ -8241,9 +8594,23 @@ function formatNotifReceivedAt(timestamp) {
      }).join('');
  }
 
+ /* v6.65: system alerts (AL renewal / exceeded-hours needs-attention, Document Library edit
+    reminders) reuse this exact SAME notifications collection/bell UI, just addressed to
+    targetId 'ADMIN' instead of 'ALL' or a specific employee ID - so they show here, in the
+    Administration/HR bell, and are invisible to the Employee side (getEmpNotifications only
+    ever matches 'ALL' or the employee's own id). */
+ function getAdminAlerts() {
+     return (typeof allNotifications !== 'undefined' ? allNotifications : []).filter(n => n.targetId === 'ADMIN' && !n.readByAdmin);
+ }
+
+ function dismissAdminAlert(firebaseKey) {
+     db.ref('notifications/' + firebaseKey).update({ readByAdmin: true });
+ }
+
  function renderNotifications() {
      const badge = document.getElementById('notifBadge');
-     const pendingCount = requests.filter(r => r.status !== 'processed').length;
+     const adminAlerts = getAdminAlerts();
+     const pendingCount = requests.filter(r => r.status !== 'processed').length + adminAlerts.length;
      if (pendingCount > 0) {
          badge.style.display = 'inline-block';
          badge.innerText = pendingCount;
@@ -8255,6 +8622,19 @@ function formatNotifReceivedAt(timestamp) {
      if (!body) return;
 
     let html = `<p style="font-size:11px; color:#64748b; margin-bottom:12px;">${t('notifSeeManageHint')}</p>`;
+
+     if (adminAlerts.length > 0) {
+         html += [...adminAlerts].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)).map(n => `
+             <div class="detail-item" style="flex-direction:column; align-items:flex-start; gap:6px; margin-bottom:10px; background:#fffbeb; border-color:#fde68a;">
+                 <div style="display:flex; justify-content:space-between; width:100%;">
+                     <span class="lbl">${n.message || '-'}</span>
+                     ${n.timestamp ? `<span class="val" style="font-size:10px; color:#94a3b8;">${formatNotifReceivedAt(n.timestamp)}</span>` : ''}
+                 </div>
+                 <div style="font-size:12px; color:#334155; width:100%; text-align:left;">${n.description || ''}</div>
+                 <button class="quick-btn slate" style="padding:4px 10px; font-size:11px;" onclick="dismissAdminAlert('${n.firebaseKey}')">${t('btnDismiss')}</button>
+             </div>
+         `).join('');
+     }
 
      if (requests.length === 0) {
          html += `<p style="font-size:13px; color:#64748b; text-align:center; padding:20px;">${t('notifEmpty')}</p>`;
@@ -8326,6 +8706,11 @@ function formatNotifReceivedAt(timestamp) {
      }
      renderMyRequests();
      renderSentNotifTable();
+     /* v6.65: also refreshes the ADMIN-targeted system alerts inside the same bell (see
+        getAdminAlerts/renderNotifications) - safe to call even on the Employee side, since
+        renderNotifications no-ops if #notifBadge isn't present in the DOM at all (it always is,
+        just hidden inside #adminApp, so this is effectively a cheap re-render). */
+     if (typeof renderNotifications === 'function') renderNotifications();
  });
 
  /* v6.51: repeatable Employee ID rows for composeModal, so "New Announcement" can target a
@@ -8704,6 +9089,534 @@ function notifyCardReady() {
 
  function closeEmpNotifModal() {
      document.getElementById('empNotifModal').style.display = 'none';
+ }
+
+ /* ================================================================
+    v6.65 NEW FEATURES (Activity Log, Global Search, Needs-Attention push
+    notifications, Bulk Update, Document Library edit reminders, Calendar
+    PDF export, Employment Certificate). Purely additive - no existing
+    calculation, data field meaning, or Firebase collection structure is
+    changed by anything below.
+    ================================================================ */
+
+ /* ---------- 1. ACTIVITY / AUDIT LOG (admin-only) ---------- */
+ let auditLog = [];
+ db.ref('auditLog').on('value', (snapshot) => {
+     const data = snapshot.val();
+     auditLog = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+     renderAuditLogTable();
+     populateAuditActionFilter();
+ });
+
+ /* Lightweight, fire-and-forget activity logger. Wrapped so a logging failure (offline,
+    permission issue, etc.) can NEVER break the real write-action it's being called from. */
+ function logActivity(action, targetType, targetId, targetLabel, details) {
+     try {
+         const role = sessionStorage.getItem('loggedInRole') || 'admin';
+         const actorName = sessionStorage.getItem('loggedInAccountName') || (role === 'admin' ? 'Administrator' : 'HR');
+         db.ref('auditLog').push({
+             timestamp: Date.now(),
+             actorRole: role,
+             actorName: actorName,
+             action: action || '',
+             targetType: targetType || '',
+             targetId: targetId || '',
+             targetLabel: targetLabel || '',
+             details: details || ''
+         }).catch(function () {});
+     } catch (e) { /* never let logging break the real action */ }
+ }
+
+ function populateAuditActionFilter() {
+     const sel = document.getElementById('auditFilterAction');
+     if (!sel) return;
+     const current = sel.value;
+     const actions = Array.from(new Set(auditLog.map(a => a.action).filter(Boolean))).sort();
+     sel.innerHTML = '<option value="">' + t('auditFilterAllActions') + '</option>' +
+         actions.map(a => '<option value="' + escapePrintText(a) + '">' + escapePrintText(a) + '</option>').join('');
+     sel.value = current && actions.indexOf(current) !== -1 ? current : '';
+ }
+
+ function clearAuditLogFilters() {
+     const f = document.getElementById('auditFilterFrom'); if (f) f.value = '';
+     const to = document.getElementById('auditFilterTo'); if (to) to.value = '';
+     const a = document.getElementById('auditFilterAction'); if (a) a.value = '';
+     renderAuditLogTable();
+ }
+
+ function getFilteredAuditLog() {
+     const fromEl = document.getElementById('auditFilterFrom');
+     const toEl = document.getElementById('auditFilterTo');
+     const actionEl = document.getElementById('auditFilterAction');
+     const from = fromEl ? fromEl.value : '';
+     const to = toEl ? toEl.value : '';
+     const actionFilter = actionEl ? actionEl.value : '';
+     return auditLog.filter(a => {
+         if (actionFilter && a.action !== actionFilter) return false;
+         if (from || to) {
+             const d = a.timestamp ? new Date(a.timestamp).toISOString().slice(0, 10) : '';
+             if (from && d < from) return false;
+             if (to && d > to) return false;
+         }
+         return true;
+     }).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+ }
+
+ function renderAuditLogTable() {
+     const tbody = document.getElementById('auditLogTableBody');
+     if (!tbody) return;
+     const list = getFilteredAuditLog();
+     if (list.length === 0) {
+         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">' + t('auditLogEmpty') + '</td></tr>';
+         return;
+     }
+     tbody.innerHTML = list.map(a => {
+         const targetStr = (a.targetLabel || a.targetId || '-') + (a.targetType ? ' (' + a.targetType + ')' : '');
+         return '<tr>' +
+             '<td>' + (a.timestamp ? new Date(a.timestamp).toLocaleString() : '-') + '</td>' +
+             '<td>' + escapePrintText(a.actorName || a.actorRole || '-') + '</td>' +
+             '<td>' + escapePrintText(a.action || '-') + '</td>' +
+             '<td>' + escapePrintText(targetStr) + '</td>' +
+             '<td>' + escapePrintText(a.details || '-') + '</td>' +
+             '</tr>';
+     }).join('');
+ }
+
+ function exportAuditLogToExcel(lang) {
+     lang = lang || 'en';
+     const list = getFilteredAuditLog();
+     const data = list.map(a => {
+         const row = {};
+         row[tLang('auditColDateTime', lang)] = a.timestamp ? new Date(a.timestamp).toLocaleString() : '';
+         row[tLang('auditColActor', lang)] = a.actorName || a.actorRole || '';
+         row[tLang('auditColAction', lang)] = a.action || '';
+         row[tLang('auditColTarget', lang)] = (a.targetLabel || a.targetId || '') + (a.targetType ? ' (' + a.targetType + ')' : '');
+         row[tLang('auditColDetails', lang)] = a.details || '';
+         return row;
+     });
+     const worksheet = XLSX.utils.json_to_sheet(data);
+     const workbook = XLSX.utils.book_new();
+     XLSX.utils.book_append_sheet(workbook, worksheet, tLang('auditLogTitle', lang).slice(0, 31));
+     XLSX.writeFile(workbook, 'Activity_Log_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+ }
+
+ /* ---------- 2. GLOBAL SEARCH (pure client-side filter over employees[]/printFiles[]) ---------- */
+ function openGlobalSearch(e) {
+     if (e) e.stopPropagation();
+     closeAllMenus();
+     const input = document.getElementById('globalSearchInput');
+     if (input) input.value = '';
+     const resultsEl = document.getElementById('globalSearchResults');
+     if (resultsEl) resultsEl.innerHTML = '';
+     document.getElementById('globalSearchModal').style.display = 'flex';
+     setTimeout(function () { if (input) input.focus(); }, 50);
+ }
+
+ function closeGlobalSearch() {
+     document.getElementById('globalSearchModal').style.display = 'none';
+ }
+
+ let _globalSearchTimer = null;
+ function onGlobalSearchInput() {
+     if (_globalSearchTimer) clearTimeout(_globalSearchTimer);
+     _globalSearchTimer = setTimeout(runGlobalSearch, 200);
+ }
+
+ function runGlobalSearch() {
+     const qInput = document.getElementById('globalSearchInput');
+     const q = (qInput ? qInput.value : '').trim().toLowerCase();
+     const resultsEl = document.getElementById('globalSearchResults');
+     if (!resultsEl) return;
+     if (!q) { resultsEl.innerHTML = ''; return; }
+
+     const empMatches = employees.filter(e =>
+         (e.name || '').toLowerCase().indexOf(q) !== -1 || (e.id || '').toLowerCase().indexOf(q) !== -1
+     ).slice(0, 8);
+
+     const docMatches = (typeof printFiles !== 'undefined' ? printFiles : []).filter(f =>
+         (f.name || '').toLowerCase().indexOf(q) !== -1
+     ).slice(0, 8);
+
+     if (empMatches.length === 0 && docMatches.length === 0) {
+         resultsEl.innerHTML = '<p style="font-size:13px; color:#64748b; text-align:center; padding:16px;">' + t('globalSearchNoResults') + '</p>';
+         return;
+     }
+
+     let html = '';
+     if (empMatches.length > 0) {
+         html += '<h4 style="font-size:12px; color:#334155; margin:8px 0 4px;">' + t('globalSearchEmployeesGroup') + '</h4>';
+         html += empMatches.map(emp =>
+             '<div style="display:flex; align-items:center; gap:8px; padding:8px; border-radius:6px; cursor:pointer;" onmouseover="this.style.background=\'#f1f5f9\'" onmouseout="this.style.background=\'\'" onclick="onGlobalSearchEmployeeClick(\'' + emp.id + '\')">' +
+             ICON_VIEW + '<span><b>' + escapePrintText(emp.name) + '</b> (' + escapePrintText(emp.id) + ')</span></div>'
+         ).join('');
+     }
+     if (docMatches.length > 0) {
+         html += '<h4 style="font-size:12px; color:#334155; margin:8px 0 4px;">' + t('globalSearchDocumentsGroup') + '</h4>';
+         html += docMatches.map(f =>
+             '<div style="display:flex; align-items:center; gap:8px; padding:8px; border-radius:6px; cursor:pointer;" onmouseover="this.style.background=\'#f1f5f9\'" onmouseout="this.style.background=\'\'" onclick="onGlobalSearchDocumentClick(\'' + f.firebaseKey + '\')">' +
+             ICON_VIEW + '<span>' + escapePrintText(f.name) + '</span></div>'
+         ).join('');
+     }
+     resultsEl.innerHTML = html;
+ }
+
+ function onGlobalSearchEmployeeClick(empId) {
+     closeGlobalSearch();
+     openCheckDetailsForEmployee(empId);
+ }
+
+ function onGlobalSearchDocumentClick(fileKey) {
+     closeGlobalSearch();
+     const file = printFiles.find(f => f.firebaseKey === fileKey);
+     triggerNav('tab-printing', 'nav-printing');
+     if (file) {
+         printFolderPath = [{ id: 'root', name: null }];
+         currentPrintFolderId = file.folderId || 'root';
+         if (currentPrintFolderId !== 'root') {
+             const folder = printFolders.find(f2 => f2.firebaseKey === currentPrintFolderId);
+             printFolderPath.push({ id: currentPrintFolderId, name: folder ? folder.name : '' });
+         }
+     }
+     renderPrintingView();
+ }
+
+ /* ---------- 3. NEEDS ATTENTION -> PUSH NOTIFICATIONS (dedup via localStorage, once per
+    month for renewals since a cycle only renews once a month anyway, once per day for
+    exceeded-hours since that condition can persist for a while) ---------- */
+ function naDedupKey(kind, empId, period) {
+     return 'naNotified_' + kind + '_' + empId + '_' + period;
+ }
+
+ function naAlreadyNotified(key) {
+     try { return !!localStorage.getItem(key); } catch (e) { return false; }
+ }
+
+ function naMarkNotified(key) {
+     try { localStorage.setItem(key, '1'); } catch (e) { /* storage unavailable - just re-check next load */ }
+ }
+
+ function checkNeedsAttentionNotifications() {
+     try {
+         const today = new Date();
+         const monthKey = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+         const dayKey = today.toISOString().slice(0, 10);
+
+         employees.filter(e => e.status !== 'Resigned').forEach(emp => {
+             const qd = computeQueryData(emp, today, 0);
+             const startParts = (qd.startStr || '').split('.');
+             const isRenewingThisMonth = startParts.length === 3 &&
+                 parseInt(startParts[0], 10) === today.getFullYear() &&
+                 parseInt(startParts[1], 10) - 1 === today.getMonth();
+
+             if (isRenewingThisMonth) {
+                 const key = naDedupKey('renewal', emp.id, monthKey);
+                 if (!naAlreadyNotified(key)) {
+                     naMarkNotified(key);
+                     db.ref('notifications').push({
+                         targetId: 'ADMIN',
+                         message: t('notifNeedsAttentionRenewalTitle'),
+                         description: fillTemplate(t('notifNeedsAttentionRenewalMsg'), { name: emp.name, id: emp.id }),
+                         relatedRequestKey: null,
+                         timestamp: Date.now()
+                     }).catch(function () {});
+                 }
+             }
+
+             if (qd.allowedThisMonth < 0) {
+                 const key = naDedupKey('exceeded', emp.id, dayKey);
+                 if (!naAlreadyNotified(key)) {
+                     naMarkNotified(key);
+                     db.ref('notifications').push({
+                         targetId: 'ADMIN',
+                         message: t('notifNeedsAttentionExceededTitle'),
+                         description: fillTemplate(t('notifNeedsAttentionExceededMsg'), { name: emp.name, id: emp.id }),
+                         relatedRequestKey: null,
+                         timestamp: Date.now()
+                     }).catch(function () {});
+                 }
+             }
+         });
+     } catch (e) { /* never let this break Dashboard rendering */ }
+ }
+
+ /* ---------- 4. BULK UPDATE EXISTING EMPLOYEES (admin-only, extends Bulk Import) ----------
+    Only entitled/department/status/remarks/monthlyWorkDays can be overwritten this way. A row's
+    Employee ID must match an existing employee, and a blank cell for any of these columns
+    leaves that field untouched. joinDate/dob/leave-usage-history/computed fields are simply
+    never in BULK_UPDATE_FIELDS, so there is no path for this feature to touch them. */
+ const BULK_UPDATE_FIELDS = [
+     { field: 'id', key: 'tblId', required: true },
+     { field: 'name', key: 'tblName', required: false },
+     { field: 'entitled', key: 'tblEntitled', required: false },
+     { field: 'department', key: 'tblDepartment', required: false },
+     { field: 'status', key: 'tblStatus', required: false },
+     { field: 'remarks', key: 'tblRemarks', required: false },
+     { field: 'monthlyWorkDays', key: 'thMonthlyAttendance', required: false }
+ ];
+
+ function openBulkUpdateModal() {
+     document.getElementById('bulkUpdateFileInput').value = '';
+     document.getElementById('bulkUpdateResults').style.display = 'none';
+     document.getElementById('bulkUpdateSummaryLine').innerText = '';
+     document.getElementById('bulkUpdateSkipList').innerHTML = '';
+     document.getElementById('bulkUpdateModal').style.display = 'flex';
+ }
+
+ function closeBulkUpdateModal() {
+     document.getElementById('bulkUpdateModal').style.display = 'none';
+ }
+
+ function downloadBulkUpdateTemplate() {
+     const headers = BULK_UPDATE_FIELDS.map(f => t(f.key));
+     const rows = employees.map(emp => BULK_UPDATE_FIELDS.map(f => (emp[f.field] !== undefined ? emp[f.field] : '')));
+     const worksheet = XLSX.utils.aoa_to_sheet([headers].concat(rows));
+     const workbook = XLSX.utils.book_new();
+     XLSX.utils.book_append_sheet(workbook, worksheet, t('btnBulkUpdate').slice(0, 31));
+     XLSX.writeFile(workbook, 'Employee_Update_Template.xlsx');
+ }
+
+ function buildBulkUpdateHeaderMap() {
+     const map = {};
+     ['en', 'km', 'zh'].forEach(lang => {
+         BULK_UPDATE_FIELDS.forEach(f => {
+             const label = tLang(f.key, lang);
+             if (label) map[label.trim().toLowerCase()] = f.field;
+         });
+     });
+     return map;
+ }
+
+ function runBulkUpdate() {
+     const fileInput = document.getElementById('bulkUpdateFileInput');
+     const file = fileInput.files && fileInput.files[0];
+     if (!file) { showToast(false, t('bulkImportNoFile')); return; }
+
+     const reader = new FileReader();
+     reader.onload = function (e) {
+         let rows;
+         try {
+             const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array', cellDates: true });
+             const ws = wb.Sheets[wb.SheetNames[0]];
+             rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
+         } catch (err) {
+             showToast(false, t('bulkImportNoRows'));
+             return;
+         }
+         if (!rows || rows.length < 2) { showToast(false, t('bulkImportNoRows')); return; }
+
+         const headerMap = buildBulkUpdateHeaderMap();
+         const headerRow = rows[0];
+         const colToField = headerRow.map(h => headerMap[String(h).trim().toLowerCase()] || null);
+
+         const skipReasons = [];
+         let updatedCount = 0;
+         const updatePromises = [];
+
+         for (let r = 1; r < rows.length; r++) {
+             const row = rows[r];
+             if (!row || row.every(c => c === '' || c === undefined || c === null)) continue;
+             const rowNum = r + 1;
+             const record = {};
+             colToField.forEach((field, colIdx) => {
+                 if (field) record[field] = row[colIdx];
+             });
+
+             const idVal = record.id !== undefined ? String(record.id).trim() : '';
+             if (!idVal) {
+                 skipReasons.push(fillTemplate(t('bulkUpdateReasonNoId'), { row: rowNum }));
+                 continue;
+             }
+             const emp = employees.find(e => e.id === idVal);
+             if (!emp) {
+                 skipReasons.push(fillTemplate(t('bulkUpdateReasonIdNotFound'), { row: rowNum, id: idVal }));
+                 continue;
+             }
+
+             const diff = {};
+             ['entitled', 'department', 'status', 'remarks', 'monthlyWorkDays'].forEach(function (field) {
+                 const val = record[field];
+                 if (val === undefined || val === '' || val === null) return;
+                 if (field === 'entitled' || field === 'monthlyWorkDays') {
+                     diff[field] = parseFloat(val) || 0;
+                 } else {
+                     diff[field] = String(val).trim();
+                 }
+             });
+
+             if (Object.keys(diff).length === 0) {
+                 skipReasons.push(fillTemplate(t('bulkUpdateReasonNoChanges'), { row: rowNum, id: idVal }));
+                 continue;
+             }
+
+             updatedCount++;
+             const detailsStr = Object.keys(diff).map(function (k) { return k + '=' + diff[k]; }).join(', ');
+             updatePromises.push(
+                 db.ref('employees/' + emp.firebaseKey).update(diff).then(function () {
+                     logActivity('bulk_update', 'employee', emp.id, emp.name, detailsStr);
+                 })
+             );
+         }
+
+         Promise.all(updatePromises).then(function () {
+             document.getElementById('bulkUpdateResults').style.display = 'block';
+             document.getElementById('bulkUpdateSummaryLine').innerText =
+                 fillTemplate(t('bulkUpdateSummaryUpdated'), { count: updatedCount }) + ' ' +
+                 fillTemplate(t('bulkImportSummarySkipped'), { count: skipReasons.length });
+             const list = document.getElementById('bulkUpdateSkipList');
+             list.innerHTML = skipReasons.map(function (msg) { return '<li>' + msg + '</li>'; }).join('');
+             showToast(updatedCount > 0, t('toastBulkUpdateDone'));
+             fileInput.value = '';
+         }).catch(function () { showToast(false); });
+     };
+     reader.onerror = function () { showToast(false); };
+     reader.readAsArrayBuffer(file);
+ }
+
+ /* ---------- 5. DOCUMENT LIBRARY EDIT REMINDERS ---------- */
+ function renderDocLibraryBadge() {
+     const badge = document.getElementById('docLibraryNeedsEditBadge');
+     const count = (typeof printFiles !== 'undefined' ? printFiles : []).filter(function (f) { return f.needsEdit; }).length;
+     if (badge) {
+         if (count > 0) {
+             badge.style.display = 'inline-block';
+             badge.innerText = count;
+         } else {
+             badge.style.display = 'none';
+         }
+     }
+     checkDocLibraryReminderNotification(count);
+ }
+
+ function checkDocLibraryReminderNotification(count) {
+     try {
+         if (!count || count <= 0) return;
+         const dayKey = new Date().toISOString().slice(0, 10);
+         const key = 'docLibReminderNotified_' + dayKey;
+         if (naAlreadyNotified(key)) return;
+         naMarkNotified(key);
+         db.ref('notifications').push({
+             targetId: 'ADMIN',
+             message: t('notifDocNeedsEditTitle'),
+             description: fillTemplate(t('notifDocNeedsEditMsg'), { count: count }),
+             relatedRequestKey: null,
+             timestamp: Date.now()
+         }).catch(function () {});
+     } catch (e) { /* never let this break the Document Library render */ }
+ }
+
+ /* ---------- 6. LEAVE/ATTENDANCE CALENDAR PDF EXPORT ----------
+    No PDF library is loaded anywhere in this file (confirmed - no jsPDF), so this uses the
+    same "print-styled new window + window.print()" technique rather than adding a new
+    external script dependency. Works fully offline, uses the browser's own Save-as-PDF. */
+ function exportAttCalToPDF() {
+     const table = document.getElementById('attCalTable');
+     if (!table) return;
+     const titleEl = document.getElementById('attCalGridTitle');
+     const title = titleEl ? titleEl.innerText : t('attCalTitle');
+     const monthInput = document.getElementById('attCalMonth');
+     const monthVal = monthInput ? monthInput.value : '';
+     const win = window.open('', '_blank');
+     if (!win) { showToast(false); return; }
+     win.document.write(
+         '<!doctype html><html><head><meta charset="utf-8"><title>' + escapePrintText(title) + '</title>' +
+         '<style>' +
+         'body{font-family:Arial,sans-serif; padding:16px; color:#0f172a;}' +
+         'h2{margin:0 0 4px;} p{margin:0 0 12px; color:#475569; font-size:12px;}' +
+         'table{border-collapse:collapse; width:100%; font-size:11px;}' +
+         'th,td{border:1px solid #cbd5e1; padding:4px 6px; text-align:center;}' +
+         'th{background:#f1f5f9;}' +
+         '@media print { @page { size: landscape; margin: 10mm; } }' +
+         '</style></head><body>' +
+         '<h2>' + escapePrintText(title) + '</h2>' +
+         (monthVal ? '<p>' + escapePrintText(monthVal) + '</p>' : '') +
+         table.outerHTML +
+         '<script>window.onload = function(){ window.print(); };<\/script>' +
+         '</body></html>'
+     );
+     win.document.close();
+ }
+
+ /* ---------- 7. EMPLOYMENT CERTIFICATE GENERATOR (Admin+HR, not employee) ----------
+    Design decisions (underspecified in the request, so reasonable HR-document defaults were
+    chosen - see the final report for the full list): a free-text Company Name field remembered
+    for this browser session only (sessionStorage, not shared Firebase data - it's just a form
+    convenience default); Active employees get "is currently employed"; Resigned employees get
+    "was employed ... from <joinDate> to <resignedDate>"; an optional Purpose/Remarks line; a
+    single "Authorized Signature / HR Manager" signature block; generated via the same
+    print-window technique as the Calendar PDF export above. */
+ function onCertEmpIdInput() {
+     const idVal = document.getElementById('certEmpId').value.trim();
+     const found = employees.find(e => e.id === idVal);
+     document.getElementById('certEmpName').value = found ? found.name : '';
+     restoreCertCompanyName();
+ }
+
+ function onCertEmpNameInput() {
+     const nameVal = document.getElementById('certEmpName').value.trim().toLowerCase();
+     if (!nameVal) { document.getElementById('certEmpId').value = ''; return; }
+     const found = employees.find(e => (e.name || '').toLowerCase() === nameVal);
+     if (found) document.getElementById('certEmpId').value = found.id;
+ }
+
+ function restoreCertCompanyName() {
+     const el = document.getElementById('certCompanyName');
+     if (!el || el.value) return;
+     try {
+         const saved = sessionStorage.getItem('certLastCompanyName');
+         if (saved) el.value = saved;
+     } catch (e) { /* storage unavailable - field just stays blank */ }
+ }
+
+ function generateCertificate() {
+     const id = document.getElementById('certEmpId').value.trim();
+     const emp = employees.find(e => e.id === id);
+     if (!emp) { showToast(false, t('empIdNotFound')); return; }
+     const company = document.getElementById('certCompanyName').value.trim();
+     if (!company) { showToast(false, t('certCompanyRequiredMsg')); return; }
+     const purpose = document.getElementById('certPurpose').value.trim();
+     const langSel = document.getElementById('certLangSelect');
+     const lang = langSel ? langSel.value : 'en';
+
+     try { sessionStorage.setItem('certLastCompanyName', company); } catch (e) {}
+
+     const localeMap = { zh: 'zh-CN', km: 'km-KH', en: 'en-US' };
+     let todayStr;
+     try {
+         todayStr = new Date().toLocaleDateString(localeMap[lang] || 'en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+     } catch (e) { todayStr = new Date().toISOString().slice(0, 10); }
+
+     const isResigned = emp.status === 'Resigned';
+     const bodyText = isResigned
+         ? fillTemplate(tLang('certBodyResigned', lang), { name: emp.name, id: emp.id, company: company, department: emp.department || '-', joinDate: emp.joinDate || '-', endDate: emp.resignedDate || '-' })
+         : fillTemplate(tLang('certBodyActive', lang), { name: emp.name, id: emp.id, company: company, department: emp.department || '-', joinDate: emp.joinDate || '-' });
+     const purposeText = purpose ? fillTemplate(tLang('certPurposeLine', lang), { purpose: purpose }) : '';
+
+     const win = window.open('', '_blank');
+     if (!win) { showToast(false); return; }
+     win.document.write(
+         '<!doctype html><html><head><meta charset="utf-8"><title>' + escapePrintText(tLang('certDocTitle', lang)) + '</title>' +
+         '<style>' +
+         'body{font-family:Arial,sans-serif; padding:40px 60px; color:#0f172a; line-height:1.8;}' +
+         'h1{text-align:center; font-size:20px; letter-spacing:1px; margin-bottom:30px;}' +
+         'p{font-size:14px; margin-bottom:16px;}' +
+         '.cert-sig{margin-top:70px; display:flex; justify-content:flex-end;}' +
+         '.cert-sig div{text-align:center; width:220px; border-top:1px solid #0f172a; padding-top:6px; font-size:13px;}' +
+         '.cert-date{margin-top:40px; font-size:13px;}' +
+         '@media print { @page { margin: 20mm; } .cert-print-btn{ display:none; } }' +
+         '</style></head><body>' +
+         '<h1>' + escapePrintText(tLang('certDocTitle', lang)) + '</h1>' +
+         '<p><b>' + escapePrintText(company) + '</b></p>' +
+         '<p>' + bodyText + '</p>' +
+         (purposeText ? '<p>' + purposeText + '</p>' : '') +
+         '<p class="cert-date">' + fillTemplate(tLang('certIssuedOnLine', lang), { date: todayStr }) + '</p>' +
+         '<div class="cert-sig"><div>' + escapePrintText(tLang('certSignatureLine', lang)) + '<br>' + escapePrintText(tLang('certSignatureRole', lang)) + '</div></div>' +
+         '<div class="cert-print-btn" style="text-align:center; margin-top:30px;"><button onclick="window.print()" style="padding:8px 18px; font-size:13px;">' + escapePrintText(tLang('btnPrintSaveAsPDF', lang)) + '</button></div>' +
+         '</body></html>'
+     );
+     win.document.close();
+
+     logActivity('certificate_issued', 'employee', emp.id, emp.name, 'lang=' + lang);
+     showToast(true);
  }
 </script>
 </body>
