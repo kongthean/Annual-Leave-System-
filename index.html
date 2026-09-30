@@ -389,7 +389,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.65</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.66</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1495,8 +1495,8 @@
      <div style="max-width: 820px; margin: 10px auto 0 auto;">
          <div class="toast-msg" id="addToast">✓ Employee saved successfully!</div>
          <div class="admin-only" style="margin-bottom:14px; text-align:right;">
-             <button type="button" class="btn-primary" style="background:linear-gradient(135deg,#0f766e,#134e4a);" onclick="openBulkImportModal()" data-i18n="btnBulkImport">Bulk Import Employees</button>
-             <button type="button" class="btn-primary" style="background:linear-gradient(135deg,#0369a1,#075985); margin-left:8px;" onclick="openBulkUpdateModal()" data-i18n="btnBulkUpdate">Bulk Update Employees</button>
+             <button type="button" class="btn-primary" style="background:linear-gradient(135deg,#0f766e,#134e4a); color:#fff;" onclick="openBulkImportModal()" data-i18n="btnBulkImport">Bulk Import Employees</button>
+             <button type="button" class="btn-primary" style="background:linear-gradient(135deg,#0369a1,#075985); color:#fff; margin-left:8px;" onclick="openBulkUpdateModal()" data-i18n="btnBulkUpdate">Bulk Update Employees</button>
          </div>
 
          <form id="addEmpForm">
@@ -1881,7 +1881,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.65
+     HR & Administration System Version 6.66
  </div>
 </div>
 
@@ -8607,10 +8607,16 @@ function formatNotifReceivedAt(timestamp) {
      db.ref('notifications/' + firebaseKey).update({ readByAdmin: true });
  }
 
+ /* v6.66: the bell badge now counts UNSEEN items rather than unresolved ones - opening the
+    bell (toggleNotifPanel) marks everything currently shown as seenByAdmin, so the red count
+    clears once the person has looked at it, without requiring them to individually Dismiss or
+    Mark Processed each item first. Items themselves (and the Dismiss/Mark Processed actions)
+    are completely unchanged - this only affects the badge count. */
  function renderNotifications() {
      const badge = document.getElementById('notifBadge');
      const adminAlerts = getAdminAlerts();
-     const pendingCount = requests.filter(r => r.status !== 'processed').length + adminAlerts.length;
+     const pendingCount = requests.filter(r => r.status !== 'processed' && !r.seenByAdmin).length +
+         adminAlerts.filter(n => !n.seenByAdmin).length;
      if (pendingCount > 0) {
          badge.style.display = 'inline-block';
          badge.innerText = pendingCount;
@@ -8670,6 +8676,24 @@ function formatNotifReceivedAt(timestamp) {
      closeAllMenus();
      renderNotifications();
      document.getElementById('notifModal').style.display = 'flex';
+     markVisibleNotificationsSeen();
+ }
+
+ /* v6.66: marks every currently-unseen request/admin-alert as seenByAdmin so the bell badge
+    clears once the person has opened the panel. Purely a "seen" flag - it does NOT mark
+    requests as processed or dismiss admin alerts, so the items still stay in the list with
+    their normal action buttons until someone actually acts on them. */
+ function markVisibleNotificationsSeen() {
+     const updates = {};
+     requests.forEach(r => {
+         if (!r.seenByAdmin) updates['requests/' + r.firebaseKey + '/seenByAdmin'] = true;
+     });
+     getAdminAlerts().forEach(n => {
+         if (!n.seenByAdmin) updates['notifications/' + n.firebaseKey + '/seenByAdmin'] = true;
+     });
+     if (Object.keys(updates).length > 0) {
+         db.ref().update(updates).catch(function () {});
+     }
  }
 
  function closeNotifModal() {
@@ -9100,10 +9124,21 @@ function notifyCardReady() {
     ================================================================ */
 
  /* ---------- 1. ACTIVITY / AUDIT LOG (admin-only) ---------- */
+ /* v6.66: each entry is auto-removed once IT individually turns 1 month old (not a bulk wipe
+    of the whole log on a monthly clock) - same rolling-cutoff pattern already used for
+    requests/notifications (REQUEST_RETENTION_MS), just with a 30-day window instead of 7. */
+ const AUDIT_LOG_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
  let auditLog = [];
  db.ref('auditLog').on('value', (snapshot) => {
      const data = snapshot.val();
-     auditLog = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+     let list = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
+     const cutoff = Date.now() - AUDIT_LOG_RETENTION_MS;
+     list.forEach(a => {
+         if ((a.timestamp || 0) < cutoff) {
+             db.ref('auditLog/' + a.firebaseKey).remove();
+         }
+     });
+     auditLog = list.filter(a => (a.timestamp || 0) >= cutoff);
      renderAuditLogTable();
      populateAuditActionFilter();
  });
