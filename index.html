@@ -457,7 +457,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.70</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.71</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1327,6 +1327,10 @@
              <button class="modal-close" onclick="closeExportLangModal()">&times;</button>
          </div>
          <p style="font-size:13px; color:#334155; margin-bottom:14px;" data-i18n="exportLangModalSub">Choose which language to use for the exported Excel file, then confirm to download.</p>
+         <div class="form-group" id="exportLangModalDeptGroup" style="display:none;">
+             <label data-i18n="exportDeptFilterLabel">Department</label>
+             <select id="exportLangModalDeptSelect"></select>
+         </div>
          <div class="form-group">
              <label data-i18n="backupLangModalLabel">Backup Language</label>
              <select id="exportLangModalSelect">
@@ -2004,7 +2008,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.70
+     HR & Administration System Version 6.71
  </div>
 </div>
 
@@ -3256,6 +3260,8 @@
         printToastColorSaved: "Color saved.",
         exportLangModalTitle: "Choose Export Language",
         exportLangModalSub: "Choose which language to use for the exported Excel file, then confirm to download.",
+        exportDeptFilterLabel: "Department",
+        exportAllDepartments: "All Departments",
         navLockSystem: "Lock System",
         lockSystemModalTitle: "Lock System",
         lockSystemModalSub: "Temporarily block access to Employee and/or HR System, for example during maintenance. Administration is never locked out.",
@@ -3899,6 +3905,8 @@
         printToastColorSaved: "បានរក្សាទុកពណ៌រួចរាល់។",
         exportLangModalTitle: "ជ្រើសរើសភាសាសម្រាប់នាំចេញ",
         exportLangModalSub: "ជ្រើសរើសភាសាដែលត្រូវប្រើសម្រាប់ឯកសារ Excel ដែលបាននាំចេញ រួចបញ្ជាក់ដើម្បីទាញយក។",
+        exportDeptFilterLabel: "ដេប៉ាតឺម៉ង់",
+        exportAllDepartments: "គ្រប់ដេប៉ាតឺម៉ង់ទាំងអស់",
         navLockSystem: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalTitle: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalSub: "ទប់ស្កាត់ការចូលប្រើប្រព័ន្ធបុគ្គលិក និង/ឬ ធនធានមនុស្សជាបណ្តោះអាសន្ន ឧទាហរណ៍ក្នុងអំឡុងពេលថែទាំប្រព័ន្ធ។ ប្រព័ន្ធរដ្ឋបាលមិនត្រូវបានចាក់សោឡើយ។",
@@ -4534,6 +4542,8 @@
         printToastColorSaved: "颜色已保存。",
         exportLangModalTitle: "选择导出语言",
         exportLangModalSub: "选择导出的 Excel 文件使用的语言，然后确认下载。",
+        exportDeptFilterLabel: "部门",
+        exportAllDepartments: "所有部门",
         navLockSystem: "锁定系统",
         lockSystemModalTitle: "锁定系统",
         lockSystemModalSub: "临时阻止员工系统和/或人力资源系统的访问，例如在系统维护期间。行政管理系统永远不会被锁定。",
@@ -7252,8 +7262,23 @@ function filterMakeupTable() {
     download" step that Backup Now and the Leave Report export already had. */
  let pendingExportKind = null;
 
+ /* v6.71: 'master'/'monthly'/'employee' exports map 1:1 over `employees`, so they can all share
+    one Department filter in this same modal - "All Departments" (default) exports everyone,
+    or pick one department to export just that team. 'shift'/'auditlog' aren't per-employee in
+    the same way, so the filter stays hidden for those two. */
+ const EXPORT_KINDS_WITH_DEPT_FILTER = ['master', 'monthly', 'employee'];
+
  function openExportLangModal(kind) {
      pendingExportKind = kind;
+     const deptGroup = document.getElementById('exportLangModalDeptGroup');
+     const deptSelect = document.getElementById('exportLangModalDeptSelect');
+     if (EXPORT_KINDS_WITH_DEPT_FILTER.indexOf(kind) !== -1) {
+         deptSelect.innerHTML = '<option value="">' + t('exportAllDepartments') + '</option>' +
+             departments.map(d => `<option value="${d.name}">${d.name}</option>`).join('');
+         deptGroup.style.display = '';
+     } else {
+         deptGroup.style.display = 'none';
+     }
      document.getElementById('exportLangModal').style.display = 'flex';
  }
 
@@ -7265,6 +7290,8 @@ function filterMakeupTable() {
  function confirmExportLangModal() {
      const langSelect = document.getElementById('exportLangModalSelect');
      const lang = langSelect ? langSelect.value : 'en';
+     const deptSelect = document.getElementById('exportLangModalDeptSelect');
+     const dept = deptSelect ? deptSelect.value : '';
      const kind = pendingExportKind;
      pendingExportKind = null;
      document.getElementById('exportLangModal').style.display = 'none';
@@ -7273,7 +7300,7 @@ function filterMakeupTable() {
      } else if (kind === 'auditlog') {
          exportAuditLogToExcel(lang);
      } else if (kind) {
-         exportToExcel(kind, lang);
+         exportToExcel(kind, lang, dept);
      }
  }
 
@@ -7442,18 +7469,24 @@ function getEmployeeExportHeaderMap(lang) {
     };
 }
 
-function exportToExcel(type, lang) {
+function exportToExcel(type, lang, dept) {
     lang = lang || 'en';
+    dept = dept || '';
+    /* v6.71: when a specific department is chosen (vs "All Departments" / blank), export only
+       that department's employees - the filename also records which department was exported,
+       so a saved file is self-identifying without needing to open it first. */
+    const sourceEmployees = dept ? employees.filter(e => e.department === dept) : employees;
+    const deptSuffix = dept ? ('_' + dept.replace(/[^a-zA-Z0-9]+/g, '_')) : '';
     let data = [];
     let filename = "";
     let headerMap = {};
     let sheetName = "Report";
 
     if (type === 'master') {
-        filename = `Master_Leave_Report_${new Date().toISOString().slice(0,10)}.xlsx`;
+        filename = `Master_Leave_Report${deptSuffix}_${new Date().toISOString().slice(0,10)}.xlsx`;
         headerMap = getMasterExportHeaderMap(lang);
         sheetName = tLang('navMaster', lang);
-        data = employees.map(emp => {
+        data = sourceEmployees.map(emp => {
             const parts = emp.joinDate.split('.');
             const join = new Date(parts[0], parts[1]-1, parts[2]);
             const now = new Date();
@@ -7481,10 +7514,10 @@ function exportToExcel(type, lang) {
             };
         });
     } else if (type === 'monthly') {
-        filename = `Monthly_Report_${new Date().toISOString().slice(0,10)}.xlsx`;
+        filename = `Monthly_Report${deptSuffix}_${new Date().toISOString().slice(0,10)}.xlsx`;
         headerMap = getMonthlyExportHeaderMap(lang);
         sheetName = tLang('navMonthlyReport', lang);
-        data = employees.map(emp => {
+        data = sourceEmployees.map(emp => {
             const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
             const remaining = (emp.entitled - totalUsed) + (parseFloat(emp.carried) || 0);
             return {
@@ -7499,10 +7532,10 @@ function exportToExcel(type, lang) {
             };
         });
     } else if (type === 'employee') {
-        filename = `Employee_Directory_${new Date().toISOString().slice(0,10)}.xlsx`;
+        filename = `Employee_Directory${deptSuffix}_${new Date().toISOString().slice(0,10)}.xlsx`;
         headerMap = getEmployeeExportHeaderMap(lang);
         sheetName = tLang('navEmployee', lang);
-        data = employees.map(emp => {
+        data = sourceEmployees.map(emp => {
             const parts = emp.joinDate.split('.');
             const join = new Date(parts[0], parts[1]-1, parts[2]);
             const now = new Date();
