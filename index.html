@@ -457,7 +457,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.72</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.73</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2008,7 +2008,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.72
+     HR & Administration System Version 6.73
  </div>
 </div>
 
@@ -7728,7 +7728,6 @@ function openEmployeeDetailModal(index) {
     Entitled Hours, Carried Forward, AL Start/End Date, Year Range, Department, Status, and all
     personal-info fields are untouched - this only affects the monthly-usage group. */
  function resetMonthlyFieldsInEditForm() {
-     if (!confirm(t('confirmResetMonthlyMsg'))) return;
      const prevUsedField = document.getElementById('editPrevUsed');
      const monthUsedField = document.getElementById('editMonthUsed');
      const prevUsedVal = parseFloat(prevUsedField.value) || 0;
