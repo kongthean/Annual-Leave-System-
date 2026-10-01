@@ -457,7 +457,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.73</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.74</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -844,6 +844,7 @@
  </nav>
  <!-- nav-monthly and nav-employee buttons were moved off the top bar in v5.00 (still reachable from Main Menu below) -->
  <button id="nav-monthly" onclick="switchTab('tab-monthly', this)" data-i18n="navMonthlyReport" style="display:none;">Monthly Report</button>
+ <button id="nav-monthlyal" onclick="switchTab('tab-monthlyal', this)" data-i18n="navMonthlyAL" style="display:none;">Monthly Annual Leave</button>
  <button id="nav-employee" onclick="switchTab('tab-employee', this)" data-i18n="navEmployee" style="display:none;">Employee</button>
  <!-- New v5.00 sections, reachable only from Main Menu, same "hidden nav button" wiring pattern -->
  <button id="nav-shift" onclick="switchTab('tab-shift', this)" data-i18n="navShiftRoster" style="display:none;">Shift Roster</button>
@@ -900,6 +901,9 @@
          </button>
          <button class="quick-btn teal" onclick="triggerNav('tab-monthly', 'nav-monthly')">
              <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="quick-btn-label" data-i18n="navMonthlyReport">Monthly Report</span>
+         </button>
+         <button class="quick-btn cyan" onclick="triggerNav('tab-monthlyal', 'nav-monthlyal')">
+             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg></span><span class="quick-btn-label" data-i18n="navMonthlyAL">Monthly Annual Leave</span>
          </button>
          <button class="quick-btn slate" onclick="triggerNav('tab-employee', 'nav-employee')">
              <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="quick-btn-label" data-i18n="navEmployee">Employee</span>
@@ -1142,7 +1146,42 @@
          </table>
      </div>
  </div>
- 
+
+ <!-- TAB 3b: MONTHLY ANNUAL LEAVE (v6.74) -->
+ <div id="tab-monthlyal" class="tab-panel">
+     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap:10px;">
+         <div>
+             <h3 data-i18n="monthlyALTitle">Monthly Annual Leave</h3>
+             <p style="font-size:11px; color:#64748b;" data-i18n="monthlyALSub">Each employee's Annual Leave cycle, usage and remaining balance for this month.</p>
+         </div>
+         <button class="quick-btn green" onclick="openExportLangModal('monthlyal')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+     </div>
+
+     <div class="search-bar-wrapper">
+         <label style="margin:0; font-weight:bold; color:#0f172a;" data-i18n="lblSearch">Search Employee:</label>
+         <input type="text" id="monthlyALSearchInput" onkeyup="filterMonthlyALTable()" placeholder="Enter ID or Name...">
+     </div>
+
+     <div class="table-responsive">
+         <table class="master-tbl tbl-wide" id="monthlyALTable">
+             <thead>
+                 <tr>
+                     <th data-i18n="tblId">ID</th>
+                     <th data-i18n="tblName">Name</th>
+                     <th data-i18n="tblJoin">Join Date</th>
+                     <th data-i18n="tblStart">AL Start Date</th>
+                     <th data-i18n="tblEnd">AL End Date</th>
+                     <th data-i18n="tblTotalAL">Total AL</th>
+                     <th data-i18n="tblTotalUsed">Total Used Hours</th>
+                     <th data-i18n="tblRemaining">Remaining Hours</th>
+                     <th data-i18n="tblRemarks">Remarks</th>
+                 </tr>
+             </thead>
+             <tbody></tbody>
+         </table>
+     </div>
+ </div>
+
  <!-- TAB 4: LEAVE RECORDS -->
  <div id="tab-leave" class="tab-panel">
      <h3 data-i18n="leaveRecordsTitle">Leave Records</h3>
@@ -2008,7 +2047,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.73
+     HR & Administration System Version 6.74
  </div>
 </div>
 
@@ -2820,6 +2859,7 @@
          navDashboard: "Dashboard",
          navMaster: "Master Sheet",
          navMonthlyReport: "Monthly Report",
+         navMonthlyAL: "Monthly Annual Leave",
          navLeaveRecords: "Leave Records",
          navAttendance: "Attendance",
          navEmployee: "Employee",
@@ -3159,6 +3199,9 @@
         lblLeaveDate: "Leave Date",
         monthlyReportTitle: "Monthly Report",
         monthlyReportSub: "Monthly aggregated summary & attendance updates",
+        monthlyALTitle: "Monthly Annual Leave",
+        monthlyALSub: "Each employee's Annual Leave cycle, usage and remaining balance for this month.",
+        monthlyALReportTitle: "Monthly Annual Leave For {month}",
 
         /* v6.00 */
         hrSystemTitle: "HR System",
@@ -3470,6 +3513,7 @@
          navDashboard: "ផ្ទាំងព័ត៌មាន",
          navMaster: "បញ្ជីចម្បង",
          navMonthlyReport: "របាយការណ៍ប្រចាំខែ",
+         navMonthlyAL: "ច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំប្រចាំខែ",
          monthlyReportSub: "ការសង្ខេបប្រមូលផ្តុំប្រចាំខែ និងការធ្វើបច្ចុប្បន្នភាពវត្តមាន",
          lblLeaveDate: "កាលបរិច្ឆេទឈប់សម្រាក",
          lblEmpId: "អត្តលេខបុគ្គលិក",
@@ -3496,6 +3540,9 @@
          masterTitle: "គ្រប់គ្រងបញ្ជីចម្បង",
          masterSub: "បញ្ជីកត់ត្រាគ្រប់គ្រងបុគ្គលិក",
          monthlyReportTitle: "របាយការណ៍ប្រចាំខែ",
+         monthlyALTitle: "ច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំប្រចាំខែ",
+         monthlyALSub: "វដ្តច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំ ការប្រើប្រាស់ និងសមតុល្យនៅសល់របស់បុគ្គលិកនីមួយៗសម្រាប់ខែនេះ។",
+         monthlyALReportTitle: "ច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំប្រចាំខែ សម្រាប់ {month}",
          lblSearch: "ស្វែងរកបុគ្គលិក:",
          btnExport: "នាំចេញជា Excel (.xlsx)",
          tblActions: "សកម្មភាព",
@@ -4110,8 +4157,12 @@
          navDashboard: "仪表板",
          navMaster: "主控表",
          navMonthlyReport: "月度报告",
+         navMonthlyAL: "月度年假",
          monthlyReportTitle: "月度报告",
          monthlyReportSub: "月度汇总摘要与考勤更新",
+         monthlyALTitle: "月度年假",
+         monthlyALSub: "每位员工本月的年假周期、使用情况与剩余余额。",
+         monthlyALReportTitle: "月度年假 - {month}",
          lblLeaveDate: "请假日期",
          lblEmpId: "员工编号",
          lblEmpName: "员工姓名",
@@ -5710,6 +5761,7 @@ function deleteAnnouncement(firebaseKey) {
 
      if(tabId === 'tab-master') renderMaster();
      if(tabId === 'tab-monthly') renderMonthlyReport();
+     if(tabId === 'tab-monthlyal') renderMonthlyALReport();
      if(tabId === 'tab-employee') renderEmployeeList();
      if(tabId === 'tab-home') { updateDashboardStats(); renderDashboardCharts(); }
      if(tabId === 'tab-add') document.getElementById('newId').focus();
@@ -6048,6 +6100,53 @@ function deleteAnnouncement(firebaseKey) {
        }
      });
      filterMonthlyTable();
+ }
+
+ /* v6.74: Monthly Annual Leave tab - a focused view of just the AL cycle fields (same figures
+    Master Sheet already computes/shows - nothing new calculated here), for printing/handing out
+    as its own report rather than the full Master Sheet. */
+ function renderMonthlyALReport() {
+     const tbody = document.querySelector('#monthlyALTable tbody');
+     tbody.innerHTML = '';
+     const now = new Date();
+     employees.forEach(emp => {
+       try {
+         const computedCycle = computeLeaveCycle(emp.joinDate, now);
+         const startStr = emp.startDate || computedCycle.startStr;
+         const endStr = emp.endDate || computedCycle.endStr;
+         const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
+         const remaining = (emp.entitled - totalUsed) + (parseFloat(emp.carried) || 0);
+
+         tbody.innerHTML += `
+             <tr>
+                 <td><b>${emp.id}</b></td>
+                 <td>${emp.name}</td>
+                 <td>${emp.joinDate}</td>
+                 <td>${startStr}</td>
+                 <td>${endStr}</td>
+                 <td>${(parseFloat(emp.entitled) || 0).toFixed(2)}</td>
+                 <td><b>${totalUsed.toFixed(2)}</b></td>
+                 <td style="color:${remaining < 0 ? '#dc2626':'#15803d'}; font-weight:bold;">${remaining.toFixed(2)}</td>
+                 <td>${emp.remarks || '-'}</td>
+             </tr>
+         `;
+       } catch (rowError) {
+         tbody.innerHTML += '<tr><td colspan="9" style="text-align:center; color:#dc2626;">' +
+             t('masterRowErrorMsg') + ' (' + (emp.id || '?') + ' - ' + (emp.name || '?') + ')</td></tr>';
+       }
+     });
+     filterMonthlyALTable();
+ }
+
+ function filterMonthlyALTable() {
+     const inputEl = document.getElementById('monthlyALSearchInput');
+     const input = inputEl ? inputEl.value.toLowerCase() : '';
+     document.querySelectorAll('#monthlyALTable tbody tr').forEach(row => {
+         if (row.cells.length < 2) return;
+         const id = row.cells[0].innerText.toLowerCase();
+         const name = row.cells[1].innerText.toLowerCase();
+         row.style.display = (id.includes(input) || name.includes(input)) ? '' : 'none';
+     });
  }
 
  function renderEmployeeList() {
@@ -7276,7 +7375,7 @@ function filterMakeupTable() {
     one Department filter in this same modal - "All Departments" (default) exports everyone,
     or pick one department to export just that team. 'shift'/'auditlog' aren't per-employee in
     the same way, so the filter stays hidden for those two. */
- const EXPORT_KINDS_WITH_DEPT_FILTER = ['master', 'monthly', 'employee'];
+ const EXPORT_KINDS_WITH_DEPT_FILTER = ['master', 'monthly', 'employee', 'monthlyal'];
 
  function openExportLangModal(kind) {
      pendingExportKind = kind;
@@ -7309,6 +7408,8 @@ function filterMakeupTable() {
          exportShiftCalendarToExcel(lang);
      } else if (kind === 'auditlog') {
          exportAuditLogToExcel(lang);
+     } else if (kind === 'monthlyal') {
+         exportMonthlyALReport(lang, dept);
      } else if (kind) {
          exportToExcel(kind, lang, dept);
      }
@@ -7430,6 +7531,61 @@ function filterMakeupTable() {
      XLSX.utils.book_append_sheet(workbook, worksheet, "Leave Report");
      const fileTag = type === 'exceeded' ? 'Exceeded_Hours' : 'Available_This_Month';
      XLSX.writeFile(workbook, `Leave_Report_${fileTag}_${now.toISOString().slice(0,10)}.xlsx`);
+     showToast(true, t('toastBackupDone'));
+ }
+
+ /* v6.74: Monthly Annual Leave export - its own dedicated report (ID, Name, Join Date, AL Start/
+    End Date, Total AL, Total Used Hours, Remaining Hours, Remarks) with a printed title row
+    "Monthly Annual Leave For <month>/<year>" (numeric month, per the admin's spec - not a month
+    name), in the chosen language, optionally filtered to one department. Reuses the exact same
+    figures Master Sheet already computes - nothing new calculated here. */
+ function exportMonthlyALReport(lang, dept) {
+     lang = lang || 'en';
+     dept = dept || '';
+     if (employees.length === 0) {
+         showToast(false, t('backupEmptyMsg'));
+         return;
+     }
+
+     const now = new Date();
+     const monthLabel = (now.getMonth() + 1) + '/' + now.getFullYear();
+     const title = fillTemplate(tLang('monthlyALReportTitle', lang), { month: monthLabel });
+
+     const headerRow = [
+         tLang('tblId', lang), tLang('tblName', lang), tLang('tblJoin', lang),
+         tLang('tblStart', lang), tLang('tblEnd', lang), tLang('tblTotalAL', lang),
+         tLang('tblTotalUsed', lang), tLang('tblRemaining', lang), tLang('tblRemarks', lang)
+     ];
+
+     const sourceEmployees = dept ? employees.filter(e => e.department === dept) : employees;
+     const sortedEmployees = sourceEmployees.slice().sort((a, b) => (a.id || '').localeCompare(b.id || '', undefined, { numeric: true }));
+     const aoa = [[title], headerRow];
+     sortedEmployees.forEach(emp => {
+         const computedCycle = computeLeaveCycle(emp.joinDate, now);
+         const startStr = emp.startDate || computedCycle.startStr;
+         const endStr = emp.endDate || computedCycle.endStr;
+         const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
+         const remaining = (emp.entitled - totalUsed) + (parseFloat(emp.carried) || 0);
+         aoa.push([
+             emp.id, emp.name, emp.joinDate, startStr, endStr,
+             Number((parseFloat(emp.entitled) || 0).toFixed(2)),
+             Number(totalUsed.toFixed(2)),
+             Number(remaining.toFixed(2)),
+             emp.remarks || ''
+         ]);
+     });
+
+     if (aoa.length <= 2) {
+         showToast(false, t('backupEmptyMsg'));
+         return;
+     }
+
+     const worksheet = XLSX.utils.aoa_to_sheet(aoa);
+     worksheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: headerRow.length - 1 } }];
+     const workbook = XLSX.utils.book_new();
+     XLSX.utils.book_append_sheet(workbook, worksheet, tLang('navMonthlyAL', lang).slice(0, 31));
+     const deptSuffix = dept ? ('_' + dept.replace(/[^a-zA-Z0-9]+/g, '_')) : '';
+     XLSX.writeFile(workbook, `Monthly_Annual_Leave${deptSuffix}_${now.toISOString().slice(0,10)}.xlsx`);
      showToast(true, t('toastBackupDone'));
  }
 
