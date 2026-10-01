@@ -457,7 +457,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.71</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.72</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2008,7 +2008,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.71
+     HR & Administration System Version 6.72
  </div>
 </div>
 
@@ -2209,6 +2209,7 @@
              <div class="form-group"><label data-i18n="tblYearRange">Year Range</label><input type="text" id="editYearRange"></div>
          </div>
          <div class="form-group"><label data-i18n="tblRemarks">Remarks</label><input type="text" id="editRemarks"></div>
+         <button type="button" class="btn-submit" style="background:#dc2626; color:#fff; margin-top:14px;" onclick="resetMonthlyFieldsInEditForm()" data-i18n="btnResetMonthly">Reset Monthly</button>
          <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:14px;" data-i18n="btnSaveChanges">Save Changes</button>
      </form>
  </div>
@@ -2927,6 +2928,9 @@
          modalEditTitle: "Edit Employee Master Record",
          lblJoinFormat: "Join Date (YYYY.MM.DD)",
          btnSaveChanges: "Save Changes",
+         btnResetMonthly: "Reset Monthly",
+         confirmResetMonthlyMsg: "This adds Current Month Used into Prev Month Used, then resets Current Month Used, Exceeded Hours, Working Hours, Monthly Overtime, and all leave-type hours to 0. You can still edit any value afterward before saving. Continue?",
+         toastMonthlyResetDone: "Monthly fields reset - review and click Save Changes to apply.",
          lblBulkSetWork: "Default Working Hours:",
          btnApplyAll: "Apply to All",
          active: "Active",
@@ -3579,6 +3583,9 @@
          modalEditTitle: "កែប្រែកំណត់ត្រាបុគ្គលិក",
          lblJoinFormat: "ថ្ងៃចូលធ្វើការ (YYYY.MM.DD)",
          btnSaveChanges: "រក្សាទុកការផ្លាស់ប្តូរ",
+         btnResetMonthly: "កំណត់ប្រចាំខែឡើងវិញ",
+         confirmResetMonthlyMsg: "សកម្មភាពនេះនឹងបូក ខែនេះប្រើ ទៅក្នុង ខែមុនប្រើ រួចកំណត់ ខែនេះប្រើ, ម៉ោងប្រើលើស, ម៉ោងធ្វើការ, ម៉ោងថែមប្រចាំខែ និងម៉ោងច្បាប់ទាំងអស់ត្រឡប់ទៅ 0។ អ្នកនៅតែអាចកែប្រែតម្លៃណាមួយដោយដៃ មុនពេលរក្សាទុក។ បន្តទេ?",
+         toastMonthlyResetDone: "បានកំណត់ប្រចាំខែឡើងវិញ - សូមពិនិត្យ រួចចុចរក្សាទុកការផ្លាស់ប្តូរ។",
          lblBulkSetWork: "កំណត់ម៉ោងស្មើគ្នា:",
          btnApplyAll: "ដាក់ពាក្យទាំងអស់",
          active: "សកម្ម",
@@ -4216,6 +4223,9 @@
          modalEditTitle: "编辑员工主记录",
          lblJoinFormat: "入职日期 (YYYY.MM.DD)",
          btnSaveChanges: "保存更改",
+         btnResetMonthly: "重置本月",
+         confirmResetMonthlyMsg: "此操作会将本月已用加入上月已用，然后将本月已用、超出小时数、工作小时数、本月加班以及所有假别小时数重置为0。保存前您仍可手动修改任何数值。是否继续？",
+         toastMonthlyResetDone: "本月字段已重置 - 请检查后点击保存更改以生效。",
          lblBulkSetWork: "统一设定工时:",
          btnApplyAll: "应用全部",
          active: "在职",
@@ -7706,6 +7716,29 @@ function openEmployeeDetailModal(index) {
  
  function closeModal() {
      document.getElementById('editModal').style.display = 'none';
+ }
+
+ /* v6.72: "Reset Monthly" button inside the Edit Employee form (Master Sheet). Before clearing
+    the new-month counters, Current Month Used is folded into Prev Month Used (so the hours
+    already used this month aren't lost, just carried forward) - e.g. Prev 100 + Current 5 -> Prev
+    105, Current 0. Exceeded Hours, Working Hours, Monthly Overtime, and all 7 leave-type fields
+    reset to 0 the same way. This only updates the FORM FIELDS, exactly like typing new numbers in
+    by hand - nothing is written to Firebase until the admin reviews/adjusts and clicks the normal
+    Save Changes button, so it can still be manually edited afterward same as any other field.
+    Entitled Hours, Carried Forward, AL Start/End Date, Year Range, Department, Status, and all
+    personal-info fields are untouched - this only affects the monthly-usage group. */
+ function resetMonthlyFieldsInEditForm() {
+     if (!confirm(t('confirmResetMonthlyMsg'))) return;
+     const prevUsedField = document.getElementById('editPrevUsed');
+     const monthUsedField = document.getElementById('editMonthUsed');
+     const prevUsedVal = parseFloat(prevUsedField.value) || 0;
+     const monthUsedVal = parseFloat(monthUsedField.value) || 0;
+     prevUsedField.value = Number((prevUsedVal + monthUsedVal).toFixed(2));
+     monthUsedField.value = 0;
+     ['editExceeded', 'editWorkHours', 'editOTHours', 'editLeaveAL', 'editLeaveSpecial',
+      'editLeaveMaternity', 'editLeaveTravel', 'editLeavePersonal', 'editLeaveSick', 'editLeaveOther']
+         .forEach(id => { const el = document.getElementById(id); if (el) el.value = 0; });
+     showToast(true, t('toastMonthlyResetDone'));
  }
  
  document.getElementById('editForm').addEventListener('submit', function(e) {
