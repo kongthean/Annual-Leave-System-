@@ -457,7 +457,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.76</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.77</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2047,7 +2047,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.76
+     HR & Administration System Version 6.77
  </div>
 </div>
 
@@ -6311,11 +6311,22 @@ function deleteAnnouncement(firebaseKey) {
  }
 
  function purgeOldDeletedEmployees() {
+     /* v6.77: batch every stale record into ONE multi-path update instead of calling .remove()
+        once per record. .remove() on this same path re-fires this collection's own 'value'
+        listener (purgeOldDeletedEmployees -> renderDeletedTable) every single time, so with N
+        old records to clean up this used to cascade into N extra listener firings back to back -
+        a real cause of the app feeling "stuck" right after any write, worse the longer the app
+        had been used and the more stale records had piled up. One combined update() still removes
+        everything but only triggers one extra snapshot, same as the fixes below for requests/
+        notifications/auditLog. */
      const cutoff = Date.now() - (30 * 24 * 60 * 60 * 1000);
+     const updates = {};
+     let hasStale = false;
      deletedEmployees.forEach(rec => {
          const deletedTime = rec.deletedAt ? new Date(rec.deletedAt).getTime() : 0;
-         if (deletedTime && deletedTime < cutoff) db.ref('deletedEmployees/' + rec.firebaseKey).remove();
+         if (deletedTime && deletedTime < cutoff) { updates[rec.firebaseKey] = null; hasStale = true; }
      });
+     if (hasStale) db.ref('deletedEmployees').update(updates);
  }
 
  function renderDeletedTable() {
@@ -7020,6 +7031,12 @@ function filterMakeupTable() {
 
          const totalsByEmp = {};
 
+         /* v6.77: canonical display order for the per-day breakdown below - Personal always last/
+            red, the rest in the order they appear on the Leave Record form. Any leaveType not in
+            this list (legacy data) is still shown, just appended after these. */
+         const LEAVE_TYPE_DISPLAY_ORDER = ['thMasterAnnualLeave', 'thMasterSpecialLeave', 'thMasterMaternityLeave',
+             'thMasterTravelLeave', 'thMasterSickLeave', 'thMasterOtherLeave', 'thMasterPersonalLeave'];
+
          tbody.innerHTML = rows.map(emp => {
              let cells = '<td><b>' + emp.id + '</b></td><td style="text-align:left; white-space:nowrap;">' + emp.name + '</td>';
              let totalAnnual = 0, totalPersonal = 0;
@@ -7027,26 +7044,37 @@ function filterMakeupTable() {
                  const dateStr = monthPrefix + '-' + String(d).padStart(2, '0');
                  const dow = new Date(year, month - 1, d).getDay();
                  const dayEntries = entriesByKey[emp.id + '|' + dateStr] || [];
-                 /* v6.58: split the day's entries into "annual-related" (every leave type except
-                    Personal) and "Personal" instead of summing them all into one number and
-                    labeling the whole thing Personal if ANY entry that day was Personal Leave.
-                    Previously Annual 7h + Personal 1h on the same day wrongly showed as 8h all
-                    under Personal. Now shown side by side like the Attendance Calendar's work/OT
-                    format (e.g. 7/1), and each bucket is added to its own running total below. */
-                 const personalEntries = dayEntries.filter(h => h.leaveType === 'thMasterPersonalLeave');
-                 const annualEntries = dayEntries.filter(h => h.leaveType !== 'thMasterPersonalLeave');
-                 const annualTotal = annualEntries.reduce((sum, h) => sum + (h.hours || 0), 0);
-                 const personalTotal = personalEntries.reduce((sum, h) => sum + (h.hours || 0), 0);
-                 totalAnnual += annualTotal;
-                 totalPersonal += personalTotal;
+                 /* v6.58 split Personal from everything else so Annual 7h + Personal 1h on the same
+                    day showed as 7/1 instead of being merged into one 8h number under Personal.
+                    v6.77 fix: that still merged two DIFFERENT non-Personal types together (e.g.
+                    Special 5h + Travel 3h on the same day still wrongly showed as one "8" instead
+                    of 5/3), because every type except Personal was being added into a single
+                    "annual" bucket. Now every distinct leave type present that day gets its own
+                    number, shown side by side separated by "/" (so 2 types = e.g. "8/2", 3 types =
+                    "5/3/1", etc.), with a tooltip spelling out which type is which. The running
+                    Total Annual Leave / Total Personal Leave columns at the end of the row are
+                    unchanged - those still roll every entitlement-drawing type together on purpose,
+                    to match the Master Sheet's "Current Month Used" calculation. */
+                 const hoursByType = {};
+                 dayEntries.forEach(h => { hoursByType[h.leaveType] = (hoursByType[h.leaveType] || 0) + (h.hours || 0); });
+                 const typesPresent = LEAVE_TYPE_DISPLAY_ORDER.filter(ty => hoursByType[ty] > 0);
+                 Object.keys(hoursByType).forEach(ty => {
+                     if (hoursByType[ty] > 0 && typesPresent.indexOf(ty) === -1) typesPresent.push(ty);
+                 });
+                 let dayAnnual = 0, dayPersonal = 0;
+                 typesPresent.forEach(ty => {
+                     if (ty === 'thMasterPersonalLeave') dayPersonal += hoursByType[ty];
+                     else dayAnnual += hoursByType[ty];
+                 });
+                 totalAnnual += dayAnnual;
+                 totalPersonal += dayPersonal;
                  let cellStyle = 'padding:2px; text-align:center; font-weight:700;' + (dow === 0 ? ' background:#f1f5f9;' : '');
                  let content = '';
-                 if (annualTotal > 0 || personalTotal > 0) {
-                     content = '<span style="cursor:pointer;" title="' + t('acEditClickHint') + '" onclick="openAttCalEditModal(\'' + emp.id + '\',\'' + dateStr + '\')">' +
-                         (annualTotal > 0 ? '<span style="color:#15803d;">' + formatCalHours(annualTotal) + '</span>' : '') +
-                         (annualTotal > 0 && personalTotal > 0 ? '<span style="color:#94a3b8;">/</span>' : '') +
-                         (personalTotal > 0 ? '<span style="color:#dc2626;">' + formatCalHours(personalTotal) + '</span>' : '') +
-                         '</span>';
+                 if (typesPresent.length > 0) {
+                     const tooltip = (t('acEditClickHint') + ' - ' + typesPresent.map(ty => t(ty) + ': ' + formatCalHours(hoursByType[ty])).join(', ')).replace(/"/g, '&quot;');
+                     const segments = typesPresent.map(ty => '<span style="color:' + (ty === 'thMasterPersonalLeave' ? '#dc2626' : '#15803d') + ';">' + formatCalHours(hoursByType[ty]) + '</span>');
+                     content = '<span style="cursor:pointer;" title="' + tooltip + '" onclick="openAttCalEditModal(\'' + emp.id + '\',\'' + dateStr + '\')">' +
+                         segments.join('<span style="color:#94a3b8;">/</span>') + '</span>';
                  }
                  cells += '<td style="' + cellStyle + '">' + content + '</td>';
              }
@@ -7250,7 +7278,9 @@ function filterMakeupTable() {
      if (attCalPendingOps.has(opKey)) return;
      const entry = leaveHistory.find(h => h.firebaseKey === firebaseKey);
      if (!entry) return;
-     if (!confirm(t('acEditDeleteConfirm'))) return;
+     /* v6.77: this confirm() was the "pop up message from Google force to click OK" the user
+        reported in the calendar's edit/delete flow - removed to match the no-forced-dialog
+        pattern already applied to Reset Monthly in v6.73. Delete now runs immediately on click. */
      const emp = employees.find(e => e.id === entry.empId);
      if (!emp) return;
 
@@ -7317,7 +7347,7 @@ function filterMakeupTable() {
      if (attCalPendingOps.has(opKey)) return;
      const entry = attendanceHistory.find(h => h.firebaseKey === firebaseKey);
      if (!entry) return;
-     if (!confirm(t('acEditDeleteConfirm'))) return;
+     /* v6.77: confirm() removed here too - see the matching comment in deleteAttCalLeaveEntry(). */
      const emp = employees.find(e => e.id === entry.empId);
      if (!emp) return;
 
@@ -9900,11 +9930,16 @@ function formatNotifReceivedAt(timestamp) {
          list = Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] }));
      }
      const cutoff = Date.now() - REQUEST_RETENTION_MS;
+     /* v6.77: one batched update() for every expired request instead of a .remove() per record -
+        see the matching comment on purgeOldDeletedEmployees() above for why this stops a cascade
+        of repeat listener firings (and the "stuck / click many times" feeling that caused) every
+        time this collection changes, e.g. right after a new request/leave submission comes in. */
+     const updates = {};
+     let hasStale = false;
      list.forEach(r => {
-         if ((r.timestamp || 0) < cutoff) {
-             db.ref('requests/' + r.firebaseKey).remove();
-         }
+         if ((r.timestamp || 0) < cutoff) { updates[r.firebaseKey] = null; hasStale = true; }
      });
+     if (hasStale) db.ref('requests').update(updates);
      requests = list.filter(r => (r.timestamp || 0) >= cutoff);
      renderNotifications();
      renderMyRequests();
@@ -10064,11 +10099,17 @@ function formatNotifReceivedAt(timestamp) {
          list = Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] }));
      }
      const cutoff = Date.now() - REQUEST_RETENTION_MS;
+     /* v6.77: batched into one update() - see purgeOldDeletedEmployees() comment above. This one
+        in particular used to fire right after every leave/attendance submission (which pushes a
+        fresh notification), so the cascade from cleaning up old ones landed at exactly the moment
+        the user had just clicked Save/Submit - directly causing the "need to wait" / "need to
+        click many times" symptom. */
+     const notifUpdates = {};
+     let hasStaleNotif = false;
      list.forEach(n => {
-         if ((n.timestamp || 0) < cutoff) {
-             db.ref('notifications/' + n.firebaseKey).remove();
-         }
+         if ((n.timestamp || 0) < cutoff) { notifUpdates[n.firebaseKey] = null; hasStaleNotif = true; }
      });
+     if (hasStaleNotif) db.ref('notifications').update(notifUpdates);
      allNotifications = list.filter(n => (n.timestamp || 0) >= cutoff);
      renderEmpNotifBadge();
      if (document.getElementById('empNotifModal') && document.getElementById('empNotifModal').style.display === 'flex') {
@@ -10479,11 +10520,17 @@ function notifyCardReady() {
      const data = snapshot.val();
      let list = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
      const cutoff = Date.now() - AUDIT_LOG_RETENTION_MS;
+     /* v6.77: batched into one update() - see purgeOldDeletedEmployees() comment above. This one
+        is likely the biggest contributor of the four, since logActivity() writes to auditLog on
+        almost every save anywhere in the app (add/edit/delete employee, bulk import/update,
+        approvals, document edits, certificates...), so this listener's cleanup pass used to
+        re-fire on nearly every single action once the log had entries older than 30 days in it. */
+     const auditUpdates = {};
+     let hasStaleAudit = false;
      list.forEach(a => {
-         if ((a.timestamp || 0) < cutoff) {
-             db.ref('auditLog/' + a.firebaseKey).remove();
-         }
+         if ((a.timestamp || 0) < cutoff) { auditUpdates[a.firebaseKey] = null; hasStaleAudit = true; }
      });
+     if (hasStaleAudit) db.ref('auditLog').update(auditUpdates);
      auditLog = list.filter(a => (a.timestamp || 0) >= cutoff);
      renderAuditLogTable();
      populateAuditActionFilter();
