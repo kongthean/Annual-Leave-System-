@@ -351,6 +351,13 @@
         closed). Giving it a higher z-index makes it always appear on top, regardless of where
         either modal's HTML happens to sit. */
      #composeModal { z-index: 110; }
+     /* v6.81: customConfirmModal replaces native confirm() everywhere in the app (the owner does
+        not want the native "cambodiainsight.net says" browser dialog). It can be triggered from
+        INSIDE another already-open modal (e.g. a delete button inside the Document Library
+        modal), so it needs a z-index higher than every other modal, including composeModal
+        above, to always render on top. */
+     #customConfirmModal { z-index: 500; }
+     #customConfirmMessage { white-space: pre-wrap; }
      .modal-content { background: white; padding: 26px; border-radius: 12px; width: 100%; max-width: 900px; max-height: 95vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(2,6,23,0.3); }
      .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
      .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; transition: color 0.15s; }
@@ -457,7 +464,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.80</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.81</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2047,7 +2054,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.80
+     HR & Administration System Version 6.81
  </div>
 </div>
 
@@ -2255,6 +2262,26 @@
 </div>
 
 <!-- VIEW DETAILS MODAL -->
+<!-- v6.81: CUSTOM CONFIRM MODAL - replaces every native confirm() in the app with an in-page
+     modal styled like the rest of the site, instead of the native browser/OS dialog. Reused
+     across all destructive actions (delete employee/department/makeup record, reject, etc.)
+     via the showConfirm(message) helper, which returns a Promise<boolean>. Background-click
+     and Escape intentionally do nothing, matching how every other modal in this file behaves
+     (only globalSearchModal closes on background click; the rest only close via an explicit
+     button) - so there is no silent "acts like OK" shortcut. -->
+<div class="modal" id="customConfirmModal">
+ <div class="modal-content" style="max-width: 420px;">
+     <div class="modal-header">
+         <h4 data-i18n="customConfirmTitle">Please Confirm</h4>
+     </div>
+     <div id="customConfirmMessage" style="font-size:14px; color:#1e293b; margin-bottom:20px; line-height:1.5;"></div>
+     <div style="text-align:center; display:flex; gap:12px; justify-content:center;">
+         <button type="button" id="customConfirmCancelBtn" class="btn-submit" style="width:auto; padding:8px 30px; background:#64748b;" data-i18n="btnCancel">Cancel</button>
+         <button type="button" id="customConfirmOkBtn" class="btn-submit" style="width:auto; padding:8px 30px; background:#dc2626;" data-i18n="btnOk">OK</button>
+     </div>
+ </div>
+</div>
+
 <div class="modal" id="viewDetailModal">
  <div class="modal-content">
      <div class="modal-header">
@@ -2825,15 +2852,15 @@
      });
  }
 
- function resetAccountTotp(firebaseKey) {
-     if (!confirm(t('confirmResetTotpMsg'))) return;
+ async function resetAccountTotp(firebaseKey) {
+     if (!await showConfirm(t('confirmResetTotpMsg'))) return;
      db.ref('accounts/' + firebaseKey).update({ totpSecret: null, backupCodes: null }).then(() => {
          showToast(true, t('toastTotpReset'));
      }).catch(() => showToast(false));
  }
 
- function regenerateBackupCodes(firebaseKey) {
-     if (!confirm(t('confirmRegenerateBackupCodesMsg'))) return;
+ async function regenerateBackupCodes(firebaseKey) {
+     if (!await showConfirm(t('confirmRegenerateBackupCodesMsg'))) return;
      const backupCodes = generateBackupCodes(8);
      db.ref('accounts/' + firebaseKey + '/backupCodes').set(backupCodes).then(() => {
          openBackupCodesRevealModal(backupCodes, null);
@@ -3306,6 +3333,8 @@
         toastBroadcastSent: "Notification sent. It will appear once for every user at their next login.",
         broadcastModalTitle: "Notice",
         btnOk: "OK",
+        btnCancel: "Cancel",
+        customConfirmTitle: "Please Confirm",
         announcementPlaceholder: "Add a new reminder or announcement...",
         btnAdd: "Add",
         announcementEditPrompt: "Edit this reminder / announcement:",
@@ -3959,6 +3988,8 @@
         toastBroadcastSent: "ការជូនដំណឹងត្រូវបានផ្ញើ។ វានឹងបង្ហាញម្តងសម្រាប់អ្នកប្រើប្រាស់ទាំងអស់ក្នុងការចូលលើកក្រោយ។",
         broadcastModalTitle: "ការជូនដំណឹង",
         btnOk: "យល់ព្រម",
+        btnCancel: "បោះបង់",
+        customConfirmTitle: "សូមបញ្ជាក់",
         announcementPlaceholder: "បន្ថែមការរំលឹក ឬការជូនដំណឹងថ្មី...",
         btnAdd: "បន្ថែម",
         announcementEditPrompt: "កែសម្រួលការរំលឹក / ការជូនដំណឹងនេះ៖",
@@ -4604,6 +4635,8 @@
         toastBroadcastSent: "通知已发送，所有用户下次登录时都会看到一次。",
         broadcastModalTitle: "通知",
         btnOk: "确定",
+        btnCancel: "取消",
+        customConfirmTitle: "请确认",
         announcementPlaceholder: "添加新的提醒或公告...",
         btnAdd: "添加",
         announcementEditPrompt: "编辑此提醒/公告：",
@@ -5699,8 +5732,8 @@ function renderEmpShiftCalendar() {
          .catch(() => showToast(false));
  }
 
- function toggleDeviceBlocked(firebaseKey, blocked) {
-     if (blocked && !confirm(t('confirmBlockDeviceMsg'))) { renderDeviceLogTable(); return; }
+ async function toggleDeviceBlocked(firebaseKey, blocked) {
+     if (blocked && !await showConfirm(t('confirmBlockDeviceMsg'))) { renderDeviceLogTable(); return; }
      db.ref('deviceSessions/' + firebaseKey + '/blocked').set(blocked).then(() => {
          showToast(true, blocked ? t('toastDeviceBlocked') : t('toastDeviceUnblocked'));
      }).catch(() => showToast(false));
@@ -5778,9 +5811,9 @@ function editAnnouncement(firebaseKey, btnEl) {
     }).catch(() => showToast(false)));
 }
 
-function deleteAnnouncement(firebaseKey, btnEl) {
+async function deleteAnnouncement(firebaseKey, btnEl) {
     if ((sessionStorage.getItem('loggedInRole') || 'admin') !== 'admin') return;
-    if (!confirm(t('announcementDeleteConfirm'))) return;
+    if (!await showConfirm(t('announcementDeleteConfirm'))) return;
     withBusyButton(btnEl, () => db.ref('announcements/' + firebaseKey).remove().then(() => {
         showToast(true, t('toastAnnouncementDeleted'));
     }).catch(() => showToast(false)));
@@ -6367,7 +6400,7 @@ function deleteAnnouncement(firebaseKey, btnEl) {
 
  /* v5.00: Deleting now soft-deletes (moves the record to deletedEmployees for 30 days,
     recoverable from the "Recently Deleted" screen) instead of removing it immediately. */
- function confirmDelete(firebaseKey, name, btnEl) {
+ async function confirmDelete(firebaseKey, name, btnEl) {
      if ((sessionStorage.getItem('loggedInRole') || 'admin') !== 'admin') {
          showToast(false, t('hrNotAllowedMsg'));
          return;
@@ -6375,8 +6408,11 @@ function deleteAnnouncement(firebaseKey, btnEl) {
      /* v6.77: the confirm() here is an intentional "are you sure" safety check for a destructive,
         infrequent action (permanently moving an employee record out of the live list) - this is
         NOT the nuisance forced-dialog pattern removed elsewhere for low-stakes/frequent actions,
-        so it stays. */
-     if (confirm(t('confirmDeleteMsg').replace('{name}', name))) {
+        so it stays.
+        v6.81: now shown as the site's own styled modal (showConfirm) instead of the native
+        browser confirm() dialog - the owner specifically complained about the native
+        "cambodiainsight.net says" popup appearing for this exact action. */
+     if (await showConfirm(t('confirmDeleteMsg').replace('{name}', name))) {
          withBusyButton(btnEl, () => db.ref('employees/' + firebaseKey).once('value').then(snap => {
              const record = snap.val();
              if (!record) { showToast(false); return; }
@@ -6501,12 +6537,12 @@ function deleteAnnouncement(firebaseKey, btnEl) {
      }).catch(() => showToast(false)));
  }
 
- function deleteDepartment(firebaseKey, employeeCount, btnEl) {
+ async function deleteDepartment(firebaseKey, employeeCount, btnEl) {
      if (employeeCount > 0) {
          showToast(false, t('deptInUseMsg'));
          return;
      }
-     if (confirm(t('deptDeleteConfirm'))) {
+     if (await showConfirm(t('deptDeleteConfirm'))) {
          withBusyButton(btnEl, () => db.ref('departments/' + firebaseKey).remove().then(() => showToast(true)).catch(() => showToast(false)));
      }
  }
@@ -6574,8 +6610,8 @@ function saveMakeupRecord(btnEl) {
     }).catch(() => showToast(false)));
 }
 
-function deleteMakeupRecord(firebaseKey, btnEl) {
-    if (confirm(t('makeupDeleteConfirm'))) {
+async function deleteMakeupRecord(firebaseKey, btnEl) {
+    if (await showConfirm(t('makeupDeleteConfirm'))) {
         withBusyButton(btnEl, () => db.ref('makeupRecords/' + firebaseKey).remove().then(() => showToast(true)).catch(() => showToast(false)));
     }
 }
@@ -6719,8 +6755,8 @@ function filterMakeupTable() {
          .catch(() => showToast(false)));
  }
 
- function rejectPendingEdit(firebaseKey, btnEl) {
-     if (!confirm(t('rejectConfirmMsg'))) return;
+ async function rejectPendingEdit(firebaseKey, btnEl) {
+     if (!await showConfirm(t('rejectConfirmMsg'))) return;
      const p = pendingEdits.find(x => x.firebaseKey === firebaseKey);
      withBusyButton(btnEl, () => db.ref('pendingEdits/' + firebaseKey).remove().then(() => {
          if (p) logActivity('pending_edit_reject', p.isNew ? 'employee' : 'leaveRequest', p.empId || p.employeeKey || '', p.empName || '', p.isNew ? 'New employee rejected' : 'Edit rejected');
@@ -8034,7 +8070,32 @@ function openEmployeeDetailModal(index) {
  function closeViewModal() {
      document.getElementById('viewDetailModal').style.display = 'none';
  }
- 
+
+ /* v6.81: showConfirm() replaces every native confirm() call in this file. It shows the
+    customConfirmModal (styled like every other modal here) and resolves a Promise<boolean>
+    once the person clicks OK (true) or Cancel (false). There is intentionally no background-
+    click or Escape handling that resolves it - consistent with how the rest of this file's
+    modals behave (no silent "acts like OK"). Each call attaches fresh one-time listeners and
+    removes them on cleanup so repeated calls never stack duplicate handlers. */
+ function showConfirm(message) {
+     return new Promise((resolve) => {
+         document.getElementById('customConfirmMessage').innerText = message;
+         document.getElementById('customConfirmModal').style.display = 'flex';
+         const okBtn = document.getElementById('customConfirmOkBtn');
+         const cancelBtn = document.getElementById('customConfirmCancelBtn');
+         const cleanup = (result) => {
+             document.getElementById('customConfirmModal').style.display = 'none';
+             okBtn.removeEventListener('click', onOk);
+             cancelBtn.removeEventListener('click', onCancel);
+             resolve(result);
+         };
+         const onOk = () => cleanup(true);
+         const onCancel = () => cleanup(false);
+         okBtn.addEventListener('click', onOk);
+         cancelBtn.addEventListener('click', onCancel);
+     });
+ }
+
  function openEditModal(index) {
      const emp = employees[index];
      document.getElementById('editIndex').value = emp.firebaseKey;
@@ -8873,9 +8934,9 @@ function renamePrintItem(type, key) {
     db.ref(path).update({ name: newName.trim() }).then(() => showToast(true, t('printToastRenamed'))).catch(() => showToast(false));
 }
 
-function deletePrintItem(type, key) {
+async function deletePrintItem(type, key) {
     if (type === 'file') {
-        if (!confirm(t('printDeleteFileConfirm'))) return;
+        if (!await showConfirm(t('printDeleteFileConfirm'))) return;
         const fileRec = printFiles.find(f => f.firebaseKey === key);
         db.ref('printFiles/' + key).remove().then(() => {
             logActivity('print_file_delete', 'printFile', key, fileRec ? fileRec.name : '', '');
@@ -8883,7 +8944,7 @@ function deletePrintItem(type, key) {
         }).catch(() => showToast(false));
         return;
     }
-    if (!confirm(t('printDeleteFolderConfirm'))) return;
+    if (!await showConfirm(t('printDeleteFolderConfirm'))) return;
     /* v6.59: deleting a folder also deletes every nested subfolder and file inside it - walk the
        tree breadth-first collecting every descendant folder key, then every file whose folderId
        matches any of those, and remove them all in one multi-location update() so nothing is
@@ -10418,8 +10479,8 @@ function renderSentNotifTable() {
     }
 }
 
-function deleteSentNotif(firebaseKey) {
-    if (confirm(t('deleteNotifConfirm'))) {
+async function deleteSentNotif(firebaseKey) {
+    if (await showConfirm(t('deleteNotifConfirm'))) {
         db.ref('notifications/' + firebaseKey).remove().then(() => showToast(true)).catch(() => showToast(false));
     }
 }
@@ -10441,7 +10502,7 @@ function closeNotifyShiftReadyModal() {
     document.getElementById('notifyShiftReadyModal').style.display = 'none';
 }
 
-function notifyShiftCalendarReady() {
+async function notifyShiftCalendarReady() {
     const monthInput = document.getElementById('notifyShiftReadyMonth');
     const monthVal = monthInput ? monthInput.value : '';
     if (!monthVal) { showToast(false, t('shiftMonthRequiredMsg')); return; }
@@ -10452,7 +10513,7 @@ function notifyShiftCalendarReady() {
         monthLabel = new Date(parts[0], parts[1] - 1, 1).toLocaleString(localeMap[currentLang] || 'en-US', { month: 'long', year: 'numeric' });
     } catch (e) { monthLabel = monthVal; }
     const description = fillTemplate(t('notifShiftCalendarReadyMsg'), { month: monthLabel });
-    if (!confirm(t('confirmSendToAll') + '\n\n' + description)) return;
+    if (!await showConfirm(t('confirmSendToAll') + '\n\n' + description)) return;
     db.ref('notifications').push({
         targetId: 'ALL',
         message: t('notifShiftReadyTitle'),
@@ -10518,7 +10579,7 @@ function formatOneMonthDeadline() {
     }
 }
 
-function notifyCardReady() {
+async function notifyCardReady() {
     const id = document.getElementById('cardReadyEmpId').value.trim();
     const cardNumber = document.getElementById('cardReadyCardNumber').value.trim();
     const department = document.getElementById('cardReadyDepartment').value.trim();
@@ -10528,7 +10589,7 @@ function notifyCardReady() {
 
     const title = fillTemplate(t('notifCardReadyTitle'), { id: id });
     const description = fillTemplate(t('notifCardReadyMsg'), { name: emp.name, department: department, deadline: formatOneMonthDeadline() });
-    if (!confirm(title + '\n\n' + description.replace(/<br\s*\/?>/gi, '\n'))) return;
+    if (!await showConfirm(title + '\n\n' + description.replace(/<br\s*\/?>/gi, '\n'))) return;
 
     db.ref('notifications').push({
         targetId: id,
