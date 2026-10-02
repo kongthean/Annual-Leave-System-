@@ -162,13 +162,16 @@
         monitor, with the 8th card alone on its own row next to a big blank gap). A fixed column
         count wraps predictably at the same point every time regardless of screen width, so adding
         the 4 new cards above now fills exactly 3 full rows of 4 with no leftover gap. */
-     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+     /* v6.85: shrunk card padding/gaps/font sizes (and the gap below the top grid) so both
+        8-card rows plus Main Menu all fit on screen together at 100% zoom without scrolling -
+        the business owner reported the previous (v6.84) card size pushed Main Menu out of view. */
+     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
      @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
      @media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr; } }
-     .stat-card { background: #f8fafc; padding: 14px 16px; border-radius: 10px; border-left: 4px solid #123a5c; box-shadow: 0 1px 2px rgba(15,23,42,0.05); transition: transform 0.15s, box-shadow 0.15s; }
+     .stat-card { background: #f8fafc; padding: 8px 10px; border-radius: 8px; border-left: 4px solid #123a5c; box-shadow: 0 1px 2px rgba(15,23,42,0.05); transition: transform 0.15s, box-shadow 0.15s; }
      .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15,23,42,0.1); }
-     .stat-card h4 { color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
-     .stat-card div { font-size: 21px; font-weight: 700; color: #0f172a; }
+     .stat-card h4 { color: #64748b; font-size: 9px; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; line-height: 1.2; }
+     .stat-card div { font-size: 15px; font-weight: 700; color: #0f172a; }
 
      .dash-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
      .dash-card h4 { font-size: 14px; color: #0f172a; margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
@@ -471,7 +474,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.84</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.85</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -871,7 +874,7 @@
 
  <!-- TAB 1: DASHBOARD -->
  <div id="tab-home" class="tab-panel active">
-     <h3 style="margin-bottom: 12px; color: #0f172a;" data-i18n="dashOverview">Overview Dashboard</h3>
+     <h3 style="margin-bottom: 8px; color: #0f172a;" data-i18n="dashOverview">Overview Dashboard</h3>
    
      <div class="stats-grid">
          <div class="stat-card">
@@ -915,8 +918,9 @@
           month" figures), plus a final card for the total hours employees went over their monthly
           allowance by (the hours version of the "Total Exceed Hours" card above). Kept as its own
           separate 8-card grid rather than folded into the first row, per the business owner's
-          request for a clean top-8/bottom-8 split instead of one crowded 12-card row. -->
-     <h4 style="margin: 4px 0 8px; color: #334155;" data-i18n="dashLeaveByTypeHeading">Leave Used This Month By Type</h4>
+          request for a clean top-8/bottom-8 split instead of one crowded 12-card row.
+          v6.85: the heading label above this second row was removed per the business owner's
+          request (just the 8 cards now, no extra text taking up vertical space). -->
      <div class="stats-grid">
          <div class="stat-card" style="border-color: #123a5c;">
              <h4 data-i18n="thMasterAnnualLeave">Annual Leave</h4>
@@ -2105,7 +2109,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.84
+     HR & Administration System Version 6.85
  </div>
 </div>
 
@@ -3012,7 +3016,6 @@
          statTotalPersonalLeave: "Total Personal Leave",
          statTotalWorkHours: "Total Working Hours",
          statTotalOTHours: "Total Monthly Overtime",
-         dashLeaveByTypeHeading: "Leave Used This Month By Type",
          statExceedHoursMonth: "Exceed Hours This Month",
          quickActions: "Main Menu",
          dashTableTitle: "Employee Status",
@@ -3675,7 +3678,6 @@
          statTotalPersonalLeave: "ច្បាប់ផ្ទាល់ខ្លួនសរុប",
          statTotalWorkHours: "ម៉ោងធ្វើការសរុប",
          statTotalOTHours: "ម៉ោងថែមម៉ោងសរុប",
-         dashLeaveByTypeHeading: "ច្បាប់ប្រើប្រចាំខែនេះតាមប្រភេទ",
          statExceedHoursMonth: "ម៉ោងលើសកំណត់ប្រចាំខែនេះ",
          quickActions: "ម៉ឺនុយចម្បង",
          dashTableTitle: "ស្ថានភាពបុគ្គលិក",
@@ -4328,7 +4330,6 @@
          statTotalPersonalLeave: "总个人假",
          statTotalWorkHours: "总工作时间",
          statTotalOTHours: "总加班时间",
-         dashLeaveByTypeHeading: "本月各类假期使用情况",
          statExceedHoursMonth: "本月超出总时数",
          quickActions: "主菜单",
          dashTableTitle: "员工状态",
