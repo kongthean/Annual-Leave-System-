@@ -457,7 +457,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.78</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.79</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1033,7 +1033,7 @@
             <ul id="announcementsList"></ul>
             <div id="announcementAddRow" class="admin-only" style="display:flex; gap:8px; margin-top:10px;">
                 <input type="text" id="newAnnouncementText" data-i18n-ph="announcementPlaceholder" placeholder="Add a new reminder or announcement..." style="flex:1;">
-                <button type="button" class="btn-primary" onclick="addAnnouncement()" data-i18n="btnAdd">Add</button>
+                <button type="button" class="btn-primary" onclick="addAnnouncement(this)" data-i18n="btnAdd">Add</button>
             </div>
          </div>
      </div>
@@ -1107,7 +1107,7 @@
              <div style="background: #f1f5f9; padding: 4px 8px; border-radius: 5px; border: 1px solid #cbd5e1; display:flex; gap:6px; align-items:center;">
                  <label style="margin:0; font-size:11px;" data-i18n="lblBulkSetWork">Default Work Hrs:</label>
                  <input type="number" id="bulkWorkDaysInput" value="208" step="1" style="width: 70px; padding: 4px;">
-                 <button class="quick-btn" style="padding: 4px 8px; font-size:11px;" onclick="applyBulkWorkingHours()" data-i18n="btnApplyAll">Apply to All</button>
+                 <button class="quick-btn" style="padding: 4px 8px; font-size:11px;" onclick="applyBulkWorkingHours(this)" data-i18n="btnApplyAll">Apply to All</button>
              </div>
              <button class="quick-btn green" onclick="openExportLangModal('monthly')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
          </div>
@@ -1268,7 +1268,7 @@
                  <tbody></tbody>
              </table>
          </div>
-         <button type="button" class="btn-submit" style="background:#7c3aed; margin-top:14px;" onclick="saveAttendanceDeptBatch()" data-i18n="btnSubmitAtt">Submit Attendance Record</button>
+         <button type="button" class="btn-submit" style="background:#7c3aed; margin-top:14px;" onclick="saveAttendanceDeptBatch(this)" data-i18n="btnSubmitAtt">Submit Attendance Record</button>
      </div>
  </div>
  
@@ -1398,7 +1398,7 @@
              <label data-i18n="bulkImportFileLabel">Select .xlsx File</label>
              <input type="file" id="bulkImportFileInput" accept=".xlsx">
          </div>
-         <button type="button" class="btn-submit" onclick="runBulkImport()" data-i18n="btnRunBulkImport">Upload & Import</button>
+         <button type="button" class="btn-submit" onclick="runBulkImport(this)" data-i18n="btnRunBulkImport">Upload & Import</button>
          <div id="bulkImportResults" style="display:none; margin-top:16px; max-height:280px; overflow-y:auto;">
              <h4 style="margin-bottom:8px;" data-i18n="bulkImportResultsTitle">Import Results</h4>
              <p id="bulkImportSummaryLine" style="font-size:13px; font-weight:600; margin-bottom:8px;"></p>
@@ -1424,7 +1424,7 @@
              <label data-i18n="bulkImportFileLabel">Select .xlsx File</label>
              <input type="file" id="bulkUpdateFileInput" accept=".xlsx">
          </div>
-         <button type="button" class="btn-submit" onclick="runBulkUpdate()" data-i18n="btnRunBulkUpdate">Upload &amp; Update</button>
+         <button type="button" class="btn-submit" onclick="runBulkUpdate(this)" data-i18n="btnRunBulkUpdate">Upload &amp; Update</button>
          <div id="bulkUpdateResults" style="display:none; margin-top:16px; max-height:280px; overflow-y:auto;">
              <h4 style="margin-bottom:8px;" data-i18n="bulkImportResultsTitle">Import Results</h4>
              <p id="bulkUpdateSummaryLine" style="font-size:13px; font-weight:600; margin-bottom:8px;"></p>
@@ -1548,7 +1548,7 @@
          <div style="flex-shrink:0; padding:12px 22px; border-top:1px solid #e2e8f0; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
              <button type="button" class="btn-edit" onclick="closeDocGridEditor()" data-i18n="btnClose">Close</button>
              <button type="button" class="btn-submit" style="width:auto;" onclick="exportDocGridToPDF()" data-i18n="btnExportPDF">Export as PDF</button>
-             <button type="button" class="btn-submit" style="width:auto;" onclick="saveDocGridEditor()" data-i18n="btnSaveChanges">Save Changes</button>
+             <button type="button" class="btn-submit" style="width:auto;" onclick="saveDocGridEditor(this)" data-i18n="btnSaveChanges">Save Changes</button>
          </div>
      </div>
  </div>
@@ -1576,7 +1576,7 @@
          <div style="flex-shrink:0; padding:12px 22px; border-top:1px solid #e2e8f0; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
              <button type="button" class="btn-edit" onclick="closeDocWordEditor()" data-i18n="btnClose">Close</button>
              <button type="button" class="btn-submit" style="width:auto;" onclick="exportDocWordToPDF()" data-i18n="btnExportPDF">Export as PDF</button>
-             <button type="button" class="btn-submit" style="width:auto;" onclick="saveDocWordEditor()" data-i18n="btnSaveChanges">Save Changes</button>
+             <button type="button" class="btn-submit" style="width:auto;" onclick="saveDocWordEditor(this)" data-i18n="btnSaveChanges">Save Changes</button>
          </div>
      </div>
  </div>
@@ -1802,7 +1802,7 @@
      <h3 data-i18n="deptTitle">Departments / Teams</h3>
      <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="deptSub">Group employees into departments or teams</p>
 
-     <form style="display:flex; gap:10px; align-items:flex-end; max-width:520px; margin-bottom:16px;" onsubmit="event.preventDefault(); addDepartment();">
+     <form style="display:flex; gap:10px; align-items:flex-end; max-width:520px; margin-bottom:16px;" onsubmit="event.preventDefault(); addDepartment(this.querySelector('[type=submit]'));">
          <div class="form-group" style="flex:1; margin-bottom:0;">
              <label data-i18n="deptNewLabel">New Department Name</label>
              <input type="text" id="newDeptName" placeholder="e.g. Sales">
@@ -1829,7 +1829,7 @@
     <h3 data-i18n="makeupTitle">Makeup Attendance Record</h3>
     <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="makeupSub">Record makeup punches for employees who forgot to check in/out, lost their card, or need another correction.</p>
 
-    <form id="makeupForm" style="max-width:960px; margin:10px auto 0 auto;" onsubmit="event.preventDefault(); saveMakeupRecord();">
+    <form id="makeupForm" style="max-width:960px; margin:10px auto 0 auto;" onsubmit="event.preventDefault(); saveMakeupRecord(this.querySelector('[type=submit]'));">
         <div style="display:flex; gap:16px; flex-wrap:wrap;">
             <div style="flex:1; min-width:200px;">
                 <div class="form-group">
@@ -2047,7 +2047,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.78
+     HR & Administration System Version 6.79
  </div>
 </div>
 
@@ -2095,7 +2095,7 @@
              <button class="modal-close" onclick="closeManagementModal()">&times;</button>
          </div>
 
-         <form style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom:20px;" onsubmit="event.preventDefault(); addAccount();">
+         <form style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom:20px;" onsubmit="event.preventDefault(); addAccount(this.querySelector('[type=submit]'));">
              <div class="form-group" style="margin-bottom:0;"><label data-i18n="acctColName">Name</label><input type="text" id="newAcctName" required></div>
              <div class="form-group" style="margin-bottom:0;"><label data-i18n="acctColUsername">Username</label><input type="text" id="newAcctUsername" required></div>
              <div class="form-group" style="margin-bottom:0;"><label data-i18n="acctColPassword">Password</label><input type="text" id="newAcctPassword" required></div>
@@ -2364,7 +2364,7 @@
             <button class="modal-close" onclick="closeOneTimeNotifModal()">&times;</button>
         </div>
         <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="broadcastSectionSub">Every user (Employee, HR, Administration) will see this once, the next time they log in.</p>
-        <form onsubmit="event.preventDefault(); sendBroadcast();">
+        <form onsubmit="event.preventDefault(); sendBroadcast(this.querySelector('[type=submit]'));">
             <div class="form-group"><label data-i18n="lblComposeMessage">Message</label><input type="text" id="oneTimeNotifMessage" required></div>
             <div class="form-group">
                 <label data-i18n="lblNotifImageOptional">Picture (optional)</label>
@@ -2459,7 +2459,39 @@
          setTimeout(() => { el.style.display = 'none'; }, 250);
      }, isPending ? 4500 : 2000);
  }
- 
+
+ /* v6.79: generic "click registered" guard for Submit/Save/Delete buttons across the app -
+    extends the disable-the-clicked-button pattern the Leave/Attendance Calendar edit modal
+    already used (v6.78, attCalPendingOps) to every other save/submit/delete action, so a slow
+    Firebase round-trip can never look like "nothing happened" and a rapid double-click can never
+    fire the write twice. Disables btnEl the instant it's clicked (synchronously, before the
+    network call even starts), then always re-enables it once the write settles - success,
+    failure, or thrown exception - via .finally()/try-catch, so it is never left stuck disabled.
+    Safe to call with btnEl null/undefined (a handler that doesn't have the element yet, e.g. an
+    onclick that wasn't changed to pass "this"): it just runs fn() straight through with no
+    disable/re-enable. If btnEl is already disabled when this is called again, it is skipped
+    entirely - that is the double-click guard. */
+ function withBusyButton(btnEl, fn) {
+     if (!btnEl) return fn();
+     if (btnEl.disabled) return;
+     const originalHtml = btnEl.innerHTML;
+     btnEl.disabled = true;
+     const restore = () => { btnEl.disabled = false; btnEl.innerHTML = originalHtml; };
+     let result;
+     try {
+         result = fn();
+     } catch (err) {
+         restore();
+         throw err;
+     }
+     if (result && typeof result.finally === 'function') {
+         result.finally(restore);
+     } else {
+         restore();
+     }
+     return result;
+ }
+
  /* AUTHENTICATION & INACTIVITY TIMER SETUP (v6.00: role-based accounts - HR System / Administration System) */
  const INACTIVITY_TIMEOUT = 60 * 60 * 1000;
  let inactivityTimer = null;
@@ -5628,7 +5660,12 @@ function renderEmpShiftCalendar() {
  }
 
  function renameDevice(firebaseKey, newName) {
-     db.ref('deviceSessions/' + firebaseKey + '/customName').set(newName.trim());
+     /* v6.79: this write previously had no .then()/.catch() at all - a failed save (offline,
+        permission issue) gave zero feedback, exactly the "no notification tell success or not"
+        complaint. */
+     db.ref('deviceSessions/' + firebaseKey + '/customName').set((newName || '').trim())
+         .then(() => showToast(true))
+         .catch(() => showToast(false));
  }
 
  function toggleDeviceBlocked(firebaseKey, blocked) {
@@ -5677,43 +5714,45 @@ function renderAnnouncements() {
             <span class="announcement-text">${a.text || ''}</span>
             ${isAdminRole ? `
             <span class="announcement-actions" style="margin-left:8px;">
-                <button type="button" class="btn-edit" onclick="editAnnouncement('${a.firebaseKey}')" title="Edit">${ICON_EDIT}</button>
-                <button type="button" class="btn-delete" onclick="deleteAnnouncement('${a.firebaseKey}')" title="Delete">${ICON_DELETE}</button>
+                <button type="button" class="btn-edit" onclick="editAnnouncement('${a.firebaseKey}', this)" title="Edit">${ICON_EDIT}</button>
+                <button type="button" class="btn-delete" onclick="deleteAnnouncement('${a.firebaseKey}', this)" title="Delete">${ICON_DELETE}</button>
             </span>` : ''}
         </li>
     `).join('') || `<li>${t('pendingApprovalsEmpty')}</li>`;
 }
 
-function addAnnouncement() {
+function addAnnouncement(btnEl) {
     if ((sessionStorage.getItem('loggedInRole') || 'admin') !== 'admin') return;
     const input = document.getElementById('newAnnouncementText');
     const text = (input.value || '').trim();
-    if (!text) return;
-    db.ref('announcements').push({ text, timestamp: Date.now() }).then(() => {
+    /* v6.79: this early return used to be completely silent - now shows a failure toast so a
+       click with an empty field doesn't look like nothing happened. */
+    if (!text) { showToast(false); return; }
+    withBusyButton(btnEl, () => db.ref('announcements').push({ text, timestamp: Date.now() }).then(() => {
         input.value = '';
         showToast(true, t('toastAnnouncementAdded'));
-    });
+    }).catch(() => showToast(false)));
 }
 
-function editAnnouncement(firebaseKey) {
+function editAnnouncement(firebaseKey, btnEl) {
     if ((sessionStorage.getItem('loggedInRole') || 'admin') !== 'admin') return;
     const current = announcements.find(a => a.firebaseKey === firebaseKey);
-    if (!current) return;
+    if (!current) { showToast(false); return; }
     const updated = prompt(t('announcementEditPrompt'), current.text || '');
-    if (updated === null) return;
+    if (updated === null) return; /* user cancelled the prompt - not a failure, stays silent */
     const trimmed = updated.trim();
-    if (!trimmed) return;
-    db.ref('announcements/' + firebaseKey).update({ text: trimmed }).then(() => {
+    if (!trimmed) { showToast(false); return; }
+    withBusyButton(btnEl, () => db.ref('announcements/' + firebaseKey).update({ text: trimmed }).then(() => {
         showToast(true, t('toastAnnouncementUpdated'));
-    });
+    }).catch(() => showToast(false)));
 }
 
-function deleteAnnouncement(firebaseKey) {
+function deleteAnnouncement(firebaseKey, btnEl) {
     if ((sessionStorage.getItem('loggedInRole') || 'admin') !== 'admin') return;
     if (!confirm(t('announcementDeleteConfirm'))) return;
-    db.ref('announcements/' + firebaseKey).remove().then(() => {
+    withBusyButton(btnEl, () => db.ref('announcements/' + firebaseKey).remove().then(() => {
         showToast(true, t('toastAnnouncementDeleted'));
-    });
+    }).catch(() => showToast(false)));
 }
 
  /* v5.00: Shift Roster */
@@ -6048,7 +6087,7 @@ function deleteAnnouncement(firebaseKey) {
                  <td>
                      <button class="btn-view" onclick="openMasterDetailModal(${index})" title="View Details">${ICON_VIEW}</button>
                      <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">${ICON_EDIT}</button>
-                     ${isAdminRole ? `<button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">${ICON_DELETE}</button>` : ''}
+                     ${isAdminRole ? `<button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}', this)" title="Delete Employee">${ICON_DELETE}</button>` : ''}
                  </td>
                  <td><b>${emp.id}</b></td>
                  <td>${emp.name}</td>
@@ -6103,7 +6142,7 @@ function deleteAnnouncement(firebaseKey) {
                  <td>
                      <button class="btn-view" onclick="openMonthlyDetailModal(${index})" title="View Details">${ICON_VIEW}</button>
                      <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">${ICON_EDIT}</button>
-                     <button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">${ICON_DELETE}</button>
+                     <button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}', this)" title="Delete Employee">${ICON_DELETE}</button>
                  </td>
                  <td><b>${emp.id}</b></td>
                  <td>${emp.name}</td>
@@ -6198,7 +6237,7 @@ function deleteAnnouncement(firebaseKey) {
                  <td>
                      <button class="btn-view" onclick="openEmployeeDetailModal(${index})" title="View Details">${ICON_VIEW}</button>
                      <button class="btn-edit" onclick="openEditModal(${index})" title="Edit Record">${ICON_EDIT}</button>
-                     ${isAdminRole ? `<button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}')" title="Delete Employee">${ICON_DELETE}</button>` : ''}
+                     ${isAdminRole ? `<button class="btn-delete" onclick="confirmDelete('${emp.firebaseKey}', '${emp.name}', this)" title="Delete Employee">${ICON_DELETE}</button>` : ''}
                  </td>
                  <td><b>${emp.id}</b></td>
                  <td>${emp.name}</td>
@@ -6250,15 +6289,18 @@ function deleteAnnouncement(firebaseKey) {
      });
  }
  
- function applyBulkWorkingHours() {
+ function applyBulkWorkingHours(btnEl) {
      const val = parseFloat(document.getElementById('bulkWorkDaysInput').value) || 208;
      const updates = {};
      employees.forEach(e => {
          updates[`employees/${e.firebaseKey}/monthlyWorkDays`] = val;
      });
-     db.ref().update(updates).then(() => {
-         alert(`Default work hours updated to ${val} for all employees!`);
-     });
+     /* v6.79: this write used to end in a blocking native alert() (needs an OK click) and had no
+        .catch() at all - a failed write gave zero feedback. Replaced with the normal toast + a
+        failure path, consistent with every other write in the app. */
+     withBusyButton(btnEl, () => db.ref().update(updates).then(() => {
+         showToast(true);
+     }).catch(() => showToast(false)));
  }
  
  function updateEmpMonthlyField(firebaseKey, field, val) {
@@ -6285,28 +6327,36 @@ function deleteAnnouncement(firebaseKey) {
          return;
      }
 
-     db.ref('employees/' + firebaseKey).update({ [field]: newValue });
+     /* v6.79: this write used to have no .then()/.catch() at all - a failed save on a slow/dropped
+        connection gave zero feedback, exactly the "I don't know if it saved" complaint. */
+     db.ref('employees/' + firebaseKey).update({ [field]: newValue })
+         .then(() => showToast(true))
+         .catch(() => showToast(false));
  }
- 
+
  /* v5.00: Deleting now soft-deletes (moves the record to deletedEmployees for 30 days,
     recoverable from the "Recently Deleted" screen) instead of removing it immediately. */
- function confirmDelete(firebaseKey, name) {
+ function confirmDelete(firebaseKey, name, btnEl) {
      if ((sessionStorage.getItem('loggedInRole') || 'admin') !== 'admin') {
          showToast(false, t('hrNotAllowedMsg'));
          return;
      }
+     /* v6.77: the confirm() here is an intentional "are you sure" safety check for a destructive,
+        infrequent action (permanently moving an employee record out of the live list) - this is
+        NOT the nuisance forced-dialog pattern removed elsewhere for low-stakes/frequent actions,
+        so it stays. */
      if (confirm(t('confirmDeleteMsg').replace('{name}', name))) {
-         db.ref('employees/' + firebaseKey).once('value').then(snap => {
+         withBusyButton(btnEl, () => db.ref('employees/' + firebaseKey).once('value').then(snap => {
              const record = snap.val();
              if (!record) { showToast(false); return; }
              record.deletedAt = new Date().toISOString();
-             db.ref('deletedEmployees/' + firebaseKey).set(record).then(() => {
+             return db.ref('deletedEmployees/' + firebaseKey).set(record).then(() => {
                  return db.ref('employees/' + firebaseKey).remove();
              }).then(() => {
                  logActivity('employee_delete', 'employee', record.id || firebaseKey, name, '');
                  showToast(true, t('toastDeletedToRecycle'));
              }).catch(() => showToast(false));
-         }).catch(() => showToast(false));
+         }).catch(() => showToast(false)));
      }
  }
 
@@ -6338,7 +6388,7 @@ function deleteAnnouncement(firebaseKey) {
          tbody.innerHTML += `
              <tr>
                  <td>
-                     <button class="btn-edit" onclick="restoreEmployee('${rec.firebaseKey}')" title="Restore">${ICON_RESTORE}</button>
+                     <button class="btn-edit" onclick="restoreEmployee('${rec.firebaseKey}', this)" title="Restore">${ICON_RESTORE}</button>
                  </td>
                  <td><b>${rec.id || '-'}</b></td>
                  <td>${rec.name || '-'}</td>
@@ -6351,15 +6401,16 @@ function deleteAnnouncement(firebaseKey) {
      }
  }
 
- function restoreEmployee(firebaseKey) {
+ function restoreEmployee(firebaseKey, btnEl) {
      const rec = deletedEmployees.find(r => r.firebaseKey === firebaseKey);
-     if (!rec) return;
+     /* v6.79: used to return silently if the record could no longer be found. */
+     if (!rec) { showToast(false); return; }
      const restored = { ...rec };
      delete restored.firebaseKey;
      delete restored.deletedAt;
-     db.ref('employees/' + firebaseKey).set(restored).then(() => {
+     withBusyButton(btnEl, () => db.ref('employees/' + firebaseKey).set(restored).then(() => {
          return db.ref('deletedEmployees/' + firebaseKey).remove();
-     }).then(() => showToast(true)).catch(() => showToast(false));
+     }).then(() => showToast(true)).catch(() => showToast(false)));
  }
 
  function openRecentlyDeletedModal() {
@@ -6392,7 +6443,7 @@ function deleteAnnouncement(firebaseKey) {
              <tr>
                  <td>
                      <button class="btn-edit" onclick="editDepartment('${d.firebaseKey}', '${d.name.replace(/'/g, "\\'")}')" title="Edit">${ICON_EDIT}</button>
-                     <button class="btn-delete" onclick="deleteDepartment('${d.firebaseKey}', ${count})" title="Delete">${ICON_DELETE}</button>
+                     <button class="btn-delete" onclick="deleteDepartment('${d.firebaseKey}', ${count}, this)" title="Delete">${ICON_DELETE}</button>
                  </td>
                  <td>${d.name}</td>
                  <td>${count}</td>
@@ -6404,27 +6455,28 @@ function deleteAnnouncement(firebaseKey) {
      }
  }
 
- function addDepartment() {
+ function addDepartment(btnEl) {
      const nameInput = document.getElementById('newDeptName');
      const name = nameInput.value.trim();
-     if (!name) return;
+     /* v6.79: this early return used to be silent on an empty department name. */
+     if (!name) { showToast(false); return; }
      if (departments.some(d => d.name.toLowerCase() === name.toLowerCase())) {
          showToast(false, t('deptDuplicateMsg'));
          return;
      }
-     db.ref('departments').push({ name }).then(() => {
+     withBusyButton(btnEl, () => db.ref('departments').push({ name }).then(() => {
          nameInput.value = '';
          showToast(true);
-     }).catch(() => showToast(false));
+     }).catch(() => showToast(false)));
  }
 
- function deleteDepartment(firebaseKey, employeeCount) {
+ function deleteDepartment(firebaseKey, employeeCount, btnEl) {
      if (employeeCount > 0) {
          showToast(false, t('deptInUseMsg'));
          return;
      }
      if (confirm(t('deptDeleteConfirm'))) {
-         db.ref('departments/' + firebaseKey).remove().then(() => showToast(true)).catch(() => showToast(false));
+         withBusyButton(btnEl, () => db.ref('departments/' + firebaseKey).remove().then(() => showToast(true)).catch(() => showToast(false)));
      }
  }
 
@@ -6468,7 +6520,7 @@ function onMakeupEmpNameInput() {
     if (found) document.getElementById('makeupEmpId').value = found.id;
 }
 
-function saveMakeupRecord() {
+function saveMakeupRecord(btnEl) {
     const id = document.getElementById('makeupEmpId').value.trim();
     const name = document.getElementById('makeupEmpName').value.trim();
     const date = document.getElementById('makeupDate').value;
@@ -6480,7 +6532,7 @@ function saveMakeupRecord() {
     if (!found) { showToast(false, t('empIdNotFound')); return; }
     if (!date || !timeFrom || !timeTo || !reason) { showToast(false); return; }
 
-    db.ref('makeupRecords').push({
+    withBusyButton(btnEl, () => db.ref('makeupRecords').push({
         empId: id, empName: found.name, date, timeFrom, timeTo, reason,
         createdAt: new Date().toISOString()
     }).then(() => {
@@ -6488,12 +6540,12 @@ function saveMakeupRecord() {
         document.getElementById('makeupForm').reset();
         document.getElementById('makeupTimeFrom').value = '07:00';
         document.getElementById('makeupTimeTo').value = '07:00';
-    }).catch(() => showToast(false));
+    }).catch(() => showToast(false)));
 }
 
-function deleteMakeupRecord(firebaseKey) {
+function deleteMakeupRecord(firebaseKey, btnEl) {
     if (confirm(t('makeupDeleteConfirm'))) {
-        db.ref('makeupRecords/' + firebaseKey).remove().then(() => showToast(true)).catch(() => showToast(false));
+        withBusyButton(btnEl, () => db.ref('makeupRecords/' + firebaseKey).remove().then(() => showToast(true)).catch(() => showToast(false)));
     }
 }
 
@@ -6503,7 +6555,7 @@ function renderMakeupTable() {
     const sorted = makeupRecords.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     tbody.innerHTML = sorted.map(r => `
         <tr>
-            <td><button class="btn-delete" onclick="deleteMakeupRecord('${r.firebaseKey}')" title="Delete">${ICON_DELETE}</button></td>
+            <td><button class="btn-delete" onclick="deleteMakeupRecord('${r.firebaseKey}', this)" title="Delete">${ICON_DELETE}</button></td>
             <td>${r.empId}</td>
             <td>${r.empName}</td>
             <td>${r.date || '-'}</td>
@@ -6588,17 +6640,19 @@ function filterMakeupTable() {
                  </div>
                  <div style="width:100%; text-align:left;">${changed.join('') || t('pendingApprovalsNoDiff')}</div>
                  <div style="display:flex; gap:8px; margin-top:4px;">
-                     <button class="quick-btn green" style="padding:4px 10px; font-size:11px;" onclick="approvePendingEdit('${p.firebaseKey}')">${t('btnApprove')}</button>
-                     <button class="quick-btn" style="padding:4px 10px; font-size:11px; background:linear-gradient(135deg,#dc2626,#b91c1c);" onclick="rejectPendingEdit('${p.firebaseKey}')">${t('btnReject')}</button>
+                     <button class="quick-btn green" style="padding:4px 10px; font-size:11px;" onclick="approvePendingEdit('${p.firebaseKey}', this)">${t('btnApprove')}</button>
+                     <button class="quick-btn" style="padding:4px 10px; font-size:11px; background:linear-gradient(135deg,#dc2626,#b91c1c);" onclick="rejectPendingEdit('${p.firebaseKey}', this)">${t('btnReject')}</button>
                  </div>
              </div>
          `;
      }).join('');
  }
 
- function approvePendingEdit(firebaseKey) {
+ function approvePendingEdit(firebaseKey, btnEl) {
      const p = pendingEdits.find(x => x.firebaseKey === firebaseKey);
-     if (!p) return;
+     /* v6.79: used to return with zero feedback if this pending edit could no longer be found
+        (e.g. already approved/rejected a moment earlier in another tab). */
+     if (!p) { showToast(false); return; }
 
      let apply;
      if (p.isNew) {
@@ -6626,21 +6680,21 @@ function filterMakeupTable() {
          apply = db.ref('employees/' + p.employeeKey).update({ [p.field]: p.newValue });
      }
 
-     apply.then(() => db.ref('pendingEdits/' + firebaseKey).remove())
+     withBusyButton(btnEl, () => apply.then(() => db.ref('pendingEdits/' + firebaseKey).remove())
          .then(() => {
              logActivity('pending_edit_approve', p.isNew ? 'employee' : 'leaveRequest', p.empId || p.employeeKey || '', p.empName || '', p.isNew ? 'New employee approved' : 'Edit approved');
              showToast(true, t('toastApproved'));
          })
-         .catch(() => showToast(false));
+         .catch(() => showToast(false)));
  }
 
- function rejectPendingEdit(firebaseKey) {
+ function rejectPendingEdit(firebaseKey, btnEl) {
      if (!confirm(t('rejectConfirmMsg'))) return;
      const p = pendingEdits.find(x => x.firebaseKey === firebaseKey);
-     db.ref('pendingEdits/' + firebaseKey).remove().then(() => {
+     withBusyButton(btnEl, () => db.ref('pendingEdits/' + firebaseKey).remove().then(() => {
          if (p) logActivity('pending_edit_reject', p.isNew ? 'employee' : 'leaveRequest', p.empId || p.employeeKey || '', p.empName || '', p.isNew ? 'New employee rejected' : 'Edit rejected');
          showToast(true, t('toastRejected'));
-     }).catch(() => showToast(false));
+     }).catch(() => showToast(false)));
  }
 
  /* ================= v6.00: MANAGEMENT (accounts + one-time broadcast) ================= */
@@ -6714,22 +6768,23 @@ function filterMakeupTable() {
      db.ref('accounts/' + firebaseKey).update({ totpEnabled: enabled }).then(() => showToast(true)).catch(() => showToast(false));
  }
 
- function addAccount() {
+ function addAccount(btnEl) {
      const name = document.getElementById('newAcctName').value.trim();
      const username = document.getElementById('newAcctUsername').value.trim();
      const password = document.getElementById('newAcctPassword').value.trim();
      const role = document.getElementById('newAcctRole').value;
-     if (!name || !username || !password) return;
+     /* v6.79: this early return used to be silent on a missing required field. */
+     if (!name || !username || !password) { showToast(false); return; }
      if (accounts.some(a => a.username === username)) {
          showToast(false, t('acctDuplicateUsernameMsg'));
          return;
      }
-     db.ref('accounts').push({ name, username, password, role, disabled: false }).then(() => {
+     withBusyButton(btnEl, () => db.ref('accounts').push({ name, username, password, role, disabled: false }).then(() => {
          document.getElementById('newAcctName').value = '';
          document.getElementById('newAcctUsername').value = '';
          document.getElementById('newAcctPassword').value = '';
          showToast(true);
-     }).catch(() => showToast(false));
+     }).catch(() => showToast(false)));
  }
 
  /* ================= v5.00: SHIFT ROSTER ================= */
@@ -8016,6 +8071,10 @@ function openEmployeeDetailModal(index) {
  
  document.getElementById('editForm').addEventListener('submit', function(e) {
      e.preventDefault();
+     /* v6.79: Save Changes now disables itself the instant it's clicked (and re-enables once the
+        write settles, success or fail) so a slow connection can't look like the click didn't
+        register, and a rapid double-click can't fire the write twice. */
+     const submitBtn = this.querySelector('[type=submit]');
      const firebaseKey = document.getElementById('editIndex').value;
      const joinDateInput = document.getElementById('editJoinDate').value.trim();
      const computedCycle = computeLeaveCycle(joinDateInput);
@@ -8067,38 +8126,43 @@ function openEmployeeDetailModal(index) {
          department: document.getElementById('editDept') ? document.getElementById('editDept').value : ''
      };
 
-     /* v6.00: HR System edits to Master Sheet/Employee don't write directly - they queue
-        for Administration to approve or reject. Administration keeps editing directly, as before. */
-     if ((sessionStorage.getItem('loggedInRole') || 'admin') === 'hr') {
-         db.ref('employees/' + firebaseKey).once('value').then(snap => {
-             const oldRecord = snap.val() || {};
-             return db.ref('pendingEdits').push({
-                 employeeKey: firebaseKey,
-                 empId: updatedData.id,
-                 empName: updatedData.name,
-                 oldRecord: oldRecord,
-                 newRecord: updatedData,
-                 requestedBy: sessionStorage.getItem('loggedInAccountName') || '',
-                 timestamp: Date.now()
-             });
-         }).then(() => {
-             closeModal();
-             showToast('pending', t('toastSentForApproval'));
-         }).catch(() => showToast(false));
-         return;
-     }
+     withBusyButton(submitBtn, () => {
+         /* v6.00: HR System edits to Master Sheet/Employee don't write directly - they queue
+            for Administration to approve or reject. Administration keeps editing directly, as before. */
+         if ((sessionStorage.getItem('loggedInRole') || 'admin') === 'hr') {
+             return db.ref('employees/' + firebaseKey).once('value').then(snap => {
+                 const oldRecord = snap.val() || {};
+                 return db.ref('pendingEdits').push({
+                     employeeKey: firebaseKey,
+                     empId: updatedData.id,
+                     empName: updatedData.name,
+                     oldRecord: oldRecord,
+                     newRecord: updatedData,
+                     requestedBy: sessionStorage.getItem('loggedInAccountName') || '',
+                     timestamp: Date.now()
+                 });
+             }).then(() => {
+                 closeModal();
+                 showToast('pending', t('toastSentForApproval'));
+             }).catch(() => showToast(false));
+         }
 
-     db.ref('employees/' + firebaseKey).set(updatedData).then(() => {
-         logActivity('employee_edit', 'employee', updatedData.id || firebaseKey, updatedData.name || '', '');
-         closeModal();
-         showToast(true);
-     }).catch(error => {
-         showToast(false);
+         return db.ref('employees/' + firebaseKey).set(updatedData).then(() => {
+             logActivity('employee_edit', 'employee', updatedData.id || firebaseKey, updatedData.name || '', '');
+             closeModal();
+             showToast(true);
+         }).catch(error => {
+             showToast(false);
+         });
      });
  });
 
  document.getElementById('addEmpForm').addEventListener('submit', function(e){
      e.preventDefault();
+     /* v6.79: Save Employee now disables itself the instant it's clicked, re-enabling once the
+        write settles (success or fail) - same reasoning as the editForm fix above. */
+     const submitBtn = this.querySelector('[type=submit]');
+     const formEl = this;
      const joinInput = document.getElementById('newJoinDate').value.replace(/-/g, '.');
      const newEmpId = document.getElementById('newId').value.trim();
      const newEmpName = document.getElementById('newName').value.trim();
@@ -8127,34 +8191,34 @@ function openEmployeeDetailModal(index) {
          department: document.getElementById('newDept') ? document.getElementById('newDept').value : ''
      };
  
-     /* v6.00: HR System registrations also wait for Administration approval, same as edits. */
-     if ((sessionStorage.getItem('loggedInRole') || 'admin') === 'hr') {
-         const formEl = this;
-         db.ref('pendingEdits').push({
-             employeeKey: null,
-             isNew: true,
-             empId: emp.id,
-             empName: emp.name,
-             newRecord: emp,
-             requestedBy: sessionStorage.getItem('loggedInAccountName') || '',
-             timestamp: Date.now()
-         }).then(() => {
+     withBusyButton(submitBtn, () => {
+         /* v6.00: HR System registrations also wait for Administration approval, same as edits. */
+         if ((sessionStorage.getItem('loggedInRole') || 'admin') === 'hr') {
+             return db.ref('pendingEdits').push({
+                 employeeKey: null,
+                 isNew: true,
+                 empId: emp.id,
+                 empName: emp.name,
+                 newRecord: emp,
+                 requestedBy: sessionStorage.getItem('loggedInAccountName') || '',
+                 timestamp: Date.now()
+             }).then(() => {
+                 formEl.reset();
+                 document.getElementById('newEntitled').value = "160";
+                 document.getElementById('newId').focus();
+                 showToast('pending', t('toastSentForApproval'));
+             }).catch(() => showToast(false));
+         }
+
+         return db.ref('employees').push(emp).then(() => {
+             logActivity('employee_add', 'employee', emp.id, emp.name, '');
              formEl.reset();
              document.getElementById('newEntitled').value = "160";
              document.getElementById('newId').focus();
-             showToast('pending', t('toastSentForApproval'));
-         }).catch(() => showToast(false));
-         return;
-     }
-
-     db.ref('employees').push(emp).then(() => {
-         logActivity('employee_add', 'employee', emp.id, emp.name, '');
-         this.reset();
-         document.getElementById('newEntitled').value = "160";
-         document.getElementById('newId').focus();
-         showToast(true);
-     }).catch(error => {
-         showToast(false);
+             showToast(true);
+         }).catch(error => {
+             showToast(false);
+         });
      });
  });
 
@@ -8240,10 +8304,18 @@ function openEmployeeDetailModal(index) {
      return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
  }
 
- function runBulkImport() {
+ function runBulkImport(btnEl) {
      const fileInput = document.getElementById('bulkImportFileInput');
      const file = fileInput.files && fileInput.files[0];
      if (!file) { showToast(false, t('bulkImportNoFile')); return; }
+
+     /* v6.79: Upload & Import disables itself the instant it's clicked (re-enabled once the whole
+        read-parse-write pipeline finishes, success or fail) so it can't be double-clicked into
+        importing the same file twice while the first run is still going. Not using withBusyButton
+        here since the work is driven by FileReader's own async callback, not a single promise
+        chain returned synchronously - re-enabled explicitly at every exit point below instead. */
+     if (btnEl) { if (btnEl.disabled) return; btnEl.disabled = true; }
+     const reEnable = () => { if (btnEl) btnEl.disabled = false; };
 
      const reader = new FileReader();
      reader.onload = function(e) {
@@ -8254,9 +8326,10 @@ function openEmployeeDetailModal(index) {
              rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
          } catch (err) {
              showToast(false, t('bulkImportNoRows'));
+             reEnable();
              return;
          }
-         if (!rows || rows.length < 2) { showToast(false, t('bulkImportNoRows')); return; }
+         if (!rows || rows.length < 2) { showToast(false, t('bulkImportNoRows')); reEnable(); return; }
 
          const headerMap = buildBulkImportHeaderMap();
          const headerRow = rows[0];
@@ -8337,9 +8410,9 @@ function openEmployeeDetailModal(index) {
              list.innerHTML = skipReasons.map(msg => `<li>${msg}</li>`).join('');
              showToast(validRecords.length > 0, t('toastBulkImportDone'));
              fileInput.value = '';
-         }).catch(() => showToast(false));
+         }).catch(() => showToast(false)).finally(reEnable);
      };
-     reader.onerror = function() { showToast(false); };
+     reader.onerror = function() { showToast(false); reEnable(); };
      reader.readAsArrayBuffer(file);
  }
 
@@ -8360,6 +8433,9 @@ function openEmployeeDetailModal(index) {
  /* LEAVE RECORDS FORM SUBMISSION */
 document.getElementById('leaveForm').addEventListener('submit', function(e){
     e.preventDefault();
+    /* v6.79: Submit Leave Record now disables itself the instant it's clicked, re-enabling once
+       the write settles - same reasoning as the editForm/addEmpForm fixes above. */
+    const submitBtn = this.querySelector('[type=submit]');
     const id = document.getElementById('leaveEmpId').value.trim();
     const addAL = parseFloat(document.getElementById('leaveAL').value) || 0;
     const addSpecial = parseFloat(document.getElementById('leaveSpecial').value) || 0;
@@ -8405,7 +8481,7 @@ document.getElementById('leaveForm').addEventListener('submit', function(e){
         const selectedDate = document.getElementById('leaveDate').value;
         const formEl = this;
 
-        db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
+        withBusyButton(submitBtn, () => db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
             showToast(true);
 
             /* v6.29: automatic notifications + a dated leaveHistory log entry for every leave
@@ -8456,7 +8532,7 @@ document.getElementById('leaveForm').addEventListener('submit', function(e){
             document.getElementById('leaveDate').valueAsDate = getDefaultRecordDate();
         }).catch(error => {
             showToast(false);
-        });
+        }));
     } else {
         showToast(false, t('empIdNotFound'));
     }
@@ -8817,7 +8893,11 @@ function movePrintItem(type, key, direction) {
     const updates = {};
     updates[(a.__type === 'folder' ? 'printFolders/' : 'printFiles/') + a.firebaseKey + '/order'] = b.order || 0;
     updates[(b.__type === 'folder' ? 'printFolders/' : 'printFiles/') + b.firebaseKey + '/order'] = a.order || 0;
-    db.ref().update(updates);
+    /* v6.79: this write had no .catch() at all - on a failed write (offline, permission) the row
+       just silently stays put with no explanation. The re-render itself (via the printFiles/
+       printFolders 'value' listeners) is the success feedback, so only a failure toast is added
+       here to avoid toasting on every single up/down click. */
+    db.ref().update(updates).catch(() => showToast(false));
 }
 
 /* v6.61: which file the Print Notice alert modal is currently showing/downloading for. */
@@ -9083,15 +9163,17 @@ function docGridGetSaveState() {
     };
 }
 
-function saveDocGridEditor() {
-    if (!docGridEditorKey || !docGridEditorInstance) return;
+function saveDocGridEditor(btnEl) {
+    /* v6.79: both early returns below used to be completely silent if the editor state wasn't
+       ready (e.g. the modal was closed/reopened mid-edit) - now always shows a failure toast. */
+    if (!docGridEditorKey || !docGridEditorInstance) { showToast(false); return; }
     const file = printFiles.find(f => f.firebaseKey === docGridEditorKey);
     const state = docGridGetSaveState();
-    if (!state) return;
-    db.ref('printFiles/' + docGridEditorKey).update({ editedGrid: state }).then(() => {
+    if (!state) { showToast(false); return; }
+    withBusyButton(btnEl, () => db.ref('printFiles/' + docGridEditorKey).update({ editedGrid: state }).then(() => {
         logActivity('document_edited', 'printFile', docGridEditorKey, file ? file.name : '', 'grid');
         showToast(true, t('docEditorToastSaved'));
-    }).catch(() => showToast(false));
+    }).catch(() => showToast(false)));
 }
 
 /* A-1-style column letters (A, B, ... Z, AA, AB, ...) used to build cell references such as
@@ -9279,14 +9361,15 @@ function closeDocWordEditor() {
     docWordEditorKey = null;
 }
 
-function saveDocWordEditor() {
-    if (!docWordEditorKey || !docWordEditorInstance) return;
+function saveDocWordEditor(btnEl) {
+    /* v6.79: used to return silently if the editor instance wasn't ready. */
+    if (!docWordEditorKey || !docWordEditorInstance) { showToast(false); return; }
     const file = printFiles.find(f => f.firebaseKey === docWordEditorKey);
     const html = docWordEditorInstance.getData();
-    db.ref('printFiles/' + docWordEditorKey).update({ editedHtml: html }).then(() => {
+    withBusyButton(btnEl, () => db.ref('printFiles/' + docWordEditorKey).update({ editedHtml: html }).then(() => {
         logActivity('document_edited', 'printFile', docWordEditorKey, file ? file.name : '', 'richtext');
         showToast(true, t('docEditorToastSaved'));
-    }).catch(() => showToast(false));
+    }).catch(() => showToast(false)));
 }
 
 function exportDocWordToPDF() {
@@ -9791,7 +9874,7 @@ function formatNotifReceivedAt(timestamp) {
      document.getElementById('attDeptTableWrap').style.display = 'block';
  }
 
- function saveAttendanceDeptBatch() {
+ function saveAttendanceDeptBatch(btnEl) {
      const date = document.getElementById('attDate').value;
      if (!date) { showToast(false, t('attDateRequiredMsg')); return; }
 
@@ -9823,11 +9906,11 @@ function formatNotifReceivedAt(timestamp) {
 
      if (countUpdated === 0) { showToast(false, t('attNoValuesEnteredMsg')); return; }
 
-     db.ref().update(updates).then(() => {
+     withBusyButton(btnEl, () => db.ref().update(updates).then(() => {
          showToast(true);
          historyEntries.forEach(function(h) { db.ref('attendanceHistory').push(h); });
          loadAttendanceDeptTable(); /* refresh the boxes back to blank so the same batch can't be added twice by accident */
-     }).catch(() => showToast(false));
+     }).catch(() => showToast(false)));
  }
 
 /* ===== EMPLOYEE LOGIN ===== */
@@ -9899,6 +9982,10 @@ function formatNotifReceivedAt(timestamp) {
 
  document.getElementById('empRequestForm').addEventListener('submit', function(e) {
      e.preventDefault();
+     /* v6.79: Submit Request now disables itself the instant it's clicked, re-enabling once the
+        write settles - same reasoning as the other forms fixed above. */
+     const submitBtn = this.querySelector('[type=submit]');
+     const formEl = this;
      const loggedInId = sessionStorage.getItem('empLoggedInId');
      const loggedInEmp = employees.find(emp => emp.id === loggedInId);
      if (!loggedInEmp) {
@@ -9919,8 +10006,8 @@ function formatNotifReceivedAt(timestamp) {
          timestamp: Date.now()
      };
 
-     db.ref('requests').push(payload).then(() => {
-         this.reset();
+     withBusyButton(submitBtn, () => db.ref('requests').push(payload).then(() => {
+         formEl.reset();
          document.getElementById('reqEmpId').value = loggedInEmp.id;
          document.getElementById('reqName').value = loggedInEmp.name;
          document.getElementById('reqMethod').value = 'System';
@@ -9931,7 +10018,7 @@ function formatNotifReceivedAt(timestamp) {
          setTimeout(() => { toast.style.display = 'none'; }, 6000);
      }).catch(error => {
          showToast(false);
-     });
+     }));
  });
 
  /* ===== ADMIN NOTIFICATIONS (employee requests, auto-removed after 7 days) ===== */
@@ -9999,8 +10086,11 @@ function formatNotifReceivedAt(timestamp) {
      return (typeof allNotifications !== 'undefined' ? allNotifications : []).filter(n => n.targetId === 'ADMIN' && !n.readByAdmin);
  }
 
- function dismissAdminAlert(firebaseKey) {
-     db.ref('notifications/' + firebaseKey).update({ readByAdmin: true });
+ function dismissAdminAlert(firebaseKey, btnEl) {
+     /* v6.79: this write had no .then()/.catch() at all - no feedback either way. */
+     withBusyButton(btnEl, () => db.ref('notifications/' + firebaseKey).update({ readByAdmin: true })
+         .then(() => showToast(true))
+         .catch(() => showToast(false)));
  }
 
  /* v6.66: the bell badge now counts UNSEEN items rather than unresolved ones - opening the
@@ -10033,7 +10123,7 @@ function formatNotifReceivedAt(timestamp) {
                      ${n.timestamp ? `<span class="val" style="font-size:10px; color:#94a3b8;">${formatNotifReceivedAt(n.timestamp)}</span>` : ''}
                  </div>
                  <div style="font-size:12px; color:#334155; width:100%; text-align:left;">${n.description || ''}</div>
-                 <button class="quick-btn slate" style="padding:4px 10px; font-size:11px;" onclick="dismissAdminAlert('${n.firebaseKey}')">${t('btnDismiss')}</button>
+                 <button class="quick-btn slate" style="padding:4px 10px; font-size:11px;" onclick="dismissAdminAlert('${n.firebaseKey}', this)">${t('btnDismiss')}</button>
              </div>
          `).join('');
      }
@@ -10059,8 +10149,8 @@ function formatNotifReceivedAt(timestamp) {
              </div>
              <div style="display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
                  <button class="quick-btn" style="padding:4px 10px; font-size:11px;" onclick="openComposeNotification('${r.empId || ''}', '${r.firebaseKey}')">${t('btnRespond')}</button>
-                 ${r.status !== 'processed' ? `<button class="quick-btn green" style="padding:4px 10px; font-size:11px;" onclick="markRequestProcessed('${r.firebaseKey}')">${t('btnMarkProcessed')}</button>` : ''}
-                 <button class="quick-btn slate" style="padding:4px 10px; font-size:11px;" onclick="deleteRequest('${r.firebaseKey}')">${t('btnDeleteRequest')}</button>
+                 ${r.status !== 'processed' ? `<button class="quick-btn green" style="padding:4px 10px; font-size:11px;" onclick="markRequestProcessed('${r.firebaseKey}', this)">${t('btnMarkProcessed')}</button>` : ''}
+                 <button class="quick-btn slate" style="padding:4px 10px; font-size:11px;" onclick="deleteRequest('${r.firebaseKey}', this)">${t('btnDeleteRequest')}</button>
              </div>
          </div>
      `).join('');
@@ -10096,12 +10186,18 @@ function formatNotifReceivedAt(timestamp) {
      document.getElementById('notifModal').style.display = 'none';
  }
 
- function markRequestProcessed(key) {
-     db.ref('requests/' + key).update({ status: 'processed' });
+ function markRequestProcessed(key, btnEl) {
+     /* v6.79: this write had no .then()/.catch() at all - no feedback either way. */
+     withBusyButton(btnEl, () => db.ref('requests/' + key).update({ status: 'processed' })
+         .then(() => showToast(true))
+         .catch(() => showToast(false)));
  }
 
- function deleteRequest(key) {
-     db.ref('requests/' + key).remove();
+ function deleteRequest(key, btnEl) {
+     /* v6.79: this write had no .then()/.catch() at all - no feedback either way. */
+     withBusyButton(btnEl, () => db.ref('requests/' + key).remove()
+         .then(() => showToast(true))
+         .catch(() => showToast(false)));
  }
 
  /* ===== NOTIFICATIONS CHANNEL (admin responses + general announcements, auto-removed after 7 days) ===== */
@@ -10258,18 +10354,19 @@ function fileToCompressedDataUrl(inputEl, maxDim) {
     });
 }
 
-function sendBroadcast() {
+function sendBroadcast(btnEl) {
     const message = document.getElementById('oneTimeNotifMessage').value.trim();
     const description = document.getElementById('oneTimeNotifDescription').value.trim();
-    if (!message) return;
-    fileToCompressedDataUrl(document.getElementById('oneTimeNotifImage'), 1000).then(imageData => {
+    /* v6.79: this early return used to be silent on an empty message. */
+    if (!message) { showToast(false); return; }
+    withBusyButton(btnEl, () => fileToCompressedDataUrl(document.getElementById('oneTimeNotifImage'), 1000).then(imageData => {
         const payload = { message, description, timestamp: Date.now() };
         if (imageData) payload.imageData = imageData;
         return db.ref('broadcasts').push(payload);
     }).then(() => {
         closeOneTimeNotifModal();
         showToast(true, t('toastBroadcastSent'));
-    }).catch(() => showToast(false, t('notifImageErrorMsg')));
+    }).catch(() => showToast(false, t('notifImageErrorMsg'))));
 }
 
 function renderSentNotifTable() {
@@ -10433,14 +10530,19 @@ function notifyCardReady() {
         notification is stored, filtered, or shown to an employee has to change. */
      const targetIds = targetType === 'ALL' ? ['ALL'] : getComposeSpecificIds();
 
+     /* v6.79: all 3 outcomes below used to be blocking native alert() popups (need an OK click) -
+        exactly the "pop up message from Google force to click OK" complaint already fixed
+        elsewhere in v6.77. Replaced with the same non-blocking toast used everywhere else, and
+        the submit button is now disabled immediately on click so a slow send can't look stuck. */
      if (targetType === 'SPECIFIC' && targetIds.length === 0) {
-         alert(t('composeIdsRequiredMsg'));
+         showToast(false, t('composeIdsRequiredMsg'));
          return;
      }
 
      const relatedKey = document.getElementById('composeRelatedKey').value;
+     const btnEl = this.querySelector('[type=submit]');
 
-     fileToCompressedDataUrl(document.getElementById('composeImage'), 1000).then(imageData => {
+     withBusyButton(btnEl, () => fileToCompressedDataUrl(document.getElementById('composeImage'), 1000).then(imageData => {
          const message = document.getElementById('composeMessage').value.trim();
          const description = document.getElementById('composeDescription').value.trim();
          const pushes = targetIds.map(function(targetId) {
@@ -10460,10 +10562,10 @@ function notifyCardReady() {
              db.ref('requests/' + relatedKey).update({ status: 'processed' });
          }
          closeComposeModal();
-         alert(t('notifSentAlert'));
+         showToast(true, t('notifSentAlert'));
      }).catch(error => {
-         alert('Error sending notification: ' + (error && error.message ? error.message : error));
-     });
+         showToast(false);
+     }));
  });
 
  /* ---- Employee: view notifications addressed to me or to everyone ---- */
@@ -10829,10 +10931,15 @@ function notifyCardReady() {
      return map;
  }
 
- function runBulkUpdate() {
+ function runBulkUpdate(btnEl) {
      const fileInput = document.getElementById('bulkUpdateFileInput');
      const file = fileInput.files && fileInput.files[0];
      if (!file) { showToast(false, t('bulkImportNoFile')); return; }
+
+     /* v6.79: same disable-on-click / re-enable-when-done guard as runBulkImport above, for the
+        same reason - prevents a double-click from re-running the whole file while it's mid-flight. */
+     if (btnEl) { if (btnEl.disabled) return; btnEl.disabled = true; }
+     const reEnable = () => { if (btnEl) btnEl.disabled = false; };
 
      const reader = new FileReader();
      reader.onload = function (e) {
@@ -10843,9 +10950,10 @@ function notifyCardReady() {
              rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
          } catch (err) {
              showToast(false, t('bulkImportNoRows'));
+             reEnable();
              return;
          }
-         if (!rows || rows.length < 2) { showToast(false, t('bulkImportNoRows')); return; }
+         if (!rows || rows.length < 2) { showToast(false, t('bulkImportNoRows')); reEnable(); return; }
 
          const headerMap = buildBulkUpdateHeaderMap();
          const headerRow = rows[0];
@@ -10909,9 +11017,9 @@ function notifyCardReady() {
              list.innerHTML = skipReasons.map(function (msg) { return '<li>' + msg + '</li>'; }).join('');
              showToast(updatedCount > 0, t('toastBulkUpdateDone'));
              fileInput.value = '';
-         }).catch(function () { showToast(false); });
+         }).catch(function () { showToast(false); }).finally(reEnable);
      };
-     reader.onerror = function () { showToast(false); };
+     reader.onerror = function () { showToast(false); reEnable(); };
      reader.readAsArrayBuffer(file);
  }
 
