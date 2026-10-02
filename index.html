@@ -179,7 +179,7 @@
      .dash-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
      .dash-card h4 { font-size: 14px; color: #0f172a; margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
  
-     .quick-actions { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center; }
+     .quick-actions { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; justify-content: center; }
    
      /* Modern Feature Buttons Styling */
      .quick-btn {
@@ -242,23 +242,25 @@
      .quick-btn.brown:hover { box-shadow: 0 6px 16px rgba(87, 83, 78, 0.35); }
  
  /* Main Menu icon buttons (scoped so other quick-btn buttons, like Export, are unaffected) */
+ /* v6.87: shrunk to match the now-compact overview cards above (the business owner felt these
+    were too big/out of proportion next to the smaller stat cards from v6.85/v6.86). */
  .quick-actions { align-items: stretch; }
  .quick-actions .quick-btn {
      flex-direction: column;
-     gap: 6px;
-     padding: 14px 10px;
-     width: 104px;
-     min-width: 104px;
-     max-width: 104px;
-     min-height: 96px;
+     gap: 4px;
+     padding: 8px 6px;
+     width: 76px;
+     min-width: 76px;
+     max-width: 76px;
+     min-height: 64px;
      justify-content: center;
  }
- .quick-actions .quick-btn .quick-btn-icon { display:flex; align-items:center; justify-content:center; flex: 0 0 24px; width: 24px; height: 24px; }
- .quick-actions .quick-btn .quick-btn-icon svg { display:block; width: 24px; height: 24px; stroke: currentColor; }
+ .quick-actions .quick-btn .quick-btn-icon { display:flex; align-items:center; justify-content:center; flex: 0 0 18px; width: 18px; height: 18px; }
+ .quick-actions .quick-btn .quick-btn-icon svg { display:block; width: 18px; height: 18px; stroke: currentColor; }
  .quick-actions .quick-btn .quick-btn-label {
-     font-size: 11px;
+     font-size: 9px;
      font-weight: 600;
-     line-height: 1.25;
+     line-height: 1.2;
      white-space: normal;
      word-break: break-word;
      overflow-wrap: break-word;
@@ -266,15 +268,15 @@
      max-width: 100%;
  }
  @media (max-width: 600px) {
-     .quick-actions { gap: 8px; }
+     .quick-actions { gap: 6px; }
      .quick-actions .quick-btn {
          width: calc(33.333% - 6px);
          min-width: calc(33.333% - 6px);
          max-width: calc(33.333% - 6px);
-         min-height: 88px;
-         padding: 10px 6px;
+         min-height: 60px;
+         padding: 8px 6px;
      }
-     .quick-actions .quick-btn .quick-btn-label { font-size: 10px; }
+     .quick-actions .quick-btn .quick-btn-label { font-size: 9px; }
  }
  
      /* SYSTEM REMINDER BOX */
@@ -477,7 +479,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.86</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.87</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2134,7 +2136,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.86
+     HR & Administration System Version 6.87
  </div>
 </div>
 
