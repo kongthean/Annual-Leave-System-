@@ -157,7 +157,14 @@
      .emp-panel { display: block; background: white; padding: 18px; border-radius: 10px; box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.06); border: 1px solid #e2e8f0; }
 
      /* Dashboard Styles */
-     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px; }
+     /* v6.83: was repeat(auto-fit, minmax(180px, 1fr)), which recalculates how many columns fit
+        the screen width and could leave the last row mostly empty (e.g. 7 cards across on a wide
+        monitor, with the 8th card alone on its own row next to a big blank gap). A fixed column
+        count wraps predictably at the same point every time regardless of screen width, so adding
+        the 4 new cards above now fills exactly 3 full rows of 4 with no leftover gap. */
+     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+     @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+     @media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr; } }
      .stat-card { background: #f8fafc; padding: 14px 16px; border-radius: 10px; border-left: 4px solid #123a5c; box-shadow: 0 1px 2px rgba(15,23,42,0.05); transition: transform 0.15s, box-shadow 0.15s; }
      .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15,23,42,0.1); }
      .stat-card h4 { color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
@@ -464,7 +471,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.81</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.83</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -898,6 +905,26 @@
          <div class="stat-card" style="border-color: #0d9488;">
              <h4 data-i18n="statTotalOTHours">Total Monthly Overtime</h4>
              <div id="statTotalOTHours">0</div>
+         </div>
+         <!-- v6.83: 4 more overview cards, added so the stats row fills cleanly (it used to leave
+              a large empty gap after the 8th card - see the .stats-grid CSS change below for the
+              other half of this fix) and so these numbers are visible at a glance without opening
+              Departments/Pending Approvals/Master Sheet. -->
+         <div class="stat-card" style="border-color: #7c3aed;">
+             <h4 data-i18n="statTotalDepartments">Total Departments</h4>
+             <div id="statTotalDepartments">0</div>
+         </div>
+         <div class="stat-card" style="border-color: #ca8a04;">
+             <h4 data-i18n="statTotalCarried">Total Carried Forward</h4>
+             <div id="statTotalCarried">0</div>
+         </div>
+         <div class="stat-card" style="border-color: #e11d48;">
+             <h4 data-i18n="statPendingApprovals">Pending Approvals</h4>
+             <div id="statPendingApprovals">0</div>
+         </div>
+         <div class="stat-card" style="border-color: #0891b2;">
+             <h4 data-i18n="statNewThisMonth">New Employees This Month</h4>
+             <div id="statNewThisMonth">0</div>
          </div>
      </div>
  
@@ -2054,7 +2081,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.81
+     HR & Administration System Version 6.83
  </div>
 </div>
 
@@ -2961,6 +2988,10 @@
          statTotalPersonalLeave: "Total Personal Leave",
          statTotalWorkHours: "Total Working Hours",
          statTotalOTHours: "Total Monthly Overtime",
+         statTotalDepartments: "Total Departments",
+         statTotalCarried: "Total Carried Forward",
+         statPendingApprovals: "Pending Approvals",
+         statNewThisMonth: "New Employees This Month",
          quickActions: "Main Menu",
          dashTableTitle: "Employee Status",
          dashNoticesTitle: "System Reminders & Announcements",
@@ -3622,6 +3653,10 @@
          statTotalPersonalLeave: "ច្បាប់ផ្ទាល់ខ្លួនសរុប",
          statTotalWorkHours: "ម៉ោងធ្វើការសរុប",
          statTotalOTHours: "ម៉ោងថែមម៉ោងសរុប",
+         statTotalDepartments: "នាយកដ្ឋានសរុប",
+         statTotalCarried: "ការលើកមកសរុប",
+         statPendingApprovals: "រង់ចាំការអនុម័ត",
+         statNewThisMonth: "បុគ្គលិកថ្មីខែនេះ",
          quickActions: "ម៉ឺនុយចម្បង",
          dashTableTitle: "ស្ថានភាពបុគ្គលិក",
          dashNoticesTitle: "ការរំលឹក និងការជូនដំណឹងប្រព័ន្ធ",
@@ -4273,6 +4308,10 @@
          statTotalPersonalLeave: "总个人假",
          statTotalWorkHours: "总工作时间",
          statTotalOTHours: "总加班时间",
+         statTotalDepartments: "部门总数",
+         statTotalCarried: "结转总时数",
+         statPendingApprovals: "待审批",
+         statNewThisMonth: "本月新员工",
          quickActions: "主菜单",
          dashTableTitle: "员工状态",
          dashNoticesTitle: "系统提醒与公告",
@@ -5914,23 +5953,49 @@ async function deleteAnnouncement(firebaseKey, btnEl) {
      document.getElementById('statResignedStaff').innerText = resignedCount;
  
      let totalUsed = 0, currentMonth = 0, exceededCount = 0;
-     let totalPersonal = 0, totalWork = 0, totalOT = 0;
+     let totalPersonal = 0, totalWork = 0, totalOT = 0, totalCarried = 0, newThisMonthCount = 0;
    
      const dashBody = document.querySelector('#dashSummaryTable tbody');
      dashBody.innerHTML = '';
  
+     const dashStatsNow = new Date();
      employees.forEach(e => {
          const used = (e.prevUsed + e.monthUsed) - (e.exceeded || 0);
          totalUsed += used;
          currentMonth += e.monthUsed;
-       
+
          totalPersonal += (e.leavePersonal || 0);
          totalWork += (e.workHours || 0);
          totalOT += (e.otHours || 0);
- 
-         const remaining = (e.entitled - used) + (e.carried || 0);
-         if(remaining < 0) exceededCount++;
- 
+         totalCarried += (parseFloat(e.carried) || 0);
+
+         /* v6.83: "New Employees This Month" counts anyone whose joinDate falls in the current
+            calendar year/month, using the same joinDate.split('.') parsing convention used
+            everywhere else in this file. */
+         if (e.joinDate) {
+             const jParts = e.joinDate.split('.');
+             if (jParts.length === 3 && parseInt(jParts[0], 10) === dashStatsNow.getFullYear() && (parseInt(jParts[1], 10) - 1) === dashStatsNow.getMonth()) {
+                 newThisMonthCount++;
+             }
+         }
+
+         /* v6.82: "Exceeded Limits" on the Dashboard Overview used to count employees whose
+            WHOLE-YEAR leave balance (entitled - used + carried) had gone negative. That's a much
+            higher bar than what the business owner means by "exceeded this month" - someone can
+            easily go over their available hours in a single month (e.g. Available This Month
+            shows 6, but 8 hours of leave gets entered for them) while their year-long balance is
+            still comfortably positive, so this count almost always stayed 0 even when real monthly
+            overages were happening. The "Needs Attention" card further down the Dashboard already
+            computes this correctly per employee via computeQueryData(...).allowedThisMonth < 0
+            (the same "Available This Month" figure shown in Check Record) - this now uses that
+            exact same calculation instead, so the two numbers agree and the overview count
+            actually reflects a real "entered more hours than was available this month" situation.
+            Resigned employees are excluded, matching the Needs Attention list below. */
+         if (e.status !== 'Resigned') {
+             const qd = computeQueryData(e, dashStatsNow, 0);
+             if (qd.allowedThisMonth < 0) exceededCount++;
+         }
+
          const parts = e.joinDate.split('.');
          const join = new Date(parts[0], parts[1]-1, parts[2]);
          const now = new Date();
@@ -5955,6 +6020,10 @@ async function deleteAnnouncement(firebaseKey, btnEl) {
      document.getElementById('statTotalPersonalLeave').innerText = totalPersonal.toFixed(2);
      document.getElementById('statTotalWorkHours').innerText = totalWork.toFixed(2);
      document.getElementById('statTotalOTHours').innerText = totalOT.toFixed(2);
+     document.getElementById('statTotalDepartments').innerText = departments.length;
+     document.getElementById('statTotalCarried').innerText = totalCarried.toFixed(2);
+     document.getElementById('statPendingApprovals').innerText = pendingEdits.length;
+     document.getElementById('statNewThisMonth').innerText = newThisMonthCount;
 
      renderDashboardExtras();
  }
