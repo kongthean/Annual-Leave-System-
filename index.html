@@ -168,12 +168,21 @@
      /* v6.86: shrunk once more (on top of the v6.85 shrink) since the top row grew from 8 to 12
         cards (5 rows total across both grids now, up from 4) - keeps everything, including Main
         Menu, fitting on screen together at 90-100% zoom. */
-     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 6px; }
+     /* v6.88: the business owner felt the Dashboard cards and Main Menu (shrunk across v6.85-87
+        to fight for vertical space) ended up looking out of proportion with the rest of the site -
+        too small compared to everything else. Reviewed every other tab/table/button in the file:
+        the rest of the site already uses one consistent scale (12px table text, 11px table
+        headers, 13-14px buttons, 10-11px secondary/meta text like timestamps and the version
+        footer). Only the stat-card label (down at 8px) and Main Menu button label (down at 9px)
+        had dropped BELOW that floor - smaller than anything else on the whole site. Brought both
+        back up to the site's existing "small meta text" tier (10-11px) instead of inventing a new,
+        even-smaller tier, and grew the card/button boxes slightly to comfortably fit that text. */
+     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
      @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
      @media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr; } }
-     .stat-card { background: #f8fafc; padding: 6px 9px; border-radius: 7px; border-left: 4px solid #123a5c; box-shadow: 0 1px 2px rgba(15,23,42,0.05); transition: transform 0.15s, box-shadow 0.15s; }
+     .stat-card { background: #f8fafc; padding: 7px 10px; border-radius: 7px; border-left: 4px solid #123a5c; box-shadow: 0 1px 2px rgba(15,23,42,0.05); transition: transform 0.15s, box-shadow 0.15s; }
      .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15,23,42,0.1); }
-     .stat-card h4 { color: #64748b; font-size: 8px; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; line-height: 1.15; }
+     .stat-card h4 { color: #64748b; font-size: 10px; font-weight: 600; text-transform: uppercase; margin-bottom: 3px; line-height: 1.2; }
      .stat-card div { font-size: 13px; font-weight: 700; color: #0f172a; }
 
      .dash-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
@@ -243,22 +252,24 @@
  
  /* Main Menu icon buttons (scoped so other quick-btn buttons, like Export, are unaffected) */
  /* v6.87: shrunk to match the now-compact overview cards above (the business owner felt these
-    were too big/out of proportion next to the smaller stat cards from v6.85/v6.86). */
+    were too big/out of proportion next to the smaller stat cards from v6.85/v6.86).
+    v6.88: nudged back up slightly - see the .stats-grid comment above for why (label text was
+    below the site's own established "small meta text" floor of 10-11px). */
  .quick-actions { align-items: stretch; }
  .quick-actions .quick-btn {
      flex-direction: column;
-     gap: 4px;
-     padding: 8px 6px;
-     width: 76px;
-     min-width: 76px;
-     max-width: 76px;
-     min-height: 64px;
+     gap: 5px;
+     padding: 8px 7px;
+     width: 84px;
+     min-width: 84px;
+     max-width: 84px;
+     min-height: 70px;
      justify-content: center;
  }
- .quick-actions .quick-btn .quick-btn-icon { display:flex; align-items:center; justify-content:center; flex: 0 0 18px; width: 18px; height: 18px; }
- .quick-actions .quick-btn .quick-btn-icon svg { display:block; width: 18px; height: 18px; stroke: currentColor; }
+ .quick-actions .quick-btn .quick-btn-icon { display:flex; align-items:center; justify-content:center; flex: 0 0 20px; width: 20px; height: 20px; }
+ .quick-actions .quick-btn .quick-btn-icon svg { display:block; width: 20px; height: 20px; stroke: currentColor; }
  .quick-actions .quick-btn .quick-btn-label {
-     font-size: 9px;
+     font-size: 11px;
      font-weight: 600;
      line-height: 1.2;
      white-space: normal;
@@ -273,10 +284,10 @@
          width: calc(33.333% - 6px);
          min-width: calc(33.333% - 6px);
          max-width: calc(33.333% - 6px);
-         min-height: 60px;
+         min-height: 64px;
          padding: 8px 6px;
      }
-     .quick-actions .quick-btn .quick-btn-label { font-size: 9px; }
+     .quick-actions .quick-btn .quick-btn-label { font-size: 10px; }
  }
  
      /* SYSTEM REMINDER BOX */
@@ -479,7 +490,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.87</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.88</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2136,7 +2147,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.87
+     HR & Administration System Version 6.88
  </div>
 </div>
 
