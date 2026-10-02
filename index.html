@@ -457,7 +457,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.79</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.80</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2047,7 +2047,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.79
+     HR & Administration System Version 6.80
  </div>
 </div>
 
@@ -2472,21 +2472,49 @@
     disable/re-enable. If btnEl is already disabled when this is called again, it is skipped
     entirely - that is the double-click guard. */
  function withBusyButton(btnEl, fn) {
+     /* v6.80: safety-net timeout, added after a real-world report that EVERY Save/Submit/Delete
+        button across the whole app suddenly felt "stuck, clicking does nothing" the same day
+        v6.79 shipped. Root cause: v6.79 made this function disable the button the instant it's
+        clicked and only re-enable it once the Firebase call settles (success or fail), to stop
+        double-submits. But on a slow or momentarily-dropped internet connection, a Firebase call
+        can hang with no response at all instead of failing outright - it never resolves AND never
+        rejects. Before v6.79 that was harmless (the button stayed clickable, so trying again could
+        still get through); after v6.79 it left the button disabled forever, so no amount of
+        re-clicking could do anything - exactly the "need to click many times, nothing happens"
+        symptom, except now it was actually impossible rather than just slow. This timeout
+        guarantees the button is re-enabled and the user is told to check their connection after
+        20 seconds even if Firebase never answers at all, so the UI can never get permanently
+        stuck again regardless of how bad the connection is. If the original request eventually
+        does complete after the timeout already fired, the result still applies - the button is
+        just already usable again by then rather than looking frozen. */
      if (!btnEl) return fn();
      if (btnEl.disabled) return;
      const originalHtml = btnEl.innerHTML;
      btnEl.disabled = true;
-     const restore = () => { btnEl.disabled = false; btnEl.innerHTML = originalHtml; };
+     let settled = false;
+     const restore = () => {
+         if (settled) return;
+         settled = true;
+         btnEl.disabled = false;
+         btnEl.innerHTML = originalHtml;
+     };
+     const timeoutId = setTimeout(() => {
+         if (settled) return;
+         restore();
+         showToast(false, t('toastSlowConnectionMsg'));
+     }, 20000);
      let result;
      try {
          result = fn();
      } catch (err) {
+         clearTimeout(timeoutId);
          restore();
          throw err;
      }
      if (result && typeof result.finally === 'function') {
-         result.finally(restore);
+         result.finally(() => { clearTimeout(timeoutId); restore(); });
      } else {
+         clearTimeout(timeoutId);
          restore();
      }
      return result;
@@ -3079,6 +3107,7 @@
          chooserAdminSub: "Manage employees & records",
          toastSuccess: "Success",
         toastFail: "Failed",
+        toastSlowConnectionMsg: "Taking too long - please check your internet connection and try again.",
         empIdNotFound: "Employee ID not found",
          yesLabel: "Yes",
          noLabel: "No",
@@ -3741,6 +3770,7 @@
          chooserAdminSub: "គ្រប់គ្រងបុគ្គលិក និងកំណត់ត្រា",
          toastSuccess: "ជោគជ័យ",
          toastFail: "មិនជោគជ័យ",
+         toastSlowConnectionMsg: "ចំណាយពេលយូរពេក - សូមពិនិត្យការភ្ជាប់អ៊ីនធឺណិតរបស់អ្នក ហើយព្យាយាមម្តងទៀត។",
          empIdNotFound: "រកមិនឃើញអត្តលេខបុគ្គលិកទេ",
          yesLabel: "បាទ/ចាស",
          noLabel: "ទេ",
@@ -4385,6 +4415,7 @@
          chooserAdminSub: "管理员工与记录",
          toastSuccess: "成功",
          toastFail: "失败",
+         toastSlowConnectionMsg: "耗时过长 - 请检查您的网络连接后重试。",
          empIdNotFound: "找不到该员工编号",
          yesLabel: "是",
          noLabel: "否",
