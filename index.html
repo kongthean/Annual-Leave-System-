@@ -457,7 +457,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.77</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.78</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2047,7 +2047,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.77
+     HR & Administration System Version 6.78
  </div>
 </div>
 
@@ -7233,13 +7233,21 @@ function filterMakeupTable() {
  const attCalPendingOps = new Set();
 
  function saveAttCalLeaveEntry(firebaseKey, btnEl) {
+     /* v6.78: every early-exit below now shows a toast (success OR failure) instead of silently
+        doing nothing. Previously, if this entry/employee couldn't be found anymore (e.g. the data
+        changed in another tab/device a moment earlier) or an input element wasn't where it was
+        expected, the function just returned with zero visible feedback - the exact "click Save,
+        nothing happens, no success or fail message" behavior reported. A visible failure toast at
+        least tells the user the click registered and something needs re-checking (closing and
+        reopening the day), instead of leaving them unsure whether it saved or not. */
      const opKey = 'saveLeave:' + firebaseKey;
      if (attCalPendingOps.has(opKey)) return;
      const entry = leaveHistory.find(h => h.firebaseKey === firebaseKey);
-     if (!entry) return;
+     if (!entry) { showToast(false); return; }
      const emp = employees.find(e => e.id === entry.empId);
-     if (!emp) return;
+     if (!emp) { showToast(false); return; }
      const input = document.getElementById('acHours_' + firebaseKey);
+     if (!input) { showToast(false); return; }
      const newHours = parseFloat(input.value);
      if (isNaN(newHours) || newHours < 0) { showToast(false); return; }
      const dateInput = document.getElementById('acDate_' + firebaseKey);
@@ -7277,12 +7285,14 @@ function filterMakeupTable() {
      const opKey = 'deleteLeave:' + firebaseKey;
      if (attCalPendingOps.has(opKey)) return;
      const entry = leaveHistory.find(h => h.firebaseKey === firebaseKey);
-     if (!entry) return;
+     /* v6.78: show a failure toast instead of silently doing nothing - see the comment in
+        saveAttCalLeaveEntry() above. */
+     if (!entry) { showToast(false); return; }
      /* v6.77: this confirm() was the "pop up message from Google force to click OK" the user
         reported in the calendar's edit/delete flow - removed to match the no-forced-dialog
         pattern already applied to Reset Monthly in v6.73. Delete now runs immediately on click. */
      const emp = employees.find(e => e.id === entry.empId);
-     if (!emp) return;
+     if (!emp) { showToast(false); return; }
 
      const oldHours = entry.hours || 0;
      const field = LEAVE_TYPE_FIELD_MAP[entry.leaveType];
@@ -7312,11 +7322,15 @@ function filterMakeupTable() {
      const opKey = 'saveAtt:' + firebaseKey;
      if (attCalPendingOps.has(opKey)) return;
      const entry = attendanceHistory.find(h => h.firebaseKey === firebaseKey);
-     if (!entry) return;
+     /* v6.78: failure toast instead of silently doing nothing - see saveAttCalLeaveEntry() above. */
+     if (!entry) { showToast(false); return; }
      const emp = employees.find(e => e.id === entry.empId);
-     if (!emp) return;
-     const newWork = parseFloat(document.getElementById('acWork_' + firebaseKey).value);
-     const newOt = parseFloat(document.getElementById('acOt_' + firebaseKey).value);
+     if (!emp) { showToast(false); return; }
+     const workInput = document.getElementById('acWork_' + firebaseKey);
+     const otInput = document.getElementById('acOt_' + firebaseKey);
+     if (!workInput || !otInput) { showToast(false); return; }
+     const newWork = parseFloat(workInput.value);
+     const newOt = parseFloat(otInput.value);
      if (isNaN(newWork) || newWork < 0 || isNaN(newOt) || newOt < 0) { showToast(false); return; }
      const dateInput = document.getElementById('acDate_' + firebaseKey);
      const newDate = (dateInput && dateInput.value) ? dateInput.value : entry.date;
@@ -7346,10 +7360,11 @@ function filterMakeupTable() {
      const opKey = 'deleteAtt:' + firebaseKey;
      if (attCalPendingOps.has(opKey)) return;
      const entry = attendanceHistory.find(h => h.firebaseKey === firebaseKey);
-     if (!entry) return;
+     /* v6.78: failure toast instead of silently doing nothing - see saveAttCalLeaveEntry() above. */
+     if (!entry) { showToast(false); return; }
      /* v6.77: confirm() removed here too - see the matching comment in deleteAttCalLeaveEntry(). */
      const emp = employees.find(e => e.id === entry.empId);
-     if (!emp) return;
+     if (!emp) { showToast(false); return; }
 
      const updatePayload = {
          workHours: Math.max(0, (parseFloat(emp.workHours) || 0) - (entry.workHours || 0)),
