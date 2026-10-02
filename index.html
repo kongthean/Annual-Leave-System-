@@ -457,7 +457,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.74</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.75</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2047,7 +2047,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.74
+     HR & Administration System Version 6.75
  </div>
 </div>
 
@@ -5192,6 +5192,14 @@ function renderEmpShiftCalendar() {
      return Math.min(12, Math.max(1, months));
  }
 
+ /* v6.75: default date for Attendance/Leave Records forms - "yesterday", since both are almost
+    always filled in the day after the thing being recorded happened. */
+ function getDefaultRecordDate() {
+     const d = new Date();
+     d.setDate(d.getDate() - 1);
+     return d;
+ }
+
  function computeLeaveCycle(joinDateStr, refDate = new Date()) {
      const parts = joinDateStr.split('.');
      if (parts.length !== 3) return { startStr: '', endStr: '', yearRangeStr: '' };
@@ -5737,8 +5745,13 @@ function deleteAnnouncement(firebaseKey) {
  });
 
  document.getElementById('chkDate').valueAsDate = new Date();
- document.getElementById('attDate').valueAsDate = new Date();
- document.getElementById('leaveDate').valueAsDate = new Date();
+ /* v6.75: Attendance and Leave Records are almost always filled in for the PREVIOUS day (staff
+    were off/worked yesterday, the admin records it today), so defaulting these two date fields
+    to "yesterday" instead of "today" matches how they're actually used and avoids the easy
+    forget-to-change-the-date mistake. Check Record's date stays "today" since that one is an
+    as-of-date balance lookup, not a record being filed for a day that already happened. */
+ document.getElementById('attDate').valueAsDate = getDefaultRecordDate();
+ document.getElementById('leaveDate').valueAsDate = getDefaultRecordDate();
  (function() {
      const now = new Date();
      const monthInput = document.getElementById('shiftCalMonth');
@@ -8335,7 +8348,7 @@ document.getElementById('leaveForm').addEventListener('submit', function(e){
             }
 
             formEl.reset();
-            document.getElementById('leaveDate').valueAsDate = new Date();
+            document.getElementById('leaveDate').valueAsDate = getDefaultRecordDate();
         }).catch(error => {
             showToast(false);
         });
