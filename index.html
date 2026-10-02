@@ -457,7 +457,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.75</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.76</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2047,7 +2047,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.75
+     HR & Administration System Version 6.76
  </div>
 </div>
 
@@ -5760,6 +5760,21 @@ function deleteAnnouncement(firebaseKey) {
      if (attCalMonthInput) attCalMonthInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
  })();
 
+ /* v6.76: true only while tabId's panel is the one currently shown. Used to skip rebuilding a
+    tab's DOM table while the person is looking at a different tab - the employees/leaveHistory/
+    attendanceHistory arrays themselves always update immediately regardless of which tab is
+    active (nothing here changes what data is loaded or kept in memory), and switchTab() below
+    always re-renders a tab's own table the moment it becomes active, so skipping an invisible
+    tab's rebuild never leaves it showing stale data - it is simply rendered once, on arrival,
+    instead of on every single Firebase update that happens to touch the same collection while
+    the person is elsewhere (e.g. editing the Leave & Attendance Calendar, which writes to
+    employees and used to also silently re-render Master Sheet, Monthly Report, Employee List,
+    Department and Dashboard tables in the background on every single Save/Delete click). */
+ function isTabActive(tabId) {
+     const el = document.getElementById(tabId);
+     return !!el && el.classList.contains('active');
+ }
+
  function switchTab(tabId, btn) {
      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -6001,6 +6016,7 @@ function deleteAnnouncement(firebaseKey) {
  }
 
  function renderMaster() {
+     if (!isTabActive('tab-master')) return;
      const tbody = document.querySelector('#masterTable tbody');
      tbody.innerHTML = '';
      const isAdminRole = (sessionStorage.getItem('loggedInRole') || 'admin') === 'admin';
@@ -6072,6 +6088,7 @@ function deleteAnnouncement(firebaseKey) {
  }
 
  function renderMonthlyReport() {
+     if (!isTabActive('tab-monthly')) return;
      const tbody = document.querySelector('#monthlyReportTable tbody');
      tbody.innerHTML = '';
 
@@ -6163,6 +6180,7 @@ function deleteAnnouncement(firebaseKey) {
  }
 
  function renderEmployeeList() {
+     if (!isTabActive('tab-employee')) return;
      const tbody = document.querySelector('#employeeTable tbody');
      tbody.innerHTML = '';
      const isAdminRole = (sessionStorage.getItem('loggedInRole') || 'admin') === 'admin';
@@ -6354,6 +6372,7 @@ function deleteAnnouncement(firebaseKey) {
  }
 
  function renderDeptTable() {
+     if (!isTabActive('tab-dept')) return;
      const tbody = document.querySelector('#deptTable tbody');
      if (!tbody) return;
      tbody.innerHTML = departments.map(d => {
@@ -6935,11 +6954,14 @@ function filterMakeupTable() {
      renderAttCalTable();
  }
 
- /* Trims trailing zeros so whole numbers show as "8" instead of "8.00", but keeps decimals
-    like "4.5" when they matter. */
+ /* v6.76: always shows 2 decimals (e.g. "7.00", "4.50"), matching every other hours/leave figure
+    in the app (Check Details, Master Sheet, Monthly Report, Dashboard all use .toFixed(2)). This
+    used to trim to a bare "7" here only, which made an edited calendar value look inconsistent
+    with - or like it hadn't actually updated to match - the same number shown elsewhere. Purely
+    a display format change; the underlying stored numbers and all calculations are untouched. */
  function formatCalHours(n) {
      const rounded = Math.round(n * 100) / 100;
-     return rounded % 1 === 0 ? String(rounded) : String(rounded);
+     return rounded.toFixed(2);
  }
 
  function renderAttCalTable() {
@@ -7142,8 +7164,8 @@ function filterMakeupTable() {
                      '<label style="display:block; font-size:11px; color:#64748b;" data-i18n="acEditHoursLabel">Hours</label>' +
                      '<input type="number" step="0.5" min="0" id="acHours_' + h.firebaseKey + '" value="' + h.hours + '" style="width:80px; padding:6px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">' +
                  '</div>' +
-                 '<button type="button" class="btn-edit" style="font-size:13px;" onclick="saveAttCalLeaveEntry(\'' + h.firebaseKey + '\')" data-i18n="btnSaveChanges">Save Changes</button>' +
-                 '<button type="button" class="btn-delete" style="font-size:13px;" onclick="deleteAttCalLeaveEntry(\'' + h.firebaseKey + '\')" data-i18n="btnDeleteRequest">Delete</button>' +
+                 '<button type="button" class="btn-edit" style="font-size:13px;" onclick="saveAttCalLeaveEntry(\'' + h.firebaseKey + '\', this)" data-i18n="btnSaveChanges">Save Changes</button>' +
+                 '<button type="button" class="btn-delete" style="font-size:13px;" onclick="deleteAttCalLeaveEntry(\'' + h.firebaseKey + '\', this)" data-i18n="btnDeleteRequest">Delete</button>' +
              '</div>'
          )).join('');
      } else {
@@ -7166,14 +7188,25 @@ function filterMakeupTable() {
                      '<label style="display:block; font-size:11px; color:#64748b;" data-i18n="acEditOtLabel">OT Hours</label>' +
                      '<input type="number" step="0.5" min="0" id="acOt_' + h.firebaseKey + '" value="' + (h.otHours || 0) + '" style="width:100%; padding:6px 8px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px;">' +
                  '</div>' +
-                 '<button type="button" class="btn-edit" style="font-size:13px;" onclick="saveAttCalAttEntry(\'' + h.firebaseKey + '\')" data-i18n="btnSaveChanges">Save Changes</button>' +
-                 '<button type="button" class="btn-delete" style="font-size:13px;" onclick="deleteAttCalAttEntry(\'' + h.firebaseKey + '\')" data-i18n="btnDeleteRequest">Delete</button>' +
+                 '<button type="button" class="btn-edit" style="font-size:13px;" onclick="saveAttCalAttEntry(\'' + h.firebaseKey + '\', this)" data-i18n="btnSaveChanges">Save Changes</button>' +
+                 '<button type="button" class="btn-delete" style="font-size:13px;" onclick="deleteAttCalAttEntry(\'' + h.firebaseKey + '\', this)" data-i18n="btnDeleteRequest">Delete</button>' +
              '</div>'
          )).join('');
      }
  }
 
- function saveAttCalLeaveEntry(firebaseKey) {
+ /* v6.76: a simple in-flight guard so a rapid double-click/double-tap on Save or Delete (while
+    the first click's two sequential Firebase writes are still in the air) can't fire the same
+    entry's save/delete a second time before the first finishes. Keyed by "<action>:<firebaseKey>"
+    so the four functions below never collide with each other or across collections. The button
+    that triggered the action is also disabled for the duration purely as visual feedback that the
+    click registered - it never changes what gets written, and a failed save/delete re-enables it
+    via .finally() so it is never left stuck disabled. */
+ const attCalPendingOps = new Set();
+
+ function saveAttCalLeaveEntry(firebaseKey, btnEl) {
+     const opKey = 'saveLeave:' + firebaseKey;
+     if (attCalPendingOps.has(opKey)) return;
      const entry = leaveHistory.find(h => h.firebaseKey === firebaseKey);
      if (!entry) return;
      const emp = employees.find(e => e.id === entry.empId);
@@ -7198,16 +7231,23 @@ function filterMakeupTable() {
          }
      }
 
-     db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
+     attCalPendingOps.add(opKey);
+     if (btnEl) btnEl.disabled = true;
+
+     return db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
          return db.ref('leaveHistory/' + firebaseKey).update({ hours: newHours, date: newDate });
      }).then(() => {
          showToast(true, t('acEditSavedMsg'));
          renderAttCalEditList();
          renderAttCalTable();
-     }).catch(() => showToast(false));
+     }).catch(() => showToast(false)).finally(() => {
+         attCalPendingOps.delete(opKey);
+     });
  }
 
- function deleteAttCalLeaveEntry(firebaseKey) {
+ function deleteAttCalLeaveEntry(firebaseKey, btnEl) {
+     const opKey = 'deleteLeave:' + firebaseKey;
+     if (attCalPendingOps.has(opKey)) return;
      const entry = leaveHistory.find(h => h.firebaseKey === firebaseKey);
      if (!entry) return;
      if (!confirm(t('acEditDeleteConfirm'))) return;
@@ -7224,16 +7264,23 @@ function filterMakeupTable() {
          }
      }
 
-     db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
+     attCalPendingOps.add(opKey);
+     if (btnEl) btnEl.disabled = true;
+
+     return db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
          return db.ref('leaveHistory/' + firebaseKey).remove();
      }).then(() => {
          showToast(true, t('acEditDeletedMsg'));
          renderAttCalEditList();
          renderAttCalTable();
-     }).catch(() => showToast(false));
+     }).catch(() => showToast(false)).finally(() => {
+         attCalPendingOps.delete(opKey);
+     });
  }
 
- function saveAttCalAttEntry(firebaseKey) {
+ function saveAttCalAttEntry(firebaseKey, btnEl) {
+     const opKey = 'saveAtt:' + firebaseKey;
+     if (attCalPendingOps.has(opKey)) return;
      const entry = attendanceHistory.find(h => h.firebaseKey === firebaseKey);
      if (!entry) return;
      const emp = employees.find(e => e.id === entry.empId);
@@ -7251,16 +7298,23 @@ function filterMakeupTable() {
          otHours: (parseFloat(emp.otHours) || 0) + deltaOt
      };
 
-     db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
+     attCalPendingOps.add(opKey);
+     if (btnEl) btnEl.disabled = true;
+
+     return db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
          return db.ref('attendanceHistory/' + firebaseKey).update({ workHours: newWork, otHours: newOt, date: newDate });
      }).then(() => {
          showToast(true, t('acEditSavedMsg'));
          renderAttCalEditList();
          renderAttCalTable();
-     }).catch(() => showToast(false));
+     }).catch(() => showToast(false)).finally(() => {
+         attCalPendingOps.delete(opKey);
+     });
  }
 
- function deleteAttCalAttEntry(firebaseKey) {
+ function deleteAttCalAttEntry(firebaseKey, btnEl) {
+     const opKey = 'deleteAtt:' + firebaseKey;
+     if (attCalPendingOps.has(opKey)) return;
      const entry = attendanceHistory.find(h => h.firebaseKey === firebaseKey);
      if (!entry) return;
      if (!confirm(t('acEditDeleteConfirm'))) return;
@@ -7272,17 +7326,23 @@ function filterMakeupTable() {
          otHours: Math.max(0, (parseFloat(emp.otHours) || 0) - (entry.otHours || 0))
      };
 
-     db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
+     attCalPendingOps.add(opKey);
+     if (btnEl) btnEl.disabled = true;
+
+     return db.ref('employees/' + emp.firebaseKey).update(updatePayload).then(() => {
          return db.ref('attendanceHistory/' + firebaseKey).remove();
      }).then(() => {
          showToast(true, t('acEditDeletedMsg'));
          renderAttCalEditList();
          renderAttCalTable();
-     }).catch(() => showToast(false));
+     }).catch(() => showToast(false)).finally(() => {
+         attCalPendingOps.delete(opKey);
+     });
  }
 
  /* ================= v5.00: DASHBOARD CHARTS (plain inline SVG, no external library) ================= */
  function renderDashboardCharts() {
+     if (!isTabActive('tab-home')) return;
      renderStatusChart();
      renderLeaveUsageChart();
  }
