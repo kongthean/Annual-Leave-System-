@@ -165,13 +165,16 @@
      /* v6.85: shrunk card padding/gaps/font sizes (and the gap below the top grid) so both
         8-card rows plus Main Menu all fit on screen together at 100% zoom without scrolling -
         the business owner reported the previous (v6.84) card size pushed Main Menu out of view. */
-     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
+     /* v6.86: shrunk once more (on top of the v6.85 shrink) since the top row grew from 8 to 12
+        cards (5 rows total across both grids now, up from 4) - keeps everything, including Main
+        Menu, fitting on screen together at 90-100% zoom. */
+     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 6px; }
      @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
      @media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr; } }
-     .stat-card { background: #f8fafc; padding: 8px 10px; border-radius: 8px; border-left: 4px solid #123a5c; box-shadow: 0 1px 2px rgba(15,23,42,0.05); transition: transform 0.15s, box-shadow 0.15s; }
+     .stat-card { background: #f8fafc; padding: 6px 9px; border-radius: 7px; border-left: 4px solid #123a5c; box-shadow: 0 1px 2px rgba(15,23,42,0.05); transition: transform 0.15s, box-shadow 0.15s; }
      .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15,23,42,0.1); }
-     .stat-card h4 { color: #64748b; font-size: 9px; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; line-height: 1.2; }
-     .stat-card div { font-size: 15px; font-weight: 700; color: #0f172a; }
+     .stat-card h4 { color: #64748b; font-size: 8px; font-weight: 600; text-transform: uppercase; margin-bottom: 2px; line-height: 1.15; }
+     .stat-card div { font-size: 13px; font-weight: 700; color: #0f172a; }
 
      .dash-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
      .dash-card h4 { font-size: 14px; color: #0f172a; margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
@@ -474,7 +477,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.85</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.86</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -876,6 +879,12 @@
  <div id="tab-home" class="tab-panel active">
      <h3 style="margin-bottom: 8px; color: #0f172a;" data-i18n="dashOverview">Overview Dashboard</h3>
    
+     <!-- v6.86: top row grew from 8 to 12 cards (still a clean 3 full rows of 4, no gaps) to add
+          4 more overview numbers the business owner asked for: Total Carried Forward, Total
+          Remaining Balance, Total Prev Month Used, and Pending Approvals. Arranged by theme per
+          the business owner's own ordering: row 1 = headcount + lifetime leave/carry-forward
+          totals, row 2 = everything time-based (remaining balance, this month, prev month,
+          exceeded), row 3 = the remaining totals plus the one operational item. -->
      <div class="stats-grid">
          <div class="stat-card">
              <h4 data-i18n="statTotalStaff">Total Employees</h4>
@@ -889,9 +898,21 @@
              <h4 data-i18n="statTotalUsed">Total Annual Leave Used</h4>
              <div id="statTotalUsed">0</div>
          </div>
+         <div class="stat-card" style="border-color: #ca8a04;">
+             <h4 data-i18n="statTotalCarried">Total Carried Forward</h4>
+             <div id="statTotalCarried">0</div>
+         </div>
+         <div class="stat-card" style="border-color: #0891b2;">
+             <h4 data-i18n="statRemainingBalance">Total Remaining Balance</h4>
+             <div id="statRemainingBalance">0</div>
+         </div>
          <div class="stat-card" style="border-color: #0284c7;">
              <h4 data-i18n="statCurrentMonth">Total Annual Leave Used This Month</h4>
              <div id="statCurrentMonth">0</div>
+         </div>
+         <div class="stat-card" style="border-color: #9333ea;">
+             <h4 data-i18n="statPrevMonthUsed">Total Prev Month Used</h4>
+             <div id="statPrevMonthUsed">0</div>
          </div>
          <div class="stat-card" style="border-color: #dc2626;">
              <h4 data-i18n="statExceeded">Total Exceed Hours</h4>
@@ -908,6 +929,10 @@
          <div class="stat-card" style="border-color: #0d9488;">
              <h4 data-i18n="statTotalOTHours">Total Monthly Overtime</h4>
              <div id="statTotalOTHours">0</div>
+         </div>
+         <div class="stat-card" style="border-color: #e11d48;">
+             <h4 data-i18n="statPendingApprovals">Pending Approvals</h4>
+             <div id="statPendingApprovals">0</div>
          </div>
      </div>
 
@@ -2109,7 +2134,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.85
+     HR & Administration System Version 6.86
  </div>
 </div>
 
@@ -3011,11 +3036,15 @@
          statTotalStaff: "Total Employees",
          statResignedStaff: "Resigned Employees",
          statTotalUsed: "Total Annual Leave Used",
+         statTotalCarried: "Total Carried Forward",
+         statRemainingBalance: "Total Remaining Balance",
          statCurrentMonth: "Total Annual Leave Used This Month",
+         statPrevMonthUsed: "Total Prev Month Used",
          statExceeded: "Total Exceed Hours",
          statTotalPersonalLeave: "Total Personal Leave",
          statTotalWorkHours: "Total Working Hours",
          statTotalOTHours: "Total Monthly Overtime",
+         statPendingApprovals: "Pending Approvals",
          statExceedHoursMonth: "Exceed Hours This Month",
          quickActions: "Main Menu",
          dashTableTitle: "Employee Status",
@@ -3673,11 +3702,15 @@
          statTotalStaff: "បុគ្គលិកសរុប",
          statResignedStaff: "បុគ្គលិកលាលែង",
          statTotalUsed: "បំណាច់ឆ្នាំប្រើសរុប",
+         statTotalCarried: "ការលើកមកសរុប",
+         statRemainingBalance: "សមតុល្យនៅសល់សរុប",
          statCurrentMonth: "បំណាច់ឆ្នាំប្រើសរុបប្រចាំខែនេះ",
+         statPrevMonthUsed: "ប្រើប្រចាំខែមុនសរុប",
          statExceeded: "ម៉ោងលើសកំណត់សរុប",
          statTotalPersonalLeave: "ច្បាប់ផ្ទាល់ខ្លួនសរុប",
          statTotalWorkHours: "ម៉ោងធ្វើការសរុប",
          statTotalOTHours: "ម៉ោងថែមម៉ោងសរុប",
+         statPendingApprovals: "រង់ចាំការអនុម័ត",
          statExceedHoursMonth: "ម៉ោងលើសកំណត់ប្រចាំខែនេះ",
          quickActions: "ម៉ឺនុយចម្បង",
          dashTableTitle: "ស្ថានភាពបុគ្គលិក",
@@ -4325,11 +4358,15 @@
          statTotalStaff: "总员工数",
          statResignedStaff: "离职员工数",
          statTotalUsed: "已用年假总时数",
+         statTotalCarried: "结转总时数",
+         statRemainingBalance: "剩余总余额",
          statCurrentMonth: "本月已用年假总时数",
+         statPrevMonthUsed: "上月已用总时数",
          statExceeded: "超出总时数",
          statTotalPersonalLeave: "总个人假",
          statTotalWorkHours: "总工作时间",
          statTotalOTHours: "总加班时间",
+         statPendingApprovals: "待审批",
          statExceedHoursMonth: "本月超出总时数",
          quickActions: "主菜单",
          dashTableTitle: "员工状态",
@@ -5975,6 +6012,7 @@ async function deleteAnnouncement(firebaseKey, btnEl) {
      let totalPersonal = 0, totalWork = 0, totalOT = 0;
      let leaveALMonth = 0, leaveSpecialMonth = 0, leaveMaternityMonth = 0, leaveTravelMonth = 0,
          leaveSickMonth = 0, leaveOtherMonth = 0;
+     let totalCarried = 0, totalRemainingBalance = 0, totalPrevMonthUsed = 0;
 
      const dashBody = document.querySelector('#dashSummaryTable tbody');
      dashBody.innerHTML = '';
@@ -5983,6 +6021,17 @@ async function deleteAnnouncement(firebaseKey, btnEl) {
      employees.forEach(e => {
          const used = (e.prevUsed + e.monthUsed) - (e.exceeded || 0);
          totalUsed += used;
+
+         /* v6.86: 3 of the 4 new top-row cards - Total Carried Forward (sum of each employee's
+            carried-over balance), Total Prev Month Used (sum of prevUsed, the hours rolled in from
+            before the current month), and Total Remaining Balance (sum of each employee's
+            remaining annual leave - entitled minus total used, plus carried - the same formula
+            already used for the Master Sheet's own "Remaining" column, so this total always
+            agrees with what Master Sheet shows per employee). */
+         const empCarried = parseFloat(e.carried) || 0;
+         totalCarried += empCarried;
+         totalPrevMonthUsed += (parseFloat(e.prevUsed) || 0);
+         totalRemainingBalance += ((parseFloat(e.entitled) || 0) - used) + empCarried;
 
          /* v6.84: "Total Annual Leave Used This Month" is now explicitly the sum, across every
             employee, of the 6 non-personal monthly leave-type fields (leaveAL/leaveSpecial/
@@ -6042,6 +6091,10 @@ async function deleteAnnouncement(firebaseKey, btnEl) {
      document.getElementById('statTotalPersonalLeave').innerText = totalPersonal.toFixed(2);
      document.getElementById('statTotalWorkHours').innerText = totalWork.toFixed(2);
      document.getElementById('statTotalOTHours').innerText = totalOT.toFixed(2);
+     document.getElementById('statTotalCarried').innerText = totalCarried.toFixed(2);
+     document.getElementById('statRemainingBalance').innerText = totalRemainingBalance.toFixed(2);
+     document.getElementById('statPrevMonthUsed').innerText = totalPrevMonthUsed.toFixed(2);
+     document.getElementById('statPendingApprovals').innerText = pendingEdits.length;
 
      /* v6.84: bottom "Leave Used This Month By Type" row - one card per leave type (the same
         monthly fields totaled above), plus the Personal Leave total already computed for the
