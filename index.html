@@ -471,7 +471,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.83</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.84</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -887,11 +887,11 @@
              <div id="statTotalUsed">0</div>
          </div>
          <div class="stat-card" style="border-color: #0284c7;">
-             <h4 data-i18n="statCurrentMonth">This Month Used</h4>
+             <h4 data-i18n="statCurrentMonth">Total Annual Leave Used This Month</h4>
              <div id="statCurrentMonth">0</div>
          </div>
          <div class="stat-card" style="border-color: #dc2626;">
-             <h4 data-i18n="statExceeded">Exceeded Limits</h4>
+             <h4 data-i18n="statExceeded">Total Exceed Hours</h4>
              <div id="statExceeded">0</div>
          </div>
          <div class="stat-card" style="border-color: #d97706;">
@@ -906,28 +906,52 @@
              <h4 data-i18n="statTotalOTHours">Total Monthly Overtime</h4>
              <div id="statTotalOTHours">0</div>
          </div>
-         <!-- v6.83: 4 more overview cards, added so the stats row fills cleanly (it used to leave
-              a large empty gap after the 8th card - see the .stats-grid CSS change below for the
-              other half of this fix) and so these numbers are visible at a glance without opening
-              Departments/Pending Approvals/Master Sheet. -->
-         <div class="stat-card" style="border-color: #7c3aed;">
-             <h4 data-i18n="statTotalDepartments">Total Departments</h4>
-             <div id="statTotalDepartments">0</div>
+     </div>
+
+     <!-- v6.84: second row of 8 overview cards breaking "Total Annual Leave Used This Month" down
+          by individual leave type (each a sum, across all employees, of that type's monthly field -
+          leaveAL/leaveSpecial/leaveMaternity/leaveTravel/leavePersonal/leaveSick/leaveOther - which
+          reset to 0 each month via resetMonthlyFieldsInEditForm, so these are genuinely "this
+          month" figures), plus a final card for the total hours employees went over their monthly
+          allowance by (the hours version of the "Total Exceed Hours" card above). Kept as its own
+          separate 8-card grid rather than folded into the first row, per the business owner's
+          request for a clean top-8/bottom-8 split instead of one crowded 12-card row. -->
+     <h4 style="margin: 4px 0 8px; color: #334155;" data-i18n="dashLeaveByTypeHeading">Leave Used This Month By Type</h4>
+     <div class="stats-grid">
+         <div class="stat-card" style="border-color: #123a5c;">
+             <h4 data-i18n="thMasterAnnualLeave">Annual Leave</h4>
+             <div id="statLeaveALMonth">0</div>
          </div>
-         <div class="stat-card" style="border-color: #ca8a04;">
-             <h4 data-i18n="statTotalCarried">Total Carried Forward</h4>
-             <div id="statTotalCarried">0</div>
+         <div class="stat-card" style="border-color: #7c3aed;">
+             <h4 data-i18n="thMasterSpecialLeave">Special Leave</h4>
+             <div id="statLeaveSpecialMonth">0</div>
          </div>
          <div class="stat-card" style="border-color: #e11d48;">
-             <h4 data-i18n="statPendingApprovals">Pending Approvals</h4>
-             <div id="statPendingApprovals">0</div>
+             <h4 data-i18n="thMasterMaternityLeave">Maternity Leave</h4>
+             <div id="statLeaveMaternityMonth">0</div>
          </div>
-         <div class="stat-card" style="border-color: #0891b2;">
-             <h4 data-i18n="statNewThisMonth">New Employees This Month</h4>
-             <div id="statNewThisMonth">0</div>
+         <div class="stat-card" style="border-color: #0d9488;">
+             <h4 data-i18n="thMasterTravelLeave">Travel Leave</h4>
+             <div id="statLeaveTravelMonth">0</div>
+         </div>
+         <div class="stat-card" style="border-color: #d97706;">
+             <h4 data-i18n="thMasterPersonalLeave">Personal Leave</h4>
+             <div id="statLeavePersonalMonth">0</div>
+         </div>
+         <div class="stat-card" style="border-color: #4f46e5;">
+             <h4 data-i18n="thMasterSickLeave">Sick Leave</h4>
+             <div id="statLeaveSickMonth">0</div>
+         </div>
+         <div class="stat-card" style="border-color: #64748b;">
+             <h4 data-i18n="thMasterOtherLeave">Other Leave</h4>
+             <div id="statLeaveOtherMonth">0</div>
+         </div>
+         <div class="stat-card" style="border-color: #dc2626;">
+             <h4 data-i18n="statExceedHoursMonth">Exceed Hours This Month</h4>
+             <div id="statExceedHoursMonth">0</div>
          </div>
      </div>
- 
+
      <h4 style="margin-bottom: 8px; color: #334155;" data-i18n="quickActions">Main Menu</h4>
      <div class="quick-actions">
          <button class="quick-btn" onclick="triggerNav('tab-master', 'nav-master')">
@@ -2081,7 +2105,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.83
+     HR & Administration System Version 6.84
  </div>
 </div>
 
@@ -2983,15 +3007,13 @@
          statTotalStaff: "Total Employees",
          statResignedStaff: "Resigned Employees",
          statTotalUsed: "Total Annual Leave Used",
-         statCurrentMonth: "This Month Used",
-         statExceeded: "Exceeded Limits",
+         statCurrentMonth: "Total Annual Leave Used This Month",
+         statExceeded: "Total Exceed Hours",
          statTotalPersonalLeave: "Total Personal Leave",
          statTotalWorkHours: "Total Working Hours",
          statTotalOTHours: "Total Monthly Overtime",
-         statTotalDepartments: "Total Departments",
-         statTotalCarried: "Total Carried Forward",
-         statPendingApprovals: "Pending Approvals",
-         statNewThisMonth: "New Employees This Month",
+         dashLeaveByTypeHeading: "Leave Used This Month By Type",
+         statExceedHoursMonth: "Exceed Hours This Month",
          quickActions: "Main Menu",
          dashTableTitle: "Employee Status",
          dashNoticesTitle: "System Reminders & Announcements",
@@ -3648,15 +3670,13 @@
          statTotalStaff: "បុគ្គលិកសរុប",
          statResignedStaff: "បុគ្គលិកលាលែង",
          statTotalUsed: "បំណាច់ឆ្នាំប្រើសរុប",
-         statCurrentMonth: "ប្រើក្នុងខែនេះ",
-         statExceeded: "លើសកម្រិតកំណត់",
+         statCurrentMonth: "បំណាច់ឆ្នាំប្រើសរុបប្រចាំខែនេះ",
+         statExceeded: "ម៉ោងលើសកំណត់សរុប",
          statTotalPersonalLeave: "ច្បាប់ផ្ទាល់ខ្លួនសរុប",
          statTotalWorkHours: "ម៉ោងធ្វើការសរុប",
          statTotalOTHours: "ម៉ោងថែមម៉ោងសរុប",
-         statTotalDepartments: "នាយកដ្ឋានសរុប",
-         statTotalCarried: "ការលើកមកសរុប",
-         statPendingApprovals: "រង់ចាំការអនុម័ត",
-         statNewThisMonth: "បុគ្គលិកថ្មីខែនេះ",
+         dashLeaveByTypeHeading: "ច្បាប់ប្រើប្រចាំខែនេះតាមប្រភេទ",
+         statExceedHoursMonth: "ម៉ោងលើសកំណត់ប្រចាំខែនេះ",
          quickActions: "ម៉ឺនុយចម្បង",
          dashTableTitle: "ស្ថានភាពបុគ្គលិក",
          dashNoticesTitle: "ការរំលឹក និងការជូនដំណឹងប្រព័ន្ធ",
@@ -4303,15 +4323,13 @@
          statTotalStaff: "总员工数",
          statResignedStaff: "离职员工数",
          statTotalUsed: "已用年假总时数",
-         statCurrentMonth: "本月已用",
-         statExceeded: "超出限额人数",
+         statCurrentMonth: "本月已用年假总时数",
+         statExceeded: "超出总时数",
          statTotalPersonalLeave: "总个人假",
          statTotalWorkHours: "总工作时间",
          statTotalOTHours: "总加班时间",
-         statTotalDepartments: "部门总数",
-         statTotalCarried: "结转总时数",
-         statPendingApprovals: "待审批",
-         statNewThisMonth: "本月新员工",
+         dashLeaveByTypeHeading: "本月各类假期使用情况",
+         statExceedHoursMonth: "本月超出总时数",
          quickActions: "主菜单",
          dashTableTitle: "员工状态",
          dashNoticesTitle: "系统提醒与公告",
@@ -5952,48 +5970,51 @@ async function deleteAnnouncement(firebaseKey, btnEl) {
      const resignedCount = employees.filter(e => e.status === 'Resigned').length;
      document.getElementById('statResignedStaff').innerText = resignedCount;
  
-     let totalUsed = 0, currentMonth = 0, exceededCount = 0;
-     let totalPersonal = 0, totalWork = 0, totalOT = 0, totalCarried = 0, newThisMonthCount = 0;
-   
+     let totalUsed = 0, currentMonth = 0, totalExceedHours = 0;
+     let totalPersonal = 0, totalWork = 0, totalOT = 0;
+     let leaveALMonth = 0, leaveSpecialMonth = 0, leaveMaternityMonth = 0, leaveTravelMonth = 0,
+         leaveSickMonth = 0, leaveOtherMonth = 0;
+
      const dashBody = document.querySelector('#dashSummaryTable tbody');
      dashBody.innerHTML = '';
- 
+
      const dashStatsNow = new Date();
      employees.forEach(e => {
          const used = (e.prevUsed + e.monthUsed) - (e.exceeded || 0);
          totalUsed += used;
-         currentMonth += e.monthUsed;
+
+         /* v6.84: "Total Annual Leave Used This Month" is now explicitly the sum, across every
+            employee, of the 6 non-personal monthly leave-type fields (leaveAL/leaveSpecial/
+            leaveMaternity/leaveTravel/leaveSick/leaveOther) - exactly as the business owner asked
+            for, rather than relying on the separately-tracked monthUsed field staying in sync.
+            Each of these fields resets to 0 at the start of a new month (see
+            resetMonthlyFieldsInEditForm), so this really is a "this month" figure. */
+         const leaveALVal = parseFloat(e.leaveAL) || 0;
+         const leaveSpecialVal = parseFloat(e.leaveSpecial) || 0;
+         const leaveMaternityVal = parseFloat(e.leaveMaternity) || 0;
+         const leaveTravelVal = parseFloat(e.leaveTravel) || 0;
+         const leaveSickVal = parseFloat(e.leaveSick) || 0;
+         const leaveOtherVal = parseFloat(e.leaveOther) || 0;
+         leaveALMonth += leaveALVal;
+         leaveSpecialMonth += leaveSpecialVal;
+         leaveMaternityMonth += leaveMaternityVal;
+         leaveTravelMonth += leaveTravelVal;
+         leaveSickMonth += leaveSickVal;
+         leaveOtherMonth += leaveOtherVal;
+         currentMonth += leaveALVal + leaveSpecialVal + leaveMaternityVal + leaveTravelVal + leaveSickVal + leaveOtherVal;
 
          totalPersonal += (e.leavePersonal || 0);
          totalWork += (e.workHours || 0);
          totalOT += (e.otHours || 0);
-         totalCarried += (parseFloat(e.carried) || 0);
 
-         /* v6.83: "New Employees This Month" counts anyone whose joinDate falls in the current
-            calendar year/month, using the same joinDate.split('.') parsing convention used
-            everywhere else in this file. */
-         if (e.joinDate) {
-             const jParts = e.joinDate.split('.');
-             if (jParts.length === 3 && parseInt(jParts[0], 10) === dashStatsNow.getFullYear() && (parseInt(jParts[1], 10) - 1) === dashStatsNow.getMonth()) {
-                 newThisMonthCount++;
-             }
-         }
-
-         /* v6.82: "Exceeded Limits" on the Dashboard Overview used to count employees whose
-            WHOLE-YEAR leave balance (entitled - used + carried) had gone negative. That's a much
-            higher bar than what the business owner means by "exceeded this month" - someone can
-            easily go over their available hours in a single month (e.g. Available This Month
-            shows 6, but 8 hours of leave gets entered for them) while their year-long balance is
-            still comfortably positive, so this count almost always stayed 0 even when real monthly
-            overages were happening. The "Needs Attention" card further down the Dashboard already
-            computes this correctly per employee via computeQueryData(...).allowedThisMonth < 0
-            (the same "Available This Month" figure shown in Check Record) - this now uses that
-            exact same calculation instead, so the two numbers agree and the overview count
-            actually reflects a real "entered more hours than was available this month" situation.
-            Resigned employees are excluded, matching the Needs Attention list below. */
+         /* v6.84: "Total Exceed Hours" used to count how many employees had gone over their
+            monthly allowance (a headcount). The business owner now wants the actual HOURS they
+            went over by, summed across everyone, so this sums max(0, -allowedThisMonth) per
+            employee instead of just incrementing a counter by 1. Resigned employees are still
+            excluded, matching the Needs Attention list below. */
          if (e.status !== 'Resigned') {
              const qd = computeQueryData(e, dashStatsNow, 0);
-             if (qd.allowedThisMonth < 0) exceededCount++;
+             if (qd.allowedThisMonth < 0) totalExceedHours += (-qd.allowedThisMonth);
          }
 
          const parts = e.joinDate.split('.');
@@ -6016,14 +6037,23 @@ async function deleteAnnouncement(firebaseKey, btnEl) {
  
      document.getElementById('statTotalUsed').innerText = totalUsed.toFixed(2);
      document.getElementById('statCurrentMonth').innerText = currentMonth.toFixed(2);
-     document.getElementById('statExceeded').innerText = exceededCount;
+     document.getElementById('statExceeded').innerText = totalExceedHours.toFixed(2);
      document.getElementById('statTotalPersonalLeave').innerText = totalPersonal.toFixed(2);
      document.getElementById('statTotalWorkHours').innerText = totalWork.toFixed(2);
      document.getElementById('statTotalOTHours').innerText = totalOT.toFixed(2);
-     document.getElementById('statTotalDepartments').innerText = departments.length;
-     document.getElementById('statTotalCarried').innerText = totalCarried.toFixed(2);
-     document.getElementById('statPendingApprovals').innerText = pendingEdits.length;
-     document.getElementById('statNewThisMonth').innerText = newThisMonthCount;
+
+     /* v6.84: bottom "Leave Used This Month By Type" row - one card per leave type (the same
+        monthly fields totaled above), plus the Personal Leave total already computed for the
+        top row's "Total Personal Leave" card, and the same exceeded-hours total shown again
+        here for the per-type breakdown's own "Exceed Hours This Month" card. */
+     document.getElementById('statLeaveALMonth').innerText = leaveALMonth.toFixed(2);
+     document.getElementById('statLeaveSpecialMonth').innerText = leaveSpecialMonth.toFixed(2);
+     document.getElementById('statLeaveMaternityMonth').innerText = leaveMaternityMonth.toFixed(2);
+     document.getElementById('statLeaveTravelMonth').innerText = leaveTravelMonth.toFixed(2);
+     document.getElementById('statLeavePersonalMonth').innerText = totalPersonal.toFixed(2);
+     document.getElementById('statLeaveSickMonth').innerText = leaveSickMonth.toFixed(2);
+     document.getElementById('statLeaveOtherMonth').innerText = leaveOtherMonth.toFixed(2);
+     document.getElementById('statExceedHoursMonth').innerText = totalExceedHours.toFixed(2);
 
      renderDashboardExtras();
  }
