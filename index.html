@@ -307,6 +307,14 @@
      input:focus, select:focus { outline: none; border-color: #123a5c; box-shadow: 0 0 0 3px rgba(18, 58, 92, 0.12); }
      .btn-submit { width: 100%; padding: 9px 12px; background: #123a5c; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 6px; transition: background 0.2s, transform 0.15s; }
      .btn-submit:hover { background: #0a2740; transform: translateY(-1px); }
+     /* v6.89: every Save/Submit/Delete button across the app is disabled the instant it's clicked
+        (see withBusyButton), but buttons with a custom inline background color barely look any
+        different while disabled - no dimming, cursor still looked clickable on some systems - so
+        a first click during a slow connection could look like nothing happened, inviting a second
+        click. This makes ANY disabled button visibly inactive everywhere on the site. */
+     button:disabled, .btn-submit:disabled, .btn-edit:disabled, .btn-delete:disabled, .btn-add:disabled, .ribbon-btn:disabled {
+         opacity: 0.55 !important; cursor: not-allowed !important; transform: none !important;
+     }
  
      /* Search Box Bar */
      .search-bar-wrapper {
@@ -490,7 +498,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.88</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.89</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2147,7 +2155,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.88
+     HR & Administration System Version 6.89
  </div>
 </div>
 
@@ -2607,9 +2615,22 @@
         stuck again regardless of how bad the connection is. If the original request eventually
         does complete after the timeout already fired, the result still applies - the button is
         just already usable again by then rather than looking frozen. */
+     /* v6.89: a report that double-clicking "Submit Leave Record" during a slow first save could
+        double the entered hours (e.g. enter 8, end up with 16). Tracing the code: the disable-on-
+        click guard above already runs synchronously before any Firebase call, so true simultaneous
+        double-clicks were already blocked - the real cause was that the button gave almost no
+        visible sign it was busy (no text change, barely any dimming on custom-colored buttons), so
+        on a slow connection the user couldn't tell the first click had registered, waited, then
+        clicked Submit again AFTER the first save had already finished - a second, fully legitimate
+        submit with the same numbers still sitting in the un-reset form fields, genuinely adding
+        them twice. The opacity/cursor change above makes every disabled button look inactive; this
+        also swaps the main Save/Submit buttons' own label to "Saving..." the instant they're
+        clicked, so there's an unmistakable sign the click was received and a save is in progress. */
      if (!btnEl) return fn();
      if (btnEl.disabled) return;
      const originalHtml = btnEl.innerHTML;
+     const isTextSubmitBtn = btnEl.classList && btnEl.classList.contains('btn-submit');
+     if (isTextSubmitBtn) btnEl.innerHTML = t('btnSavingLabel');
      btnEl.disabled = true;
      let settled = false;
      const restore = () => {
@@ -3117,6 +3138,7 @@
          leaveTypeSick: "Sick Leave",
          leaveTypeOther: "Other Leave",
          btnSubmitLeave: "Submit Leave Record",
+        btnSavingLabel: "Saving...",
          attTitle: "Attendance",
          attSub: "Pick a department and date, then fill in working hours and overtime for everyone at once.",
          btnLoadDept: "Show Employees",
@@ -3787,6 +3809,7 @@
          leaveTypeSick: "ច្បាប់ឈឺ",
          leaveTypeOther: "ច្បាប់ផ្សេងៗ",
          btnSubmitLeave: "រក្សាទុកកំណត់ត្រាច្បាប់",
+        btnSavingLabel: "កំពុងរក្សាទុក...",
          attTitle: "វត្តមានប្រចាំថ្ងៃ",
          attSub: "ជ្រើសរើសនាយកដ្ឋាន និងកាលបរិច្ឆេទ រួចបំពេញម៉ោងធ្វើការ និងម៉ោងបន្ថែមសម្រាប់បុគ្គលិកទាំងអស់ក្នុងពេលតែមួយ។",
          btnLoadDept: "បង្ហាញបុគ្គលិក",
@@ -4439,6 +4462,7 @@
          leaveTypeSick: "病假",
          leaveTypeOther: "其他假",
          btnSubmitLeave: "提交请假记录",
+        btnSavingLabel: "保存中...",
          attTitle: "考勤记录",
          attSub: "选择部门和日期，一次性为所有员工填写工作时间和加班时间。",
          btnLoadDept: "显示员工",
