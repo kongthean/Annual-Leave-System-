@@ -40,6 +40,13 @@
  <!-- Firebase SDK Scripts -->
  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+ <!-- v6.91: firebase-auth-compat, added together with the signInAnonymously() call below, so the
+      Realtime Database's security rules can require "must be a signed-in app" instead of being
+      open to literally anyone with the database URL (see the v6.91 comment below for the full
+      story). This does NOT add any login screen or change how Admin/HR/Employee sign in - it is a
+      silent, invisible handshake between this page and Firebase, separate from the app's own
+      username/password check against the "accounts" collection, which is unchanged. -->
+ <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
  <script>
    const firebaseConfig = {
      apiKey: "AIzaSyAFHtPZsYq8iAYZtKBYWDt7hVitMmHKt_s",
@@ -52,6 +59,27 @@
      measurementId: "G-1V8G7SCEHK"
    };
    firebase.initializeApp(firebaseConfig);
+
+   /* v6.91: Firebase sent a warning that this project's database rules let ANY visitor with the
+      database's web address read or write all of it directly, with no login required at all -
+      the business's own Admin/HR/Employee login screen only gates the app's UI, it never
+      restricted the database itself. The real fix is to change the database's rules (done
+      separately, in the Firebase Console - a code file can't change that) to require a signed-in
+      Firebase app connection instead of allowing anyone. Signing in "anonymously" here is
+      Firebase's own standard way to do that WITHOUT asking staff for a second password or
+      changing the login screen at all - it just means "this request came from the real app
+      page", which a random script hitting the database URL directly would not have. Calling this
+      immediately after initializeApp (before anything else uses `db`) lets Firebase's own SDK
+      hold every database request until this finishes, so nothing below has to wait for it
+      manually. If it ever fails (e.g. this exact feature gets disabled in the Firebase Console),
+      it fails silently to the console only - it does not block the rest of the app from loading,
+      since the database rules stay exactly as they were in the Firebase Console until someone
+      deliberately changes them there. */
+   if (typeof firebase.auth === 'function') {
+     firebase.auth().signInAnonymously().catch(function (err) {
+       console.error('Anonymous sign-in failed (database rules were NOT changed by this alone - see v6.91 notes):', err);
+     });
+   }
  </script>
 <style>
      * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
@@ -498,7 +526,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.90</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.91</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2151,7 +2179,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.90
+     HR & Administration System Version 6.91
  </div>
 </div>
 
