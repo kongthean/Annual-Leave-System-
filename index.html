@@ -7,8 +7,22 @@
  <!-- XLSX Library for Exporting to Excel -->
  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
  <!-- v6.67: mammoth.js - converts an uploaded .docx file's content to HTML so it can be loaded
-      into the Document Library's Word-like editor (CKEditor 5, see v6.68 below). -->
+      into the Document Library's Word-like editor (CKEditor 5, see v6.68 below). Also reused by
+      the v6.93 Convert to Photo feature to turn an uploaded .docx into HTML before it's
+      rasterized to a picture. -->
  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.0/mammoth.browser.min.js"></script>
+ <!-- v6.93: html2canvas - renders a piece of on-page HTML (e.g. a converted Excel/Word file) to a
+      <canvas>, which is how the Convert to Photo feature turns a file into a downloadable PNG
+      using this browser's own font rendering (same Khmer/Chinese text shown on screen, no font
+      embedding problem). pdfjs-dist does the same job for PDF files, which it can rasterize
+      directly without needing an HTML step first. -->
+ <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+ <script>
+   if (typeof pdfjsLib !== 'undefined' && pdfjsLib.GlobalWorkerOptions) {
+     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+   }
+ </script>
  <!-- v6.69: jspreadsheet CE (+ its jsuites dependency) - a mature, Excel-like spreadsheet widget
       used by the Document Library's grid editor, replacing the v6.67 hand-built grid editor.
       Pinned to the exact versions verified in this round (cloned from the projects' own GitHub
@@ -526,7 +540,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.91</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.93</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1099,6 +1113,14 @@
 <!-- v6.65: Employment Certificate generator (Admin+HR, not employee - not admin-only) -->
 <button class="quick-btn" style="background:linear-gradient(135deg,#065f46,#064e3b);" onclick="triggerNav('tab-certificates', 'nav-certificates')">
     <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg></span><span class="quick-btn-label" data-i18n="navCertificates">Certificates</span>
+</button>
+<!-- v6.93: Convert to Photo - turns an uploaded Excel/Word/PDF file into downloadable PNG
+     image(s), entirely in the browser (nothing is uploaded to Firebase or any server). Added
+     because exporting Khmer-text documents as Excel/Word/PDF can render the Khmer font poorly
+     depending on what opens the file afterward, while a plain picture always looks exactly like
+     what this browser rendered on screen. -->
+<button class="quick-btn" style="background:linear-gradient(135deg,#be185d,#9d174d);" onclick="openConvertPhotoModal()">
+    <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span><span class="quick-btn-label" data-i18n="navConvertPhoto">Convert to Photo</span>
 </button>
      </div>
  
@@ -2179,7 +2201,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.91
+     HR & Administration System Version 6.93
  </div>
 </div>
 
@@ -2525,6 +2547,27 @@
             <div class="form-group"><label data-i18n="lblComposeDescription">Description</label><textarea id="oneTimeNotifDescription" rows="3"></textarea></div>
             <button type="submit" class="btn-submit" style="margin-top:6px;" data-i18n="btnSendBroadcast">Send Notification</button>
         </form>
+    </div>
+</div>
+
+<!-- v6.93: CONVERT TO PHOTO MODAL - upload an Excel (.xlsx/.xls), Word (.docx) or PDF file and
+     turn it into one or more downloadable PNG pictures. Runs entirely in this browser tab -
+     nothing here is uploaded to Firebase or anywhere else, it only reads the file the user picks
+     and writes images back to their own device. See convertFileToPhotos() below for how each
+     file type is handled. -->
+<div class="modal" id="convertPhotoModal">
+    <div class="modal-content" style="max-width:560px;">
+        <div class="modal-header">
+            <h4 data-i18n="navConvertPhoto">Convert to Photo</h4>
+            <button class="modal-close" onclick="closeConvertPhotoModal()">&times;</button>
+        </div>
+        <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="convertPhotoSub">Choose an Excel, Word (.docx) or PDF file from your device. Nothing is uploaded anywhere - it stays on this device and turns into picture(s) you can download.</p>
+        <div class="form-group">
+            <label data-i18n="convertPhotoChooseFile">File (.xlsx, .xls, .docx, or .pdf)</label>
+            <input type="file" id="convertPhotoFileInput" accept=".xlsx,.xls,.docx,.pdf" onchange="handleConvertPhotoFileSelected(this)">
+        </div>
+        <div id="convertPhotoStatus" style="font-size:12px; color:#0f172a; margin:8px 0; display:none;"></div>
+        <div id="convertPhotoResults" style="display:flex; flex-direction:column; gap:12px; max-height:420px; overflow-y:auto;"></div>
     </div>
 </div>
 
@@ -3647,6 +3690,15 @@
         /* v6.65: Nav labels for the 2 new tabs */
         navAuditLog: "Activity Log",
         navCertificates: "Certificates",
+        navConvertPhoto: "Convert to Photo",
+        convertPhotoSub: "Choose an Excel, Word (.docx) or PDF file from your device. Nothing is uploaded anywhere - it stays on this device and turns into picture(s) you can download.",
+        convertPhotoChooseFile: "File (.xlsx, .xls, .docx, or .pdf)",
+        convertPhotoConverting: "Converting {current} of {total}...",
+        convertPhotoConvertingSingle: "Converting...",
+        convertPhotoUnsupportedType: "That file type isn't supported. Please choose an .xlsx, .xls, .docx, or .pdf file.",
+        convertPhotoFailed: "Couldn't convert this file. Please make sure it isn't corrupted or password-protected, then try again.",
+        convertPhotoDownloadAll: "Download All",
+        convertPhotoDownload: "Download",
 
         /* v6.65: Activity / Audit Log */
         auditLogTitle: "Activity Log",
@@ -4307,6 +4359,15 @@
 
         navAuditLog: "កំណត់ត្រាសកម្មភាព",
         navCertificates: "វិញ្ញាបនបត្រ",
+        navConvertPhoto: "បម្លែងទៅជារូបថត",
+        convertPhotoSub: "ជ្រើសរើសឯកសារ Excel, Word (.docx) ឬ PDF ពីឧបករណ៍របស់អ្នក។ គ្មានអ្វីត្រូវបានផ្ទុកឡើងទៅកន្លែងណាឡើយ - វានៅតែស្ថិតនៅលើឧបករណ៍នេះ ហើយប្រែក្លាយទៅជារូបភាពដែលអ្នកអាចទាញយកបាន។",
+        convertPhotoChooseFile: "ឯកសារ (.xlsx, .xls, .docx, ឬ .pdf)",
+        convertPhotoConverting: "កំពុងបម្លែង {current} នៃ {total}...",
+        convertPhotoConvertingSingle: "កំពុងបម្លែង...",
+        convertPhotoUnsupportedType: "ប្រភេទឯកសារនេះមិនគាំទ្រទេ។ សូមជ្រើសរើសឯកសារ .xlsx, .xls, .docx, ឬ .pdf។",
+        convertPhotoFailed: "មិនអាចបម្លែងឯកសារនេះបានទេ។ សូមប្រាកដថាឯកសារមិនខូច ឬមានពាក្យសម្ងាត់ការពារ រួចសាកល្បងម្តងទៀត។",
+        convertPhotoDownloadAll: "ទាញយកទាំងអស់",
+        convertPhotoDownload: "ទាញយក",
 
         auditLogTitle: "កំណត់ត្រាសកម្មភាព",
         auditLogSub: "កំណត់ត្រាសម្រាប់អានតែប៉ុណ្ណោះនៃសកម្មភាពសំខាន់ៗដែលបានធ្វើក្នុងប្រព័ន្ធនេះ - នរណា ធ្វើអ្វី និងនៅពេលណា។",
@@ -4960,6 +5021,15 @@
 
         navAuditLog: "活动日志",
         navCertificates: "证明书",
+        navConvertPhoto: "转换为图片",
+        convertPhotoSub: "从您的设备选择一个 Excel、Word (.docx) 或 PDF 文件。不会上传到任何地方 - 文件保留在此设备上，并转换成您可以下载的图片。",
+        convertPhotoChooseFile: "文件 (.xlsx、.xls、.docx 或 .pdf)",
+        convertPhotoConverting: "正在转换第 {current} 个，共 {total} 个...",
+        convertPhotoConvertingSingle: "正在转换...",
+        convertPhotoUnsupportedType: "不支持此文件类型。请选择 .xlsx、.xls、.docx 或 .pdf 文件。",
+        convertPhotoFailed: "无法转换此文件。请确认文件未损坏或没有密码保护，然后再试一次。",
+        convertPhotoDownloadAll: "全部下载",
+        convertPhotoDownload: "下载",
 
         auditLogTitle: "活动日志",
         auditLogSub: "系统中关键操作的只读记录——谁做了什么，以及何时做的。",
@@ -10523,11 +10593,18 @@ function formatNotifReceivedAt(timestamp) {
         click many times" symptom. */
      const notifUpdates = {};
      let hasStaleNotif = false;
+     /* v6.92: one-time cleanup for the Document Library "needs edit" reminder retired above -
+        clears out any copy of it already sitting unread from before the retirement, in whichever
+        of the 3 languages it happened to be pushed in, so the business doesn't have to go find
+        and dismiss it by hand. Matched by its exact title text rather than a stored type/key,
+        since this notification channel only ever stored the already-translated message string. */
+     const docLibReminderTitles = ['Documents Need Editing', 'ឯកសារត្រូវការកែសម្រួល', '文件需要修改'];
      list.forEach(n => {
          if ((n.timestamp || 0) < cutoff) { notifUpdates[n.firebaseKey] = null; hasStaleNotif = true; }
+         else if (n.targetId === 'ADMIN' && docLibReminderTitles.indexOf(n.message) !== -1) { notifUpdates[n.firebaseKey] = null; hasStaleNotif = true; }
      });
      if (hasStaleNotif) db.ref('notifications').update(notifUpdates);
-     allNotifications = list.filter(n => (n.timestamp || 0) >= cutoff);
+     allNotifications = list.filter(n => (n.timestamp || 0) >= cutoff && !(n.targetId === 'ADMIN' && docLibReminderTitles.indexOf(n.message) !== -1));
      renderEmpNotifBadge();
      if (document.getElementById('empNotifModal') && document.getElementById('empNotifModal').style.display === 'flex') {
          renderEmpNotifList();
@@ -10657,6 +10734,192 @@ function fileToCompressedDataUrl(inputEl, maxDim) {
         };
         reader.onerror = function() { reject(new Error('read-failed')); };
         reader.readAsDataURL(file);
+    });
+}
+
+/* ================= v6.93: CONVERT TO PHOTO (upload an Excel/Word/PDF file, get PNG picture(s))
+   =================
+   Entirely client-side - the chosen file is read with the browser's own FileReader, never sent
+   to Firebase or any server, and the resulting picture(s) are handed straight back to the user
+   via a normal browser download. Three input types, three conversion paths:
+     - .xlsx/.xls -> SheetJS (already loaded for Excel export elsewhere) turns each sheet into a
+       plain HTML table, which is then rasterized with html2canvas. One picture per sheet.
+     - .docx -> mammoth.js (already loaded for the Document Library's editor) turns the document
+       into HTML, which is then rasterized with html2canvas. One picture for the whole document.
+     - .pdf -> pdf.js renders each page directly to a <canvas> itself (no HTML step needed). One
+       picture per page.
+   All three end up going through renderConvertPhotoResults(), which shows each picture with its
+   own Download button plus a "Download All" button when there's more than one. */
+
+function openConvertPhotoModal() {
+    closeAllMenus();
+    document.getElementById('convertPhotoFileInput').value = '';
+    document.getElementById('convertPhotoStatus').style.display = 'none';
+    document.getElementById('convertPhotoResults').innerHTML = '';
+    document.getElementById('convertPhotoModal').style.display = 'flex';
+}
+
+function closeConvertPhotoModal() {
+    document.getElementById('convertPhotoModal').style.display = 'none';
+}
+
+function setConvertPhotoStatus(msg, isError) {
+    const el = document.getElementById('convertPhotoStatus');
+    if (!el) return;
+    el.style.display = msg ? 'block' : 'none';
+    el.style.color = isError ? '#dc2626' : '#0f172a';
+    el.innerText = msg || '';
+}
+
+/* Renders an off-screen (but fully laid-out) copy of some HTML, rasterizes it with html2canvas,
+   then removes it. Kept off-screen rather than hidden (display:none) because html2canvas - like
+   any screenshot tool - needs the element to actually be laid out on the page to capture it. A
+   fixed, generous width keeps wide tables (the Monthly Annual Leave report's many columns, for
+   example) from being squeezed into a narrow default container. */
+function rasterizeHtmlToDataUrl(html) {
+    return document.fonts.ready.then(function () {
+        const container = document.createElement('div');
+        container.style.position = 'fixed';
+        container.style.left = '-99999px';
+        container.style.top = '0';
+        container.style.background = '#ffffff';
+        container.style.padding = '18px';
+        container.style.width = '1400px';
+        container.style.fontFamily = "'Khmer OS', 'Noto Sans Khmer', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+        const styledHtml = '<style>table{border-collapse:collapse;width:100%;} td,th{border:1px solid #94a3b8;padding:5px 8px;font-size:13px;} th{background:#f1f5f9;font-weight:700;}</style>' + html;
+        container.innerHTML = styledHtml;
+        document.body.appendChild(container);
+        return html2canvas(container, { backgroundColor: '#ffffff', scale: 2 }).then(function (canvas) {
+            document.body.removeChild(container);
+            return canvas.toDataURL('image/png');
+        }).catch(function (err) {
+            document.body.removeChild(container);
+            throw err;
+        });
+    });
+}
+
+function convertXlsxFileToImages(file, baseName) {
+    return file.arrayBuffer().then(function (buf) {
+        const workbook = XLSX.read(buf, { type: 'array' });
+        const sheetNames = workbook.SheetNames || [];
+        if (!sheetNames.length) throw new Error('no-sheets');
+        let chain = Promise.resolve();
+        const images = [];
+        sheetNames.forEach(function (sheetName, idx) {
+            chain = chain.then(function () {
+                setConvertPhotoStatus(fillTemplate(t('convertPhotoConverting'), { current: idx + 1, total: sheetNames.length }), false);
+                const html = XLSX.utils.sheet_to_html(workbook.Sheets[sheetName]);
+                return rasterizeHtmlToDataUrl(html).then(function (dataUrl) {
+                    const suffix = sheetNames.length > 1 ? ' - ' + sheetName : '';
+                    images.push({ name: baseName + suffix + '.png', dataUrl: dataUrl });
+                });
+            });
+        });
+        return chain.then(function () { return images; });
+    });
+}
+
+function convertDocxFileToImage(file, baseName) {
+    return file.arrayBuffer().then(function (buf) {
+        setConvertPhotoStatus(t('convertPhotoConvertingSingle'), false);
+        return mammoth.convertToHtml({ arrayBuffer: buf }).then(function (result) {
+            return rasterizeHtmlToDataUrl(result.value || '');
+        }).then(function (dataUrl) {
+            return [{ name: baseName + '.png', dataUrl: dataUrl }];
+        });
+    });
+}
+
+function convertPdfFileToImages(file, baseName) {
+    if (typeof pdfjsLib === 'undefined') return Promise.reject(new Error('pdfjs-not-loaded'));
+    return file.arrayBuffer().then(function (buf) {
+        return pdfjsLib.getDocument({ data: buf }).promise;
+    }).then(function (pdf) {
+        const numPages = pdf.numPages;
+        let chain = Promise.resolve();
+        const images = [];
+        for (let i = 1; i <= numPages; i++) {
+            (function (pageNum) {
+                chain = chain.then(function () {
+                    setConvertPhotoStatus(fillTemplate(t('convertPhotoConverting'), { current: pageNum, total: numPages }), false);
+                    return pdf.getPage(pageNum).then(function (page) {
+                        const viewport = page.getViewport({ scale: 2 });
+                        const canvas = document.createElement('canvas');
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        return page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise.then(function () {
+                            const suffix = numPages > 1 ? ' - p' + pageNum : '';
+                            images.push({ name: baseName + suffix + '.png', dataUrl: canvas.toDataURL('image/png') });
+                        });
+                    });
+                });
+            })(i);
+        }
+        return chain.then(function () { return images; });
+    });
+}
+
+function handleConvertPhotoFileSelected(inputEl) {
+    const file = inputEl && inputEl.files && inputEl.files[0];
+    document.getElementById('convertPhotoResults').innerHTML = '';
+    if (!file) return;
+    const lowerName = file.name.toLowerCase();
+    const baseName = file.name.replace(/\.[^.]+$/, '');
+    let conversion;
+    if (lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls')) {
+        conversion = convertXlsxFileToImages(file, baseName);
+    } else if (lowerName.endsWith('.docx')) {
+        conversion = convertDocxFileToImage(file, baseName);
+    } else if (lowerName.endsWith('.pdf')) {
+        conversion = convertPdfFileToImages(file, baseName);
+    } else {
+        setConvertPhotoStatus(t('convertPhotoUnsupportedType'), true);
+        return;
+    }
+    conversion.then(function (images) {
+        setConvertPhotoStatus(null);
+        renderConvertPhotoResults(images);
+    }).catch(function (err) {
+        console.error('Convert to Photo failed:', err);
+        setConvertPhotoStatus(t('convertPhotoFailed'), true);
+    });
+}
+
+function renderConvertPhotoResults(images) {
+    const container = document.getElementById('convertPhotoResults');
+    if (!images || !images.length) { container.innerHTML = ''; return; }
+    let html = '';
+    if (images.length > 1) {
+        html += '<button type="button" class="btn-submit" style="background:#9d174d;" onclick="downloadAllConvertedPhotos()" data-i18n="convertPhotoDownloadAll">' + escapePrintText(t('convertPhotoDownloadAll')) + '</button>';
+    }
+    images.forEach(function (img, idx) {
+        html += '<div style="border:1px solid #e2e8f0; border-radius:8px; padding:8px; text-align:center;">' +
+            '<img src="' + img.dataUrl + '" style="max-width:100%; max-height:260px; object-fit:contain; border:1px solid #f1f5f9;">' +
+            '<div style="font-size:11px; color:#64748b; margin:6px 0;">' + escapePrintText(img.name) + '</div>' +
+            '<button type="button" class="btn-edit" onclick="downloadConvertedPhoto(' + idx + ')" data-i18n="convertPhotoDownload">' + escapePrintText(t('convertPhotoDownload')) + '</button>' +
+            '</div>';
+    });
+    container.innerHTML = html;
+    window.__convertPhotoImages = images;
+}
+
+function downloadConvertedPhoto(idx) {
+    const images = window.__convertPhotoImages || [];
+    const img = images[idx];
+    if (!img) return;
+    const a = document.createElement('a');
+    a.href = img.dataUrl;
+    a.download = img.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+function downloadAllConvertedPhotos() {
+    const images = window.__convertPhotoImages || [];
+    images.forEach(function (img, idx) {
+        setTimeout(function () { downloadConvertedPhoto(idx); }, idx * 400);
     });
 }
 
@@ -11346,6 +11609,15 @@ async function notifyCardReady() {
 
  function checkDocLibraryReminderNotification(count) {
      try {
+         /* v6.92: the Document Library's menu button was removed in v6.90 at the business
+            owner's request ("don't need to use it anymore"), but this reminder - which only
+            ever looked at the data, never at whether the menu button existed - kept quietly
+            firing once a day for as long as any file was still flagged "needs edit" from before
+            the feature was retired. Since the business no longer uses this feature at all, the
+            reminder itself is retired here too, rather than asking them to go clear the
+            needsEdit flag on every old file just to make it stop. The underlying Document
+            Library data/files are untouched - only this one reminder notification stops. */
+         return;
          if (!count || count <= 0) return;
          const dayKey = new Date().toISOString().slice(0, 10);
          const key = 'docLibReminderNotified_' + dayKey;
