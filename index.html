@@ -540,7 +540,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.93</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.94</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2201,7 +2201,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.93
+     HR & Administration System Version 6.94
  </div>
 </div>
 
@@ -3697,6 +3697,8 @@
         convertPhotoConvertingSingle: "Converting...",
         convertPhotoUnsupportedType: "That file type isn't supported. Please choose an .xlsx, .xls, .docx, or .pdf file.",
         convertPhotoFailed: "Couldn't convert this file. Please make sure it isn't corrupted or password-protected, then try again.",
+        convertPhotoLibMissing: "This feature's conversion tool ({lib}) hasn't finished loading yet - this needs an internet connection the first time you use it on this device. Please check your connection and try again in a moment.",
+        convertPhotoErrorDetailPrefix: "Details:",
         convertPhotoDownloadAll: "Download All",
         convertPhotoDownload: "Download",
 
@@ -4366,6 +4368,8 @@
         convertPhotoConvertingSingle: "កំពុងបម្លែង...",
         convertPhotoUnsupportedType: "ប្រភេទឯកសារនេះមិនគាំទ្រទេ។ សូមជ្រើសរើសឯកសារ .xlsx, .xls, .docx, ឬ .pdf។",
         convertPhotoFailed: "មិនអាចបម្លែងឯកសារនេះបានទេ។ សូមប្រាកដថាឯកសារមិនខូច ឬមានពាក្យសម្ងាត់ការពារ រួចសាកល្បងម្តងទៀត។",
+        convertPhotoLibMissing: "ឧបករណ៍បម្លែងសម្រាប់មុខងារនេះ ({lib}) មិនទាន់ផ្ទុករួចទេ - វាត្រូវការអ៊ីនធឺណិតនៅពេលប្រើលើកដំបូងលើឧបករណ៍នេះ។ សូមពិនិត្យការតភ្ជាប់អ៊ីនធឺណិតរបស់អ្នក រួចសាកល្បងម្តងទៀតក្នុងពេលបន្តិច។",
+        convertPhotoErrorDetailPrefix: "ព័ត៌មានលម្អិត៖",
         convertPhotoDownloadAll: "ទាញយកទាំងអស់",
         convertPhotoDownload: "ទាញយក",
 
@@ -5028,6 +5032,8 @@
         convertPhotoConvertingSingle: "正在转换...",
         convertPhotoUnsupportedType: "不支持此文件类型。请选择 .xlsx、.xls、.docx 或 .pdf 文件。",
         convertPhotoFailed: "无法转换此文件。请确认文件未损坏或没有密码保护，然后再试一次。",
+        convertPhotoLibMissing: "此功能的转换工具（{lib}）尚未加载完成 - 在此设备上首次使用时需要网络连接。请检查您的网络连接，稍后再试一次。",
+        convertPhotoErrorDetailPrefix: "详细信息：",
         convertPhotoDownloadAll: "全部下载",
         convertPhotoDownload: "下载",
 
@@ -10860,12 +10866,40 @@ function convertPdfFileToImages(file, baseName) {
     });
 }
 
+/* v6.94: checks that the specific conversion tool a file type needs has actually finished
+   loading from its CDN before trying to use it. The first version of this feature showed the
+   same generic "file might be corrupted" message no matter what actually went wrong, which isn't
+   true and isn't fixable by the user when the real cause is that html2canvas, pdf.js, XLSX or
+   mammoth simply didn't load yet - a slow connection, a firewall/antivirus "web shield" (the
+   same kind of thing already flagged as a candidate PC-only cause in an earlier conversation),
+   or the page being used right as it finished loading. Returns the missing library's name, or
+   null if everything this file type needs is ready to use. */
+function convertPhotoMissingLibraryFor(lowerName) {
+    if (lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls')) {
+        if (typeof XLSX === 'undefined' || !XLSX.utils || typeof XLSX.utils.sheet_to_html !== 'function') return 'XLSX';
+        if (typeof html2canvas === 'undefined') return 'html2canvas';
+    } else if (lowerName.endsWith('.docx')) {
+        if (typeof mammoth === 'undefined') return 'mammoth';
+        if (typeof html2canvas === 'undefined') return 'html2canvas';
+    } else if (lowerName.endsWith('.pdf')) {
+        if (typeof pdfjsLib === 'undefined') return 'pdf.js';
+    }
+    return null;
+}
+
 function handleConvertPhotoFileSelected(inputEl) {
     const file = inputEl && inputEl.files && inputEl.files[0];
     document.getElementById('convertPhotoResults').innerHTML = '';
     if (!file) return;
     const lowerName = file.name.toLowerCase();
     const baseName = file.name.replace(/\.[^.]+$/, '');
+
+    const missingLib = convertPhotoMissingLibraryFor(lowerName);
+    if (missingLib) {
+        setConvertPhotoStatus(fillTemplate(t('convertPhotoLibMissing'), { lib: missingLib }), true);
+        return;
+    }
+
     let conversion;
     if (lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls')) {
         conversion = convertXlsxFileToImages(file, baseName);
@@ -10882,7 +10916,12 @@ function handleConvertPhotoFileSelected(inputEl) {
         renderConvertPhotoResults(images);
     }).catch(function (err) {
         console.error('Convert to Photo failed:', err);
-        setConvertPhotoStatus(t('convertPhotoFailed'), true);
+        /* v6.94: shows the actual technical error text under the friendly message (small, gray)
+           so the business owner can screenshot it and send it along - without that, there was no
+           way to tell "wrong password" apart from "the library didn't load" apart from an actual
+           bug, from a screenshot of the generic message alone. */
+        const detail = (err && (err.message || String(err))) || '';
+        setConvertPhotoStatus(t('convertPhotoFailed') + (detail ? '\n' + t('convertPhotoErrorDetailPrefix') + ' ' + detail : ''), true);
     });
 }
 
