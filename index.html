@@ -11,12 +11,18 @@
       the v6.93 Convert to Photo feature to turn an uploaded .docx into HTML before it's
       rasterized to a picture. -->
  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.7.0/mammoth.browser.min.js"></script>
- <!-- v6.93: html2canvas - renders a piece of on-page HTML (e.g. a converted Excel/Word file) to a
-      <canvas>, which is how the Convert to Photo feature turns a file into a downloadable PNG
-      using this browser's own font rendering (same Khmer/Chinese text shown on screen, no font
-      embedding problem). pdfjs-dist does the same job for PDF files, which it can rasterize
-      directly without needing an HTML step first. -->
- <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+ <!-- v6.93: renders a piece of on-page HTML (e.g. a converted Excel/Word file) to a <canvas>,
+      which is how the Convert to Photo feature turns a file into a downloadable PNG using this
+      browser's own font rendering (same Khmer/Chinese text shown on screen, no font embedding
+      problem). pdfjs-dist does the same job for PDF files, which it can rasterize directly
+      without needing an HTML step first.
+      v6.95: switched from the original html2canvas to html2canvas-pro (a maintained, drop-in
+      compatible fork, same function name/API) after a real conversion failed with "Cannot read
+      properties of undefined (reading 'indexOf')" - a known crash in the original html2canvas
+      when it has to read a modern CSS color value (like the newer color syntax recent Chrome/
+      Edge versions can report for computed styles) that its older color parser doesn't
+      recognize. html2canvas-pro exists specifically to fix that. -->
+ <script src="https://cdn.jsdelivr.net/npm/html2canvas-pro@2.5.1/dist/html2canvas-pro.min.js"></script>
  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
  <script>
    if (typeof pdfjsLib !== 'undefined' && pdfjsLib.GlobalWorkerOptions) {
@@ -540,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.94</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.95</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2201,7 +2207,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.94
+     HR & Administration System Version 6.95
  </div>
 </div>
 
@@ -10807,7 +10813,18 @@ function rasterizeHtmlToDataUrl(html) {
 
 function convertXlsxFileToImages(file, baseName) {
     return file.arrayBuffer().then(function (buf) {
-        const workbook = XLSX.read(buf, { type: 'array' });
+        /* v6.95: a real file from this exact business threw "Cannot read properties of
+           undefined (reading 'indexOf')" with no further detail, which could come from
+           XLSX.read() itself, from sheet_to_html() turning a sheet into a table, or from
+           html2canvas rasterizing that table - three different third-party libraries. Each step
+           below now re-throws with a short prefix naming which stage failed, so if this happens
+           again the message says exactly where, instead of leaving it a mystery. */
+        let workbook;
+        try {
+            workbook = XLSX.read(buf, { type: 'array' });
+        } catch (e) {
+            throw new Error('reading the Excel file - ' + (e && e.message || e));
+        }
         const sheetNames = workbook.SheetNames || [];
         if (!sheetNames.length) throw new Error('no-sheets');
         let chain = Promise.resolve();
@@ -10815,10 +10832,17 @@ function convertXlsxFileToImages(file, baseName) {
         sheetNames.forEach(function (sheetName, idx) {
             chain = chain.then(function () {
                 setConvertPhotoStatus(fillTemplate(t('convertPhotoConverting'), { current: idx + 1, total: sheetNames.length }), false);
-                const html = XLSX.utils.sheet_to_html(workbook.Sheets[sheetName]);
+                let html;
+                try {
+                    html = XLSX.utils.sheet_to_html(workbook.Sheets[sheetName]);
+                } catch (e) {
+                    throw new Error('converting sheet "' + sheetName + '" to a table - ' + (e && e.message || e));
+                }
                 return rasterizeHtmlToDataUrl(html).then(function (dataUrl) {
                     const suffix = sheetNames.length > 1 ? ' - ' + sheetName : '';
                     images.push({ name: baseName + suffix + '.png', dataUrl: dataUrl });
+                }).catch(function (e) {
+                    throw new Error('turning sheet "' + sheetName + '" into a picture - ' + (e && e.message || e));
                 });
             });
         });
