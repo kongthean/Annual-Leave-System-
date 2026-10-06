@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.95</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.96</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2207,7 +2207,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.95
+     HR & Administration System Version 6.96
  </div>
 </div>
 
@@ -3392,6 +3392,8 @@
         notifLeaveDeductedMsg: "Your Annual Leave entitlement has been deducted {hours} hour(s), used for {type}. Remaining balance: {remaining} hours.",
         notifPersonalLeaveTitle: "Personal Leave Recorded",
         notifPersonalLeaveMsg: "You have a Personal Leave record of {hours} hour(s). Total Personal Leave this month: {total} hours.",
+        notifLeaveDeductedMsg2: "Your Annual Leave entitlement has been deducted {hours} hour(s), used for {type}, for your leave on {date}. Remaining Hours: {remaining} hours.",
+        notifPersonalLeaveMsg2: "You have a personal leave record of {hours} hour(s) for your leave on {date}. Total personal leave this month: {total} hours.",
         empMenuRequest: "Request",
         empMenuCheckShift: "Check Shift",
         btnCheckMyShift: "Check My Shift",
@@ -4074,6 +4076,8 @@
         notifLeaveDeductedMsg: "សិទ្ធិច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំរបស់អ្នកត្រូវបានកាត់កង {hours} ម៉ោង សម្រាប់ {type}។ សមតុល្យនៅសល់៖ {remaining} ម៉ោង។",
         notifPersonalLeaveTitle: "កំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួន",
         notifPersonalLeaveMsg: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
+        notifLeaveDeductedMsg2: "សិទ្ធិច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំរបស់អ្នកត្រូវបានកាត់កង {hours} ម៉ោង សម្រាប់ {type} សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ ម៉ោងនៅសល់៖ {remaining} ម៉ោង។",
+        notifPersonalLeaveMsg2: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
         empMenuRequest: "សំណើ",
         empMenuCheckShift: "ពិនិត្យវេន",
         btnCheckMyShift: "ពិនិត្យវេនរបស់ខ្ញុំ",
@@ -4738,6 +4742,8 @@
         notifLeaveDeductedMsg: "您的年假额度已扣除{hours}小时，用于{type}。剩余余额：{remaining}小时。",
         notifPersonalLeaveTitle: "事假记录",
         notifPersonalLeaveMsg: "您有一笔{hours}小时的事假记录。本月事假总计：{total}小时。",
+        notifLeaveDeductedMsg2: "您的年假额度已扣除{hours}小时，用于{type}，对应您在{date}的休假。剩余小时数：{remaining}小时。",
+        notifPersonalLeaveMsg2: "您有一笔{hours}小时的事假记录，对应您在{date}的休假。本月事假总计：{total}小时。",
         empMenuRequest: "申请",
         empMenuCheckShift: "查看排班",
         btnCheckMyShift: "查看我的排班",
@@ -8892,10 +8898,16 @@ document.getElementById('leaveForm').addEventListener('submit', function(e){
             entitlementTypes.forEach(function(item) {
                 if (item.addVal > 0) {
                     db.ref('leaveHistory').push({ empId: id, empName: emp.name, leaveType: item.labelKey, hours: item.addVal, date: selectedDate, timestamp: Date.now() });
+                    /* v6.96: also stores language-neutral kind/params so each employee sees this in
+                       THEIR OWN language when they open it (see localizeNotif). message/description
+                       stay as a fallback in the admin's language. */
+                    const leaveParams = { hours: item.addVal, typeKey: item.labelKey, remaining: newRemaining.toFixed(2), date: selectedDate || '' };
                     db.ref('notifications').push({
                         targetId: id,
                         message: t('notifLeaveDeductedTitle'),
-                        description: fillTemplate(t('notifLeaveDeductedMsg'), { hours: item.addVal, type: t(item.labelKey), remaining: newRemaining.toFixed(2) }),
+                        description: fillTemplate(t('notifLeaveDeductedMsg2'), { hours: leaveParams.hours, type: t(item.labelKey), date: formatNotifLeaveDate(leaveParams.date, currentLang), remaining: leaveParams.remaining }),
+                        kind: 'leaveDeducted',
+                        params: leaveParams,
                         relatedRequestKey: null,
                         timestamp: Date.now()
                     });
@@ -8907,10 +8919,13 @@ document.getElementById('leaveForm').addEventListener('submit', function(e){
                     .filter(function(h) { return h.empId === id && h.leaveType === 'thMasterPersonalLeave' && (h.date || '').slice(0, 7) === monthKey; })
                     .reduce(function(sum, h) { return sum + (h.hours || 0); }, 0);
                 const totalPersonalThisMonth = priorPersonalThisMonth + addPersonal;
+                const personalParams = { hours: addPersonal, total: totalPersonalThisMonth.toFixed(2), date: selectedDate || '' };
                 db.ref('notifications').push({
                     targetId: id,
                     message: t('notifPersonalLeaveTitle'),
-                    description: fillTemplate(t('notifPersonalLeaveMsg'), { hours: addPersonal, total: totalPersonalThisMonth.toFixed(2) }),
+                    description: fillTemplate(t('notifPersonalLeaveMsg2'), { hours: personalParams.hours, date: formatNotifLeaveDate(personalParams.date, currentLang), total: personalParams.total }),
+                    kind: 'personalLeave',
+                    params: personalParams,
                     relatedRequestKey: null,
                     timestamp: Date.now()
                 });
@@ -11005,15 +11020,15 @@ function renderSentNotifTable() {
     const tbody = document.querySelector('#sentNotifTable tbody');
     if (!tbody) return;
     const sorted = allNotifications.slice().sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-    tbody.innerHTML = sorted.map(n => `
+    tbody.innerHTML = sorted.map(n => { const ln = localizeNotif(n); return `
         <tr>
             <td><button class="btn-delete" onclick="deleteSentNotif('${n.firebaseKey}')" title="Delete">${ICON_DELETE}</button></td>
             <td>${n.targetId === 'ALL' ? t('targetAll') : (n.targetId || '-')}</td>
-            <td>${n.message || '-'}</td>
-            <td>${n.imageData ? `<img src="${n.imageData}" style="max-width:36px; max-height:36px; border-radius:4px; vertical-align:middle; margin-right:6px;">` : ''}${n.description || '-'}</td>
+            <td>${ln.message || '-'}</td>
+            <td>${n.imageData ? `<img src="${n.imageData}" style="max-width:36px; max-height:36px; border-radius:4px; vertical-align:middle; margin-right:6px;">` : ''}${ln.description || '-'}</td>
             <td>${n.timestamp ? new Date(n.timestamp).toLocaleString() : '-'}</td>
         </tr>
-    `).join('');
+    `; }).join('');
     if (sorted.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">-</td></tr>`;
     }
@@ -11200,6 +11215,41 @@ async function notifyCardReady() {
      }));
  });
 
+ /* v6.96: leave notifications are stored with a language-neutral kind + params, and turned into
+    text HERE, at display time, in whatever language the person viewing it is using - so an
+    employee on English sees English even if the admin entered the record in Chinese. Older
+    notifications (no kind/params) and free-text broadcasts fall through unchanged. */
+ function formatNotifLeaveDate(dateStr, lang) {
+     const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateStr || '');
+     if (!m) return dateStr || '-';
+     const y = m[1], mo = parseInt(m[2], 10), d = parseInt(m[3], 10);
+     if (lang === 'zh') return y + '年' + mo + '月' + d + '日';
+     if (lang === 'km') {
+         const km = ['មករា','កុម្ភៈ','មីនា','មេសា','ឧសភា','មិថុនា','កក្កដា','សីហា','កញ្ញា','តុលា','វិច្ឆិកា','ធ្នូ'];
+         return d + ' ' + km[mo - 1] + ' ' + y;
+     }
+     const en = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+     const suffix = (d % 100 >= 11 && d % 100 <= 13) ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[d % 10] || 'th');
+     return d + suffix + ' ' + en[mo - 1] + ', ' + y;
+ }
+
+ function localizeNotif(n) {
+     const p = n && n.params;
+     if (n && n.kind === 'leaveDeducted' && p) {
+         return {
+             message: tLang('notifLeaveDeductedTitle', currentLang),
+             description: fillTemplate(tLang('notifLeaveDeductedMsg2', currentLang), { hours: p.hours, type: tLang(p.typeKey, currentLang), date: formatNotifLeaveDate(p.date, currentLang), remaining: p.remaining })
+         };
+     }
+     if (n && n.kind === 'personalLeave' && p) {
+         return {
+             message: tLang('notifPersonalLeaveTitle', currentLang),
+             description: fillTemplate(tLang('notifPersonalLeaveMsg2', currentLang), { hours: p.hours, date: formatNotifLeaveDate(p.date, currentLang), total: p.total })
+         };
+     }
+     return { message: n.message, description: n.description };
+ }
+
  /* ---- Employee: view notifications addressed to me or to everyone ---- */
  function getEmpNotifications() {
      const empId = sessionStorage.getItem('empLoggedInId');
@@ -11227,17 +11277,17 @@ async function notifyCardReady() {
          body.innerHTML = `<p style="font-size:13px; color:#64748b; text-align:center; padding:20px;">${t('empNotifEmpty')}</p>`;
          return;
      }
-     body.innerHTML = list.map(n => `
+     body.innerHTML = list.map(n => { const ln = localizeNotif(n); return `
          <div class="detail-item" style="flex-direction:column; align-items:flex-start; gap:6px; margin-bottom:10px;">
              <div style="display:flex; justify-content:space-between; width:100%;">
-                 <span class="lbl">${n.message || '-'}</span>
+                 <span class="lbl">${ln.message || '-'}</span>
                  <span class="val" style="font-size:11px; color:#64748b;">${n.targetId === 'ALL' ? t('targetAllBadge') : ''}</span>
              </div>
              ${n.timestamp ? `<div style="font-size:10px; color:#94a3b8;">${t('lblNotifReceivedAt')}: ${formatNotifReceivedAt(n.timestamp)}</div>` : ''}
              ${n.imageData ? `<img src="${n.imageData}" style="max-width:100%; border-radius:6px;">` : ''}
-             <div style="font-size:12px; color:#334155; width:100%; text-align:left;">${n.description || ''}</div>
+             <div style="font-size:12px; color:#334155; width:100%; text-align:left;">${ln.description || ''}</div>
          </div>
-     `).join('');
+     `; }).join('');
  }
 
  function toggleEmpNotifPanel(e) {
