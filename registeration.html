@@ -28,20 +28,36 @@ body { font-family:'Khmer OS','Noto Sans Khmer','Noto Sans SC',-apple-system,Bli
 .langs button.on { background:#fff; color:var(--bg2); font-weight:700; }
 .clock { font-size:40px; font-weight:800; letter-spacing:1px; font-variant-numeric:tabular-nums; margin-top:2px; }
 .dateline { font-size:13px; color:#cbd5e1; margin-top:-8px; }
-.cam { position:relative; width:min(78vw,320px); aspect-ratio:3/4; border-radius:50% / 42%; overflow:hidden; background:#000; border:4px solid rgba(255,255,255,.55); box-shadow:0 8px 30px rgba(0,0,0,.45); }
+.cam { position:relative; width:min(86vw,380px,46vh); aspect-ratio:3/4; border-radius:50% / 42%; overflow:hidden; background:#000; border:4px solid rgba(255,255,255,.55); box-shadow:0 8px 30px rgba(0,0,0,.45); }
 .cam.found { border-color:#22c55e; }
 .cam video { width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
 .status { min-height:44px; width:100%; text-align:center; font-size:15px; line-height:1.4; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,.12); }
 .status.err { background:rgba(220,38,38,.28); }
-.result { width:100%; background:var(--card); color:var(--ink); border-radius:16px; padding:18px 16px; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,.35); }
-.result .big { font-size:46px; line-height:1; }
+.result { position:fixed; inset:0; z-index:50; background:rgba(2,6,23,.72); display:flex; align-items:center; justify-content:center; padding:16px; overflow:auto; }
+.result .card { position:relative; width:100%; max-width:520px; background:var(--card); color:var(--ink); border-radius:20px; padding:30px 22px 22px; text-align:center; box-shadow:0 18px 60px rgba(0,0,0,.55); }
+.result .xbtn { position:absolute; top:8px; right:10px; width:44px; height:44px; border:none; background:#f1f5f9; color:#334155; border-radius:50%; font-size:26px; line-height:1; cursor:pointer; }
+.result .okbtn { margin-top:16px; width:100%; background:var(--accent); color:#fff; border:none; border-radius:14px; padding:15px 22px; font-size:18px; font-weight:700; cursor:pointer; }
+.result .big { font-size:72px; line-height:1; }
 .result.ok .big { color:var(--ok); } .result.bad .big { color:var(--bad); } .result.warn .big { color:var(--warn); }
-.result .who { font-size:19px; font-weight:800; margin-top:6px; }
-.result .kind { font-size:16px; font-weight:700; margin-top:6px; }
-.result .line { font-size:14px; color:#334155; margin-top:6px; line-height:1.45; }
+.result .who { font-size:24px; font-weight:800; margin-top:6px; }
+.result .kind { font-size:20px; font-weight:700; margin-top:6px; }
+.result .line { font-size:17px; color:#334155; margin-top:6px; line-height:1.45; }
 .result .small { font-size:12px; color:var(--muted); margin-top:8px; word-break:break-word; }
-.result img { width:84px; height:112px; object-fit:cover; border-radius:10px; margin-top:10px; border:2px solid #e2e8f0; }
+.result img { width:120px; height:160px; object-fit:cover; border-radius:10px; margin-top:10px; border:2px solid #e2e8f0; }
 .btn { margin-top:14px; background:var(--accent); color:#fff; border:none; border-radius:12px; padding:12px 22px; font-size:15px; font-weight:700; cursor:pointer; }
+@media (min-width:700px) {
+  .app { max-width:980px; padding-top:18px; }
+  .title { font-size:24px; }
+  .langs button { font-size:15px; padding:8px 16px; }
+  .clock { font-size:72px; }
+  .dateline { font-size:18px; margin-top:-12px; }
+  .cam { width:min(52vh,560px); }
+  .status { font-size:20px; max-width:760px; padding:14px 18px; }
+  .result .card { max-width:640px; padding:36px 32px 28px; }
+  .result .big { font-size:96px; }
+  .result .who { font-size:32px; } .result .kind { font-size:26px; } .result .line { font-size:21px; } .result .small { font-size:15px; }
+  .result img { width:150px; height:200px; }
+}
 [hidden] { display:none !important; }
 .foot { font-size:11px; color:#94a3b8; margin-top:4px; }
 </style>
@@ -58,7 +74,7 @@ body { font-family:'Khmer OS','Noto Sans Khmer','Noto Sans SC',-apple-system,Bli
   <div class="dateline" id="dateline"></div>
   <div class="cam" id="cam"><video id="video" playsinline muted autoplay></video></div>
   <div class="status" id="status">...</div>
-  <div class="result" id="result" hidden></div>
+  <div class="result" id="result" hidden role="dialog" aria-modal="true"></div>
   <button class="btn" id="againBtn" hidden></button>
   <div class="foot">Face Attendance</div>
 </div>
@@ -313,7 +329,7 @@ const TR = {
   r_restTime:'It is your break time, so scans are not recorded now. If you need to request leave, scan again at {at}.', r_noWindow:'This is not a valid scan time. The next scan window starts at {at}.',
   r_dayOff:'Today is your rest day. This scan was ignored.', r_noShift:'No shift is assigned to you for today. Please contact the office.',
   r_alreadyCheckedIn:'You already checked in at {at}.', r_alreadyCheckedOut:'You already checked out at {at}.', r_alreadyLeave:'You already requested leave at {at}.',
-  saveFailed:'Could not save your scan. Please try again.', again:'Scan again', tryAgain:'Try again'
+  saveFailed:'Could not save your scan. Please try again.', again:'Scan again', tryAgain:'Try again', close:'Close'
  },
  km: {
   title:'ស្កេនមុខសម្រាប់វត្តមាន', loadingEngine:'កំពុងផ្ទុកប្រព័ន្ធស្កេនមុខ...', loadingFaces:'កំពុងផ្ទុកទិន្នន័យមុខ...', startingCamera:'កំពុងបើកកាមេរ៉ា...',
@@ -328,7 +344,7 @@ const TR = {
   r_restTime:'ឥឡូវជាពេលសម្រាក ដូច្នេះការស្កេនមិនត្រូវបានកត់ត្រាទេ។ ប្រសិនបើអ្នកចង់សុំច្បាប់ សូមស្កេនម្តងទៀតនៅម៉ោង {at}។', r_noWindow:'នេះមិនមែនជាម៉ោងស្កេនត្រឹមត្រូវទេ។ ម៉ោងស្កេនបន្ទាប់ចាប់ផ្តើមនៅម៉ោង {at}។',
   r_dayOff:'ថ្ងៃនេះជាថ្ងៃឈប់សម្រាករបស់អ្នក។ ការស្កេននេះត្រូវបានមិនអើពើ។', r_noShift:'មិនមានវេនសម្រាប់អ្នកនៅថ្ងៃនេះទេ។ សូមទាក់ទងការិយាល័យ។',
   r_alreadyCheckedIn:'អ្នកបានចូលធ្វើការរួចហើយនៅម៉ោង {at}។', r_alreadyCheckedOut:'អ្នកបានចេញពីធ្វើការរួចហើយនៅម៉ោង {at}។', r_alreadyLeave:'អ្នកបានស្នើសុំច្បាប់រួចហើយនៅម៉ោង {at}។',
-  saveFailed:'មិនអាចរក្សាទុកការស្កេនបានទេ។ សូមសាកល្បងម្តងទៀត។', again:'ស្កេនម្តងទៀត', tryAgain:'សាកល្បងម្តងទៀត'
+  saveFailed:'មិនអាចរក្សាទុកការស្កេនបានទេ។ សូមសាកល្បងម្តងទៀត។', again:'ស្កេនម្តងទៀត', tryAgain:'សាកល្បងម្តងទៀត', close:'បិទ'
  },
  zh: {
   title:'人脸考勤打卡', loadingEngine:'正在加载人脸识别...', loadingFaces:'正在加载已登记的人脸...', startingCamera:'正在启动摄像头...',
@@ -343,7 +359,7 @@ const TR = {
   r_restTime:'现在是您的休息时间，打卡不会被记录。如需请假，请在 {at} 再次打卡。', r_noWindow:'现在不是有效的打卡时间。下一个打卡时段从 {at} 开始。',
   r_dayOff:'今天是您的休息日，本次打卡已忽略。', r_noShift:'今天没有为您安排班次。请联系办公室。',
   r_alreadyCheckedIn:'您已在 {at} 上班打卡。', r_alreadyCheckedOut:'您已在 {at} 下班打卡。', r_alreadyLeave:'您已在 {at} 提交了请假申请。',
-  saveFailed:'无法保存打卡。请重试。', again:'再次打卡', tryAgain:'重试'
+  saveFailed:'无法保存打卡。请重试。', again:'再次打卡', tryAgain:'重试', close:'关闭'
  }
 };
 let lang = 'en';
@@ -504,6 +520,9 @@ function setAgain(modeName) {
   $('againBtn').hidden = false;
   $('againBtn').textContent = modeName === 'retry' ? tr('tryAgain') : tr('again');
 }
+function closeResult() { if (!$('result').hidden && lastResult) $('againBtn').click(); }
+document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') closeResult(); });
+$('result').addEventListener('click', function (ev) { if (ev.target === $('result') || ev.target.closest('[data-close]')) closeResult(); });
 $('againBtn').addEventListener('click', async function () {
   $('againBtn').hidden = true;
   if (againMode === 'retry') {
@@ -625,6 +644,7 @@ function showResult(r) {
   $('cam').classList.remove('found');
   renderResult(r);
   setAgain('scan');
+  $('againBtn').hidden = true;   /* the pop-up has its own close / OK buttons */
 }
 function renderResult(r) {
   const el = $('result');
@@ -646,7 +666,8 @@ function renderResult(r) {
     html = '<div class="big">' + (soft ? '!' : '&#10007;') + '</div><div class="who">' + escapeHtml(r.name) + ' (' + escapeHtml(r.id) + ')</div>' +
       '<div class="line">' + escapeHtml(r.code === 'saveFailed' ? tr('saveFailed') : tr('r_' + r.code, r.params)) + '</div>';
   }
-  el.innerHTML = html;
+  el.innerHTML = '<div class="card"><button class="xbtn" data-close="1" aria-label="' + escapeHtml(tr('close')) + '">&times;</button>' + html +
+    '<button class="okbtn" data-close="1">' + escapeHtml(tr('close')) + '</button></div>';
 }
 
 /* ---------------- start-up ---------------- */
