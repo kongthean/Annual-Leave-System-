@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.97</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.98</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -943,6 +943,8 @@
 <button id="nav-printing" onclick="switchTab('tab-printing', this)" data-i18n="navPrinting" style="display:none;">Document Library</button>
 <button id="nav-auditlog" onclick="switchTab('tab-auditlog', this)" data-i18n="navAuditLog" style="display:none;">Activity Log</button>
 <button id="nav-certificates" onclick="switchTab('tab-certificates', this)" data-i18n="navCertificates" style="display:none;">Certificates</button>
+<!-- v6.98: Face Attendance (admin-only, reachable from Main Menu) -->
+<button id="nav-faceatt" onclick="switchTab('tab-faceatt', this)" data-i18n="navFaceAtt" style="display:none;">Face Attendance</button>
 
  <!-- TAB 1: DASHBOARD -->
  <div id="tab-home" class="tab-panel active">
@@ -1127,6 +1129,10 @@
      what this browser rendered on screen. -->
 <button class="quick-btn" style="background:linear-gradient(135deg,#be185d,#9d174d);" onclick="openConvertPhotoModal()">
     <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span><span class="quick-btn-label" data-i18n="navConvertPhoto">Convert to Photo</span>
+</button>
+<!-- v6.98: Face Attendance - watch face-scan check-ins live, enroll faces, shift rules, manual entry, daily PDF -->
+<button class="quick-btn admin-only" style="background:linear-gradient(135deg,#0891b2,#164e63);" onclick="triggerNav('tab-faceatt', 'nav-faceatt')">
+    <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2"/><path d="M16 4h2a2 2 0 0 1 2 2v2"/><path d="M20 16v2a2 2 0 0 1-2 2h-2"/><path d="M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="11" r="3"/><path d="M7.5 17.5c.9-2 2.6-3 4.5-3s3.6 1 4.5 3"/></svg></span><span class="quick-btn-label" data-i18n="navFaceAtt">Face Attendance</span>
 </button>
      </div>
  
@@ -1957,6 +1963,190 @@
      </div>
  </div>
 
+ <!-- v6.98: FACE ATTENDANCE tab (admin-only). Employees scan their face on their phone
+      (registeration.html); this tab is where Administration watches the scans live, enrolls faces,
+      sets the shift rules, fixes a day by hand, and exports the daily PDF. The shift calendar
+      itself is the existing Monthly Shift Calendar in Shift Roster - nothing there was changed. -->
+ <div id="tab-faceatt" class="tab-panel">
+     <style>
+         .fa-subnav { display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 14px; }
+         .fa-subnav button { border:1px solid #cbd5e1; background:#f8fafc; color:#334155; border-radius:18px; padding:7px 14px; font-size:12px; font-weight:600; cursor:pointer; }
+         .fa-subnav button.active { background:#1e3a8a; color:#fff; border-color:#1e3a8a; }
+         .fa-sec { display:none; }
+         .fa-sec.active { display:block; }
+         .fa-grid { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px; }
+         .fa-chip { display:inline-block; background:#e0f2fe; color:#075985; border-radius:12px; padding:3px 10px; font-size:11px; font-weight:700; margin:0 6px 6px 0; }
+         .fa-chip.warn { background:#fef3c7; color:#92400e; } .fa-chip.ok { background:#dcfce7; color:#166534; } .fa-chip.bad { background:#fee2e2; color:#991b1b; }
+         .fa-rules-tbl td, .fa-rules-tbl th { padding:6px 8px; }
+         .fa-rules-tbl input { width:100%; min-width:90px; }
+         #faVideoWrap { position:relative; width:260px; max-width:100%; aspect-ratio:3/4; background:#000; border-radius:12px; overflow:hidden; }
+         #faVideoWrap video { width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+         .fa-thumb { width:54px; height:72px; object-fit:cover; border-radius:6px; border:1px solid #cbd5e1; margin-right:6px; }
+         .fa-report th, .fa-report td { border:1px solid #94a3b8; padding:4px 6px; font-size:12px; }
+     </style>
+     <h3 data-i18n="faTitle">Face Attendance</h3>
+     <p style="font-size:11px; color:#64748b; margin-bottom:6px;" data-i18n="faSub">Employees scan their face on their phone. Check-in, leave requests and check-out are decided automatically from each employee's shift and the time of the scan.</p>
+     <p style="font-size:12px; color:#0f172a; margin-bottom:4px;"><b data-i18n="faScanLinkLabel">Employee scan page:</b> <span id="faScanLinkText" style="font-family:monospace;"></span>
+         <button type="button" class="quick-btn slate" style="padding:3px 10px; font-size:11px; margin-left:6px;" onclick="faCopyScanLink()" data-i18n="faCopyLink">Copy link</button></p>
+
+     <div class="fa-subnav" id="faSubnav">
+         <button type="button" data-fasec="live" class="active" onclick="faShowSection('live')" data-i18n="faTabLive">Live Scans</button>
+         <button type="button" data-fasec="enroll" onclick="faShowSection('enroll')" data-i18n="faTabEnroll">Enroll Faces</button>
+         <button type="button" onclick="triggerNav('tab-shift', 'nav-shift')" data-i18n="faTabShifts">Shift Calendar</button>
+         <button type="button" data-fasec="rules" onclick="faShowSection('rules')" data-i18n="faTabRules">Rules &amp; Settings</button>
+         <button type="button" data-fasec="manual" onclick="faShowSection('manual')" data-i18n="faTabManual">Manual Entry</button>
+         <button type="button" data-fasec="export" onclick="faShowSection('export')" data-i18n="faTabExport">Export PDF</button>
+     </div>
+
+     <!-- LIVE SCANS -->
+     <div id="faSec-live" class="fa-sec active">
+         <div class="dash-card">
+             <div class="fa-grid">
+                 <div class="form-group" style="margin-bottom:0; min-width:170px;">
+                     <label data-i18n="faLiveDate">Date</label>
+                     <input type="date" id="faLiveDate" onchange="faAttachLive()">
+                 </div>
+             </div>
+             <div id="faLiveSummary" style="margin-bottom:8px;"></div>
+             <div class="table-responsive">
+                 <table class="master-tbl tbl-wide" id="faLiveTable">
+                     <thead><tr>
+                         <th data-i18n="tblActions">Actions</th><th data-i18n="faColTime">Time</th><th data-i18n="tblId">ID</th><th data-i18n="tblName">Name</th>
+                         <th data-i18n="faColShift">Shift</th><th data-i18n="faColType">Type</th><th data-i18n="faColLate">Late (min)</th><th data-i18n="faColOT">OT (hrs)</th>
+                         <th data-i18n="faColLeave">Leave (hrs)</th><th data-i18n="faColLocation">Location</th><th data-i18n="faColPhoto">Photo</th><th data-i18n="faColSource">Source</th>
+                     </tr></thead>
+                     <tbody></tbody>
+                 </table>
+             </div>
+         </div>
+     </div>
+
+     <!-- ENROLL FACES -->
+     <div id="faSec-enroll" class="fa-sec">
+         <div class="dash-card">
+             <h4 data-i18n="faEnrollTitle">Enroll a face</h4>
+             <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="faEnrollSub">Enter the employee, start the camera, then capture at least 3 angles (straight, slightly left, slightly right). Only that employee should be in view.</p>
+             <div class="fa-grid">
+                 <div class="form-group" style="margin-bottom:0; min-width:180px;">
+                     <label data-i18n="lblEmpId">Employee ID</label>
+                     <input type="text" id="faEnrollEmpId" list="faEmpList" autocomplete="off" oninput="faOnEnrollIdInput()">
+                 </div>
+                 <div class="form-group" style="margin-bottom:0; min-width:220px; flex:1;">
+                     <label data-i18n="tblName">Name</label>
+                     <input type="text" id="faEnrollEmpName" readonly>
+                 </div>
+             </div>
+             <datalist id="faEmpList"></datalist>
+             <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-start;">
+                 <div id="faVideoWrap"><video id="faVideo" playsinline muted autoplay></video></div>
+                 <div style="flex:1; min-width:220px;">
+                     <div id="faEnrollStatus" style="font-size:12px; margin-bottom:8px; min-height:18px;"></div>
+                     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+                         <button type="button" class="quick-btn slate" onclick="faStartCamera()" data-i18n="faStartCamera">Start camera</button>
+                         <button type="button" class="quick-btn green" onclick="faCaptureAngle(this)" data-i18n="faCapture">Capture angle</button>
+                         <button type="button" class="quick-btn rose" onclick="faClearCaptures()" data-i18n="faClearCaptures">Clear captures</button>
+                     </div>
+                     <div id="faCaptureInfo" style="font-size:12px; margin-bottom:6px;"></div>
+                     <div id="faCaptureThumbs" style="margin-bottom:10px;"></div>
+                     <button type="button" class="btn-submit" style="width:auto; padding:8px 20px;" onclick="faSaveEnrollment(this)" data-i18n="faSaveEnroll">Save enrollment</button>
+                 </div>
+             </div>
+         </div>
+         <div class="dash-card" style="margin-top:16px;">
+             <h4 data-i18n="faEnrolledList">Enrolled employees</h4>
+             <div id="faNotEnrolled" style="margin-bottom:8px;"></div>
+             <div class="table-responsive">
+                 <table class="master-tbl" id="faEnrolledTable">
+                     <thead><tr><th data-i18n="tblActions">Actions</th><th data-i18n="tblId">ID</th><th data-i18n="tblName">Name</th><th data-i18n="faColAngles">Angles</th><th data-i18n="faColEnrolledOn">Enrolled on</th></tr></thead>
+                     <tbody></tbody>
+                 </table>
+             </div>
+         </div>
+     </div>
+
+     <!-- RULES & SETTINGS -->
+     <div id="faSec-rules" class="fa-sec">
+         <div class="dash-card">
+             <h4 data-i18n="faRulesTitle">Shift rules</h4>
+             <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="faRulesSub">Times for each shift. A check-out window opens at the shift end plus each overtime hour listed (for example 0,1,2,3). H (rest day) needs no settings: scans on an H day are ignored.</p>
+             <div class="table-responsive">
+                 <table class="master-tbl fa-rules-tbl" id="faRulesTable">
+                     <thead><tr><th data-i18n="faColShift">Shift</th><th data-i18n="faShiftStart">Start</th><th data-i18n="faShiftEnd">End</th><th data-i18n="faBreakStart">Break start</th><th data-i18n="faBreakEnd">Break end</th><th data-i18n="faOtHours">Overtime hours (comma separated)</th></tr></thead>
+                     <tbody></tbody>
+                 </table>
+             </div>
+             <h4 style="margin-top:16px;" data-i18n="faRulesGeneral">General settings</h4>
+             <div class="fa-grid">
+                 <div class="form-group" style="margin-bottom:0;"><label data-i18n="faWindowMinutes">Scan window length (minutes)</label><input type="number" id="faSetWindow" min="1" max="120"></div>
+                 <div class="form-group" style="margin-bottom:0;"><label data-i18n="faLateBlock">Late counted in blocks of (minutes)</label><input type="number" id="faSetLate" min="1" max="120"></div>
+                 <div class="form-group" style="margin-bottom:0;"><label data-i18n="faHalfDayHrs">Half-day leave hours</label><input type="number" id="faSetHalf" min="0.5" step="0.5"></div>
+                 <div class="form-group" style="margin-bottom:0;"><label data-i18n="faFullDayHrs">Full-day leave hours</label><input type="number" id="faSetFull" min="1" step="0.5"></div>
+                 <div class="form-group" style="margin-bottom:0;"><label data-i18n="faNightStart">Night hours start</label><input type="time" id="faSetNightStart"></div>
+                 <div class="form-group" style="margin-bottom:0;"><label data-i18n="faNightEnd">Night hours end</label><input type="time" id="faSetNightEnd"></div>
+                 <div class="form-group" style="margin-bottom:0;"><label data-i18n="faMatchThreshold">Face match strictness (lower = stricter, default 0.5)</label><input type="number" id="faSetMatch" min="0.3" max="0.7" step="0.01"></div>
+                 <div class="form-group" style="margin-bottom:0;"><label data-i18n="faPhotoRetention">Keep scan photos for (days)</label><input type="number" id="faSetRetention" min="1" max="365"></div>
+             </div>
+             <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                 <button type="button" class="btn-submit" style="width:auto; padding:8px 20px;" onclick="faSaveRules(this)" data-i18n="faSaveRules">Save settings</button>
+                 <button type="button" class="quick-btn slate" onclick="faResetRules()" data-i18n="faResetRules">Reset to defaults</button>
+             </div>
+         </div>
+     </div>
+
+     <!-- MANUAL ENTRY -->
+     <div id="faSec-manual" class="fa-sec">
+         <div class="dash-card">
+             <h4 data-i18n="faManualTitle">Manual entry</h4>
+             <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="faManualSub">Use this when a scan is not possible (for example after the last check-out window has closed). It is saved like a scan and marked as Manual.</p>
+             <div class="fa-grid">
+                 <div class="form-group" style="margin-bottom:0; min-width:170px;"><label data-i18n="lblEmpId">Employee ID</label><input type="text" id="faManualEmpId" list="faEmpList" autocomplete="off" oninput="faManualPreview()"></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:170px;"><label data-i18n="faManualDate">Shift date</label><input type="date" id="faManualDate" onchange="faManualPreview()"></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:170px;"><label data-i18n="faManualKind">Type</label>
+                     <select id="faManualKind" onchange="faManualPreview()">
+                         <option value="checkin" data-i18n="faKind_checkin">Check-in</option><option value="checkout" data-i18n="faKind_checkout">Check-out</option>
+                         <option value="halfday" data-i18n="faKind_halfday">Half-day leave</option><option value="fullday" data-i18n="faKind_fullday">Full-day leave</option>
+                     </select></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:130px;"><label data-i18n="faManualTime">Time</label><input type="time" id="faManualTime" oninput="faManualPreview()"></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:130px;"><label data-i18n="faManualOt">Overtime hours</label><input type="number" id="faManualOt" min="0" max="12" step="0.5" value="0"></div>
+             </div>
+             <label style="font-size:12px; display:block; margin-bottom:8px;"><input type="checkbox" id="faManualNextDay" onchange="faManualPreview()"> <span data-i18n="faManualNextDay">Time is after midnight (next day)</span></label>
+             <div class="form-group"><label data-i18n="faManualNote">Note (optional)</label><input type="text" id="faManualNote" maxlength="200"></div>
+             <div id="faManualPreviewText" style="font-size:12px; color:#334155; margin-bottom:8px;"></div>
+             <button type="button" class="btn-submit" style="width:auto; padding:8px 20px;" onclick="faSaveManual(this)" data-i18n="faManualSave">Save manual entry</button>
+         </div>
+     </div>
+
+     <!-- EXPORT PDF -->
+     <div id="faSec-export" class="fa-sec">
+         <div class="dash-card">
+             <h4 data-i18n="faExportTitle">Daily attendance PDF</h4>
+             <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="faExportSub">Export a finished day (normally the next morning, after 7:00 AM). The PDF opens in a print window - choose "Save as PDF".</p>
+             <div class="fa-grid">
+                 <div class="form-group" style="margin-bottom:0; min-width:170px;"><label data-i18n="faExportDate">Report date</label><input type="date" id="faExportDate"></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:200px;"><label data-i18n="tblDepartment">Department</label><select id="faExportDept"></select></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:160px;"><label data-i18n="faExportLang">Report language</label>
+                     <select id="faExportLang"><option value="en">English</option><option value="km">ខ្មែរ</option><option value="zh">中文</option></select></div>
+             </div>
+             <div class="form-group"><label data-i18n="faHeaderDept">Header: department name</label><input type="text" id="faHeaderDept" maxlength="120"></div>
+             <div class="form-group"><label data-i18n="faHeaderExtra">Header: extra lines (optional)</label><textarea id="faHeaderExtra" rows="2" maxlength="400" style="width:100%;"></textarea></div>
+             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                 <button type="button" class="quick-btn slate" onclick="faPreviewReport(this)" data-i18n="faPreview">Preview</button>
+                 <button type="button" class="quick-btn green" onclick="faExportReportPdf(this)" data-i18n="faExportPdf">Export PDF</button>
+             </div>
+             <div id="faExportWarn" style="margin-bottom:8px;"></div>
+             <div id="faReportPreview" class="table-responsive"></div>
+         </div>
+     </div>
+ </div>
+
+ <!-- v6.98: scan photo viewer -->
+ <div class="modal" id="faPhotoModal">
+     <div class="modal-content" style="max-width:360px; text-align:center;">
+         <div class="modal-header"><h4 id="faPhotoTitle"></h4><button class="modal-close" onclick="document.getElementById('faPhotoModal').style.display='none'">&times;</button></div>
+         <div id="faPhotoBody" style="min-height:80px;"></div>
+     </div>
+ </div>
+
  <!-- TAB 10: DEPARTMENTS (v5.00) -->
  <div id="tab-dept" class="tab-panel">
      <h3 data-i18n="deptTitle">Departments / Teams</h3>
@@ -2207,7 +2397,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.97
+     HR & Administration System Version 6.98
  </div>
 </div>
 
@@ -3394,6 +3584,132 @@
         notifPersonalLeaveMsg: "You have a Personal Leave record of {hours} hour(s). Total Personal Leave this month: {total} hours.",
         notifLeaveDeductedMsg2: "Your Annual Leave entitlement has been deducted {hours} hour(s) use for your leave on {date}. Used for {type}. Remaining Hours: {remaining} hours.",
         notifPersonalLeaveMsg2: "You have a personal leave record of {hours} hour(s) for your leave on {date}. Total personal leave this month: {total} hours.",
+        /* v6.98 Face Attendance */
+        navFaceAtt: "Face Attendance",
+        faTitle: "Face Attendance",
+        faSub: "Employees scan their face on their phone. Check-in, leave requests and check-out are decided automatically from each employee's shift and the time of the scan.",
+        faScanLinkLabel: "Employee scan page:",
+        faCopyLink: "Copy link",
+        faLinkCopied: "Link copied",
+        faTabLive: "Live Scans",
+        faTabEnroll: "Enroll Faces",
+        faTabShifts: "Shift Calendar",
+        faTabRules: "Rules & Settings",
+        faTabManual: "Manual Entry",
+        faTabExport: "Export PDF",
+        faLiveDate: "Date",
+        faLiveNote: "Scans are grouped by the date the shift started - a night shift's after-midnight scans appear under the day it began.",
+        faChipScheduled: "Scheduled",
+        faChipLeave: "Leave",
+        faChipNoScan: "No scan yet",
+        faColTime: "Time",
+        faColType: "Type",
+        faColShift: "Shift",
+        faColLate: "Late (min)",
+        faColOT: "OT (hrs)",
+        faColLeave: "Leave (hrs)",
+        faColLocation: "Location",
+        faColPhoto: "Photo",
+        faColSource: "Source",
+        faViewPhoto: "View",
+        faPhotoExpired: "Photo no longer available (photos are kept for {days} days).",
+        faMap: "Map",
+        faSourceScan: "Scan",
+        faSourceManual: "Manual",
+        faNoScans: "No scans for this date yet.",
+        faDeleteScanConfirm: "Delete this scan? The employee will be able to scan again for this slot.",
+        faKind_checkin: "Check-in",
+        faKind_checkout: "Check-out",
+        faKind_halfday: "Half-day leave",
+        faKind_fullday: "Full-day leave",
+        faEnrollTitle: "Enroll a face",
+        faEnrollSub: "Enter the employee, start the camera, then capture at least 3 angles (straight, slightly left, slightly right). Only that employee should be in view.",
+        faStartCamera: "Start camera",
+        faCapture: "Capture angle",
+        faClearCaptures: "Clear captures",
+        faSaveEnroll: "Save enrollment",
+        faCaptured: "Captured: {n} (minimum {min})",
+        faEngineLoading: "Loading face engine...",
+        faEngineFailed: "Could not load the face engine. Check the internet connection and try again.",
+        faCamFailed: "Cannot open the camera. Allow camera access in the browser.",
+        faStartCameraFirst: "Start the camera first.",
+        faNoFace: "No face detected. Face the camera in good light.",
+        faPickEmployee: "Enter a valid Employee ID first.",
+        faNeedMin: "Capture at least {min} angles first.",
+        faLooksLike: "This face looks like {name} ({id}), who is already enrolled. Save it for {target} anyway?",
+        faEnrollSaved: "Face enrolled.",
+        faAlreadyEnrolled: "This employee is already enrolled. Saving again will replace their face data.",
+        faEnrolledList: "Enrolled employees",
+        faColAngles: "Angles",
+        faColEnrolledOn: "Enrolled on",
+        faNotEnrolledCount: "Not yet enrolled: {n}",
+        faDeleteEnrollConfirm: "Delete the face enrollment for {name}? They will not be able to scan until enrolled again.",
+        faNoEnrollments: "No faces enrolled yet.",
+        faRulesTitle: "Shift rules",
+        faRulesSub: "Times for each shift. A check-out window opens at the shift end plus each overtime hour listed (for example 0,1,2,3). H (rest day) needs no settings: scans on an H day are ignored.",
+        faShiftStart: "Start",
+        faShiftEnd: "End",
+        faBreakStart: "Break start",
+        faBreakEnd: "Break end",
+        faOtHours: "Overtime hours (comma separated)",
+        faRulesGeneral: "General settings",
+        faWindowMinutes: "Scan window length (minutes)",
+        faLateBlock: "Late counted in blocks of (minutes)",
+        faHalfDayHrs: "Half-day leave hours",
+        faFullDayHrs: "Full-day leave hours",
+        faNightStart: "Night hours start",
+        faNightEnd: "Night hours end",
+        faMatchThreshold: "Face match strictness (lower = stricter, default 0.5)",
+        faPhotoRetention: "Keep scan photos for (days)",
+        faSaveRules: "Save settings",
+        faResetRules: "Reset to defaults",
+        faRulesSaved: "Settings saved.",
+        faRulesInvalid: "Shift {code} times are not valid. The order must be: start, break start, break end, end (night shifts may cross midnight), and overtime hours must be filled in.",
+        faRulesInvalidGeneral: "Please fill every general setting with a valid number or time.",
+        faResetConfirm: "Reset all attendance rules to their defaults?",
+        faManualTitle: "Manual entry",
+        faManualSub: "Use this when a scan is not possible (for example after the last check-out window has closed). It is saved like a scan and marked as Manual.",
+        faManualDate: "Shift date",
+        faManualKind: "Type",
+        faManualTime: "Time",
+        faManualOt: "Overtime hours",
+        faManualNextDay: "Time is after midnight (next day)",
+        faManualNote: "Note (optional)",
+        faManualSave: "Save manual entry",
+        faManualSaved: "Manual entry saved.",
+        faManualNoShift: "This employee has no working shift (M/F/G) on that date.",
+        faManualNeedFields: "Fill in the Employee ID, date and time.",
+        faManualAutoLate: "Calculated late: {min} minutes",
+        faManualAutoOt: "Suggested overtime: {h} hour(s)",
+        faManualDuplicate: "That entry already exists for this employee and date. Delete it from Live Scans first.",
+        faExportTitle: "Daily attendance PDF",
+        faExportSub: "Export a finished day (normally the next morning, after 7:00 AM). The PDF opens in a print window - choose 'Save as PDF'.",
+        faExportDate: "Report date",
+        faExportLang: "Report language",
+        faAllDepts: "All departments",
+        faHeaderDept: "Header: department name",
+        faHeaderExtra: "Header: extra lines (optional)",
+        faPreview: "Preview",
+        faExportPdf: "Export PDF",
+        faReportTitle: "Daily Attendance Report",
+        faColNo: "No.",
+        faColCheckIn: "Check-in",
+        faColCheckOut: "Check-out",
+        faColWorkHrs: "Total working hours",
+        faColNightHrs: "Night working hours",
+        faColLeaveHrs: "Leave / permission hours",
+        faColOtHrs: "OT hours",
+        faColRemarks: "Remarks",
+        faRemNoScan: "No scan",
+        faRemMissingOut: "Missing check-out",
+        faRemMissingIn: "Missing check-in",
+        faRemLate: "Late {min} min",
+        faRemHalf: "Half-day leave",
+        faRemFull: "Full-day leave",
+        faRemManual: "Manual entry",
+        faTotal: "Total",
+        faDayNotClosed: "This day is not fully closed yet - some check-outs may still be missing.",
+        faNoRowsExport: "Nobody is scheduled or scanned on this date.",
         empMenuRequest: "Request",
         empMenuCheckShift: "Check Shift",
         btnCheckMyShift: "Check My Shift",
@@ -4078,6 +4394,132 @@
         notifPersonalLeaveMsg: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
         notifLeaveDeductedMsg2: "សិទ្ធិច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំរបស់អ្នកត្រូវបានកាត់កង {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ ប្រើសម្រាប់៖ {type}។ ម៉ោងនៅសល់៖ {remaining} ម៉ោង។",
         notifPersonalLeaveMsg2: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
+        /* v6.98 Face Attendance */
+        navFaceAtt: "វត្តមានតាមការស្កេនមុខ",
+        faTitle: "វត្តមានតាមការស្កេនមុខ",
+        faSub: "និយោជិតស្កេនមុខរបស់ពួកគេនៅលើទូរស័ព្ទ។ ការចូលធ្វើការ សំណើសុំច្បាប់ និងការចេញពីធ្វើការ ត្រូវបានកំណត់ដោយស្វ័យប្រវត្តិ ដោយផ្អែកលើវេនរបស់និយោជិតម្នាក់ៗ និងម៉ោងនៃការស្កេន។",
+        faScanLinkLabel: "ទំព័រស្កេនសម្រាប់និយោជិត៖",
+        faCopyLink: "ចម្លងតំណ",
+        faLinkCopied: "បានចម្លងតំណ",
+        faTabLive: "ការស្កេនផ្ទាល់",
+        faTabEnroll: "ចុះឈ្មោះមុខ",
+        faTabShifts: "ប្រតិទិនវេន",
+        faTabRules: "ច្បាប់ និងការកំណត់",
+        faTabManual: "បញ្ចូលដោយដៃ",
+        faTabExport: "នាំចេញ PDF",
+        faLiveDate: "កាលបរិច្ឆេទ",
+        faLiveNote: "ការស្កេនត្រូវបានដាក់ជាក្រុមតាមកាលបរិច្ឆេទដែលវេនចាប់ផ្តើម - ការស្កេនក្រោយអាធ្រាត្រនៃវេនយប់នឹងបង្ហាញក្នុងថ្ងៃដែលវេនចាប់ផ្តើម។",
+        faChipScheduled: "ដែលមានវេន",
+        faChipLeave: "សុំច្បាប់",
+        faChipNoScan: "មិនទាន់ស្កេន",
+        faColTime: "ម៉ោង",
+        faColType: "ប្រភេទ",
+        faColShift: "វេន",
+        faColLate: "យឺត (នាទី)",
+        faColOT: "ម៉ោងបន្ថែម (ម៉ោង)",
+        faColLeave: "ច្បាប់ (ម៉ោង)",
+        faColLocation: "ទីតាំង",
+        faColPhoto: "រូបថត",
+        faColSource: "ប្រភព",
+        faViewPhoto: "មើល",
+        faPhotoExpired: "រូបថតលែងមានទៀតហើយ (រូបថតត្រូវបានរក្សាទុក {days} ថ្ងៃ)។",
+        faMap: "ផែនទី",
+        faSourceScan: "ស្កេន",
+        faSourceManual: "ដោយដៃ",
+        faNoScans: "មិនទាន់មានការស្កេនសម្រាប់កាលបរិច្ឆេទនេះទេ។",
+        faDeleteScanConfirm: "លុបការស្កេននេះមែនទេ? និយោជិតនឹងអាចស្កេនម្តងទៀតសម្រាប់ចន្លោះនេះ។",
+        faKind_checkin: "ចូលធ្វើការ",
+        faKind_checkout: "ចេញពីធ្វើការ",
+        faKind_halfday: "ច្បាប់កន្លះថ្ងៃ",
+        faKind_fullday: "ច្បាប់ពេញមួយថ្ងៃ",
+        faEnrollTitle: "ចុះឈ្មោះមុខ",
+        faEnrollSub: "បញ្ចូលអត្តលេខនិយោជិត បើកកាមេរ៉ា រួចថតយ៉ាងតិច ៣ ជ្រុង (ត្រង់ បែរឆ្វេងបន្តិច បែរស្តាំបន្តិច)។ គួរមានតែនិយោជិតម្នាក់នោះក្នុងរូបភាព។",
+        faStartCamera: "បើកកាមេរ៉ា",
+        faCapture: "ថតជ្រុង",
+        faClearCaptures: "លុបការថត",
+        faSaveEnroll: "រក្សាទុកការចុះឈ្មោះ",
+        faCaptured: "បានថត៖ {n} (យ៉ាងតិច {min})",
+        faEngineLoading: "កំពុងផ្ទុកប្រព័ន្ធស្កេនមុខ...",
+        faEngineFailed: "មិនអាចផ្ទុកប្រព័ន្ធស្កេនមុខបានទេ។ សូមពិនិត្យអ៊ីនធឺណិត រួចព្យាយាមម្តងទៀត។",
+        faCamFailed: "មិនអាចបើកកាមេរ៉ាបានទេ។ សូមអនុញ្ញាតកាមេរ៉ាក្នុងកម្មវិធីរុករក។",
+        faStartCameraFirst: "សូមបើកកាមេរ៉ាជាមុនសិន។",
+        faNoFace: "រកមិនឃើញមុខទេ។ សូមបែរមុខមកកាមេរ៉ាក្នុងពន្លឺល្អ។",
+        faPickEmployee: "សូមបញ្ចូលអត្តលេខនិយោជិតឱ្យត្រឹមត្រូវជាមុនសិន។",
+        faNeedMin: "សូមថតយ៉ាងតិច {min} ជ្រុងជាមុនសិន។",
+        faLooksLike: "មុខនេះមើលទៅដូច {name} ({id}) ដែលបានចុះឈ្មោះរួចហើយ។ តើនៅតែរក្សាទុកសម្រាប់ {target} មែនទេ?",
+        faEnrollSaved: "បានចុះឈ្មោះមុខ។",
+        faAlreadyEnrolled: "និយោជិតនេះបានចុះឈ្មោះរួចហើយ។ ការរក្សាទុកម្តងទៀតនឹងជំនួសទិន្នន័យមុខរបស់គាត់។",
+        faEnrolledList: "និយោជិតដែលបានចុះឈ្មោះ",
+        faColAngles: "ជ្រុង",
+        faColEnrolledOn: "ចុះឈ្មោះនៅថ្ងៃ",
+        faNotEnrolledCount: "មិនទាន់ចុះឈ្មោះ៖ {n}",
+        faDeleteEnrollConfirm: "លុបការចុះឈ្មោះមុខរបស់ {name} មែនទេ? គាត់នឹងមិនអាចស្កេនបានរហូតដល់ចុះឈ្មោះម្តងទៀត។",
+        faNoEnrollments: "មិនទាន់មានមុខណាត្រូវបានចុះឈ្មោះទេ។",
+        faRulesTitle: "ច្បាប់វេន",
+        faRulesSub: "ម៉ោងសម្រាប់វេននីមួយៗ។ ម៉ោងស្កេនចេញបើកនៅម៉ោងចប់វេន បូកនឹងម៉ោងបន្ថែមនីមួយៗដែលបានចុះបញ្ជី (ឧទាហរណ៍ 0,1,2,3)។ H (ថ្ងៃឈប់សម្រាក) មិនត្រូវការការកំណត់ទេ៖ ការស្កេនក្នុងថ្ងៃ H ត្រូវបានមិនអើពើ។",
+        faShiftStart: "ចាប់ផ្តើម",
+        faShiftEnd: "បញ្ចប់",
+        faBreakStart: "ចាប់ផ្តើមសម្រាក",
+        faBreakEnd: "បញ្ចប់សម្រាក",
+        faOtHours: "ម៉ោងបន្ថែម (បំបែកដោយក្បៀស)",
+        faRulesGeneral: "ការកំណត់ទូទៅ",
+        faWindowMinutes: "រយៈពេលបង្អួចស្កេន (នាទី)",
+        faLateBlock: "ការយឺតគិតជាចន្លោះ (នាទី)",
+        faHalfDayHrs: "ម៉ោងច្បាប់កន្លះថ្ងៃ",
+        faFullDayHrs: "ម៉ោងច្បាប់ពេញមួយថ្ងៃ",
+        faNightStart: "ម៉ោងយប់ចាប់ផ្តើម",
+        faNightEnd: "ម៉ោងយប់បញ្ចប់",
+        faMatchThreshold: "កម្រិតតឹងរ៉ឹងនៃការផ្គូផ្គងមុខ (កាន់តែទាប = កាន់តែតឹង លំនាំដើម 0.5)",
+        faPhotoRetention: "រក្សារូបថតស្កេនរយៈពេល (ថ្ងៃ)",
+        faSaveRules: "រក្សាទុកការកំណត់",
+        faResetRules: "កំណត់ឡើងវិញទៅលំនាំដើម",
+        faRulesSaved: "បានរក្សាទុកការកំណត់។",
+        faRulesInvalid: "ម៉ោងវេន {code} មិនត្រឹមត្រូវទេ។ លំដាប់ត្រូវតែជា៖ ចាប់ផ្តើម ចាប់ផ្តើមសម្រាក បញ្ចប់សម្រាក បញ្ចប់ (វេនយប់អាចឆ្លងអាធ្រាត្រ) ហើយត្រូវបំពេញម៉ោងបន្ថែម។",
+        faRulesInvalidGeneral: "សូមបំពេញការកំណត់ទូទៅទាំងអស់ដោយលេខ ឬម៉ោងត្រឹមត្រូវ។",
+        faResetConfirm: "កំណត់ច្បាប់វត្តមានទាំងអស់ឡើងវិញទៅលំនាំដើមមែនទេ?",
+        faManualTitle: "បញ្ចូលដោយដៃ",
+        faManualSub: "ប្រើនៅពេលមិនអាចស្កេនបាន (ឧទាហរណ៍ បន្ទាប់ពីបង្អួចស្កេនចេញចុងក្រោយបានបិទ)។ វាត្រូវបានរក្សាទុកដូចការស្កេន ហើយសម្គាល់ថា «ដោយដៃ»។",
+        faManualDate: "កាលបរិច្ឆេទវេន",
+        faManualKind: "ប្រភេទ",
+        faManualTime: "ម៉ោង",
+        faManualOt: "ម៉ោងបន្ថែម",
+        faManualNextDay: "ម៉ោងនេះក្រោយអាធ្រាត្រ (ថ្ងៃបន្ទាប់)",
+        faManualNote: "កំណត់សម្គាល់ (ស្រេចចិត្ត)",
+        faManualSave: "រក្សាទុកការបញ្ចូលដោយដៃ",
+        faManualSaved: "បានរក្សាទុកការបញ្ចូលដោយដៃ។",
+        faManualNoShift: "និយោជិតនេះមិនមានវេនធ្វើការ (M/F/G) នៅកាលបរិច្ឆេទនោះទេ។",
+        faManualNeedFields: "សូមបំពេញអត្តលេខនិយោជិត កាលបរិច្ឆេទ និងម៉ោង។",
+        faManualAutoLate: "ការយឺតដែលគណនា៖ {min} នាទី",
+        faManualAutoOt: "ម៉ោងបន្ថែមដែលណែនាំ៖ {h} ម៉ោង",
+        faManualDuplicate: "ការបញ្ចូលនោះមានរួចហើយសម្រាប់និយោជិត និងកាលបរិច្ឆេទនេះ។ សូមលុបវាពីការស្កេនផ្ទាល់ជាមុនសិន។",
+        faExportTitle: "PDF វត្តមានប្រចាំថ្ងៃ",
+        faExportSub: "នាំចេញថ្ងៃដែលបានបញ្ចប់ (ជាធម្មតាព្រឹកថ្ងៃបន្ទាប់ ក្រោយម៉ោង 7:00)។ PDF នឹងបើកក្នុងផ្ទាំងបោះពុម្ព - សូមជ្រើស 'Save as PDF'។",
+        faExportDate: "កាលបរិច្ឆេទរបាយការណ៍",
+        faExportLang: "ភាសារបាយការណ៍",
+        faAllDepts: "គ្រប់ផ្នែកទាំងអស់",
+        faHeaderDept: "ក្បាលរបាយការណ៍៖ ឈ្មោះផ្នែក",
+        faHeaderExtra: "ក្បាលរបាយការណ៍៖ បន្ទាត់បន្ថែម (ស្រេចចិត្ត)",
+        faPreview: "មើលជាមុន",
+        faExportPdf: "នាំចេញ PDF",
+        faReportTitle: "របាយការណ៍វត្តមានប្រចាំថ្ងៃ",
+        faColNo: "ល.រ",
+        faColCheckIn: "ម៉ោងចូល",
+        faColCheckOut: "ម៉ោងចេញ",
+        faColWorkHrs: "ម៉ោងធ្វើការសរុប",
+        faColNightHrs: "ម៉ោងធ្វើការពេលយប់",
+        faColLeaveHrs: "ម៉ោងច្បាប់ / ការអនុញ្ញាត",
+        faColOtHrs: "ម៉ោងបន្ថែម",
+        faColRemarks: "កំណត់សម្គាល់",
+        faRemNoScan: "មិនបានស្កេន",
+        faRemMissingOut: "ខ្វះការស្កេនចេញ",
+        faRemMissingIn: "ខ្វះការស្កេនចូល",
+        faRemLate: "យឺត {min} នាទី",
+        faRemHalf: "ច្បាប់កន្លះថ្ងៃ",
+        faRemFull: "ច្បាប់ពេញមួយថ្ងៃ",
+        faRemManual: "បញ្ចូលដោយដៃ",
+        faTotal: "សរុប",
+        faDayNotClosed: "ថ្ងៃនេះមិនទាន់បិទពេញលេញទេ - ការស្កេនចេញខ្លះអាចនៅខ្វះ។",
+        faNoRowsExport: "គ្មាននរណាមានវេន ឬបានស្កេននៅកាលបរិច្ឆេទនេះទេ។",
         empMenuRequest: "សំណើ",
         empMenuCheckShift: "ពិនិត្យវេន",
         btnCheckMyShift: "ពិនិត្យវេនរបស់ខ្ញុំ",
@@ -4744,6 +5186,132 @@
         notifPersonalLeaveMsg: "您有一笔{hours}小时的事假记录。本月事假总计：{total}小时。",
         notifLeaveDeductedMsg2: "您的年假额度已扣除{hours}小时，对应您在{date}的休假。用途：{type}。剩余小时数：{remaining}小时。",
         notifPersonalLeaveMsg2: "您有一笔{hours}小时的事假记录，对应您在{date}的休假。本月事假总计：{total}小时。",
+        /* v6.98 Face Attendance */
+        navFaceAtt: "人脸考勤",
+        faTitle: "人脸考勤",
+        faSub: "员工在手机上扫描人脸。系统会根据每位员工的班次和打卡时间，自动判断是上班打卡、请假申请还是下班打卡。",
+        faScanLinkLabel: "员工打卡页面：",
+        faCopyLink: "复制链接",
+        faLinkCopied: "链接已复制",
+        faTabLive: "实时打卡",
+        faTabEnroll: "登记人脸",
+        faTabShifts: "排班日历",
+        faTabRules: "规则与设置",
+        faTabManual: "手动录入",
+        faTabExport: "导出 PDF",
+        faLiveDate: "日期",
+        faLiveNote: "打卡记录按班次开始的日期归类 - 夜班过了午夜的打卡会显示在班次开始的那一天。",
+        faChipScheduled: "已排班",
+        faChipLeave: "请假",
+        faChipNoScan: "尚未打卡",
+        faColTime: "时间",
+        faColType: "类型",
+        faColShift: "班次",
+        faColLate: "迟到（分钟）",
+        faColOT: "加班（小时）",
+        faColLeave: "请假（小时）",
+        faColLocation: "位置",
+        faColPhoto: "照片",
+        faColSource: "来源",
+        faViewPhoto: "查看",
+        faPhotoExpired: "照片已不可用（照片保留 {days} 天）。",
+        faMap: "地图",
+        faSourceScan: "扫描",
+        faSourceManual: "手动",
+        faNoScans: "该日期暂无打卡记录。",
+        faDeleteScanConfirm: "确定删除此打卡记录吗？员工将可以重新打卡。",
+        faKind_checkin: "上班打卡",
+        faKind_checkout: "下班打卡",
+        faKind_halfday: "半天假",
+        faKind_fullday: "全天假",
+        faEnrollTitle: "登记人脸",
+        faEnrollSub: "输入员工编号，启动摄像头，然后至少拍摄3个角度（正面、略向左、略向右）。画面中只能有该员工一人。",
+        faStartCamera: "启动摄像头",
+        faCapture: "拍摄角度",
+        faClearCaptures: "清除已拍摄",
+        faSaveEnroll: "保存登记",
+        faCaptured: "已拍摄：{n}（至少 {min}）",
+        faEngineLoading: "正在加载人脸识别...",
+        faEngineFailed: "无法加载人脸识别。请检查网络连接后重试。",
+        faCamFailed: "无法打开摄像头。请在浏览器中允许使用摄像头。",
+        faStartCameraFirst: "请先启动摄像头。",
+        faNoFace: "未检测到人脸。请在光线良好的环境下正对摄像头。",
+        faPickEmployee: "请先输入有效的员工编号。",
+        faNeedMin: "请先至少拍摄 {min} 个角度。",
+        faLooksLike: "此人脸与已登记的 {name}（{id}）很相似。仍要为 {target} 保存吗？",
+        faEnrollSaved: "人脸已登记。",
+        faAlreadyEnrolled: "该员工已登记。再次保存将替换其人脸数据。",
+        faEnrolledList: "已登记员工",
+        faColAngles: "角度",
+        faColEnrolledOn: "登记日期",
+        faNotEnrolledCount: "尚未登记：{n}",
+        faDeleteEnrollConfirm: "确定删除 {name} 的人脸登记吗？重新登记前将无法打卡。",
+        faNoEnrollments: "尚未登记任何人脸。",
+        faRulesTitle: "班次规则",
+        faRulesSub: "每个班次的时间。下班打卡时段从班次结束时间起，加上所列的每个加班小时数开启（例如 0,1,2,3）。H（休息日）无需设置：H 日的打卡将被忽略。",
+        faShiftStart: "开始",
+        faShiftEnd: "结束",
+        faBreakStart: "休息开始",
+        faBreakEnd: "休息结束",
+        faOtHours: "加班小时（用逗号分隔）",
+        faRulesGeneral: "通用设置",
+        faWindowMinutes: "打卡时段长度（分钟）",
+        faLateBlock: "迟到按多少分钟为一档计算",
+        faHalfDayHrs: "半天假小时数",
+        faFullDayHrs: "全天假小时数",
+        faNightStart: "夜班时间开始",
+        faNightEnd: "夜班时间结束",
+        faMatchThreshold: "人脸匹配严格度（越低越严格，默认 0.5）",
+        faPhotoRetention: "扫描照片保留天数",
+        faSaveRules: "保存设置",
+        faResetRules: "恢复默认",
+        faRulesSaved: "设置已保存。",
+        faRulesInvalid: "班次 {code} 的时间无效。顺序必须是：开始、休息开始、休息结束、结束（夜班可跨过午夜），并且必须填写加班小时。",
+        faRulesInvalidGeneral: "请为每项通用设置填写有效的数字或时间。",
+        faResetConfirm: "确定将所有考勤规则恢复为默认值吗？",
+        faManualTitle: "手动录入",
+        faManualSub: "当无法打卡时使用（例如最后一个下班打卡时段已关闭）。它会像打卡一样保存，并标记为“手动”。",
+        faManualDate: "班次日期",
+        faManualKind: "类型",
+        faManualTime: "时间",
+        faManualOt: "加班小时",
+        faManualNextDay: "时间在午夜之后（次日）",
+        faManualNote: "备注（可选）",
+        faManualSave: "保存手动录入",
+        faManualSaved: "手动录入已保存。",
+        faManualNoShift: "该员工在该日期没有工作班次（M/F/G）。",
+        faManualNeedFields: "请填写员工编号、日期和时间。",
+        faManualAutoLate: "计算迟到：{min} 分钟",
+        faManualAutoOt: "建议加班：{h} 小时",
+        faManualDuplicate: "该员工在该日期已有此记录。请先在实时打卡中删除。",
+        faExportTitle: "每日考勤 PDF",
+        faExportSub: "导出已结束的一天（通常在次日早上 7:00 之后）。PDF 会在打印窗口中打开 - 请选择“另存为 PDF”。",
+        faExportDate: "报告日期",
+        faExportLang: "报告语言",
+        faAllDepts: "所有部门",
+        faHeaderDept: "表头：部门名称",
+        faHeaderExtra: "表头：附加行（可选）",
+        faPreview: "预览",
+        faExportPdf: "导出 PDF",
+        faReportTitle: "每日考勤报告",
+        faColNo: "序号",
+        faColCheckIn: "上班时间",
+        faColCheckOut: "下班时间",
+        faColWorkHrs: "总工作小时",
+        faColNightHrs: "夜班工作小时",
+        faColLeaveHrs: "请假/准假小时",
+        faColOtHrs: "加班小时",
+        faColRemarks: "备注",
+        faRemNoScan: "无打卡",
+        faRemMissingOut: "缺少下班打卡",
+        faRemMissingIn: "缺少上班打卡",
+        faRemLate: "迟到 {min} 分钟",
+        faRemHalf: "半天假",
+        faRemFull: "全天假",
+        faRemManual: "手动录入",
+        faTotal: "合计",
+        faDayNotClosed: "这一天尚未完全结束 - 可能还有下班打卡缺失。",
+        faNoRowsExport: "该日期没有排班或打卡的人员。",
         empMenuRequest: "申请",
         empMenuCheckShift: "查看排班",
         btnCheckMyShift: "查看我的排班",
@@ -5473,6 +6041,7 @@ function renderEmpShiftCalendar() {
      renderMaster();
      renderMonthlyReport();
      renderEmployeeList();
+     if (typeof faOnLanguageChanged === 'function') faOnLanguageChanged();
 
      const loggedInLabel = document.getElementById('empLoggedInAsLabel');
      const loggedInId = sessionStorage.getItem('empLoggedInId');
@@ -6146,6 +6715,12 @@ async function deleteAnnouncement(firebaseKey, btnEl) {
      if(tabId === 'tab-printing') { renderPrintingView(); }
      if(tabId === 'tab-auditlog') { renderAuditLogTable(); populateAuditActionFilter(); }
      if(tabId === 'tab-certificates') { /* no data load needed - form fields only */ }
+     /* v6.98: Face Attendance is admin-only; its camera is always released when leaving it */
+     if(tabId !== 'tab-faceatt' && typeof faStopCamera === 'function') faStopCamera();
+     if(tabId === 'tab-faceatt') {
+         if (typeof faIsAdmin === 'function' && !faIsAdmin()) { switchTab('tab-home', document.getElementById('nav-home')); return; }
+         faInitTab();
+     }
  }
  
  function triggerNav(tabId, navBtnId) {
@@ -11214,6 +11789,845 @@ async function notifyCardReady() {
          showToast(false);
      }));
  });
+
+/* ===================================================================================
+   v6.98 FACE ATTENDANCE (admin side)
+   Reads/writes only its own Firebase nodes: faceTemplates, faceScans, faceScanPhotos,
+   faceScanPhotoDates, faceScanState, faceAttSettings, faceAttHeader. It only READS the existing
+   "shifts" (Monthly Shift Calendar), "employees" and "departments" data and never changes them, so
+   nothing recorded before this version (Master Sheet, leave, attendance, notifications...) is
+   affected. Scan page: registeration.html (same rules block, embedded identically).
+   =================================================================================== */
+/* FA-RULES-BEGIN */
+/* v6.98 Face Attendance - shared rules engine. This exact block is embedded identically in BOTH
+   system.html (admin: Manual Entry, daily summary, PDF) and registeration.html (employee scan
+   page), so a scan is interpreted the same way wherever it is looked at. Pure functions only: no
+   DOM, no Firebase. All times are "minutes since 00:00 of the SHIFT's own date" (so a night shift
+   that crosses midnight simply continues past 1440: 05:00 the next morning = 1740). */
+var FA_DEFAULTS = {
+    tzOffsetMinutes: 420,        /* Cambodia = UTC+7, no daylight saving */
+    windowMinutes: 15,           /* width of the check-in-before-start, break and check-out windows */
+    lateBlockMinutes: 30,        /* lateness is counted in blocks of this many minutes */
+    halfDayHours: 4,
+    fullDayHours: 8,
+    matchThreshold: 0.5,         /* face distance; lower = stricter */
+    photoRetentionDays: 30,
+    nightStart: '22:00',
+    nightEnd: '05:00',
+    shifts: {
+        M: { start: '07:00', end: '16:00', breakStart: '11:00', breakEnd: '12:00', otHours: [0, 1, 2, 3] },
+        F: { start: '07:00', end: '17:00', breakStart: '11:00', breakEnd: '13:00', otHours: [0, 1, 2, 3] },
+        G: { start: '19:00', end: '05:00', breakStart: '23:00', breakEnd: '01:00', otHours: [0, 1, 2, 3] }
+    }
+};
+
+function faPad(n) { return (n < 10 ? '0' : '') + n; }
+function faHM(s) {
+    var m = /^(\d{1,2}):(\d{2})$/.exec(String(s == null ? '' : s));
+    if (!m) return NaN;
+    var h = parseInt(m[1], 10), mi = parseInt(m[2], 10);
+    if (h > 23 || mi > 59) return NaN;
+    return h * 60 + mi;
+}
+function faMinToHM(m) {
+    m = ((Math.round(m) % 1440) + 1440) % 1440;
+    return faPad(Math.floor(m / 60)) + ':' + faPad(m % 60);
+}
+
+/* Fills in anything missing from what was saved in the database with the defaults, so a partly
+   filled or old settings record can never break the rules. */
+function faMergeSettings(saved) {
+    var out = JSON.parse(JSON.stringify(FA_DEFAULTS));
+    if (!saved || typeof saved !== 'object') return out;
+    ['tzOffsetMinutes', 'windowMinutes', 'lateBlockMinutes', 'halfDayHours', 'fullDayHours', 'matchThreshold', 'photoRetentionDays'].forEach(function (k) {
+        var v = parseFloat(saved[k]);
+        if (isFinite(v) && v > 0 || (k === 'tzOffsetMinutes' && isFinite(v))) out[k] = v;
+    });
+    ['nightStart', 'nightEnd'].forEach(function (k) { if (!isNaN(faHM(saved[k]))) out[k] = saved[k]; });
+    if (saved.shifts && typeof saved.shifts === 'object') {
+        Object.keys(out.shifts).forEach(function (code) {
+            var s = saved.shifts[code];
+            if (!s) return;
+            ['start', 'end', 'breakStart', 'breakEnd'].forEach(function (k) { if (!isNaN(faHM(s[k]))) out.shifts[code][k] = s[k]; });
+            var oh = s.otHours;
+            if (oh && typeof oh === 'object') {
+                var arr = (Array.isArray(oh) ? oh : Object.keys(oh).map(function (x) { return oh[x]; }))
+                    .map(function (x) { return parseFloat(x); })
+                    .filter(function (x) { return isFinite(x) && x >= 0; });
+                arr = arr.filter(function (x, i) { return arr.indexOf(x) === i; }).sort(function (a, b) { return a - b; });
+                if (arr.length) out.shifts[code].otHours = arr;
+            }
+        });
+    }
+    return out;
+}
+
+/* Turns a shift letter into concrete windows. Returns null for H (rest day) or an unknown or
+   mis-ordered definition. */
+function faBuildShift(code, settings) {
+    var c = settings && settings.shifts && settings.shifts[code];
+    if (!c) return null;
+    var s = faHM(c.start), e = faHM(c.end), bs = faHM(c.breakStart), be = faHM(c.breakEnd);
+    if (isNaN(s) || isNaN(e) || isNaN(bs) || isNaN(be)) return null;
+    if (e <= s) e += 1440;
+    if (bs < s) bs += 1440;
+    while (be <= bs) be += 1440;
+    if (!(s < bs && bs < be && be < e)) return null;
+    var w = settings.windowMinutes;
+    var hrs = (c.otHours && c.otHours.length) ? c.otHours.slice() : [0];
+    var ot = hrs.map(function (h) { return { from: e + h * 60, to: e + h * 60 + w, hours: h }; });
+    return {
+        code: code, start: s, end: e, breakStart: bs, breakEnd: be, win: w,
+        lateBlock: settings.lateBlockMinutes, halfHours: settings.halfDayHours, fullHours: settings.fullDayHours,
+        ot: ot, openMin: s - w, closeMin: ot[ot.length - 1].to
+    };
+}
+
+/* What does a scan at minute m (on the shift's own time axis) mean for this shift? */
+function faClassify(def, m) {
+    if (m < def.openMin) return { ok: false, code: 'tooEarly', params: { at: faMinToHM(def.openMin) } };
+    if (m > def.closeMin) return { ok: false, code: 'closed', params: {} };
+    if (m < def.breakStart) {
+        var late = m > def.start ? Math.ceil((m - def.start) / def.lateBlock) * def.lateBlock : 0;
+        return { ok: true, kind: 'checkin', lateMinutes: late, otHours: 0, leaveHours: 0 };
+    }
+    if (m <= def.breakStart + def.win) return { ok: true, kind: 'halfday', lateMinutes: 0, otHours: 0, leaveHours: def.halfHours };
+    if (m < def.breakEnd) return { ok: false, code: 'restTime', params: { at: faMinToHM(def.breakEnd) } };
+    if (m < def.ot[0].from) return { ok: true, kind: 'fullday', lateMinutes: 0, otHours: 0, leaveHours: def.fullHours };
+    for (var i = 0; i < def.ot.length; i++) {
+        if (m >= def.ot[i].from && m <= def.ot[i].to) return { ok: true, kind: 'checkout', lateMinutes: 0, otHours: def.ot[i].hours, leaveHours: 0 };
+        if (i + 1 < def.ot.length && m > def.ot[i].to && m < def.ot[i + 1].from) {
+            return { ok: false, code: 'noWindow', params: { at: faMinToHM(def.ot[i + 1].from) } };
+        }
+    }
+    return { ok: false, code: 'closed', params: {} };
+}
+
+function faSlotFor(kind) { return kind === 'checkin' ? 'checkin' : (kind === 'checkout' ? 'checkout' : 'leave'); }
+
+/* Given what is already recorded for this employee + shift date, may this kind of scan go
+   through? state = { checkin:{time}, checkout:{time}, leave:{time} } or null. */
+function faDecide(state, cls) {
+    state = state || {};
+    var k = cls.kind;
+    if (k === 'checkin') {
+        if (state.checkin) return { ok: false, code: 'alreadyCheckedIn', params: { at: state.checkin.time || '' } };
+        if (state.leave) return { ok: false, code: 'alreadyLeave', params: { at: state.leave.time || '' } };
+    } else if (k === 'checkout') {
+        if (state.checkout) return { ok: false, code: 'alreadyCheckedOut', params: { at: state.checkout.time || '' } };
+        if (state.leave) return { ok: false, code: 'alreadyLeave', params: { at: state.leave.time || '' } };
+    } else {
+        if (state.leave) return { ok: false, code: 'alreadyLeave', params: { at: state.leave.time || '' } };
+        if (state.checkout) return { ok: false, code: 'alreadyCheckedOut', params: { at: state.checkout.time || '' } };
+    }
+    return { ok: true };
+}
+
+function faLocal(epochMs, tz) {
+    var d = new Date(epochMs + tz * 60000);
+    return { dateStr: d.getUTCFullYear() + '-' + faPad(d.getUTCMonth() + 1) + '-' + faPad(d.getUTCDate()), minutes: d.getUTCHours() * 60 + d.getUTCMinutes() };
+}
+function faAddDays(dateStr, n) {
+    var p = dateStr.split('-');
+    var d = new Date(Date.UTC(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10) + n));
+    return d.getUTCFullYear() + '-' + faPad(d.getUTCMonth() + 1) + '-' + faPad(d.getUTCDate());
+}
+
+/* The whole decision for one scan. epochMs = the (server-corrected) moment of the scan.
+   getInfo(dateStr) must return { code: 'M'|'F'|'G'|'H'|'' , state: {...}|null } for that SHIFT date.
+   A scan is checked against both today's shift and yesterday's (a night shift that started
+   yesterday is still running until early this morning). */
+function faResolveScan(epochMs, getInfo, settings) {
+    var loc = faLocal(epochMs, settings.tzOffsetMinutes);
+    var today = loc.dateStr, yest = faAddDays(today, -1);
+    var cands = [{ date: yest, m: loc.minutes + 1440 }, { date: today, m: loc.minutes }];
+    var rejects = [];
+    for (var i = 0; i < cands.length; i++) {
+        var c = cands[i];
+        var info = getInfo(c.date) || {};
+        var code = info.code || '';
+        var def = (code && code !== 'H') ? faBuildShift(code, settings) : null;
+        if (!def) {
+            rejects.push({ date: c.date, ok: false, code: code === 'H' ? 'dayOff' : 'noShift', params: {}, rank: code === 'H' ? 1.5 : 0 });
+            continue;
+        }
+        var cls = faClassify(def, c.m);
+        if (!cls.ok) {
+            rejects.push({ date: c.date, ok: false, code: cls.code, params: cls.params, rank: (c.m >= def.openMin && c.m <= def.closeMin) ? 2 : 1 });
+            continue;
+        }
+        var dec = faDecide(info.state, cls);
+        if (!dec.ok) { rejects.push({ date: c.date, ok: false, code: dec.code, params: dec.params, rank: 3 }); continue; }
+        return { ok: true, shiftDate: c.date, shiftCode: code, def: def, cls: cls, scanMin: c.m, time: faMinToHM(loc.minutes), localDate: today };
+    }
+    var best = rejects[0];
+    for (var j = 1; j < rejects.length; j++) { if (rejects[j].rank >= best.rank) best = rejects[j]; }
+    return { ok: false, code: best.code, params: best.params, shiftDate: best.date, localDate: today, time: faMinToHM(loc.minutes) };
+}
+
+function faOverlap(a1, a2, b1, b2) { var lo = Math.max(a1, b1), hi = Math.min(a2, b2); return hi > lo ? hi - lo : 0; }
+
+/* Daily figures for one employee on one shift date, from that day's scan records
+   (each record: { kind, time, lateMinutes, otHours, leaveHours }). Working time is the shift's
+   own paid time (start..end minus the break) reduced by lateness; OT is reported separately. */
+function faSummarizeDay(def, recs, settings) {
+    var by = {};
+    (recs || []).forEach(function (r) { if (!by[r.kind] || (r.time || '') < (by[r.kind].time || '')) by[r.kind] = r; });
+    var ci = by.checkin, co = by.checkout, hd = by.halfday, fd = by.fullday;
+    var res = { checkIn: ci ? ci.time : '', checkOut: co ? co.time : '', workMin: null, nightMin: 0, leaveHours: 0, otHours: 0, lateMinutes: 0, remarks: [] };
+    if (!ci && !co && !hd && !fd) { res.remarks.push('noScan'); return res; }
+    res.lateMinutes = ci ? (parseFloat(ci.lateMinutes) || 0) : 0;
+    res.otHours = co ? (parseFloat(co.otHours) || 0) : 0;
+    if (fd) {
+        res.leaveHours = parseFloat(fd.leaveHours) || def.fullHours;
+        res.workMin = 0;
+        res.remarks.push('fullDayLeave');
+        return res;
+    }
+    if (hd) { res.leaveHours = parseFloat(hd.leaveHours) || def.halfHours; res.remarks.push('halfDayLeave'); }
+    if (!ci) { res.remarks.push('missingCheckIn'); return res; }
+    var effS = def.start + res.lateMinutes, effE;
+    if (hd) effE = def.breakStart;
+    else if (co) effE = def.end;
+    else { res.remarks.push('missingCheckOut'); return res; }
+    var parts = [];
+    if (effE > effS) {
+        var b1 = def.breakStart, b2 = def.breakEnd;
+        if (effS < b1) parts.push([effS, Math.min(effE, b1)]);
+        if (effE > b2) parts.push([Math.max(effS, b2), effE]);
+    }
+    var nS = faHM(settings.nightStart), nE = faHM(settings.nightEnd);
+    if (nE <= nS) nE += 1440;
+    var work = 0, night = 0;
+    parts.forEach(function (p) {
+        if (p[1] <= p[0]) return;
+        work += p[1] - p[0];
+        for (var k = -1; k <= 2; k++) night += faOverlap(p[0], p[1], nS + 1440 * k, nE + 1440 * k);
+    });
+    res.workMin = work;
+    res.nightMin = night;
+    if (res.lateMinutes > 0) res.remarks.push('late');
+    return res;
+}
+/* FA-RULES-END */
+
+const FA_SCAN_LINK = 'https://cambodiainsight.com/registeration';
+const FA_MIN_ANGLES = 3;
+/* Where the face-recognition engine and models load from (tried in order; loaded only when the
+   Enroll screen's camera is started, so this adds nothing to normal page loads). */
+const FA_ENGINE_SCRIPTS = [
+    'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js',
+    'https://unpkg.com/@vladmandic/face-api/dist/face-api.js'
+];
+const FA_ENGINE_MODELS = [
+    'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',
+    'https://unpkg.com/@vladmandic/face-api/model/'
+];
+
+let faSettings = faMergeSettings(null);
+let faTemplates = {};
+let faTemplatesListening = false;
+let faInited = false;
+let faLiveRef = null;
+let faLiveScans = [];
+let faCleanupDone = false;
+let faCaptured = [];
+let faStream = null;
+let faEnginePromise = null;
+let faManualOtTouched = false;
+
+db.ref('faceAttSettings').on('value', function (snap) {
+    faSettings = faMergeSettings(snap.val());
+    if (faInited) { faFillRulesForm(); faRenderLive(); }
+});
+db.ref('faceAttHeader').on('value', function (snap) {
+    const v = snap.val() || {};
+    const d = document.getElementById('faHeaderDept'), x = document.getElementById('faHeaderExtra');
+    if (d && document.activeElement !== d) d.value = v.dept || '';
+    if (x && document.activeElement !== x) x.value = v.extra || '';
+});
+
+function faEl(id) { return document.getElementById(id); }
+function faEsc(s) { return escapePrintText(s == null ? '' : String(s)); }
+function faIsAdmin() { return (sessionStorage.getItem('loggedInRole') || 'admin') === 'admin'; }
+function faTodayStr() { return faLocal(Date.now(), faSettings.tzOffsetMinutes).dateStr; }
+function faHours(min) { return (min === null || min === undefined) ? '' : (min / 60).toFixed(2); }
+function faSortById(a, b) { return String(a).localeCompare(String(b), undefined, { numeric: true }); }
+
+function faInitTab() {
+    if (!faInited) {
+        faInited = true;
+        faEl('faScanLinkText').textContent = FA_SCAN_LINK;
+        faEl('faLiveDate').value = faTodayStr();
+        const y = faAddDays(faTodayStr(), -1);
+        faEl('faManualDate').value = y;
+        faEl('faExportDate').value = y;
+        faEl('faExportLang').value = currentLang || 'en';
+        faEl('faManualOt').addEventListener('input', function () { faManualOtTouched = true; });
+        faFillRulesForm();
+    }
+    faFillEmpList();
+    faAttachLive();
+    faEnsureTemplatesListener();
+    faPopulateExportDepts();
+    faCleanupOldPhotos();
+}
+
+function faShowSection(name) {
+    document.querySelectorAll('#tab-faceatt .fa-sec').forEach(function (el) { el.classList.toggle('active', el.id === 'faSec-' + name); });
+    document.querySelectorAll('#faSubnav button[data-fasec]').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-fasec') === name); });
+    if (name !== 'enroll') faStopCamera();
+    if (name === 'enroll') { faFillEmpList(); faRenderEnrolled(); }
+    if (name === 'manual') { faFillEmpList(); faManualPreview(); }
+    if (name === 'rules') faFillRulesForm();
+    if (name === 'export') faPopulateExportDepts();
+    if (name === 'live') faRenderLive();
+}
+
+function faFillEmpList() {
+    const dl = faEl('faEmpList');
+    if (!dl) return;
+    dl.innerHTML = employees.slice().sort(function (a, b) { return faSortById(a.id, b.id); })
+        .map(function (e) { return '<option value="' + faEsc(e.id) + '">' + faEsc(e.name) + '</option>'; }).join('');
+}
+
+function faCopyScanLink() {
+    const done = function () { showToast(true, t('faLinkCopied')); };
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(FA_SCAN_LINK).then(done, function () { showToast(false); }); return; }
+    } catch (e) { /* fall through */ }
+    showToast(false, FA_SCAN_LINK);
+}
+
+/* ------------------------------ LIVE SCANS ------------------------------ */
+function faAttachLive() {
+    const date = faEl('faLiveDate').value || faTodayStr();
+    if (faLiveRef) { try { faLiveRef.off(); } catch (e) { /* ignore */ } }
+    faLiveScans = [];
+    faLiveRef = db.ref('faceScans/' + date);
+    faLiveRef.on('value', function (snap) {
+        const v = snap.val() || {};
+        faLiveScans = Object.keys(v).map(function (k) { return Object.assign({ key: k }, v[k]); });
+        faRenderLive();
+    });
+}
+
+function faRenderLive() {
+    const tbody = document.querySelector('#faLiveTable tbody');
+    if (!tbody || !faInited) return;
+    const date = faEl('faLiveDate').value || faTodayStr();
+    const scheduled = shifts.filter(function (s) { return s.date === date && s.type && s.type !== 'H'; });
+    const byEmp = {};
+    faLiveScans.forEach(function (r) { (byEmp[r.empId] = byEmp[r.empId] || []).push(r.kind); });
+    let ci = 0, co = 0, lv = 0;
+    Object.keys(byEmp).forEach(function (id) {
+        const ks = byEmp[id];
+        if (ks.indexOf('checkin') !== -1) ci++;
+        if (ks.indexOf('checkout') !== -1) co++;
+        if (ks.indexOf('halfday') !== -1 || ks.indexOf('fullday') !== -1) lv++;
+    });
+    const none = scheduled.filter(function (s) { return !byEmp[s.empId]; }).length;
+    faEl('faLiveSummary').innerHTML =
+        '<span class="fa-chip">' + faEsc(t('faChipScheduled')) + ': ' + scheduled.length + '</span>' +
+        '<span class="fa-chip ok">' + faEsc(t('faKind_checkin')) + ': ' + ci + '</span>' +
+        '<span class="fa-chip ok">' + faEsc(t('faKind_checkout')) + ': ' + co + '</span>' +
+        '<span class="fa-chip warn">' + faEsc(t('faChipLeave')) + ': ' + lv + '</span>' +
+        '<span class="fa-chip bad">' + faEsc(t('faChipNoScan')) + ': ' + none + '</span>' +
+        '<div style="font-size:11px; color:#64748b; margin-top:2px;">' + faEsc(t('faLiveNote')) + '</div>';
+    const rows = faLiveScans.slice().sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="12" style="text-align:center; color:#94a3b8;">' + faEsc(t('faNoScans')) + '</td></tr>'; return; }
+    const admin = faIsAdmin();
+    tbody.innerHTML = rows.map(function (r) {
+        const hasLoc = r.lat !== undefined && r.lat !== null;
+        const loc = hasLoc
+            ? faEsc(r.address || (Number(r.lat).toFixed(5) + ', ' + Number(r.lng).toFixed(5))) + ' <a href="https://www.google.com/maps?q=' + encodeURIComponent(r.lat + ',' + r.lng) + '" target="_blank" rel="noopener">' + faEsc(t('faMap')) + '</a>'
+            : '-';
+        const photo = r.source === 'manual' ? '-' : '<button class="quick-btn slate" style="padding:3px 10px; font-size:11px;" onclick="faViewPhoto(\'' + r.key + '\')">' + faEsc(t('faViewPhoto')) + '</button>';
+        const manualNote = (r.source === 'manual' && r.note) ? '<div style="font-size:10px; color:#64748b;">' + faEsc(r.note) + '</div>' : '';
+        return '<tr>' +
+            '<td>' + (admin ? '<button class="btn-delete" onclick="faDeleteScan(\'' + r.key + '\', this)" title="Delete">' + ICON_DELETE + '</button>' : '') + '</td>' +
+            '<td><b>' + faEsc(r.time) + '</b>' + (r.scanMin >= 1440 ? ' (+1)' : '') + '</td>' +
+            '<td>' + faEsc(r.empId) + '</td><td style="text-align:left;">' + faEsc(r.empName) + '</td>' +
+            '<td>' + faEsc(r.shiftCode) + '</td><td>' + faEsc(t('faKind_' + r.kind)) + '</td>' +
+            '<td>' + (r.lateMinutes || '') + '</td><td>' + (r.otHours || '') + '</td><td>' + (r.leaveHours || '') + '</td>' +
+            '<td style="text-align:left; max-width:240px;">' + loc + '</td><td>' + photo + '</td>' +
+            '<td>' + faEsc(r.source === 'manual' ? t('faSourceManual') : t('faSourceScan')) + manualNote + '</td></tr>';
+    }).join('');
+}
+
+function faViewPhoto(key) {
+    const rec = faLiveScans.find(function (r) { return r.key === key; });
+    if (!rec) return;
+    faEl('faPhotoTitle').textContent = rec.empName + ' (' + rec.empId + ') - ' + rec.time;
+    faEl('faPhotoBody').textContent = '...';
+    faEl('faPhotoModal').style.display = 'flex';
+    db.ref('faceScanPhotos/' + rec.shiftDate + '/' + key).once('value').then(function (snap) {
+        const v = snap.val();
+        if (v && String(v).indexOf('data:image/') === 0) {
+            faEl('faPhotoBody').innerHTML = '<img alt="" style="max-width:100%; border-radius:8px;" src="' + v + '">';
+        } else {
+            faEl('faPhotoBody').textContent = fillTemplate(t('faPhotoExpired'), { days: faSettings.photoRetentionDays });
+        }
+    }).catch(function () { faEl('faPhotoBody').textContent = t('toastFail'); });
+}
+
+async function faDeleteScan(key, btn) {
+    const rec = faLiveScans.find(function (r) { return r.key === key; });
+    if (!rec) return;
+    if (!await showConfirm(t('faDeleteScanConfirm'))) return;
+    withBusyButton(btn, function () {
+        const slot = faSlotFor(rec.kind);
+        return Promise.all([
+            db.ref('faceScans/' + rec.shiftDate + '/' + key).remove(),
+            db.ref('faceScanPhotos/' + rec.shiftDate + '/' + key).remove(),
+            db.ref('faceScanState/' + rec.shiftDate + '/' + rec.empId + '/' + slot).remove()
+        ]).then(function () {
+            showToast(true);
+            logActivity('Delete Face Scan', 'Face Scan', rec.empId, rec.empName, rec.kind + ' ' + rec.shiftDate + ' ' + rec.time);
+        }).catch(function () { showToast(false); });
+    });
+}
+
+/* Scan photos older than the retention period are deleted (the scan records themselves - time,
+   place, type - are kept). Runs once per session when an admin opens this tab. */
+function faCleanupOldPhotos() {
+    if (faCleanupDone || !faIsAdmin()) return;
+    faCleanupDone = true;
+    db.ref('faceScanPhotoDates').once('value').then(function (snap) {
+        const v = snap.val() || {};
+        const cutoff = faAddDays(faTodayStr(), -faSettings.photoRetentionDays);
+        Object.keys(v).forEach(function (d) {
+            if (d < cutoff) { db.ref('faceScanPhotos/' + d).remove(); db.ref('faceScanPhotoDates/' + d).remove(); }
+        });
+    }).catch(function () { /* cleanup is best-effort */ });
+}
+
+/* ------------------------------ ENROLL FACES ------------------------------ */
+function faLoadScript(url) {
+    return new Promise(function (resolve, reject) {
+        const s = document.createElement('script');
+        s.src = url; s.onload = resolve; s.onerror = function () { reject(new Error('load failed')); };
+        document.head.appendChild(s);
+    });
+}
+function faLoadEngine() {
+    if (faEnginePromise) return faEnginePromise;
+    faEnginePromise = (async function () {
+        if (typeof faceapi === 'undefined') {
+            let ok = false;
+            for (let i = 0; i < FA_ENGINE_SCRIPTS.length && !ok; i++) {
+                try { await faLoadScript(FA_ENGINE_SCRIPTS[i]); ok = (typeof faceapi !== 'undefined'); } catch (e) { /* try next */ }
+            }
+            if (!ok) throw new Error('script');
+        }
+        let loaded = false;
+        for (let i = 0; i < FA_ENGINE_MODELS.length && !loaded; i++) {
+            try {
+                const b = FA_ENGINE_MODELS[i].replace(/\/$/, '');
+                await Promise.all([faceapi.nets.tinyFaceDetector.loadFromUri(b), faceapi.nets.faceLandmark68Net.loadFromUri(b), faceapi.nets.faceRecognitionNet.loadFromUri(b)]);
+                loaded = true;
+            } catch (e) { /* try next */ }
+        }
+        if (!loaded) throw new Error('models');
+    })();
+    faEnginePromise.catch(function () { faEnginePromise = null; });
+    return faEnginePromise;
+}
+
+function faSetEnrollStatus(key, isErr, vars) {
+    const el = faEl('faEnrollStatus');
+    el.style.color = isErr ? '#dc2626' : '#334155';
+    el.textContent = key ? fillTemplate(t(key), vars || {}) : '';
+}
+
+async function faStartCamera() {
+    faSetEnrollStatus('faEngineLoading', false);
+    try { await faLoadEngine(); } catch (e) { faSetEnrollStatus('faEngineFailed', true); return; }
+    try {
+        if (faStream) faStopCamera();
+        faStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
+        const v = faEl('faVideo');
+        v.srcObject = faStream;
+        try { await v.play(); } catch (e) { /* autoplay may already be running */ }
+        faSetEnrollStatus(null);
+    } catch (e) { faSetEnrollStatus('faCamFailed', true); }
+}
+function faStopCamera() {
+    if (faStream) { faStream.getTracks().forEach(function (tr) { tr.stop(); }); faStream = null; }
+    const v = faEl('faVideo');
+    if (v) v.srcObject = null;
+}
+
+function faOnEnrollIdInput() {
+    const id = faEl('faEnrollEmpId').value.trim();
+    const emp = employees.find(function (e) { return e.id === id; });
+    faEl('faEnrollEmpName').value = emp ? emp.name : '';
+    if (emp && faTemplates[id]) faSetEnrollStatus('faAlreadyEnrolled', false);
+    else if (!faStream) faSetEnrollStatus(null);
+}
+
+function faRefreshCaptureInfo() {
+    faEl('faCaptureInfo').textContent = fillTemplate(t('faCaptured'), { n: faCaptured.length, min: FA_MIN_ANGLES });
+}
+function faClearCaptures() {
+    faCaptured = [];
+    faEl('faCaptureThumbs').innerHTML = '';
+    faRefreshCaptureInfo();
+}
+
+async function faCaptureAngle(btn) {
+    if (!faStream) { faSetEnrollStatus('faStartCameraFirst', true); return; }
+    withBusyButton(btn, async function () {
+        try {
+            await faLoadEngine();
+            const v = faEl('faVideo');
+            const det = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.5 })).withFaceLandmarks().withFaceDescriptor();
+            if (!det) { faSetEnrollStatus('faNoFace', true); return; }
+            faCaptured.push(Array.from(det.descriptor).map(function (x) { return Math.round(x * 10000) / 10000; }));
+            const c = document.createElement('canvas');
+            c.width = 54; c.height = 72;
+            c.getContext('2d').drawImage(v, 0, 0, 54, 72);
+            faEl('faCaptureThumbs').insertAdjacentHTML('beforeend', '<img class="fa-thumb" alt="" src="' + c.toDataURL('image/jpeg', 0.5) + '">');
+            faSetEnrollStatus(null);
+            faRefreshCaptureInfo();
+        } catch (e) { faSetEnrollStatus('faNoFace', true); }
+    });
+}
+
+function faDescDistance(a, b) { let s = 0; for (let i = 0; i < a.length; i++) { const d = a[i] - b[i]; s += d * d; } return Math.sqrt(s); }
+
+async function faSaveEnrollment(btn) {
+    const id = faEl('faEnrollEmpId').value.trim();
+    const emp = employees.find(function (e) { return e.id === id; });
+    if (!emp || /[.#$\[\]\/]/.test(id)) { showToast(false, t('faPickEmployee')); return; }
+    if (faCaptured.length < FA_MIN_ANGLES) { showToast(false, fillTemplate(t('faNeedMin'), { min: FA_MIN_ANGLES })); return; }
+    /* guard against enrolling the right face under the wrong ID */
+    let clash = null;
+    Object.keys(faTemplates).forEach(function (otherId) {
+        if (otherId === id) return;
+        toArrFa(faTemplates[otherId].descriptors).forEach(function (d) {
+            const arr = toArrFa(d);
+            faCaptured.forEach(function (c) { if (arr.length === 128 && faDescDistance(c, arr) < faSettings.matchThreshold * 0.8) clash = otherId; });
+        });
+    });
+    if (clash) {
+        const other = faTemplates[clash];
+        if (!await showConfirm(fillTemplate(t('faLooksLike'), { name: (other && other.name) || clash, id: clash, target: emp.name }))) return;
+    }
+    withBusyButton(btn, function () {
+        return db.ref('faceTemplates/' + id).set({ name: emp.name, descriptors: faCaptured, enrolledAt: Date.now(), count: faCaptured.length }).then(function () {
+            showToast(true, t('faEnrollSaved'));
+            logActivity('Enroll Face', 'Face Template', id, emp.name, faCaptured.length + ' angles');
+            faClearCaptures();
+        }).catch(function () { showToast(false); });
+    });
+}
+function toArrFa(v) { return Array.isArray(v) ? v : (v && typeof v === 'object' ? Object.keys(v).sort(function (a, b) { return a - b; }).map(function (k) { return v[k]; }) : []); }
+
+function faEnsureTemplatesListener() {
+    if (faTemplatesListening) return;
+    faTemplatesListening = true;
+    db.ref('faceTemplates').on('value', function (snap) { faTemplates = snap.val() || {}; faRenderEnrolled(); });
+}
+
+function faRenderEnrolled() {
+    const tbody = document.querySelector('#faEnrolledTable tbody');
+    if (!tbody) return;
+    const ids = Object.keys(faTemplates).sort(faSortById);
+    if (!ids.length) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">' + faEsc(t('faNoEnrollments')) + '</td></tr>';
+    else tbody.innerHTML = ids.map(function (id) {
+        const tpl = faTemplates[id];
+        return '<tr><td><button class="btn-delete" onclick="faDeleteEnrollment(\'' + faEsc(id) + '\', this)" title="Delete">' + ICON_DELETE + '</button></td>' +
+            '<td>' + faEsc(id) + '</td><td style="text-align:left;">' + faEsc(tpl.name) + '</td><td>' + (tpl.count || toArrFa(tpl.descriptors).length) + '</td>' +
+            '<td>' + (tpl.enrolledAt ? new Date(tpl.enrolledAt).toLocaleDateString() : '-') + '</td></tr>';
+    }).join('');
+    const missing = employees.filter(function (e) { return e.status !== 'Resigned' && !faTemplates[e.id]; }).sort(function (a, b) { return faSortById(a.id, b.id); });
+    faEl('faNotEnrolled').innerHTML = missing.length
+        ? '<details><summary><span class="fa-chip warn">' + faEsc(fillTemplate(t('faNotEnrolledCount'), { n: missing.length })) + '</span></summary><div style="font-size:12px; margin-top:6px;">' +
+          missing.map(function (e) { return faEsc(e.id) + ' - ' + faEsc(e.name); }).join('<br>') + '</div></details>'
+        : '<span class="fa-chip ok">' + faEsc(fillTemplate(t('faNotEnrolledCount'), { n: 0 })) + '</span>';
+}
+
+async function faDeleteEnrollment(id, btn) {
+    const tpl = faTemplates[id];
+    if (!tpl) return;
+    if (!await showConfirm(fillTemplate(t('faDeleteEnrollConfirm'), { name: tpl.name || id }))) return;
+    withBusyButton(btn, function () {
+        return db.ref('faceTemplates/' + id).remove().then(function () {
+            showToast(true);
+            logActivity('Delete Face Enrollment', 'Face Template', id, tpl.name || '', '');
+        }).catch(function () { showToast(false); });
+    });
+}
+
+/* ------------------------------ RULES & SETTINGS ------------------------------ */
+function faFillRulesForm() {
+    const tbody = document.querySelector('#faRulesTable tbody');
+    if (!tbody) return;
+    tbody.innerHTML = ['M', 'F', 'G'].map(function (code) {
+        const c = faSettings.shifts[code];
+        return '<tr><td><b>' + code + '</b></td>' +
+            '<td><input type="time" id="faR_' + code + '_start" value="' + c.start + '"></td>' +
+            '<td><input type="time" id="faR_' + code + '_end" value="' + c.end + '"></td>' +
+            '<td><input type="time" id="faR_' + code + '_breakStart" value="' + c.breakStart + '"></td>' +
+            '<td><input type="time" id="faR_' + code + '_breakEnd" value="' + c.breakEnd + '"></td>' +
+            '<td><input type="text" id="faR_' + code + '_ot" value="' + c.otHours.join(',') + '"></td></tr>';
+    }).join('');
+    faEl('faSetWindow').value = faSettings.windowMinutes;
+    faEl('faSetLate').value = faSettings.lateBlockMinutes;
+    faEl('faSetHalf').value = faSettings.halfDayHours;
+    faEl('faSetFull').value = faSettings.fullDayHours;
+    faEl('faSetNightStart').value = faSettings.nightStart;
+    faEl('faSetNightEnd').value = faSettings.nightEnd;
+    faEl('faSetMatch').value = faSettings.matchThreshold;
+    faEl('faSetRetention').value = faSettings.photoRetentionDays;
+}
+
+function faSaveRules(btn) {
+    const obj = {
+        tzOffsetMinutes: faSettings.tzOffsetMinutes,
+        windowMinutes: parseFloat(faEl('faSetWindow').value),
+        lateBlockMinutes: parseFloat(faEl('faSetLate').value),
+        halfDayHours: parseFloat(faEl('faSetHalf').value),
+        fullDayHours: parseFloat(faEl('faSetFull').value),
+        matchThreshold: parseFloat(faEl('faSetMatch').value),
+        photoRetentionDays: parseFloat(faEl('faSetRetention').value),
+        nightStart: faEl('faSetNightStart').value,
+        nightEnd: faEl('faSetNightEnd').value,
+        shifts: {}
+    };
+    const cand = faMergeSettings(null);
+    ['windowMinutes', 'lateBlockMinutes', 'halfDayHours', 'fullDayHours', 'matchThreshold', 'photoRetentionDays'].forEach(function (k) {
+        if (!(obj[k] > 0)) { cand.__bad = true; } else cand[k] = obj[k];
+    });
+    if (isNaN(faHM(obj.nightStart)) || isNaN(faHM(obj.nightEnd))) cand.__bad = true;
+    if (cand.__bad) { showToast(false, t('faRulesInvalidGeneral')); return; }
+    for (const code of ['M', 'F', 'G']) {
+        const otRaw = faEl('faR_' + code + '_ot').value.split(',').map(function (x) { return parseFloat(x.trim()); }).filter(function (x) { return isFinite(x) && x >= 0; });
+        const ot = otRaw.filter(function (x, i) { return otRaw.indexOf(x) === i; }).sort(function (a, b) { return a - b; });
+        const s = { start: faEl('faR_' + code + '_start').value, end: faEl('faR_' + code + '_end').value, breakStart: faEl('faR_' + code + '_breakStart').value, breakEnd: faEl('faR_' + code + '_breakEnd').value, otHours: ot };
+        cand.shifts[code] = s;
+        if (!ot.length || faBuildShift(code, cand) === null) { showToast(false, fillTemplate(t('faRulesInvalid'), { code: code })); return; }
+        obj.shifts[code] = s;
+    }
+    delete cand.__bad;
+    withBusyButton(btn, function () {
+        return db.ref('faceAttSettings').set(obj).then(function () {
+            showToast(true, t('faRulesSaved'));
+            logActivity('Update Face Attendance Rules', 'Settings', 'faceAttSettings', '', '');
+        }).catch(function () { showToast(false); });
+    });
+}
+
+async function faResetRules() {
+    if (!await showConfirm(t('faResetConfirm'))) return;
+    db.ref('faceAttSettings').remove().then(function () { showToast(true, t('faRulesSaved')); }).catch(function () { showToast(false); });
+}
+
+/* ------------------------------ MANUAL ENTRY ------------------------------ */
+function faManualContext() {
+    const id = faEl('faManualEmpId').value.trim();
+    const date = faEl('faManualDate').value;
+    const emp = employees.find(function (e) { return e.id === id; });
+    const sh = shifts.find(function (s) { return s.empId === id && s.date === date; });
+    const code = sh ? String(sh.type || '').toUpperCase() : '';
+    const def = (code && code !== 'H') ? faBuildShift(code, faSettings) : null;
+    return { id: id, date: date, emp: emp, code: code, def: def };
+}
+
+function faManualPreview() {
+    const el = faEl('faManualPreviewText');
+    if (!el) return;
+    const ctx = faManualContext();
+    if (!ctx.emp || !ctx.date) { el.textContent = ''; return; }
+    if (!ctx.def) { el.style.color = '#b45309'; el.textContent = t('faManualNoShift'); return; }
+    el.style.color = '#334155';
+    const kind = faEl('faManualKind').value;
+    const time = faEl('faManualTime').value;
+    let msg = ctx.emp.name + ' - ' + t('faColShift') + ' ' + ctx.code;
+    if (!isNaN(faHM(time))) {
+        const m = faHM(time) + (faEl('faManualNextDay').checked ? 1440 : 0);
+        if (kind === 'checkin') {
+            const late = m > ctx.def.start ? Math.ceil((m - ctx.def.start) / ctx.def.lateBlock) * ctx.def.lateBlock : 0;
+            msg += ' - ' + fillTemplate(t('faManualAutoLate'), { min: late });
+        } else if (kind === 'checkout') {
+            const max = ctx.def.ot[ctx.def.ot.length - 1].hours;
+            const sug = Math.max(0, Math.min(max, Math.round((m - ctx.def.end) / 60)));
+            msg += ' - ' + fillTemplate(t('faManualAutoOt'), { h: sug });
+            if (!faManualOtTouched) faEl('faManualOt').value = sug;
+        }
+    }
+    el.textContent = msg;
+}
+
+function faSaveManual(btn) {
+    const ctx = faManualContext();
+    const kind = faEl('faManualKind').value;
+    const time = faEl('faManualTime').value;
+    if (!ctx.emp || !ctx.date || isNaN(faHM(time))) { showToast(false, t('faManualNeedFields')); return; }
+    if (!ctx.def) { showToast(false, t('faManualNoShift')); return; }
+    const nextDay = faEl('faManualNextDay').checked;
+    const m = faHM(time) + (nextDay ? 1440 : 0);
+    const localDate = nextDay ? faAddDays(ctx.date, 1) : ctx.date;
+    const p = localDate.split('-').map(Number);
+    const ts = Date.UTC(p[0], p[1] - 1, p[2], Math.floor(faHM(time) / 60), faHM(time) % 60) - faSettings.tzOffsetMinutes * 60000;
+    const cls = { kind: kind };
+    const rec = {
+        empId: ctx.id, empName: ctx.emp.name, shiftDate: ctx.date, shiftCode: ctx.code, kind: kind, time: time, scanMin: m, localDate: localDate, ts: ts,
+        serverTs: firebase.database.ServerValue.TIMESTAMP,
+        lateMinutes: kind === 'checkin' && m > ctx.def.start ? Math.ceil((m - ctx.def.start) / ctx.def.lateBlock) * ctx.def.lateBlock : 0,
+        otHours: kind === 'checkout' ? (parseFloat(faEl('faManualOt').value) || 0) : 0,
+        leaveHours: kind === 'halfday' ? ctx.def.halfHours : (kind === 'fullday' ? ctx.def.fullHours : 0),
+        source: 'manual', note: faEl('faManualNote').value.trim(),
+        recordedBy: sessionStorage.getItem('loggedInAccountName') || sessionStorage.getItem('loggedInRole') || 'admin'
+    };
+    withBusyButton(btn, function () {
+        const slot = faSlotFor(kind);
+        return db.ref('faceScanState/' + ctx.date + '/' + ctx.id).transaction(function (cur) {
+            if (!faDecide(cur, cls).ok) return;
+            const n = cur ? JSON.parse(JSON.stringify(cur)) : {};
+            n[slot] = { kind: kind, time: time };
+            return n;
+        }).then(function (res) {
+            if (!res.committed) { showToast(false, t('faManualDuplicate')); return; }
+            return db.ref('faceScans/' + ctx.date).push(rec).then(function () {
+                showToast(true, t('faManualSaved'));
+                logActivity('Manual Face Attendance Entry', 'Face Scan', ctx.id, ctx.emp.name, kind + ' ' + ctx.date + ' ' + time);
+                faEl('faManualNote').value = '';
+                faManualOtTouched = false;
+            });
+        }).catch(function () { showToast(false); });
+    });
+}
+
+/* ------------------------------ EXPORT / PDF ------------------------------ */
+function faPopulateExportDepts() {
+    const sel = faEl('faExportDept');
+    if (!sel) return;
+    const keep = sel.value;
+    const names = {};
+    departments.forEach(function (d) { if (d.name) names[d.name] = true; });
+    employees.forEach(function (e) { if (e.department) names[e.department] = true; });
+    sel.innerHTML = '<option value="">' + faEsc(t('faAllDepts')) + '</option>' +
+        Object.keys(names).sort().map(function (n) { return '<option value="' + faEsc(n) + '">' + faEsc(n) + '</option>'; }).join('');
+    sel.value = keep || '';
+}
+
+function faDayClosed(dateStr) {
+    let maxClose = 0;
+    ['M', 'F', 'G'].forEach(function (c) { const d = faBuildShift(c, faSettings); if (d && d.closeMin > maxClose) maxClose = d.closeMin; });
+    const p = dateStr.split('-').map(Number);
+    const closeEpoch = Date.UTC(p[0], p[1] - 1, p[2]) - faSettings.tzOffsetMinutes * 60000 + maxClose * 60000;
+    return Date.now() > closeEpoch;
+}
+
+async function faBuildReportData(date, dept) {
+    const snap = await db.ref('faceScans/' + date).once('value');
+    const v = snap.val() || {};
+    const recsByEmp = {};
+    Object.keys(v).forEach(function (k) { const r = v[k]; (recsByEmp[r.empId] = recsByEmp[r.empId] || []).push(r); });
+    const codeByEmp = {};
+    shifts.forEach(function (s) { if (s.date === date && s.type && String(s.type).toUpperCase() !== 'H') codeByEmp[s.empId] = String(s.type).toUpperCase(); });
+    Object.keys(recsByEmp).forEach(function (id) { if (!codeByEmp[id]) codeByEmp[id] = recsByEmp[id][0].shiftCode || ''; });
+    const rows = [];
+    Object.keys(codeByEmp).sort(faSortById).forEach(function (id) {
+        const emp = employees.find(function (e) { return e.id === id; });
+        if (dept && (!emp || emp.department !== dept)) return;
+        const recs = recsByEmp[id] || [];
+        const def = faBuildShift(codeByEmp[id], faSettings);
+        const sum = def ? faSummarizeDay(def, recs, faSettings) : faSummarizeDay({ start: 0, end: 0, breakStart: 0, breakEnd: 0, fullHours: faSettings.fullDayHours, halfHours: faSettings.halfDayHours }, [], faSettings);
+        rows.push({ id: id, name: emp ? emp.name : ((recs[0] && recs[0].empName) || ''), code: codeByEmp[id], sum: sum, manual: recs.some(function (r) { return r.source === 'manual'; }) });
+    });
+    return rows;
+}
+
+function faRemarkText(row, lang) {
+    const out = [];
+    row.sum.remarks.forEach(function (c) {
+        if (c === 'late') out.push(fillTemplate(tLang('faRemLate', lang), { min: row.sum.lateMinutes }));
+        else if (c === 'noScan') out.push(tLang('faRemNoScan', lang));
+        else if (c === 'missingCheckOut') out.push(tLang('faRemMissingOut', lang));
+        else if (c === 'missingCheckIn') out.push(tLang('faRemMissingIn', lang));
+        else if (c === 'halfDayLeave') out.push(tLang('faRemHalf', lang));
+        else if (c === 'fullDayLeave') out.push(tLang('faRemFull', lang));
+    });
+    if (row.manual) out.push(tLang('faRemManual', lang));
+    return out.join('; ');
+}
+
+function faBuildReportHtml(rows, opts) {
+    const lang = opts.lang;
+    const L = function (k) { return tLang(k, lang); };
+    let totWork = 0, totNight = 0, totLeave = 0, totOt = 0;
+    const body = rows.map(function (r, i) {
+        const s = r.sum;
+        if (s.workMin !== null) totWork += s.workMin;
+        totNight += s.nightMin || 0; totLeave += s.leaveHours || 0; totOt += s.otHours || 0;
+        return '<tr><td style="text-align:center;">' + (i + 1) + '</td><td>' + faEsc(r.id) + '</td><td>' + faEsc(r.name) + '</td>' +
+            '<td style="text-align:center;">' + faEsc(s.checkIn) + '</td><td style="text-align:center;">' + faEsc(s.checkOut) + '</td>' +
+            '<td style="text-align:center;">' + faHours(s.workMin) + '</td><td style="text-align:center;">' + (s.workMin === null ? '' : faHours(s.nightMin)) + '</td>' +
+            '<td style="text-align:center;">' + (s.leaveHours ? Number(s.leaveHours).toFixed(2) : '') + '</td><td style="text-align:center;">' + (s.otHours ? Number(s.otHours).toFixed(2) : '') + '</td>' +
+            '<td>' + faEsc(faRemarkText(r, lang)) + '</td></tr>';
+    }).join('');
+    const total = '<tr style="font-weight:700; background:#f1f5f9;"><td colspan="5" style="text-align:right;">' + faEsc(L('faTotal')) + '</td><td style="text-align:center;">' + (totWork / 60).toFixed(2) + '</td><td style="text-align:center;">' + (totNight / 60).toFixed(2) + '</td><td style="text-align:center;">' + totLeave.toFixed(2) + '</td><td style="text-align:center;">' + totOt.toFixed(2) + '</td><td></td></tr>';
+    const extra = (opts.extra || '').split('\n').filter(function (x) { return x.trim(); }).map(faEsc).join('<br>');
+    return '<div style="text-align:center; margin-bottom:10px;">' +
+        (opts.dept ? '<div style="font-size:17px; font-weight:800;">' + faEsc(opts.dept) + '</div>' : '') +
+        '<div style="font-size:15px; font-weight:700;">' + faEsc(L('faReportTitle')) + ' - ' + faEsc(opts.date) + '</div>' +
+        (extra ? '<div style="font-size:12px; margin-top:4px;">' + extra + '</div>' : '') + '</div>' +
+        '<table class="fa-report" style="border-collapse:collapse; width:100%;"><thead><tr style="background:#e2e8f0;">' +
+        '<th>' + faEsc(L('faColNo')) + '</th><th>' + faEsc(L('tblId')) + '</th><th>' + faEsc(L('tblName')) + '</th><th>' + faEsc(L('faColCheckIn')) + '</th><th>' + faEsc(L('faColCheckOut')) + '</th>' +
+        '<th>' + faEsc(L('faColWorkHrs')) + '</th><th>' + faEsc(L('faColNightHrs')) + '</th><th>' + faEsc(L('faColLeaveHrs')) + '</th><th>' + faEsc(L('faColOtHrs')) + '</th><th>' + faEsc(L('faColRemarks')) + '</th>' +
+        '</tr></thead><tbody>' + body + total + '</tbody></table>';
+}
+
+async function faReportParts() {
+    const date = faEl('faExportDate').value;
+    if (!date) { showToast(false, t('faManualNeedFields')); return null; }
+    const dept = faEl('faExportDept').value;
+    const headerDept = faEl('faHeaderDept').value.trim();
+    const extra = faEl('faHeaderExtra').value;
+    db.ref('faceAttHeader').set({ dept: headerDept, extra: extra }).catch(function () { /* remembering the header is best-effort */ });
+    const rows = await faBuildReportData(date, dept);
+    faEl('faExportWarn').innerHTML = faDayClosed(date) ? '' : '<span class="fa-chip warn">' + faEsc(t('faDayNotClosed')) + '</span>';
+    if (!rows.length) { showToast(false, t('faNoRowsExport')); }
+    return { rows: rows, opts: { lang: faEl('faExportLang').value || 'en', date: date, dept: headerDept || dept, extra: extra } };
+}
+
+function faPreviewReport(btn) {
+    withBusyButton(btn, async function () {
+        const parts = await faReportParts();
+        if (!parts) return;
+        faEl('faReportPreview').innerHTML = faBuildReportHtml(parts.rows, parts.opts);
+    });
+}
+
+function faExportReportPdf(btn) {
+    withBusyButton(btn, async function () {
+        const parts = await faReportParts();
+        if (!parts || !parts.rows.length) return;
+        const html = faBuildReportHtml(parts.rows, parts.opts);
+        const win = window.open('', '_blank');
+        if (!win) { showToast(false); return; }
+        win.document.write(
+            '<!doctype html><html><head><meta charset="utf-8"><title>' + faEsc(tLang('faReportTitle', parts.opts.lang) + ' ' + parts.opts.date) + '</title>' +
+            '<style>body{font-family:"Khmer OS","Noto Sans Khmer","Noto Sans SC",Arial,sans-serif; padding:14px; color:#0f172a;} .fa-report th,.fa-report td{border:1px solid #94a3b8; padding:4px 6px; font-size:12px;} @media print { @page { size: A4 landscape; margin: 10mm; } }</style>' +
+            '</head><body>' + html + '<script>window.onload = function(){ window.print(); };<\/script></body></html>'
+        );
+        win.document.close();
+    });
+}
+
+/* Called from setLanguage() so every table built by this tab follows the language switch. */
+function faOnLanguageChanged() {
+    if (!faInited) return;
+    faRenderLive();
+    faRenderEnrolled();
+    faPopulateExportDepts();
+    faManualPreview();
+    faRefreshCaptureInfo();
+}
+
 
  /* v6.96: leave notifications are stored with a language-neutral kind + params, and turned into
     text HERE, at display time, in whatever language the person viewing it is using - so an
