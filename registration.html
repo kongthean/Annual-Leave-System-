@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="robots" content="noindex">
+<title>Attendance Face Scan</title>
+<!-- Face Attendance - employee scan page (v1, ships with system.html v6.98).
+     Employees open this page on their phone; it goes straight to a face scan with no buttons. It
+     identifies the employee by face (matching against the face templates the admin enrolled in
+     system.html), looks up that employee's shift for the day, decides from the time whether the scan
+     is a check-in / half-day leave request / full-day leave request / check-out (same rules engine as
+     system.html), and saves the scan with photo, location and time. It uses the SAME Firebase
+     project as system.html and never touches employee, leave or Master Sheet data. -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<style>
+:root { --bg1:#0f172a; --bg2:#1e3a8a; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --ok:#16a34a; --bad:#dc2626; --warn:#d97706; --accent:#2563eb; }
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { margin:0; min-height:100%; }
+body { font-family:'Khmer OS','Noto Sans Khmer','Noto Sans SC',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; background:linear-gradient(160deg,var(--bg1),var(--bg2)); color:#fff; display:flex; justify-content:center; }
+.app { width:100%; max-width:460px; padding:14px 16px 28px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+.top { width:100%; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.title { font-size:16px; font-weight:700; line-height:1.3; }
+.langs { display:flex; gap:4px; }
+.langs button { background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.25); border-radius:14px; padding:5px 10px; font-size:12px; cursor:pointer; }
+.langs button.on { background:#fff; color:var(--bg2); font-weight:700; }
+.clock { font-size:40px; font-weight:800; letter-spacing:1px; font-variant-numeric:tabular-nums; margin-top:2px; }
+.dateline { font-size:13px; color:#cbd5e1; margin-top:-8px; }
+.cam { position:relative; width:min(78vw,320px); aspect-ratio:3/4; border-radius:50% / 42%; overflow:hidden; background:#000; border:4px solid rgba(255,255,255,.55); box-shadow:0 8px 30px rgba(0,0,0,.45); }
+.cam.found { border-color:#22c55e; }
+.cam video { width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+.status { min-height:44px; width:100%; text-align:center; font-size:15px; line-height:1.4; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,.12); }
+.status.err { background:rgba(220,38,38,.28); }
+.result { width:100%; background:var(--card); color:var(--ink); border-radius:16px; padding:18px 16px; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,.35); }
+.result .big { font-size:46px; line-height:1; }
+.result.ok .big { color:var(--ok); } .result.bad .big { color:var(--bad); } .result.warn .big { color:var(--warn); }
+.result .who { font-size:19px; font-weight:800; margin-top:6px; }
+.result .kind { font-size:16px; font-weight:700; margin-top:6px; }
+.result .line { font-size:14px; color:#334155; margin-top:6px; line-height:1.45; }
+.result .small { font-size:12px; color:var(--muted); margin-top:8px; word-break:break-word; }
+.result img { width:84px; height:112px; object-fit:cover; border-radius:10px; margin-top:10px; border:2px solid #e2e8f0; }
+.btn { margin-top:14px; background:var(--accent); color:#fff; border:none; border-radius:12px; padding:12px 22px; font-size:15px; font-weight:700; cursor:pointer; }
+[hidden] { display:none !important; }
+.foot { font-size:11px; color:#94a3b8; margin-top:4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="title" id="pageTitle">Attendance Face Scan</div>
+    <div class="langs" id="langs">
+      <button data-lang="en">EN</button><button data-lang="km">ខ្មែរ</button><button data-lang="zh">中文</button>
+    </div>
+  </div>
+  <div class="clock" id="clock">--:--:--</div>
+  <div class="dateline" id="dateline"></div>
+  <div class="cam" id="cam"><video id="video" playsinline muted autoplay></video></div>
+  <div class="status" id="status">...</div>
+  <div class="result" id="result" hidden></div>
+  <button class="btn" id="againBtn" hidden></button>
+  <div class="foot">Face Attendance</div>
+</div>
+
+<script>
+/* ---------------- configuration ---------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyAFHtPZsYq8iAYZtKBYWDt7hVitMmHKt_s",
+  authDomain: "annual-leave-1feda.firebaseapp.com",
+  databaseURL: "https://annual-leave-1feda-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "annual-leave-1feda",
+  storageBucket: "annual-leave-1feda.firebasestorage.app",
+  messagingSenderId: "989242956584",
+  appId: "1:989242956584:web:8ebe1333e38705600dce1d"
+};
+/* Where the face-recognition engine and its model files are loaded from (tried in order). If you
+   ever host these files yourself, put your own addresses first. */
+const FACE_ENGINE_SCRIPTS = [
+  'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js',
+  'https://unpkg.com/@vladmandic/face-api/dist/face-api.js'
+];
+const FACE_ENGINE_MODELS = [
+  'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',
+  'https://unpkg.com/@vladmandic/face-api/model/'
+];
+
+/* FA-RULES-BEGIN */
+/* v6.98 Face Attendance - shared rules engine. This exact block is embedded identically in BOTH
+   system.html (admin: Manual Entry, daily summary, PDF) and registeration.html (employee scan
+   page), so a scan is interpreted the same way wherever it is looked at. Pure functions only: no
+   DOM, no Firebase. All times are "minutes since 00:00 of the SHIFT's own date" (so a night shift
+   that crosses midnight simply continues past 1440: 05:00 the next morning = 1740). */
+var FA_DEFAULTS = {
+    tzOffsetMinutes: 420,        /* Cambodia = UTC+7, no daylight saving */
+    windowMinutes: 15,           /* width of the check-in-before-start, break and check-out windows */
+    lateBlockMinutes: 30,        /* lateness is counted in blocks of this many minutes */
+    halfDayHours: 4,
+    fullDayHours: 8,
+    matchThreshold: 0.5,         /* face distance; lower = stricter */
+    photoRetentionDays: 30,
+    nightStart: '22:00',
+    nightEnd: '05:00',
+    shifts: {
+        M: { start: '07:00', end: '16:00', breakStart: '11:00', breakEnd: '12:00', otHours: [0, 1, 2, 3] },
+        F: { start: '07:00', end: '17:00', breakStart: '11:00', breakEnd: '13:00', otHours: [0, 1, 2, 3] },
+        G: { start: '19:00', end: '05:00', breakStart: '23:00', breakEnd: '01:00', otHours: [0, 1, 2, 3] }
+    }
+};
+
+function faPad(n) { return (n < 10 ? '0' : '') + n; }
+function faHM(s) {
+    var m = /^(\d{1,2}):(\d{2})$/.exec(String(s == null ? '' : s));
+    if (!m) return NaN;
+    var h = parseInt(m[1], 10), mi = parseInt(m[2], 10);
+    if (h > 23 || mi > 59) return NaN;
+    return h * 60 + mi;
+}
+function faMinToHM(m) {
+    m = ((Math.round(m) % 1440) + 1440) % 1440;
+    return faPad(Math.floor(m / 60)) + ':' + faPad(m % 60);
+}
+
+/* Fills in anything missing from what was saved in the database with the defaults, so a partly
+   filled or old settings record can never break the rules. */
+function faMergeSettings(saved) {
+    var out = JSON.parse(JSON.stringify(FA_DEFAULTS));
+    if (!saved || typeof saved !== 'object') return out;
+    ['tzOffsetMinutes', 'windowMinutes', 'lateBlockMinutes', 'halfDayHours', 'fullDayHours', 'matchThreshold', 'photoRetentionDays'].forEach(function (k) {
+        var v = parseFloat(saved[k]);
+        if (isFinite(v) && v > 0 || (k === 'tzOffsetMinutes' && isFinite(v))) out[k] = v;
+    });
+    ['nightStart', 'nightEnd'].forEach(function (k) { if (!isNaN(faHM(saved[k]))) out[k] = saved[k]; });
+    if (saved.shifts && typeof saved.shifts === 'object') {
+        Object.keys(out.shifts).forEach(function (code) {
+            var s = saved.shifts[code];
+            if (!s) return;
+            ['start', 'end', 'breakStart', 'breakEnd'].forEach(function (k) { if (!isNaN(faHM(s[k]))) out.shifts[code][k] = s[k]; });
+            var oh = s.otHours;
+            if (oh && typeof oh === 'object') {
+                var arr = (Array.isArray(oh) ? oh : Object.keys(oh).map(function (x) { return oh[x]; }))
+                    .map(function (x) { return parseFloat(x); })
+                    .filter(function (x) { return isFinite(x) && x >= 0; });
+                arr = arr.filter(function (x, i) { return arr.indexOf(x) === i; }).sort(function (a, b) { return a - b; });
+                if (arr.length) out.shifts[code].otHours = arr;
+            }
+        });
+    }
+    return out;
+}
+
+/* Turns a shift letter into concrete windows. Returns null for H (rest day) or an unknown or
+   mis-ordered definition. */
+function faBuildShift(code, settings) {
+    var c = settings && settings.shifts && settings.shifts[code];
+    if (!c) return null;
+    var s = faHM(c.start), e = faHM(c.end), bs = faHM(c.breakStart), be = faHM(c.breakEnd);
+    if (isNaN(s) || isNaN(e) || isNaN(bs) || isNaN(be)) return null;
+    if (e <= s) e += 1440;
+    if (bs < s) bs += 1440;
+    while (be <= bs) be += 1440;
+    if (!(s < bs && bs < be && be < e)) return null;
+    var w = settings.windowMinutes;
+    var hrs = (c.otHours && c.otHours.length) ? c.otHours.slice() : [0];
+    var ot = hrs.map(function (h) { return { from: e + h * 60, to: e + h * 60 + w, hours: h }; });
+    return {
+        code: code, start: s, end: e, breakStart: bs, breakEnd: be, win: w,
+        lateBlock: settings.lateBlockMinutes, halfHours: settings.halfDayHours, fullHours: settings.fullDayHours,
+        ot: ot, openMin: s - w, closeMin: ot[ot.length - 1].to
+    };
+}
+
+/* What does a scan at minute m (on the shift's own time axis) mean for this shift? */
+function faClassify(def, m) {
+    if (m < def.openMin) return { ok: false, code: 'tooEarly', params: { at: faMinToHM(def.openMin) } };
+    if (m > def.closeMin) return { ok: false, code: 'closed', params: {} };
+    if (m < def.breakStart) {
+        var late = m > def.start ? Math.ceil((m - def.start) / def.lateBlock) * def.lateBlock : 0;
+        return { ok: true, kind: 'checkin', lateMinutes: late, otHours: 0, leaveHours: 0 };
+    }
+    if (m <= def.breakStart + def.win) return { ok: true, kind: 'halfday', lateMinutes: 0, otHours: 0, leaveHours: def.halfHours };
+    if (m < def.breakEnd) return { ok: false, code: 'restTime', params: { at: faMinToHM(def.breakEnd) } };
+    if (m < def.ot[0].from) return { ok: true, kind: 'fullday', lateMinutes: 0, otHours: 0, leaveHours: def.fullHours };
+    for (var i = 0; i < def.ot.length; i++) {
+        if (m >= def.ot[i].from && m <= def.ot[i].to) return { ok: true, kind: 'checkout', lateMinutes: 0, otHours: def.ot[i].hours, leaveHours: 0 };
+        if (i + 1 < def.ot.length && m > def.ot[i].to && m < def.ot[i + 1].from) {
+            return { ok: false, code: 'noWindow', params: { at: faMinToHM(def.ot[i + 1].from) } };
+        }
+    }
+    return { ok: false, code: 'closed', params: {} };
+}
+
+function faSlotFor(kind) { return kind === 'checkin' ? 'checkin' : (kind === 'checkout' ? 'checkout' : 'leave'); }
+
+/* Given what is already recorded for this employee + shift date, may this kind of scan go
+   through? state = { checkin:{time}, checkout:{time}, leave:{time} } or null. */
+function faDecide(state, cls) {
+    state = state || {};
+    var k = cls.kind;
+    if (k === 'checkin') {
+        if (state.checkin) return { ok: false, code: 'alreadyCheckedIn', params: { at: state.checkin.time || '' } };
+        if (state.leave) return { ok: false, code: 'alreadyLeave', params: { at: state.leave.time || '' } };
+    } else if (k === 'checkout') {
+        if (state.checkout) return { ok: false, code: 'alreadyCheckedOut', params: { at: state.checkout.time || '' } };
+        if (state.leave) return { ok: false, code: 'alreadyLeave', params: { at: state.leave.time || '' } };
+    } else {
+        if (state.leave) return { ok: false, code: 'alreadyLeave', params: { at: state.leave.time || '' } };
+        if (state.checkout) return { ok: false, code: 'alreadyCheckedOut', params: { at: state.checkout.time || '' } };
+    }
+    return { ok: true };
+}
+
+function faLocal(epochMs, tz) {
+    var d = new Date(epochMs + tz * 60000);
+    return { dateStr: d.getUTCFullYear() + '-' + faPad(d.getUTCMonth() + 1) + '-' + faPad(d.getUTCDate()), minutes: d.getUTCHours() * 60 + d.getUTCMinutes() };
+}
+function faAddDays(dateStr, n) {
+    var p = dateStr.split('-');
+    var d = new Date(Date.UTC(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10) + n));
+    return d.getUTCFullYear() + '-' + faPad(d.getUTCMonth() + 1) + '-' + faPad(d.getUTCDate());
+}
+
+/* The whole decision for one scan. epochMs = the (server-corrected) moment of the scan.
+   getInfo(dateStr) must return { code: 'M'|'F'|'G'|'H'|'' , state: {...}|null } for that SHIFT date.
+   A scan is checked against both today's shift and yesterday's (a night shift that started
+   yesterday is still running until early this morning). */
+function faResolveScan(epochMs, getInfo, settings) {
+    var loc = faLocal(epochMs, settings.tzOffsetMinutes);
+    var today = loc.dateStr, yest = faAddDays(today, -1);
+    var cands = [{ date: yest, m: loc.minutes + 1440 }, { date: today, m: loc.minutes }];
+    var rejects = [];
+    for (var i = 0; i < cands.length; i++) {
+        var c = cands[i];
+        var info = getInfo(c.date) || {};
+        var code = info.code || '';
+        var def = (code && code !== 'H') ? faBuildShift(code, settings) : null;
+        if (!def) {
+            rejects.push({ date: c.date, ok: false, code: code === 'H' ? 'dayOff' : 'noShift', params: {}, rank: code === 'H' ? 1.5 : 0 });
+            continue;
+        }
+        var cls = faClassify(def, c.m);
+        if (!cls.ok) {
+            rejects.push({ date: c.date, ok: false, code: cls.code, params: cls.params, rank: (c.m >= def.openMin && c.m <= def.closeMin) ? 2 : 1 });
+            continue;
+        }
+        var dec = faDecide(info.state, cls);
+        if (!dec.ok) { rejects.push({ date: c.date, ok: false, code: dec.code, params: dec.params, rank: 3 }); continue; }
+        return { ok: true, shiftDate: c.date, shiftCode: code, def: def, cls: cls, scanMin: c.m, time: faMinToHM(loc.minutes), localDate: today };
+    }
+    var best = rejects[0];
+    for (var j = 1; j < rejects.length; j++) { if (rejects[j].rank >= best.rank) best = rejects[j]; }
+    return { ok: false, code: best.code, params: best.params, shiftDate: best.date, localDate: today, time: faMinToHM(loc.minutes) };
+}
+
+function faOverlap(a1, a2, b1, b2) { var lo = Math.max(a1, b1), hi = Math.min(a2, b2); return hi > lo ? hi - lo : 0; }
+
+/* Daily figures for one employee on one shift date, from that day's scan records
+   (each record: { kind, time, lateMinutes, otHours, leaveHours }). Working time is the shift's
+   own paid time (start..end minus the break) reduced by lateness; OT is reported separately. */
+function faSummarizeDay(def, recs, settings) {
+    var by = {};
+    (recs || []).forEach(function (r) { if (!by[r.kind] || (r.time || '') < (by[r.kind].time || '')) by[r.kind] = r; });
+    var ci = by.checkin, co = by.checkout, hd = by.halfday, fd = by.fullday;
+    var res = { checkIn: ci ? ci.time : '', checkOut: co ? co.time : '', workMin: null, nightMin: 0, leaveHours: 0, otHours: 0, lateMinutes: 0, remarks: [] };
+    if (!ci && !co && !hd && !fd) { res.remarks.push('noScan'); return res; }
+    res.lateMinutes = ci ? (parseFloat(ci.lateMinutes) || 0) : 0;
+    res.otHours = co ? (parseFloat(co.otHours) || 0) : 0;
+    if (fd) {
+        res.leaveHours = parseFloat(fd.leaveHours) || def.fullHours;
+        res.workMin = 0;
+        res.remarks.push('fullDayLeave');
+        return res;
+    }
+    if (hd) { res.leaveHours = parseFloat(hd.leaveHours) || def.halfHours; res.remarks.push('halfDayLeave'); }
+    if (!ci) { res.remarks.push('missingCheckIn'); return res; }
+    var effS = def.start + res.lateMinutes, effE;
+    if (hd) effE = def.breakStart;
+    else if (co) effE = def.end;
+    else { res.remarks.push('missingCheckOut'); return res; }
+    var parts = [];
+    if (effE > effS) {
+        var b1 = def.breakStart, b2 = def.breakEnd;
+        if (effS < b1) parts.push([effS, Math.min(effE, b1)]);
+        if (effE > b2) parts.push([Math.max(effS, b2), effE]);
+    }
+    var nS = faHM(settings.nightStart), nE = faHM(settings.nightEnd);
+    if (nE <= nS) nE += 1440;
+    var work = 0, night = 0;
+    parts.forEach(function (p) {
+        if (p[1] <= p[0]) return;
+        work += p[1] - p[0];
+        for (var k = -1; k <= 2; k++) night += faOverlap(p[0], p[1], nS + 1440 * k, nE + 1440 * k);
+    });
+    res.workMin = work;
+    res.nightMin = night;
+    if (res.lateMinutes > 0) res.remarks.push('late');
+    return res;
+}
+/* FA-RULES-END */
+
+/* ---------------- translations (employee-facing) ---------------- */
+const TR = {
+ en: {
+  title:'Attendance Face Scan', loadingEngine:'Loading face scanner...', loadingFaces:'Loading registered faces...', startingCamera:'Starting camera...',
+  waitingLocation:'Getting your location... please tap Allow if asked.', lookingForFace:'Look at the camera', moveCloser:'Move a little closer and face the camera',
+  notRecognized:'Face not recognised. Move closer and face the camera straight on. If you have not been registered yet, please contact the office.',
+  processing:'Saving your scan...', camDenied:'Cannot open the camera. Please allow camera access in your browser settings, then reload this page.',
+  locDenied:'Your location is needed to scan. Please allow location access, then tap the button to try again.', engineFailed:'Could not load the face scanner. Please check your internet connection and reload this page.',
+  noTemplates:'No faces are registered yet. Please contact the office.', noCamera:'This browser cannot use the camera. Please open the page in Chrome or Safari.',
+  kind_checkin:'Check-in', kind_checkout:'Check-out', kind_halfday:'Half-day leave request (4 hours)', kind_fullday:'Full-day leave request (8 hours)',
+  onTime:'On time', late:'Late: {min} minutes', ot:'Overtime: {h} hour(s)', recorded:'Recorded', where:'Location', at:'Time',
+  r_tooEarly:'Too early. Check-in opens at {at}.', r_closed:'Scanning is closed for your shift. Please go to the office so an admin can record it for you.',
+  r_restTime:'It is your break time, so scans are not recorded now. If you need to request leave, scan again at {at}.', r_noWindow:'This is not a valid scan time. The next scan window starts at {at}.',
+  r_dayOff:'Today is your rest day. This scan was ignored.', r_noShift:'No shift is assigned to you for today. Please contact the office.',
+  r_alreadyCheckedIn:'You already checked in at {at}.', r_alreadyCheckedOut:'You already checked out at {at}.', r_alreadyLeave:'You already requested leave at {at}.',
+  saveFailed:'Could not save your scan. Please try again.', again:'Scan again', tryAgain:'Try again'
+ },
+ km: {
+  title:'ស្កេនមុខសម្រាប់វត្តមាន', loadingEngine:'កំពុងផ្ទុកប្រព័ន្ធស្កេនមុខ...', loadingFaces:'កំពុងផ្ទុកទិន្នន័យមុខ...', startingCamera:'កំពុងបើកកាមេរ៉ា...',
+  waitingLocation:'កំពុងរកទីតាំងរបស់អ្នក... សូមចុច "អនុញ្ញាត" ប្រសិនបើមានសំណួរ។', lookingForFace:'សូមមើលមកកាមេរ៉ា', moveCloser:'សូមខិតមកជិតកាមេរ៉ាបន្តិច ហើយបែរមុខត្រង់',
+  notRecognized:'មិនស្គាល់មុខទេ។ សូមខិតមកជិតកាមេរ៉ា ហើយបែរមុខត្រង់។ ប្រសិនបើអ្នកមិនទាន់បានចុះឈ្មោះ សូមទាក់ទងការិយាល័យ។',
+  processing:'កំពុងរក្សាទុកការស្កេនរបស់អ្នក...', camDenied:'មិនអាចបើកកាមេរ៉ាបានទេ។ សូមអនុញ្ញាតកាមេរ៉ាក្នុងការកំណត់កម្មវិធីរុករក រួចផ្ទុកទំព័រនេះឡើងវិញ។',
+  locDenied:'ត្រូវការទីតាំងរបស់អ្នកដើម្បីស្កេន។ សូមអនុញ្ញាតទីតាំង រួចចុចប៊ូតុងដើម្បីសាកល្បងម្តងទៀត។', engineFailed:'មិនអាចផ្ទុកប្រព័ន្ធស្កេនមុខបានទេ។ សូមពិនិត្យអ៊ីនធឺណិត រួចផ្ទុកទំព័រនេះឡើងវិញ។',
+  noTemplates:'មិនទាន់មានមុខណាត្រូវបានចុះឈ្មោះទេ។ សូមទាក់ទងការិយាល័យ។', noCamera:'កម្មវិធីរុករកនេះមិនអាចប្រើកាមេរ៉ាបានទេ។ សូមបើកទំព័រនេះក្នុង Chrome ឬ Safari។',
+  kind_checkin:'ចូលធ្វើការ', kind_checkout:'ចេញពីធ្វើការ', kind_halfday:'សំណើសុំច្បាប់កន្លះថ្ងៃ (៤ ម៉ោង)', kind_fullday:'សំណើសុំច្បាប់ពេញមួយថ្ងៃ (៨ ម៉ោង)',
+  onTime:'ទាន់ពេល', late:'យឺត៖ {min} នាទី', ot:'ម៉ោងបន្ថែម៖ {h} ម៉ោង', recorded:'បានកត់ត្រា', where:'ទីតាំង', at:'ម៉ោង',
+  r_tooEarly:'ឆាប់ពេក។ ការស្កេនចូលបើកនៅម៉ោង {at}។', r_closed:'ការស្កេនបានបិទសម្រាប់វេនរបស់អ្នក។ សូមទៅការិយាល័យដើម្បីឱ្យអ្នកគ្រប់គ្រងកត់ត្រាជូន។',
+  r_restTime:'ឥឡូវជាពេលសម្រាក ដូច្នេះការស្កេនមិនត្រូវបានកត់ត្រាទេ។ ប្រសិនបើអ្នកចង់សុំច្បាប់ សូមស្កេនម្តងទៀតនៅម៉ោង {at}។', r_noWindow:'នេះមិនមែនជាម៉ោងស្កេនត្រឹមត្រូវទេ។ ម៉ោងស្កេនបន្ទាប់ចាប់ផ្តើមនៅម៉ោង {at}។',
+  r_dayOff:'ថ្ងៃនេះជាថ្ងៃឈប់សម្រាករបស់អ្នក។ ការស្កេននេះត្រូវបានមិនអើពើ។', r_noShift:'មិនមានវេនសម្រាប់អ្នកនៅថ្ងៃនេះទេ។ សូមទាក់ទងការិយាល័យ។',
+  r_alreadyCheckedIn:'អ្នកបានចូលធ្វើការរួចហើយនៅម៉ោង {at}។', r_alreadyCheckedOut:'អ្នកបានចេញពីធ្វើការរួចហើយនៅម៉ោង {at}។', r_alreadyLeave:'អ្នកបានស្នើសុំច្បាប់រួចហើយនៅម៉ោង {at}។',
+  saveFailed:'មិនអាចរក្សាទុកការស្កេនបានទេ។ សូមសាកល្បងម្តងទៀត។', again:'ស្កេនម្តងទៀត', tryAgain:'សាកល្បងម្តងទៀត'
+ },
+ zh: {
+  title:'人脸考勤打卡', loadingEngine:'正在加载人脸识别...', loadingFaces:'正在加载已登记的人脸...', startingCamera:'正在启动摄像头...',
+  waitingLocation:'正在获取您的位置...如有提示请点击"允许"。', lookingForFace:'请面向摄像头', moveCloser:'请靠近一点并正对摄像头',
+  notRecognized:'无法识别人脸。请靠近并正对摄像头。如果您尚未登记，请联系办公室。',
+  processing:'正在保存打卡...', camDenied:'无法打开摄像头。请在浏览器设置中允许使用摄像头，然后重新加载此页面。',
+  locDenied:'打卡需要获取您的位置。请允许位置权限，然后点击按钮重试。', engineFailed:'无法加载人脸识别。请检查网络连接并重新加载此页面。',
+  noTemplates:'尚未登记任何人脸。请联系办公室。', noCamera:'此浏览器无法使用摄像头。请使用 Chrome 或 Safari 打开此页面。',
+  kind_checkin:'上班打卡', kind_checkout:'下班打卡', kind_halfday:'半天请假申请（4小时）', kind_fullday:'全天请假申请（8小时）',
+  onTime:'准时', late:'迟到：{min}分钟', ot:'加班：{h}小时', recorded:'已记录', where:'位置', at:'时间',
+  r_tooEarly:'太早了。上班打卡将于 {at} 开放。', r_closed:'您的班次打卡已关闭。请到办公室，由管理员为您补录。',
+  r_restTime:'现在是您的休息时间，打卡不会被记录。如需请假，请在 {at} 再次打卡。', r_noWindow:'现在不是有效的打卡时间。下一个打卡时段从 {at} 开始。',
+  r_dayOff:'今天是您的休息日，本次打卡已忽略。', r_noShift:'今天没有为您安排班次。请联系办公室。',
+  r_alreadyCheckedIn:'您已在 {at} 上班打卡。', r_alreadyCheckedOut:'您已在 {at} 下班打卡。', r_alreadyLeave:'您已在 {at} 提交了请假申请。',
+  saveFailed:'无法保存打卡。请重试。', again:'再次打卡', tryAgain:'重试'
+ }
+};
+let lang = 'en';
+try { const sv = localStorage.getItem('faScanLang'); if (sv && TR[sv]) lang = sv; } catch (e) {}
+function tr(key, vars) {
+  let s = (TR[lang] && TR[lang][key]) || TR.en[key] || key;
+  if (vars) s = s.replace(/\{(\w+)\}/g, function (m, k) { return vars[k] !== undefined ? vars[k] : m; });
+  return s;
+}
+
+/* ---------------- tiny helpers ---------------- */
+const $ = id => document.getElementById(id);
+let lastStatusKey = null, lastStatusVars = null, lastStatusErr = false;
+function setStatus(key, vars, isErr) {
+  lastStatusKey = key; lastStatusVars = vars; lastStatusErr = !!isErr;
+  const el = $('status');
+  el.textContent = key ? tr(key, vars) : '';
+  el.className = 'status' + (isErr ? ' err' : '');
+}
+function applyLang() {
+  document.documentElement.lang = lang;
+  $('pageTitle').textContent = tr('title');
+  document.title = tr('title');
+  document.querySelectorAll('#langs button').forEach(b => b.classList.toggle('on', b.dataset.lang === lang));
+  if (lastStatusKey) setStatus(lastStatusKey, lastStatusVars, lastStatusErr);
+  if (lastResult) renderResult(lastResult);
+  $('againBtn').textContent = againMode === 'retry' ? tr('tryAgain') : tr('again');
+}
+document.querySelectorAll('#langs button').forEach(b => b.addEventListener('click', () => {
+  lang = b.dataset.lang;
+  try { localStorage.setItem('faScanLang', lang); } catch (e) {}
+  applyLang();
+}));
+
+/* ---------------- Firebase ---------------- */
+firebase.initializeApp(firebaseConfig);
+if (typeof firebase.auth === 'function') {
+  firebase.auth().signInAnonymously().catch(function (err) { console.error('Anonymous sign-in failed:', err); });
+}
+const db = firebase.database();
+let serverOffset = 0, serverOffsetKnown = false;
+const offsetReady = new Promise(function (resolve) {
+  try {
+    db.ref('.info/serverTimeOffset').on('value', function (s) { serverOffset = Number(s.val()) || 0; serverOffsetKnown = true; resolve(); });
+  } catch (e) { resolve(); }
+  setTimeout(resolve, 4000);
+});
+function nowMs() { return Date.now() + serverOffset; }
+
+let settings = faMergeSettings(null);
+let templates = [];            /* [{ id, name, descs:[Float32Array] }] */
+
+/* ---------------- clock ---------------- */
+function tickClock() {
+  const loc = faLocal(nowMs(), settings.tzOffsetMinutes);
+  const secs = Math.floor((nowMs() + settings.tzOffsetMinutes * 60000) / 1000) % 60;
+  $('clock').textContent = faMinToHM(loc.minutes) + ':' + faPad(secs);
+  $('dateline').textContent = loc.dateStr;
+}
+setInterval(tickClock, 1000); tickClock();
+
+/* ---------------- face engine ---------------- */
+function loadScriptOnce(url) {
+  return new Promise(function (resolve, reject) {
+    const s = document.createElement('script');
+    s.src = url; s.onload = resolve; s.onerror = function () { reject(new Error('load failed: ' + url)); };
+    document.head.appendChild(s);
+  });
+}
+async function loadFaceEngine() {
+  if (typeof faceapi === 'undefined') {
+    let ok = false;
+    for (let i = 0; i < FACE_ENGINE_SCRIPTS.length && !ok; i++) {
+      try { await loadScriptOnce(FACE_ENGINE_SCRIPTS[i]); ok = (typeof faceapi !== 'undefined'); } catch (e) { console.warn(e.message); }
+    }
+    if (!ok) throw new Error('face engine script unavailable');
+  }
+  let loaded = false;
+  for (let i = 0; i < FACE_ENGINE_MODELS.length && !loaded; i++) {
+    try {
+      const base = FACE_ENGINE_MODELS[i].replace(/\/$/, '');
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(base),
+        faceapi.nets.faceLandmark68Net.loadFromUri(base),
+        faceapi.nets.faceRecognitionNet.loadFromUri(base)
+      ]);
+      loaded = true;
+    } catch (e) { console.warn('model load failed', e); }
+  }
+  if (!loaded) throw new Error('face models unavailable');
+}
+
+function toArr(v) { return Array.isArray(v) ? v : (v && typeof v === 'object' ? Object.keys(v).sort(function (a, b) { return a - b; }).map(function (k) { return v[k]; }) : []); }
+async function loadTemplates() {
+  const snap = await db.ref('faceTemplates').once('value');
+  const data = snap.val() || {};
+  templates = Object.keys(data).map(function (id) {
+    const d = data[id] || {};
+    return { id: id, name: d.name || id, descs: toArr(d.descriptors).map(function (a) { return Float32Array.from(toArr(a)); }).filter(function (a) { return a.length === 128; }) };
+  }).filter(function (t) { return t.descs.length; });
+}
+async function loadSettings() {
+  try { const s = await db.ref('faceAttSettings').once('value'); settings = faMergeSettings(s.val()); } catch (e) {}
+}
+function dist(a, b) { let s = 0; for (let i = 0; i < a.length; i++) { const d = a[i] - b[i]; s += d * d; } return Math.sqrt(s); }
+function bestMatch(desc) {
+  let best = { id: null, name: '', dist: 9 }, second = 9;
+  templates.forEach(function (t) {
+    let d = 9;
+    t.descs.forEach(function (x) { const dd = dist(desc, x); if (dd < d) d = dd; });
+    if (d < best.dist) { second = best.dist; best = { id: t.id, name: t.name, dist: d }; } else if (d < second) second = d;
+  });
+  const ok = best.id !== null && best.dist < settings.matchThreshold && (templates.length === 1 || (second - best.dist) >= 0.03);
+  return { ok: ok, id: best.id, name: best.name, dist: best.dist };
+}
+
+/* ---------------- camera + location ---------------- */
+const video = $('video');
+async function startCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('nocam');
+  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
+  video.srcObject = stream;
+  await new Promise(function (res) { if (video.readyState >= 2) res(); else video.onloadeddata = res; });
+  try { await video.play(); } catch (e) {}
+}
+let position = null, address = '', locError = false;
+function requestLocation() {
+  locError = false; position = null;
+  return new Promise(function (resolve) {
+    if (!navigator.geolocation) { locError = true; resolve(null); return; }
+    navigator.geolocation.getCurrentPosition(function (p) {
+      position = { lat: p.coords.latitude, lng: p.coords.longitude, accuracy: Math.round(p.coords.accuracy || 0) };
+      reverseGeocode(position);
+      resolve(position);
+    }, function () { locError = true; resolve(null); }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 30000 });
+  });
+}
+let geocodePromise = Promise.resolve();
+function reverseGeocode(p) {
+  address = '';
+  geocodePromise = (async function () {
+    try {
+      const ctl = new AbortController(); const to = setTimeout(function () { ctl.abort(); }, 6000);
+      const r = await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&accept-language=en&lat=' + p.lat + '&lon=' + p.lng, { signal: ctl.signal });
+      clearTimeout(to);
+      const j = await r.json();
+      address = (j && j.display_name) || '';
+    } catch (e) { address = ''; }
+  })();
+}
+
+/* ---------------- scanning ---------------- */
+let mode = 'init';           /* init | scanning | processing | result */
+let lastId = null, streak = 0, unknownStreak = 0, lastResult = null, againMode = 'scan';
+
+function setAgain(modeName) {
+  againMode = modeName;
+  $('againBtn').hidden = false;
+  $('againBtn').textContent = modeName === 'retry' ? tr('tryAgain') : tr('again');
+}
+$('againBtn').addEventListener('click', async function () {
+  $('againBtn').hidden = true;
+  if (againMode === 'retry') {
+    setStatus('waitingLocation');
+    await requestLocation();
+    if (!position) { setStatus('locDenied', null, true); setAgain('retry'); return; }
+  }
+  $('result').hidden = true; lastResult = null; $('cam').classList.remove('found');
+  lastId = null; streak = 0; unknownStreak = 0;
+  mode = 'scanning'; setStatus('lookingForFace'); scheduleTick();
+});
+
+function scheduleTick() { setTimeout(tick, 350); }
+async function tick() {
+  if (mode !== 'scanning') return;
+  let det = null;
+  try {
+    det = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.5 })).withFaceLandmarks().withFaceDescriptor();
+  } catch (e) { console.warn('detect error', e); }
+  if (mode !== 'scanning') return;
+  if (!det) { streak = 0; lastId = null; unknownStreak = 0; $('cam').classList.remove('found'); setStatus('lookingForFace'); return scheduleTick(); }
+  const box = det.detection && det.detection.box;
+  if (box && video.videoWidth && box.width < video.videoWidth * 0.2) { streak = 0; setStatus('moveCloser'); return scheduleTick(); }
+  const m = bestMatch(det.descriptor);
+  if (!m.ok) {
+    streak = 0; lastId = null; unknownStreak++;
+    $('cam').classList.remove('found');
+    if (unknownStreak >= 4) setStatus('notRecognized', null, true);
+    return scheduleTick();
+  }
+  unknownStreak = 0;
+  $('cam').classList.add('found');
+  if (m.id === lastId) streak++; else { lastId = m.id; streak = 1; }
+  if (streak >= 2) { await processScan(m); return; }
+  scheduleTick();
+}
+
+function capturePhoto() {
+  const c = document.createElement('canvas');
+  const w = 320, h = Math.round(320 * (video.videoHeight || 480) / (video.videoWidth || 640));
+  c.width = w; c.height = h;
+  c.getContext('2d').drawImage(video, 0, 0, w, h);
+  return c.toDataURL('image/jpeg', 0.6);
+}
+
+async function readInfoFor(empId, dateStr) {
+  let code = '';
+  try {
+    const snap = await db.ref('shifts').orderByChild('date').equalTo(dateStr).once('value');
+    const v = snap.val() || {};
+    Object.keys(v).forEach(function (k) { if (v[k] && v[k].empId === empId) code = String(v[k].type || '').toUpperCase(); });
+  } catch (e) { throw e; }
+  const st = await db.ref('faceScanState/' + dateStr + '/' + empId).once('value');
+  return { code: code, state: st.val() || null };
+}
+
+async function processScan(m) {
+  mode = 'processing';
+  setStatus('processing');
+  try {
+    const photo = capturePhoto();
+    await offsetReady;
+    const when = nowMs();
+    const loc = faLocal(when, settings.tzOffsetMinutes);
+    const infos = {};
+    infos[faAddDays(loc.dateStr, -1)] = await readInfoFor(m.id, faAddDays(loc.dateStr, -1));
+    infos[loc.dateStr] = await readInfoFor(m.id, loc.dateStr);
+    const res = faResolveScan(when, function (d) { return infos[d]; }, settings);
+    if (!res.ok) { return showResult({ type: 'reject', code: res.code, params: res.params, name: m.name, id: m.id, photo: photo, time: res.time }); }
+
+    if (!position) { await requestLocation(); }
+    if (!position) { mode = 'result'; setStatus('locDenied', null, true); $('cam').classList.remove('found'); setAgain('retry'); return; }
+    await Promise.race([geocodePromise, new Promise(function (r) { setTimeout(r, 3000); })]);
+
+    /* claim the slot first (a transaction), so two quick scans can never both be recorded */
+    const slot = faSlotFor(res.cls.kind);
+    const stateRef = db.ref('faceScanState/' + res.shiftDate + '/' + m.id);
+    const claim = await stateRef.transaction(function (cur) {
+      if (!faDecide(cur, res.cls).ok) return;
+      const n = cur ? JSON.parse(JSON.stringify(cur)) : {};
+      n[slot] = { kind: res.cls.kind, time: res.time };
+      return n;
+    });
+    if (!claim.committed) {
+      const dec = faDecide(claim.snapshot.val(), res.cls);
+      return showResult({ type: 'reject', code: dec.code || 'saveFailed', params: dec.params || {}, name: m.name, id: m.id, photo: photo, time: res.time });
+    }
+    const rec = {
+      empId: m.id, empName: m.name, shiftDate: res.shiftDate, shiftCode: res.shiftCode, kind: res.cls.kind,
+      time: res.time, scanMin: res.scanMin, localDate: res.localDate, ts: when, serverTs: firebase.database.ServerValue.TIMESTAMP,
+      clockSource: serverOffsetKnown ? 'server' : 'device',
+      lateMinutes: res.cls.lateMinutes || 0, otHours: res.cls.otHours || 0, leaveHours: res.cls.leaveHours || 0,
+      lat: position.lat, lng: position.lng, accuracy: position.accuracy, address: address || '',
+      matchDistance: Math.round(m.dist * 1000) / 1000, source: 'scan', device: (navigator.userAgent || '').slice(0, 140)
+    };
+    try {
+      const newRef = db.ref('faceScans/' + res.shiftDate).push();
+      await newRef.set(rec);
+      await Promise.all([
+        db.ref('faceScanPhotos/' + res.shiftDate + '/' + newRef.key).set(photo),
+        db.ref('faceScanPhotoDates/' + res.shiftDate).set(true)
+      ]);
+    } catch (e) {
+      console.error('save failed, releasing slot', e);
+      try { await db.ref('faceScanState/' + res.shiftDate + '/' + m.id + '/' + slot).remove(); } catch (e2) {}
+      return showResult({ type: 'reject', code: 'saveFailed', params: {}, name: m.name, id: m.id, photo: photo, time: res.time });
+    }
+    showResult({ type: 'ok', kind: res.cls.kind, late: rec.lateMinutes, ot: rec.otHours, name: m.name, id: m.id, photo: photo, time: res.time, address: address, lat: position.lat, lng: position.lng });
+  } catch (e) {
+    console.error('scan failed', e);
+    showResult({ type: 'reject', code: 'saveFailed', params: {}, name: m.name, id: m.id, photo: null, time: '' });
+  }
+}
+
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function showResult(r) {
+  mode = 'result'; lastResult = r;
+  setStatus(null);
+  $('cam').classList.remove('found');
+  renderResult(r);
+  setAgain('scan');
+}
+function renderResult(r) {
+  const el = $('result');
+  el.hidden = false;
+  let html = '';
+  if (r.type === 'ok') {
+    el.className = 'result ok';
+    let extra = '';
+    if (r.kind === 'checkin') extra = r.late > 0 ? tr('late', { min: r.late }) : tr('onTime');
+    else if (r.kind === 'checkout') extra = r.ot > 0 ? tr('ot', { h: r.ot }) : '';
+    html = '<div class="big">&#10003;</div><div class="who">' + escapeHtml(r.name) + ' (' + escapeHtml(r.id) + ')</div>' +
+      '<div class="kind">' + escapeHtml(tr('kind_' + r.kind)) + '</div>' +
+      '<div class="line">' + escapeHtml(tr('recorded')) + ' &middot; ' + escapeHtml(tr('at')) + ' ' + escapeHtml(r.time) + (extra ? '<br>' + escapeHtml(extra) : '') + '</div>' +
+      (r.photo ? '<img alt="" src="' + r.photo + '">' : '') +
+      '<div class="small">' + escapeHtml(tr('where')) + ': ' + escapeHtml(r.address || (r.lat.toFixed(5) + ', ' + r.lng.toFixed(5))) + '</div>';
+  } else {
+    const soft = (r.code === 'dayOff' || r.code === 'restTime' || r.code === 'noWindow' || r.code === 'tooEarly' || r.code.indexOf('already') === 0);
+    el.className = 'result ' + (soft ? 'warn' : 'bad');
+    html = '<div class="big">' + (soft ? '!' : '&#10007;') + '</div><div class="who">' + escapeHtml(r.name) + ' (' + escapeHtml(r.id) + ')</div>' +
+      '<div class="line">' + escapeHtml(r.code === 'saveFailed' ? tr('saveFailed') : tr('r_' + r.code, r.params)) + '</div>';
+  }
+  el.innerHTML = html;
+}
+
+/* ---------------- start-up ---------------- */
+(async function init() {
+  applyLang();
+  try {
+    setStatus('loadingEngine');
+    await loadFaceEngine();
+  } catch (e) { console.error(e); setStatus('engineFailed', null, true); return; }
+  try {
+    setStatus('loadingFaces');
+    await Promise.all([loadSettings(), loadTemplates()]);
+  } catch (e) { console.error(e); setStatus('engineFailed', null, true); return; }
+  if (!templates.length) { setStatus('noTemplates', null, true); return; }
+  try {
+    setStatus('startingCamera');
+    await startCamera();
+  } catch (e) { console.error(e); setStatus(e && e.message === 'nocam' ? 'noCamera' : 'camDenied', null, true); return; }
+  setStatus('waitingLocation');
+  await requestLocation();
+  if (!position) { setStatus('locDenied', null, true); setAgain('retry'); return; }
+  mode = 'scanning';
+  setStatus('lookingForFace');
+  scheduleTick();
+})();
+</script>
+</body>
+</html>
