@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.07</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.08</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2428,7 +2428,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.07
+     HR & Administration System Version 7.08
  </div>
 </div>
 
@@ -12366,7 +12366,7 @@ function faSummarizeDay(def, recs, settings) {
     res.times = []; evs.forEach(function (e) { if (e.t) res.times.push(e.t); if (e.t2) res.times.push(e.t2); });
     res.timesText = res.times.join(' / ');
     if (first.k !== 'in') { res.remarks.push('missingCheckIn'); return res; }
-    res.lateMinutes = isFinite(first.late) ? first.late : (first.m < def.breakStart ? faLateFor(def, first.m) : 0);
+    res.lateMinutes = faLateMissed(def, first.m);   /* always from the first check-in time, so records saved before v7.07 are shown correctly too */
     if (evs.length > 2) res.remarks.push('outings');
     if (last.k === 'in') { res.remarks.push('missingCheckOut'); if (res.lateMinutes > 0) res.remarks.push('late'); return res; }
     var effS = faEffStart(def, first.m), effE = faEffEnd(def, last.m);
@@ -12572,6 +12572,20 @@ function faRenderLive() {
     Object.keys(byEmp).forEach(function (id) {
         dayText[id] = byEmp[id].slice().sort(function (a, b) { return (a.scanMin - b.scanMin) || ((a.ts || 0) - (b.ts || 0)); }).map(function (r) { return r.time + (r.time2 ? ' / ' + r.time2 : ''); }).join(' / ');
     });
+    /* Late / OT / Leave are worked out live from the day's scans, so they update the moment a scan arrives:
+       Late on the first check-in line; OT and Leave on the last check-out line (once the employee has checked out). */
+    const dayInfo = {};
+    Object.keys(byEmp).forEach(function (id) {
+        const list = byEmp[id].slice().sort(function (a, b) { return (a.scanMin - b.scanMin) || ((a.ts || 0) - (b.ts || 0)); });
+        const newModel = list.some(function (r) { return r.kind === 'in' || r.kind === 'out'; });
+        const sh = shifts.find(function (s) { return s.empId === id && s.date === date; });
+        const code = String((sh && sh.type) || list[0].shiftCode || '').toUpperCase();
+        const def = (newModel && code && code !== 'H') ? faBuildShift(code, faSettings) : null;
+        if (!def) return;
+        const firstIn = list.find(function (r) { return r.kind === 'in'; });
+        const lastEv = list[list.length - 1];
+        dayInfo[id] = { sum: faSummarizeDay(def, list, faSettings), firstInKey: firstIn ? firstIn.key : '', lastOutKey: (lastEv && lastEv.kind === 'out') ? lastEv.key : '' };
+    });
     if (!rows.length) { tbody.innerHTML = '<tr><td colspan="13" style="text-align:center; color:#94a3b8;">' + faEsc(t('faNoScans')) + '</td></tr>'; return; }
     const admin = faIsAdmin();
     tbody.innerHTML = rows.map(function (r) {
@@ -12581,12 +12595,20 @@ function faRenderLive() {
             : '-';
         const photo = (r.source === 'manual' || r.kind === 'repeat') ? '-' : '<button class="quick-btn slate" style="padding:3px 10px; font-size:11px;" onclick="faViewPhoto(\'' + r.key + '\')">' + faEsc(t('faViewPhoto')) + '</button>';
         const manualNote = (r.source === 'manual' && r.note) ? '<div style="font-size:10px; color:#64748b;">' + faEsc(r.note) + '</div>' : '';
+        const di = dayInfo[r.empId];
+        let lateTxt = faLateHrs(r.lateMinutes), otTxt = r.otHours ? faNum(r.otHours) : '', leaveTxt = r.leaveHours ? faNum(r.leaveHours) : '';
+        if (di) {
+            lateTxt = r.key === di.firstInKey ? faLateHrs(di.sum.lateMinutes) : '';
+            const fin = r.key === di.lastOutKey && di.sum.workMin !== null;
+            otTxt = fin && di.sum.otHours > 0 ? faNum(di.sum.otHours) : '';
+            leaveTxt = fin && di.sum.leaveHours > 0 ? faNum(di.sum.leaveHours) : '';
+        }
         return '<tr>' +
             '<td>' + (admin ? '<button class="btn-delete" onclick="faDeleteScan(\'' + r.key + '\', this)" title="Delete">' + ICON_DELETE + '</button>' : '') + '</td>' +
             '<td><b>' + faEsc(r.time) + (r.time2 ? ' / ' + faEsc(r.time2) : '') + '</b>' + (r.scanMin >= 1440 ? ' (+1)' : '') + '</td>' +
             '<td>' + faEsc(r.empId) + '</td><td style="text-align:left;">' + faEsc(r.empName) + '</td>' +
             '<td>' + faEsc(r.shiftCode) + '</td><td>' + faEsc(t('faKind_' + r.kind)) + '</td><td style="white-space:nowrap;">' + faEsc(dayText[r.empId] || '') + '</td>' +
-            '<td>' + faLateHrs(r.lateMinutes) + '</td><td>' + (r.otHours ? faNum(r.otHours) : '') + '</td><td>' + (r.leaveHours ? faNum(r.leaveHours) : '') + '</td>' +
+            '<td>' + lateTxt + '</td><td>' + otTxt + '</td><td>' + leaveTxt + '</td>' +
             '<td style="text-align:left; max-width:240px;">' + loc + '</td><td>' + photo + '</td>' +
             '<td>' + faEsc(r.source === 'manual' ? t('faSourceManual') : t('faSourceScan')) + manualNote + '</td></tr>';
     }).join('');
