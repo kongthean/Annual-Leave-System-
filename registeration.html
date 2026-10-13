@@ -327,6 +327,26 @@ function faApplyScan(def, m, time, state, nowMs, key) {
     return { ok: true, repeat: false, cls: cls, newState: cur };
 }
 
+/* v7.09: the day's events = what the state node holds PLUS every saved check-in / check-out record of that
+   employee for that shift date (the records are what the admin sees in Live Scans). Both sources are merged by
+   record key, so a record can never be "invisible" to the next scan. recs: [{ _key, kind, scanMin, time }]. */
+function faStateWithRecords(state, recs) {
+    var cur = state ? JSON.parse(JSON.stringify(state)) : {};
+    if (!cur.ev) {
+        var old = faStateEvents(cur);
+        cur.ev = {};
+        old.forEach(function (e) { cur.ev[e.key] = { k: e.k, m: e.m, t: e.t }; });
+        delete cur.checkin; delete cur.checkout; delete cur.leave;
+    }
+    (recs || []).forEach(function (r) {
+        if (!r || !r._key || (r.kind !== 'in' && r.kind !== 'out') || cur.ev[r._key]) return;
+        var m = parseFloat(r.scanMin);
+        if (!isFinite(m)) m = faHM(r.time);
+        if (isFinite(m)) cur.ev[r._key] = { k: r.kind, m: m, t: r.time || '' };
+    });
+    return cur;
+}
+
 /* The events of a day must alternate IN, OUT, IN, OUT ... starting with IN (checked after sorting by time). */
 function faEventsValid(evs) {
     var sorted = evs.slice().sort(function (a, b) { return (a.m - b.m) || (a.k === 'in' ? -1 : 1); });
@@ -770,6 +790,7 @@ function capturePhoto() {
   return c.toDataURL('image/jpeg', 0.6);
 }
 
+const recsByDate = {};
 async function readInfoFor(empId, dateStr) {
   let code = '';
   try {
@@ -778,7 +799,15 @@ async function readInfoFor(empId, dateStr) {
     Object.keys(v).forEach(function (k) { if (v[k] && v[k].empId === empId) code = String(v[k].type || '').toUpperCase(); });
   } catch (e) { throw e; }
   const st = await db.ref('faceScanState/' + dateStr + '/' + empId).once('value');
-  return { code: code, state: st.val() || null };
+  /* the saved scan records of this employee for that shift date (what the admin sees in Live Scans) also count */
+  const recs = [];
+  try {
+    const rs = await db.ref('faceScans/' + dateStr).once('value');
+    const rv = rs.val() || {};
+    Object.keys(rv).forEach(function (k) { const r = rv[k]; if (r && r.empId === empId) recs.push({ _key: k, kind: r.kind, scanMin: r.scanMin, time: r.time }); });
+  } catch (e) { console.warn('records not read, using the day state only', e); }
+  recsByDate[dateStr] = recs;
+  return { code: code, state: faStateWithRecords(st.val() || null, recs) };
 }
 
 async function processScan(m) {
@@ -808,7 +837,7 @@ async function processScan(m) {
     const stateRef = db.ref('faceScanState/' + res.shiftDate + '/' + m.id);
     let applied = null;
     const claim = await stateRef.transaction(function (cur) {
-      applied = faApplyScan(res.def, res.scanMin, res.time, cur, when, key);
+      applied = faApplyScan(res.def, res.scanMin, res.time, faStateWithRecords(cur, recsByDate[res.shiftDate]), when, key);
       if (!applied.ok) return;
       return applied.newState;
     });
