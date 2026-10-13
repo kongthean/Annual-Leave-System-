@@ -203,10 +203,10 @@ function faBuildShift(code, settings) {
      - nothing scanned yet            -> IN (even if it is during the break: coming back after morning leave)
      - last event was IN              -> OUT (going out / leaving / going home)
      - last event was OUT             -> IN  (back again)
-   Valid scan times: the first IN of a shift any time from 15 min before the start (late rules apply);
-   every later scan inside the break (any minute) or inside the first 15 minutes of ANY hour
-   (01:00-01:15, 02:00-02:15 ... 23:00-23:15, 00:00-00:15). Time away from work between an OUT and a
-   later IN counts as work (the employee was out on company business); the break itself is never paid.
+   Valid scan times: any minute from 15 min before the shift start until the overtime limit (a first
+   IN after the start is simply late; a check-out is NOT limited to a window). Time away from work
+   between an OUT and a later IN counts as work (the employee was out on company business); the
+   break itself is never paid.
    --------------------------------------------------------------------------------------------- */
 
 /* Lateness in blocks (1 minute late = one block, e.g. 30 minutes; 31 minutes late = two blocks). */
@@ -249,12 +249,15 @@ function faEffStart(def, m) {
     if (m < def.breakEnd) return def.breakEnd;
     return def.breakEnd + faLateBlocks(m - def.breakEnd, def.lateBlock);
 }
-/* Where paid work ends for the LAST check-out at minute m: leaving in the break = the break start;
-   leaving in the first minutes of an hour = that hour; any other (manual) time = as entered. */
+/* Where paid work ends for the LAST check-out at minute m (any minute is a valid check-out):
+   - in the break: the break start (the morning counts, e.g. 07:00-11:00 = 4h);
+   - before the shift end: rounded DOWN to the previous half hour, so the missing time is counted in
+     blocks of 30 minutes (M shift ends 16:00: 15:42 = 30 min leave, 15:10 = 1 hour leave);
+   - at/after the shift end: as scanned - overtime counts whole hours after the shift end. */
 function faEffEnd(def, m) {
     if (faInBreak(def, m)) return def.breakStart;
-    var r = ((m % 60) + 60) % 60;
-    return r <= def.win ? m - r : m;
+    if (m < def.end) return def.end - Math.ceil((def.end - m) / def.lateBlock) * def.lateBlock;
+    return m;
 }
 function faOtFor(def, effEnd) { return effEnd > def.end ? Math.floor((effEnd - def.end) / 60) : 0; }
 
@@ -269,7 +272,6 @@ function faClassify(def, m, state) {
         if (m >= def.end) return { ok: false, code: 'closed', params: {} };
         return { ok: true, kind: 'in', first: true, lateMinutes: m < def.breakStart ? faLateFor(def, m) : 0, otHours: 0, leaveHours: 0, inBreak: faInBreak(def, m) };
     }
-    if (!faAllowedLater(def, m)) return { ok: false, code: 'noWindow', params: { at: faMinToHM(faNextWindow(def, m)) } };
     if (last.k === 'in') return { ok: true, kind: 'out', first: false, lateMinutes: 0, otHours: faOtFor(def, faEffEnd(def, m)), leaveHours: 0, inBreak: faInBreak(def, m) };
     return { ok: true, kind: 'in', first: false, lateMinutes: 0, otHours: 0, leaveHours: 0, inBreak: faInBreak(def, m) };
 }
