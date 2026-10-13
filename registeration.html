@@ -186,17 +186,40 @@ function faBuildShift(code, settings) {
     };
 }
 
-/* What does a scan at minute m (on the shift's own time axis) mean for this shift? */
-function faClassify(def, m) {
+/* Minutes late for a check-in made at minute m (lateness counts in blocks, e.g. 7:01 = 30 min). */
+function faLateFor(def, m) { return m > def.start ? Math.ceil((m - def.start) / def.lateBlock) * def.lateBlock : 0; }
+
+/* Leave hours for a leave scan made at minute m, given what is already recorded for the day.
+   Rules (owner, v6.99):
+   - scanned in the break window (break start .. +15 min): the time worked before the break is kept,
+     the rest of the 8 hours is leave (checked in on time = 4h worked + 4h leave).
+   - scanned after that window but before the break ends: counted as a FULL-day absence (8h leave).
+   - scanned when the break has ended (or later): the morning's working hours are still counted
+     (check-in .. break start, lateness removed) and the REST of the 8 hours is leave.
+     e.g. check-in 09:00 (2h late), scan 13:00 on shift F -> 2h worked + 6h leave.
+   - no check-in recorded: a break-window scan = half day (4h); any later scan = full day (8h). */
+function faLeaveHours(def, m, state) {
+    var ci = state && state.checkin;
+    var inWindow = m <= def.breakStart + def.win;
+    if (!inWindow && m < def.breakEnd) return def.fullHours;
+    if (!ci) return inWindow ? def.halfHours : def.fullHours;
+    var late = parseFloat(ci.lateMinutes);
+    if (!isFinite(late)) { var t = faHM(ci.time); late = isNaN(t) ? 0 : faLateFor(def, t); }
+    var worked = Math.max(0, def.breakStart - (def.start + late));
+    var h = def.fullHours - worked / 60;
+    return Math.round(Math.max(0, Math.min(def.fullHours, h)) * 100) / 100;
+}
+
+/* What does a scan at minute m (on the shift's own time axis) mean for this shift?
+   state (optional) = what is already recorded for this employee + shift date. */
+function faClassify(def, m, state) {
     if (m < def.openMin) return { ok: false, code: 'tooEarly', params: { at: faMinToHM(def.openMin) } };
     if (m > def.closeMin) return { ok: false, code: 'closed', params: {} };
     if (m < def.breakStart) {
-        var late = m > def.start ? Math.ceil((m - def.start) / def.lateBlock) * def.lateBlock : 0;
-        return { ok: true, kind: 'checkin', lateMinutes: late, otHours: 0, leaveHours: 0 };
+        return { ok: true, kind: 'checkin', lateMinutes: faLateFor(def, m), otHours: 0, leaveHours: 0 };
     }
-    if (m <= def.breakStart + def.win) return { ok: true, kind: 'halfday', lateMinutes: 0, otHours: 0, leaveHours: def.halfHours };
-    if (m < def.breakEnd) return { ok: false, code: 'restTime', params: { at: faMinToHM(def.breakEnd) } };
-    if (m < def.ot[0].from) return { ok: true, kind: 'fullday', lateMinutes: 0, otHours: 0, leaveHours: def.fullHours };
+    if (m <= def.breakStart + def.win) return { ok: true, kind: 'halfday', lateMinutes: 0, otHours: 0, leaveHours: faLeaveHours(def, m, state) };
+    if (m < def.ot[0].from) return { ok: true, kind: 'fullday', lateMinutes: 0, otHours: 0, leaveHours: faLeaveHours(def, m, state) };
     for (var i = 0; i < def.ot.length; i++) {
         if (m >= def.ot[i].from && m <= def.ot[i].to) return { ok: true, kind: 'checkout', lateMinutes: 0, otHours: def.ot[i].hours, leaveHours: 0 };
         if (i + 1 < def.ot.length && m > def.ot[i].to && m < def.ot[i + 1].from) {
@@ -254,7 +277,7 @@ function faResolveScan(epochMs, getInfo, settings) {
             rejects.push({ date: c.date, ok: false, code: code === 'H' ? 'dayOff' : 'noShift', params: {}, rank: code === 'H' ? 1.5 : 0 });
             continue;
         }
-        var cls = faClassify(def, c.m);
+        var cls = faClassify(def, c.m, info.state);
         if (!cls.ok) {
             rejects.push({ date: c.date, ok: false, code: cls.code, params: cls.params, rank: (c.m >= def.openMin && c.m <= def.closeMin) ? 2 : 1 });
             continue;
@@ -277,20 +300,20 @@ function faSummarizeDay(def, recs, settings) {
     var by = {};
     (recs || []).forEach(function (r) { if (!by[r.kind] || (r.time || '') < (by[r.kind].time || '')) by[r.kind] = r; });
     var ci = by.checkin, co = by.checkout, hd = by.halfday, fd = by.fullday;
+    var lv = hd || fd;
     var res = { checkIn: ci ? ci.time : '', checkOut: co ? co.time : '', workMin: null, nightMin: 0, leaveHours: 0, otHours: 0, lateMinutes: 0, remarks: [] };
     if (!ci && !co && !hd && !fd) { res.remarks.push('noScan'); return res; }
     res.lateMinutes = ci ? (parseFloat(ci.lateMinutes) || 0) : 0;
     res.otHours = co ? (parseFloat(co.otHours) || 0) : 0;
-    if (fd) {
-        res.leaveHours = parseFloat(fd.leaveHours) || def.fullHours;
-        res.workMin = 0;
-        res.remarks.push('fullDayLeave');
-        return res;
+    if (lv) {
+        res.leaveHours = parseFloat(lv.leaveHours);
+        if (!isFinite(res.leaveHours)) res.leaveHours = fd ? def.fullHours : def.halfHours;
+        res.remarks.push(res.leaveHours >= def.fullHours ? 'fullDayLeave' : (res.leaveHours === def.halfHours ? 'halfDayLeave' : 'partLeave'));
+        if (res.leaveHours >= def.fullHours) { res.workMin = 0; return res; }
     }
-    if (hd) { res.leaveHours = parseFloat(hd.leaveHours) || def.halfHours; res.remarks.push('halfDayLeave'); }
     if (!ci) { res.remarks.push('missingCheckIn'); return res; }
     var effS = def.start + res.lateMinutes, effE;
-    if (hd) effE = def.breakStart;
+    if (lv) effE = def.breakStart;
     else if (co) effE = def.end;
     else { res.remarks.push('missingCheckOut'); return res; }
     var parts = [];
@@ -323,7 +346,7 @@ const TR = {
   processing:'Saving your scan...', camDenied:'Cannot open the camera. Please allow camera access in your browser settings, then reload this page.',
   locDenied:'Your location is needed to scan. Please allow location access, then tap the button to try again.', engineFailed:'Could not load the face scanner. Please check your internet connection and reload this page.',
   noTemplates:'No faces are registered yet. Please contact the office.', noCamera:'This browser cannot use the camera. Please open the page in Chrome or Safari.',
-  kind_checkin:'Check-in', kind_checkout:'Check-out', kind_halfday:'Half-day leave request (4 hours)', kind_fullday:'Full-day leave request (8 hours)',
+  kind_checkin:'Check-in', kind_checkout:'Check-out', kind_leave:'Leave request', leaveLine:'Leave: {l} hour(s) · Working hours counted: {w} hour(s)',
   onTime:'On time', late:'Late: {min} minutes', ot:'Overtime: {h} hour(s)', recorded:'Recorded', where:'Location', at:'Time',
   r_tooEarly:'Too early. Check-in opens at {at}.', r_closed:'Scanning is closed for your shift. Please go to the office so an admin can record it for you.',
   r_restTime:'It is your break time, so scans are not recorded now. If you need to request leave, scan again at {at}.', r_noWindow:'This is not a valid scan time. The next scan window starts at {at}.',
@@ -338,7 +361,7 @@ const TR = {
   processing:'កំពុងរក្សាទុកការស្កេនរបស់អ្នក...', camDenied:'មិនអាចបើកកាមេរ៉ាបានទេ។ សូមអនុញ្ញាតកាមេរ៉ាក្នុងការកំណត់កម្មវិធីរុករក រួចផ្ទុកទំព័រនេះឡើងវិញ។',
   locDenied:'ត្រូវការទីតាំងរបស់អ្នកដើម្បីស្កេន។ សូមអនុញ្ញាតទីតាំង រួចចុចប៊ូតុងដើម្បីសាកល្បងម្តងទៀត។', engineFailed:'មិនអាចផ្ទុកប្រព័ន្ធស្កេនមុខបានទេ។ សូមពិនិត្យអ៊ីនធឺណិត រួចផ្ទុកទំព័រនេះឡើងវិញ។',
   noTemplates:'មិនទាន់មានមុខណាត្រូវបានចុះឈ្មោះទេ។ សូមទាក់ទងការិយាល័យ។', noCamera:'កម្មវិធីរុករកនេះមិនអាចប្រើកាមេរ៉ាបានទេ។ សូមបើកទំព័រនេះក្នុង Chrome ឬ Safari។',
-  kind_checkin:'ចូលធ្វើការ', kind_checkout:'ចេញពីធ្វើការ', kind_halfday:'សំណើសុំច្បាប់កន្លះថ្ងៃ (៤ ម៉ោង)', kind_fullday:'សំណើសុំច្បាប់ពេញមួយថ្ងៃ (៨ ម៉ោង)',
+  kind_checkin:'ចូលធ្វើការ', kind_checkout:'ចេញពីធ្វើការ', kind_leave:'សំណើសុំច្បាប់', leaveLine:'ច្បាប់៖ {l} ម៉ោង · ម៉ោងធ្វើការដែលរាប់៖ {w} ម៉ោង',
   onTime:'ទាន់ពេល', late:'យឺត៖ {min} នាទី', ot:'ម៉ោងបន្ថែម៖ {h} ម៉ោង', recorded:'បានកត់ត្រា', where:'ទីតាំង', at:'ម៉ោង',
   r_tooEarly:'ឆាប់ពេក។ ការស្កេនចូលបើកនៅម៉ោង {at}។', r_closed:'ការស្កេនបានបិទសម្រាប់វេនរបស់អ្នក។ សូមទៅការិយាល័យដើម្បីឱ្យអ្នកគ្រប់គ្រងកត់ត្រាជូន។',
   r_restTime:'ឥឡូវជាពេលសម្រាក ដូច្នេះការស្កេនមិនត្រូវបានកត់ត្រាទេ។ ប្រសិនបើអ្នកចង់សុំច្បាប់ សូមស្កេនម្តងទៀតនៅម៉ោង {at}។', r_noWindow:'នេះមិនមែនជាម៉ោងស្កេនត្រឹមត្រូវទេ។ ម៉ោងស្កេនបន្ទាប់ចាប់ផ្តើមនៅម៉ោង {at}។',
@@ -353,7 +376,7 @@ const TR = {
   processing:'正在保存打卡...', camDenied:'无法打开摄像头。请在浏览器设置中允许使用摄像头，然后重新加载此页面。',
   locDenied:'打卡需要获取您的位置。请允许位置权限，然后点击按钮重试。', engineFailed:'无法加载人脸识别。请检查网络连接并重新加载此页面。',
   noTemplates:'尚未登记任何人脸。请联系办公室。', noCamera:'此浏览器无法使用摄像头。请使用 Chrome 或 Safari 打开此页面。',
-  kind_checkin:'上班打卡', kind_checkout:'下班打卡', kind_halfday:'半天请假申请（4小时）', kind_fullday:'全天请假申请（8小时）',
+  kind_checkin:'上班打卡', kind_checkout:'下班打卡', kind_leave:'请假申请', leaveLine:'请假：{l}小时 · 计入工作时间：{w}小时',
   onTime:'准时', late:'迟到：{min}分钟', ot:'加班：{h}小时', recorded:'已记录', where:'位置', at:'时间',
   r_tooEarly:'太早了。上班打卡将于 {at} 开放。', r_closed:'您的班次打卡已关闭。请到办公室，由管理员为您补录。',
   r_restTime:'现在是您的休息时间，打卡不会被记录。如需请假，请在 {at} 再次打卡。', r_noWindow:'现在不是有效的打卡时间。下一个打卡时段从 {at} 开始。',
@@ -604,6 +627,7 @@ async function processScan(m) {
       if (!faDecide(cur, res.cls).ok) return;
       const n = cur ? JSON.parse(JSON.stringify(cur)) : {};
       n[slot] = { kind: res.cls.kind, time: res.time };
+      if (res.cls.kind === 'checkin') n[slot].lateMinutes = res.cls.lateMinutes || 0;
       return n;
     });
     if (!claim.committed) {
@@ -630,7 +654,7 @@ async function processScan(m) {
       try { await db.ref('faceScanState/' + res.shiftDate + '/' + m.id + '/' + slot).remove(); } catch (e2) {}
       return showResult({ type: 'reject', code: 'saveFailed', params: {}, name: m.name, id: m.id, photo: photo, time: res.time });
     }
-    showResult({ type: 'ok', kind: res.cls.kind, late: rec.lateMinutes, ot: rec.otHours, name: m.name, id: m.id, photo: photo, time: res.time, address: address, lat: position.lat, lng: position.lng });
+    showResult({ type: 'ok', kind: res.cls.kind, late: rec.lateMinutes, ot: rec.otHours, leave: rec.leaveHours, full: res.def.fullHours, name: m.name, id: m.id, photo: photo, time: res.time, address: address, lat: position.lat, lng: position.lng });
   } catch (e) {
     console.error('scan failed', e);
     showResult({ type: 'reject', code: 'saveFailed', params: {}, name: m.name, id: m.id, photo: null, time: '' });
@@ -653,10 +677,12 @@ function renderResult(r) {
   if (r.type === 'ok') {
     el.className = 'result ok';
     let extra = '';
-    if (r.kind === 'checkin') extra = r.late > 0 ? tr('late', { min: r.late }) : tr('onTime');
+    const isLeave = (r.kind === 'halfday' || r.kind === 'fullday');
+    if (isLeave) extra = tr('leaveLine', { l: Number(r.leave), w: Math.max(0, Math.round((r.full - r.leave) * 100) / 100) });
+    else if (r.kind === 'checkin') extra = r.late > 0 ? tr('late', { min: r.late }) : tr('onTime');
     else if (r.kind === 'checkout') extra = r.ot > 0 ? tr('ot', { h: r.ot }) : '';
     html = '<div class="big">&#10003;</div><div class="who">' + escapeHtml(r.name) + ' (' + escapeHtml(r.id) + ')</div>' +
-      '<div class="kind">' + escapeHtml(tr('kind_' + r.kind)) + '</div>' +
+      '<div class="kind">' + escapeHtml(tr(isLeave ? 'kind_leave' : 'kind_' + r.kind)) + '</div>' +
       '<div class="line">' + escapeHtml(tr('recorded')) + ' &middot; ' + escapeHtml(tr('at')) + ' ' + escapeHtml(r.time) + (extra ? '<br>' + escapeHtml(extra) : '') + '</div>' +
       (r.photo ? '<img alt="" src="' + r.photo + '">' : '') +
       '<div class="small">' + escapeHtml(tr('where')) + ': ' + escapeHtml(r.address || (r.lat.toFixed(5) + ', ' + r.lng.toFixed(5))) + '</div>';
