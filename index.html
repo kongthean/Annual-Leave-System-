@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 6.99</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.00</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1320,7 +1320,10 @@
              <h3 data-i18n="monthlyALTitle">Monthly Annual Leave</h3>
              <p style="font-size:11px; color:#64748b;" data-i18n="monthlyALSub">Each employee's Annual Leave cycle, usage and remaining balance for this month.</p>
          </div>
-         <button class="quick-btn green" onclick="openExportLangModal('monthlyal')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+         <div style="display:flex; gap:8px; flex-wrap:wrap;">
+             <button class="quick-btn amber" onclick="openRenewalExportModal()" data-i18n="btnExportRenewal">Export AL Renewal List</button>
+             <button class="quick-btn green" onclick="openExportLangModal('monthlyal')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+         </div>
      </div>
 
      <div class="search-bar-wrapper">
@@ -1548,6 +1551,35 @@
      </div>
  </div>
 
+ <!-- v7.00: AL RENEWAL LIST EXPORT - employees whose Annual Leave renews within N months -->
+ <div class="modal" id="renewalExportModal">
+     <div class="modal-content" style="max-width: 420px;">
+         <div class="modal-header">
+             <h4 data-i18n="renewExportTitle">Export Employees Due for AL Renewal</h4>
+             <button class="modal-close" onclick="closeRenewalExportModal()">&times;</button>
+         </div>
+         <p style="font-size:13px; color:#334155; margin-bottom:14px;" data-i18n="renewExportSub">Choose how many months are left until the Annual Leave renews. Employees with fewer months left are included too.</p>
+         <div class="form-group">
+             <label data-i18n="renewWithinLbl">Renewing within</label>
+             <select id="renewExportMonths" onchange="updateRenewalExportCount()"></select>
+         </div>
+         <div class="form-group">
+             <label data-i18n="exportDeptFilterLabel">Department</label>
+             <select id="renewExportDept" onchange="updateRenewalExportCount()"></select>
+         </div>
+         <div class="form-group">
+             <label data-i18n="backupLangModalLabel">Backup Language</label>
+             <select id="renewExportLang">
+                 <option value="en">English</option>
+                 <option value="km">ខ្មែរ (Khmer)</option>
+                 <option value="zh">中文 (Chinese)</option>
+             </select>
+         </div>
+         <div id="renewExportCount" style="font-size:12px; color:#0e7490; font-weight:600; margin-bottom:10px;"></div>
+         <button class="btn-submit" onclick="confirmRenewalExport()" data-i18n="btnDownloadReport">Download Report</button>
+     </div>
+ </div>
+
  <!-- v6.64: BULK EMPLOYEE IMPORT MODAL (admin-only) - download a blank template (headers in the
       current UI language, but recognized back in any of the 3 languages on upload), then upload a
       filled-in .xlsx to create many employees at once, bypassing the pendingEdits approval queue
@@ -1754,6 +1786,7 @@
      <div class="modal-content" style="max-width: 96vw; width: 1180px; padding: 0; max-height: 95vh; display: flex; flex-direction: column; overflow: hidden;">
          <div class="modal-header" style="flex-shrink: 0; padding: 24px 24px 8px 24px; margin-bottom: 0;">
              <h4><span data-i18n="checkDetailsModalTitle">Check Details</span><span id="cdTitleInfo"></span></h4>
+             <div id="cdQueryShift" style="flex:1; margin:0 14px; font-size:13px; font-weight:600; color:#0f172a; background:#ecfeff; border:1px solid #67e8f9; border-radius:8px; padding:6px 12px; line-height:1.5;"></div>
              <button class="modal-close" onclick="closeCheckDetailsModal()">&times;</button>
          </div>
          <div style="overflow-y: auto; padding: 16px 24px 24px 24px;">
@@ -2397,7 +2430,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 6.99
+     HR & Administration System Version 7.00
  </div>
 </div>
 
@@ -3620,8 +3653,8 @@
         faDeleteScanConfirm: "Delete this scan? The employee will be able to scan again for this slot.",
         faKind_checkin: "Check-in",
         faKind_checkout: "Check-out",
-        faKind_halfday: "Half-day leave",
-        faKind_fullday: "Full-day leave",
+        faKind_halfday: "Leave (break window)",
+        faKind_fullday: "Leave (after break / absent)",
         faEnrollTitle: "Enroll a face",
         faEnrollSub: "Enter the employee, start the camera, then capture at least 3 angles (straight, slightly left, slightly right). Only that employee should be in view.",
         faStartCamera: "Start camera",
@@ -3706,6 +3739,7 @@
         faRemLate: "Late {min} min",
         faRemHalf: "Half-day leave",
         faRemFull: "Full-day leave",
+        faRemPartLeave: "Leave request ({h} h)",
         faRemManual: "Manual entry",
         faTotal: "Total",
         faDayNotClosed: "This day is not fully closed yet - some check-outs may still be missing.",
@@ -3801,6 +3835,24 @@
         monthlyALTitle: "Monthly Annual Leave",
         monthlyALSub: "Each employee's Annual Leave cycle, usage and remaining balance for this month.",
         monthlyALReportTitle: "Monthly Annual Leave For {month}",
+        /* v7.00 */
+        cdShiftLbl: "Shift",
+        cdShiftNone: "No shift assigned on this date",
+        cdBreakLbl: "Break",
+        btnExportRenewal: "Export AL Renewal List",
+        renewExportTitle: "Export Employees Due for AL Renewal",
+        renewExportSub: "Choose how many months are left until the Annual Leave renews. Employees with fewer months left are included too.",
+        renewWithinLbl: "Renewing within",
+        renewAllOpt: "All employees",
+        renewMonthsOpt: "{n} month(s) or less",
+        renewReportTitle: "Annual Leave Renewal List - renewing within {n} month(s) (as of {date})",
+        renewReportTitleAll: "Annual Leave Renewal List - all employees (as of {date})",
+        tblNo: "No.",
+        tblRenewalUntil: "Renewal Until",
+        renewMonthsLeft: "{m} month(s) left",
+        renewNoneFound: "No employees are due for renewal within that period.",
+        renewMatchCount: "{n} employee(s) will be exported",
+        renewOverdue: "AL end date has passed",
 
         /* v6.00 */
         hrSystemTitle: "HR System",
@@ -4160,6 +4212,24 @@
          monthlyALTitle: "ច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំប្រចាំខែ",
          monthlyALSub: "វដ្តច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំ ការប្រើប្រាស់ និងសមតុល្យនៅសល់របស់បុគ្គលិកនីមួយៗសម្រាប់ខែនេះ។",
          monthlyALReportTitle: "ច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំប្រចាំខែ សម្រាប់ {month}",
+        /* v7.00 */
+        cdShiftLbl: "វេន",
+        cdShiftNone: "មិនមានវេនសម្រាប់កាលបរិច្ឆេទនេះទេ",
+        cdBreakLbl: "សម្រាក",
+        btnExportRenewal: "នាំចេញបញ្ជីបុគ្គលិកជិតដល់ពេលបន្តច្បាប់ប្រចាំឆ្នាំ",
+        renewExportTitle: "នាំចេញបុគ្គលិកដែលជិតដល់ពេលបន្តច្បាប់ប្រចាំឆ្នាំ",
+        renewExportSub: "ជ្រើសរើសចំនួនខែដែលនៅសល់មុនពេលច្បាប់ប្រចាំឆ្នាំត្រូវបន្ត។ បុគ្គលិកដែលនៅសល់ខែតិចជាងក៏ត្រូវបានរួមបញ្ចូលដែរ។",
+        renewWithinLbl: "ត្រូវបន្តក្នុងរយៈពេល",
+        renewAllOpt: "បុគ្គលិកទាំងអស់",
+        renewMonthsOpt: "{n} ខែ ឬតិចជាង",
+        renewReportTitle: "បញ្ជីបន្តច្បាប់ប្រចាំឆ្នាំ - ត្រូវបន្តក្នុងរយៈពេល {n} ខែ (គិតត្រឹម {date})",
+        renewReportTitleAll: "បញ្ជីបន្តច្បាប់ប្រចាំឆ្នាំ - បុគ្គលិកទាំងអស់ (គិតត្រឹម {date})",
+        tblNo: "ល.រ",
+        tblRenewalUntil: "បន្តរហូតដល់",
+        renewMonthsLeft: "នៅសល់ {m} ខែ",
+        renewNoneFound: "គ្មានបុគ្គលិកណាត្រូវបន្តក្នុងរយៈពេលនោះទេ។",
+        renewMatchCount: "បុគ្គលិក {n} នាក់នឹងត្រូវបាននាំចេញ",
+        renewOverdue: "ផុតកំណត់ថ្ងៃបញ្ចប់ច្បាប់ប្រចាំឆ្នាំរួចហើយ",
          lblSearch: "ស្វែងរកបុគ្គលិក:",
          btnExport: "នាំចេញជា Excel (.xlsx)",
          tblActions: "សកម្មភាព",
@@ -4430,8 +4500,8 @@
         faDeleteScanConfirm: "លុបការស្កេននេះមែនទេ? និយោជិតនឹងអាចស្កេនម្តងទៀតសម្រាប់ចន្លោះនេះ។",
         faKind_checkin: "ចូលធ្វើការ",
         faKind_checkout: "ចេញពីធ្វើការ",
-        faKind_halfday: "ច្បាប់កន្លះថ្ងៃ",
-        faKind_fullday: "ច្បាប់ពេញមួយថ្ងៃ",
+        faKind_halfday: "សុំច្បាប់ (ម៉ោងសម្រាក)",
+        faKind_fullday: "សុំច្បាប់ (ក្រោយសម្រាក/អវត្តមាន)",
         faEnrollTitle: "ចុះឈ្មោះមុខ",
         faEnrollSub: "បញ្ចូលអត្តលេខនិយោជិត បើកកាមេរ៉ា រួចថតយ៉ាងតិច ៣ ជ្រុង (ត្រង់ បែរឆ្វេងបន្តិច បែរស្តាំបន្តិច)។ គួរមានតែនិយោជិតម្នាក់នោះក្នុងរូបភាព។",
         faStartCamera: "បើកកាមេរ៉ា",
@@ -4516,6 +4586,7 @@
         faRemLate: "យឺត {min} នាទី",
         faRemHalf: "ច្បាប់កន្លះថ្ងៃ",
         faRemFull: "ច្បាប់ពេញមួយថ្ងៃ",
+        faRemPartLeave: "សំណើសុំច្បាប់ ({h} ម៉ោង)",
         faRemManual: "បញ្ចូលដោយដៃ",
         faTotal: "សរុប",
         faDayNotClosed: "ថ្ងៃនេះមិនទាន់បិទពេញលេញទេ - ការស្កេនចេញខ្លះអាចនៅខ្វះ។",
@@ -4923,6 +4994,24 @@
          monthlyALTitle: "月度年假",
          monthlyALSub: "每位员工本月的年假周期、使用情况与剩余余额。",
          monthlyALReportTitle: "月度年假 - {month}",
+        /* v7.00 */
+        cdShiftLbl: "班次",
+        cdShiftNone: "该日期未安排班次",
+        cdBreakLbl: "休息",
+        btnExportRenewal: "导出年假续期名单",
+        renewExportTitle: "导出即将年假续期的员工",
+        renewExportSub: "选择距离年假续期还剩多少个月。剩余月数更少的员工也会包含在内。",
+        renewWithinLbl: "续期时间范围",
+        renewAllOpt: "所有员工",
+        renewMonthsOpt: "{n}个月内（含）",
+        renewReportTitle: "年假续期名单 - {n}个月内续期（截至 {date}）",
+        renewReportTitleAll: "年假续期名单 - 全部员工（截至 {date}）",
+        tblNo: "序号",
+        tblRenewalUntil: "续期时间",
+        renewMonthsLeft: "还剩{m}个月",
+        renewNoneFound: "该期间内没有需要续期的员工。",
+        renewMatchCount: "将导出 {n} 名员工",
+        renewOverdue: "年假结束日期已过",
          lblLeaveDate: "请假日期",
          lblEmpId: "员工编号",
          lblEmpName: "员工姓名",
@@ -5222,8 +5311,8 @@
         faDeleteScanConfirm: "确定删除此打卡记录吗？员工将可以重新打卡。",
         faKind_checkin: "上班打卡",
         faKind_checkout: "下班打卡",
-        faKind_halfday: "半天假",
-        faKind_fullday: "全天假",
+        faKind_halfday: "请假（休息时段）",
+        faKind_fullday: "请假（休息后/缺勤）",
         faEnrollTitle: "登记人脸",
         faEnrollSub: "输入员工编号，启动摄像头，然后至少拍摄3个角度（正面、略向左、略向右）。画面中只能有该员工一人。",
         faStartCamera: "启动摄像头",
@@ -5308,6 +5397,7 @@
         faRemLate: "迟到 {min} 分钟",
         faRemHalf: "半天假",
         faRemFull: "全天假",
+        faRemPartLeave: "请假申请（{h}小时）",
         faRemManual: "手动录入",
         faTotal: "合计",
         faDayNotClosed: "这一天尚未完全结束 - 可能还有下班打卡缺失。",
@@ -6215,6 +6305,7 @@ function renderEmpShiftCalendar() {
      const exceedsMonthlyLimit = allowedThisMonth < 0;
 
      document.getElementById('cdTitleInfo').innerText = ': ' + (emp.name || '-') + ' (' + (emp.id || '-') + ')';
+     renderCheckDetailsShift(emp.id, queryDateStr || cdLocalDateStr(new Date()));
      document.getElementById('cdId').innerText = emp.id || '-';
      document.getElementById('cdName').innerText = emp.name || '-';
      document.getElementById('cdDept').innerText = emp.department || '-';
@@ -6255,6 +6346,32 @@ function renderEmpShiftCalendar() {
      setAmountColor('cdIsExceededLabel', 'cdIsExceeded', !exceedsMonthlyLimit);
 
      document.getElementById('checkDetailsModal').style.display = 'flex';
+ }
+
+ /* v7.00: the Check Details header shows the query date and what that employee's SHIFT is on that
+    date (read from the Shift Calendar; read-only, nothing is written). */
+ function cdLocalDateStr(d) {
+     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+ }
+ function renderCheckDetailsShift(empId, dateStr) {
+     const box = document.getElementById('cdQueryShift');
+     if (!box) return;
+     const rec = shifts.find(s => s.empId === empId && s.date === dateStr);
+     const type = rec ? String(rec.type || '').toUpperCase() : '';
+     let shiftHtml;
+     if (!type) {
+         shiftHtml = '<span style="color:#b45309;">' + escapeHtmlText(t('cdShiftNone')) + '</span>';
+     } else if (type === 'H') {
+         shiftHtml = '<span style="color:#b91c1c;">H - ' + escapeHtmlText(t('shiftHLabel')) + '</span>';
+     } else {
+         const tb = shiftTimeBreakText(type);
+         shiftHtml = '<span style="color:#0e7490;">' + escapeHtmlText(type) + ' (' + escapeHtmlText(tb.time) + ')</span>' +
+             (tb.brk && tb.brk !== '-' ? ' <span style="font-weight:400; color:#475569;">&middot; ' + escapeHtmlText(t('cdBreakLbl')) + ' ' + escapeHtmlText(tb.brk) + '</span>' : '');
+     }
+     box.innerHTML = escapeHtmlText(t('lblQueryDate')) + ': <b>' + escapeHtmlText(dateStr) + '</b> &nbsp;|&nbsp; ' + escapeHtmlText(t('cdShiftLbl')) + ': ' + shiftHtml;
+ }
+ function escapeHtmlText(s) {
+     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
  }
 
  function closeCheckDetailsModal() {
@@ -8705,6 +8822,91 @@ function filterMakeupTable() {
      XLSX.writeFile(workbook, `Monthly_Annual_Leave${deptSuffix}_${now.toISOString().slice(0,10)}.xlsx`);
      showToast(true, t('toastBackupDone'));
  }
+
+/* v7.00: Annual Leave renewal list. "Months left" is the same figure the app already shows as
+   AL Renewed At (getRemainingCycleMonths). Choosing N includes everyone with N or fewer months
+   left (so 3 also lists the people with 2, 1 or 0 months left); "All" lists every active employee.
+   Read-only: nothing is saved or changed. */
+function renewalNextDate(endStr) {
+    const p = (endStr || '').split('.');
+    if (p.length !== 3) return '';
+    const d = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10) + 1);
+    if (isNaN(d.getTime())) return '';
+    return d.getFullYear() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0');
+}
+function buildRenewalRows(maxMonths, dept) {
+    const now = new Date();
+    const todayKey = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+    const rows = [];
+    employees.forEach(emp => {
+        if (emp.status === 'Resigned') return;
+        if (dept && emp.department !== dept) return;
+        const cyc = computeLeaveCycle(emp.joinDate, now);
+        const startStr = emp.startDate || cyc.startStr;
+        const endStr = emp.endDate || cyc.endStr;
+        if (!startStr || !endStr) return;
+        const months = getRemainingCycleMonths(startStr, endStr, now);
+        if (maxMonths !== null && months > maxMonths) return;
+        const ep = endStr.split('.');
+        const endKey = ep.length === 3 ? (parseInt(ep[0], 10) * 10000 + parseInt(ep[1], 10) * 100 + parseInt(ep[2], 10)) : 0;
+        const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
+        const entitled = parseFloat(emp.entitled) || 0;
+        const remaining = entitled - totalUsed + (parseFloat(emp.carried) || 0);
+        rows.push({ emp, startStr, endStr, months, overdue: endKey > 0 && endKey < todayKey, entitled, totalUsed, remaining });
+    });
+    rows.sort((a, b) => (a.months - b.months) || (a.emp.id || '').localeCompare(b.emp.id || '', undefined, { numeric: true }));
+    return rows;
+}
+function renewalSelectedMonths() {
+    const v = document.getElementById('renewExportMonths').value;
+    return v === 'all' ? null : parseInt(v, 10);
+}
+function openRenewalExportModal() {
+    const sel = document.getElementById('renewExportMonths');
+    let opts = '<option value="all">' + escapeHtmlText(t('renewAllOpt')) + '</option>';
+    for (let n = 1; n <= 12; n++) opts += '<option value="' + n + '"' + (n === 3 ? ' selected' : '') + '>' + escapeHtmlText(fillTemplate(t('renewMonthsOpt'), { n: n })) + '</option>';
+    sel.innerHTML = opts;
+    document.getElementById('renewExportDept').innerHTML = '<option value="">' + escapeHtmlText(t('exportAllDepartments')) + '</option>' +
+        departments.map(d => '<option value="' + escapeHtmlText(d.name) + '">' + escapeHtmlText(d.name) + '</option>').join('');
+    updateRenewalExportCount();
+    document.getElementById('renewalExportModal').style.display = 'flex';
+}
+function closeRenewalExportModal() { document.getElementById('renewalExportModal').style.display = 'none'; }
+function updateRenewalExportCount() {
+    const n = buildRenewalRows(renewalSelectedMonths(), document.getElementById('renewExportDept').value).length;
+    document.getElementById('renewExportCount').textContent = fillTemplate(t('renewMatchCount'), { n: n });
+}
+function confirmRenewalExport() {
+    exportRenewalList(renewalSelectedMonths(), document.getElementById('renewExportLang').value || 'en', document.getElementById('renewExportDept').value);
+}
+function exportRenewalList(maxMonths, lang, dept) {
+    const rows = buildRenewalRows(maxMonths, dept);
+    if (!rows.length) { showToast(false, t('renewNoneFound')); return; }
+    const now = new Date();
+    const dateLabel = now.getFullYear() + '.' + String(now.getMonth() + 1).padStart(2, '0') + '.' + String(now.getDate()).padStart(2, '0');
+    const title = maxMonths === null
+        ? fillTemplate(tLang('renewReportTitleAll', lang), { date: dateLabel })
+        : fillTemplate(tLang('renewReportTitle', lang), { n: maxMonths, date: dateLabel });
+    const header = [tLang('tblNo', lang), tLang('tblId', lang), tLang('tblName', lang), tLang('tblJoin', lang), tLang('tblStart', lang), tLang('tblEnd', lang),
+        tLang('tblEntitled', lang), tLang('tblTotalUsed', lang), tLang('tblRemaining', lang), tLang('tblRenewalUntil', lang), tLang('tblRemarks', lang)];
+    const aoa = [[title + (dept ? ' - ' + dept : '')], header];
+    rows.forEach((r, i) => {
+        const nd = renewalNextDate(r.endStr);
+        const until = (nd ? nd + ' ' : '') + '(' + fillTemplate(tLang('renewMonthsLeft', lang), { m: r.months }) + ')';
+        const remark = [r.emp.remarks || '', r.overdue ? tLang('renewOverdue', lang) : ''].filter(Boolean).join('; ');
+        aoa.push([i + 1, r.emp.id, r.emp.name, r.emp.joinDate || '', r.startStr, r.endStr,
+            Number(r.entitled.toFixed(2)), Number(r.totalUsed.toFixed(2)), Number(r.remaining.toFixed(2)), until, remark]);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: header.length - 1 } }];
+    ws['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 14 }, { wch: 28 }, { wch: 32 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, tLang('btnExportRenewal', lang).slice(0, 31).replace(/[\\\/?*\[\]:]/g, ' '));
+    const suffix = maxMonths === null ? 'All' : (maxMonths + 'm');
+    XLSX.writeFile(wb, 'AL_Renewal_List_' + suffix + '_' + now.toISOString().slice(0, 10) + '.xlsx');
+    closeRenewalExportModal();
+    showToast(true, t('toastBackupDone'));
+}
 
 /* v6.63: header-translation maps for exportToExcel, one per report type, so the Master Sheet,
     Monthly Report and Employee Directory exports can be downloaded in English, Khmer or Chinese
@@ -11883,17 +12085,40 @@ function faBuildShift(code, settings) {
     };
 }
 
-/* What does a scan at minute m (on the shift's own time axis) mean for this shift? */
-function faClassify(def, m) {
+/* Minutes late for a check-in made at minute m (lateness counts in blocks, e.g. 7:01 = 30 min). */
+function faLateFor(def, m) { return m > def.start ? Math.ceil((m - def.start) / def.lateBlock) * def.lateBlock : 0; }
+
+/* Leave hours for a leave scan made at minute m, given what is already recorded for the day.
+   Rules (owner, v6.99):
+   - scanned in the break window (break start .. +15 min): the time worked before the break is kept,
+     the rest of the 8 hours is leave (checked in on time = 4h worked + 4h leave).
+   - scanned after that window but before the break ends: counted as a FULL-day absence (8h leave).
+   - scanned when the break has ended (or later): the morning's working hours are still counted
+     (check-in .. break start, lateness removed) and the REST of the 8 hours is leave.
+     e.g. check-in 09:00 (2h late), scan 13:00 on shift F -> 2h worked + 6h leave.
+   - no check-in recorded: a break-window scan = half day (4h); any later scan = full day (8h). */
+function faLeaveHours(def, m, state) {
+    var ci = state && state.checkin;
+    var inWindow = m <= def.breakStart + def.win;
+    if (!inWindow && m < def.breakEnd) return def.fullHours;
+    if (!ci) return inWindow ? def.halfHours : def.fullHours;
+    var late = parseFloat(ci.lateMinutes);
+    if (!isFinite(late)) { var t = faHM(ci.time); late = isNaN(t) ? 0 : faLateFor(def, t); }
+    var worked = Math.max(0, def.breakStart - (def.start + late));
+    var h = def.fullHours - worked / 60;
+    return Math.round(Math.max(0, Math.min(def.fullHours, h)) * 100) / 100;
+}
+
+/* What does a scan at minute m (on the shift's own time axis) mean for this shift?
+   state (optional) = what is already recorded for this employee + shift date. */
+function faClassify(def, m, state) {
     if (m < def.openMin) return { ok: false, code: 'tooEarly', params: { at: faMinToHM(def.openMin) } };
     if (m > def.closeMin) return { ok: false, code: 'closed', params: {} };
     if (m < def.breakStart) {
-        var late = m > def.start ? Math.ceil((m - def.start) / def.lateBlock) * def.lateBlock : 0;
-        return { ok: true, kind: 'checkin', lateMinutes: late, otHours: 0, leaveHours: 0 };
+        return { ok: true, kind: 'checkin', lateMinutes: faLateFor(def, m), otHours: 0, leaveHours: 0 };
     }
-    if (m <= def.breakStart + def.win) return { ok: true, kind: 'halfday', lateMinutes: 0, otHours: 0, leaveHours: def.halfHours };
-    if (m < def.breakEnd) return { ok: false, code: 'restTime', params: { at: faMinToHM(def.breakEnd) } };
-    if (m < def.ot[0].from) return { ok: true, kind: 'fullday', lateMinutes: 0, otHours: 0, leaveHours: def.fullHours };
+    if (m <= def.breakStart + def.win) return { ok: true, kind: 'halfday', lateMinutes: 0, otHours: 0, leaveHours: faLeaveHours(def, m, state) };
+    if (m < def.ot[0].from) return { ok: true, kind: 'fullday', lateMinutes: 0, otHours: 0, leaveHours: faLeaveHours(def, m, state) };
     for (var i = 0; i < def.ot.length; i++) {
         if (m >= def.ot[i].from && m <= def.ot[i].to) return { ok: true, kind: 'checkout', lateMinutes: 0, otHours: def.ot[i].hours, leaveHours: 0 };
         if (i + 1 < def.ot.length && m > def.ot[i].to && m < def.ot[i + 1].from) {
@@ -11951,7 +12176,7 @@ function faResolveScan(epochMs, getInfo, settings) {
             rejects.push({ date: c.date, ok: false, code: code === 'H' ? 'dayOff' : 'noShift', params: {}, rank: code === 'H' ? 1.5 : 0 });
             continue;
         }
-        var cls = faClassify(def, c.m);
+        var cls = faClassify(def, c.m, info.state);
         if (!cls.ok) {
             rejects.push({ date: c.date, ok: false, code: cls.code, params: cls.params, rank: (c.m >= def.openMin && c.m <= def.closeMin) ? 2 : 1 });
             continue;
@@ -11974,20 +12199,20 @@ function faSummarizeDay(def, recs, settings) {
     var by = {};
     (recs || []).forEach(function (r) { if (!by[r.kind] || (r.time || '') < (by[r.kind].time || '')) by[r.kind] = r; });
     var ci = by.checkin, co = by.checkout, hd = by.halfday, fd = by.fullday;
+    var lv = hd || fd;
     var res = { checkIn: ci ? ci.time : '', checkOut: co ? co.time : '', workMin: null, nightMin: 0, leaveHours: 0, otHours: 0, lateMinutes: 0, remarks: [] };
     if (!ci && !co && !hd && !fd) { res.remarks.push('noScan'); return res; }
     res.lateMinutes = ci ? (parseFloat(ci.lateMinutes) || 0) : 0;
     res.otHours = co ? (parseFloat(co.otHours) || 0) : 0;
-    if (fd) {
-        res.leaveHours = parseFloat(fd.leaveHours) || def.fullHours;
-        res.workMin = 0;
-        res.remarks.push('fullDayLeave');
-        return res;
+    if (lv) {
+        res.leaveHours = parseFloat(lv.leaveHours);
+        if (!isFinite(res.leaveHours)) res.leaveHours = fd ? def.fullHours : def.halfHours;
+        res.remarks.push(res.leaveHours >= def.fullHours ? 'fullDayLeave' : (res.leaveHours === def.halfHours ? 'halfDayLeave' : 'partLeave'));
+        if (res.leaveHours >= def.fullHours) { res.workMin = 0; return res; }
     }
-    if (hd) { res.leaveHours = parseFloat(hd.leaveHours) || def.halfHours; res.remarks.push('halfDayLeave'); }
     if (!ci) { res.remarks.push('missingCheckIn'); return res; }
     var effS = def.start + res.lateMinutes, effE;
-    if (hd) effE = def.breakStart;
+    if (lv) effE = def.breakStart;
     else if (co) effE = def.end;
     else { res.remarks.push('missingCheckOut'); return res; }
     var parts = [];
@@ -12477,7 +12702,7 @@ function faSaveManual(btn) {
         serverTs: firebase.database.ServerValue.TIMESTAMP,
         lateMinutes: kind === 'checkin' && m > ctx.def.start ? Math.ceil((m - ctx.def.start) / ctx.def.lateBlock) * ctx.def.lateBlock : 0,
         otHours: kind === 'checkout' ? (parseFloat(faEl('faManualOt').value) || 0) : 0,
-        leaveHours: kind === 'halfday' ? ctx.def.halfHours : (kind === 'fullday' ? ctx.def.fullHours : 0),
+        leaveHours: 0,
         source: 'manual', note: faEl('faManualNote').value.trim(),
         recordedBy: sessionStorage.getItem('loggedInAccountName') || sessionStorage.getItem('loggedInRole') || 'admin'
     };
@@ -12487,6 +12712,12 @@ function faSaveManual(btn) {
             if (!faDecide(cur, cls).ok) return;
             const n = cur ? JSON.parse(JSON.stringify(cur)) : {};
             n[slot] = { kind: kind, time: time };
+            if (kind === 'checkin') n[slot].lateMinutes = rec.lateMinutes;
+            if (kind === 'halfday' || kind === 'fullday') {
+                /* same calculation as a real scan: worked morning hours are kept, the rest is leave */
+                const lm = kind === 'halfday' ? Math.min(m, ctx.def.breakStart) : m;
+                rec.leaveHours = faLeaveHours(ctx.def, lm, cur);
+            }
             return n;
         }).then(function (res) {
             if (!res.committed) { showToast(false, t('faManualDuplicate')); return; }
@@ -12550,6 +12781,7 @@ function faRemarkText(row, lang) {
         else if (c === 'missingCheckIn') out.push(tLang('faRemMissingIn', lang));
         else if (c === 'halfDayLeave') out.push(tLang('faRemHalf', lang));
         else if (c === 'fullDayLeave') out.push(tLang('faRemFull', lang));
+        else if (c === 'partLeave') out.push(fillTemplate(tLang('faRemPartLeave', lang), { h: Number(row.sum.leaveHours).toFixed(2) }));
     });
     if (row.manual) out.push(tLang('faRemManual', lang));
     return out.join('; ');
