@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.03</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.04</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2428,7 +2428,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.03
+     HR & Administration System Version 7.04
  </div>
 </div>
 
@@ -12214,9 +12214,16 @@ function faClassify(def, m, state) {
 }
 
 var FA_BURST_MS = 90000;   /* repeated scans of the same face within this time are one "burst" */
-function faBurstActive(state, nowMs) {
+var FA_FIRST_IN_WINDOW_MS = 30 * 60000;   /* after the day's FIRST check-in, a scan less than 30 min later is a repeat (hours count in 30-min blocks) */
+function faBurstActive(state, nowMs, m, def) {
     var b = state && state.burst;
-    return !!(b && isFinite(parseFloat(b.last)) && nowMs - b.last >= 0 && nowMs - b.last <= FA_BURST_MS);
+    if (!(b && isFinite(parseFloat(b.last)) && nowMs - b.last >= 0)) return false;
+    if (nowMs - b.last <= FA_BURST_MS) return true;
+    /* the day's only event is the first IN: a 2nd scan within 30 min of it is a repeat, not a check-out */
+    var evs = faStateEvents(state);
+    if (evs.length === 1 && evs[0].k === 'in' && isFinite(parseFloat(b.first)) && nowMs - b.first >= 0 && nowMs - b.first < FA_FIRST_IN_WINDOW_MS &&
+        def && isFinite(m) && m < def.end - 30) return true;
+    return false;
 }
 
 /* Applies one scan to the day's state (also used inside the database transaction so two phones can
@@ -12226,7 +12233,7 @@ function faBurstActive(state, nowMs) {
            { ok:true, repeat:false, cls, newState }. */
 function faApplyScan(def, m, time, state, nowMs, key) {
     var cur = state ? JSON.parse(JSON.stringify(state)) : {};
-    if (faBurstActive(cur, nowMs)) {
+    if (faBurstActive(cur, nowMs, m, def)) {
         var n = (parseInt(cur.burst.n, 10) || 1) + 1;
         var lastKey = cur.burst.lastKey || '';
         var recKey = n === 2 ? key : (lastKey || key);
@@ -12303,7 +12310,7 @@ function faResolveScan(epochMs, getInfo, settings) {
             rejects.push({ date: c.date, ok: false, code: code === 'H' ? 'dayOff' : 'noShift', params: {}, rank: code === 'H' ? 1.5 : 0 });
             continue;
         }
-        if (faBurstActive(info.state, epochMs)) {
+        if (faBurstActive(info.state, epochMs, c.m, def)) {
             var evs = faStateEvents(info.state);
             var lastEv = evs[evs.length - 1] || null;
             return { ok: true, repeat: true, shiftDate: c.date, shiftCode: code, def: def, scanMin: c.m, time: faMinToHM(loc.minutes), localDate: today,
@@ -12732,7 +12739,13 @@ function toArrFa(v) { return Array.isArray(v) ? v : (v && typeof v === 'object' 
 function faEnsureTemplatesListener() {
     if (faTemplatesListening) return;
     faTemplatesListening = true;
-    db.ref('faceTemplates').on('value', function (snap) { faTemplates = snap.val() || {}; faRenderEnrolled(); });
+    db.ref('faceTemplates').on('value', function (snap) { faTemplates = snap.val() || {}; faRenderEnrolled(); }, function (err) {
+        /* the read was refused or cut off (e.g. started before sign-in finished): show it and try again */
+        faTemplatesListening = false;
+        const tb = document.querySelector('#faEnrolledTable tbody');
+        if (tb) tb.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#dc2626;">Cannot load enrolled faces (' + faEsc((err && err.code) || 'error') + '). Retrying...</td></tr>';
+        setTimeout(faEnsureTemplatesListener, 3000);
+    });
 }
 
 function faRenderEnrolled() {
