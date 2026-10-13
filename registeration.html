@@ -18,21 +18,30 @@
 <style>
 :root { --bg1:#0f172a; --bg2:#1e3a8a; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --ok:#16a34a; --bad:#dc2626; --warn:#d97706; --accent:#2563eb; }
 * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html, body { margin:0; min-height:100%; }
-body { font-family:'Khmer OS','Noto Sans Khmer','Noto Sans SC',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; background:linear-gradient(160deg,var(--bg1),var(--bg2)); color:#fff; display:flex; justify-content:center; }
-.app { width:100%; max-width:460px; padding:14px 16px 28px; display:flex; flex-direction:column; align-items:center; gap:12px; }
-.top { width:100%; display:flex; justify-content:space-between; align-items:center; gap:8px; }
-.title { font-size:16px; font-weight:700; line-height:1.3; }
-.langs { display:flex; gap:4px; }
-.langs button { background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.25); border-radius:14px; padding:5px 10px; font-size:12px; cursor:pointer; }
+html, body { margin:0; height:100%; }
+body { font-family:'Khmer OS','Noto Sans Khmer','Noto Sans SC',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; background:linear-gradient(160deg,var(--bg1),var(--bg2)); color:#fff; display:flex; justify-content:center; overflow:hidden; }
+.app { width:100%; max-width:560px; height:100vh; height:100dvh; padding:max(8px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom)); display:flex; flex-direction:column; align-items:stretch; gap:6px; }
+.top { width:100%; display:flex; justify-content:space-between; align-items:center; gap:8px; flex:0 0 auto; }
+.title { font-size:15px; font-weight:700; line-height:1.25; }
+.langs { display:flex; gap:4px; flex:0 0 auto; }
+.langs button { background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.25); border-radius:14px; padding:7px 11px; font-size:13px; cursor:pointer; min-height:34px; }
 .langs button.on { background:#fff; color:var(--bg2); font-weight:700; }
-.clock { font-size:40px; font-weight:800; letter-spacing:1px; font-variant-numeric:tabular-nums; margin-top:2px; }
-.dateline { font-size:13px; color:#cbd5e1; margin-top:-8px; }
-.cam { position:relative; width:min(86vw,380px,46vh); aspect-ratio:3/4; border-radius:50% / 42%; overflow:hidden; background:#000; border:4px solid rgba(255,255,255,.55); box-shadow:0 8px 30px rgba(0,0,0,.45); }
+.clockrow { flex:0 0 auto; text-align:center; line-height:1.1; }
+.clock { font-size:36px; font-weight:800; letter-spacing:1px; font-variant-numeric:tabular-nums; }
+.dateline { font-size:13px; color:#cbd5e1; margin-top:2px; }
+/* the camera takes all the remaining height of the phone screen */
+.cam { position:relative; flex:1 1 auto; min-height:260px; width:100%; border-radius:18px; overflow:hidden; background:#000; border:4px solid rgba(255,255,255,.4); box-shadow:0 8px 30px rgba(0,0,0,.45); }
 .cam.found { border-color:#22c55e; }
-.cam video { width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
-.status { min-height:44px; width:100%; text-align:center; font-size:15px; line-height:1.4; padding:10px 14px; border-radius:12px; background:rgba(255,255,255,.12); }
-.status.err { background:rgba(220,38,38,.28); }
+.cam video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+/* the box that follows the face: red while a face is seen but not recognised, green once it is recognised */
+.facebox { position:absolute; border:4px solid #ef4444; border-radius:10px; box-shadow:0 0 0 1px rgba(0,0,0,.35); pointer-events:none; transition:left .12s linear, top .12s linear, width .12s linear, height .12s linear, border-color .15s; }
+.facebox.ok { border-color:#22c55e; }
+.facebox .nm { position:absolute; left:-4px; right:-4px; top:-30px; text-align:center; font-size:14px; font-weight:700; color:#fff; background:rgba(34,197,94,.9); border-radius:8px 8px 0 0; padding:3px 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:none; }
+.facebox.ok .nm { display:block; }
+.overlay { position:absolute; left:8px; right:8px; bottom:8px; display:flex; flex-direction:column; gap:8px; align-items:stretch; }
+.status { min-height:46px; width:100%; text-align:center; font-size:16px; line-height:1.4; padding:10px 12px; border-radius:14px; background:rgba(15,23,42,.72); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); }
+.status:empty { display:none; }
+.status.err { background:rgba(185,28,28,.88); }
 .result { position:fixed; inset:0; z-index:50; background:rgba(2,6,23,.72); display:flex; align-items:center; justify-content:center; padding:16px; overflow:auto; }
 .result .card { position:relative; width:100%; max-width:520px; background:var(--card); color:var(--ink); border-radius:20px; padding:30px 22px 22px; text-align:center; box-shadow:0 18px 60px rgba(0,0,0,.55); }
 .result .xbtn { position:absolute; top:8px; right:10px; width:44px; height:44px; border:none; background:#f1f5f9; color:#334155; border-radius:50%; font-size:26px; line-height:1; cursor:pointer; }
@@ -44,22 +53,20 @@ body { font-family:'Khmer OS','Noto Sans Khmer','Noto Sans SC',-apple-system,Bli
 .result .line { font-size:17px; color:#334155; margin-top:6px; line-height:1.45; }
 .result .small { font-size:12px; color:var(--muted); margin-top:8px; word-break:break-word; }
 .result img { width:120px; height:160px; object-fit:cover; border-radius:10px; margin-top:10px; border:2px solid #e2e8f0; }
-.btn { margin-top:14px; background:var(--accent); color:#fff; border:none; border-radius:12px; padding:12px 22px; font-size:15px; font-weight:700; cursor:pointer; }
+.btn { background:var(--accent); color:#fff; border:none; border-radius:14px; padding:15px 22px; font-size:17px; font-weight:700; cursor:pointer; width:100%; min-height:52px; }
 @media (min-width:700px) {
-  .app { max-width:980px; padding-top:18px; }
-  .title { font-size:24px; }
-  .langs button { font-size:15px; padding:8px 16px; }
-  .clock { font-size:72px; }
-  .dateline { font-size:18px; margin-top:-12px; }
-  .cam { width:min(52vh,560px); }
-  .status { font-size:20px; max-width:760px; padding:14px 18px; }
+  .app { max-width:760px; }
+  .title { font-size:22px; }
+  .clock { font-size:60px; }
+  .dateline { font-size:17px; }
+  .status { font-size:20px; }
   .result .card { max-width:640px; padding:36px 32px 28px; }
   .result .big { font-size:96px; }
   .result .who { font-size:32px; } .result .kind { font-size:26px; } .result .line { font-size:21px; } .result .small { font-size:15px; }
   .result img { width:150px; height:200px; }
 }
 [hidden] { display:none !important; }
-.foot { font-size:11px; color:#94a3b8; margin-top:4px; }
+
 </style>
 </head>
 <body>
@@ -70,13 +77,16 @@ body { font-family:'Khmer OS','Noto Sans Khmer','Noto Sans SC',-apple-system,Bli
       <button data-lang="en">EN</button><button data-lang="km">ខ្មែរ</button><button data-lang="zh">中文</button>
     </div>
   </div>
-  <div class="clock" id="clock">--:--:--</div>
-  <div class="dateline" id="dateline"></div>
-  <div class="cam" id="cam"><video id="video" playsinline muted autoplay></video></div>
-  <div class="status" id="status">...</div>
+  <div class="clockrow"><div class="clock" id="clock">--:--:--</div><div class="dateline" id="dateline"></div></div>
+  <div class="cam" id="cam">
+    <video id="video" playsinline muted autoplay></video>
+    <div class="facebox" id="faceBox" hidden><span class="nm" id="faceName"></span></div>
+    <div class="overlay">
+      <div class="status" id="status">...</div>
+      <button class="btn" id="againBtn" hidden></button>
+    </div>
+  </div>
   <div class="result" id="result" hidden role="dialog" aria-modal="true"></div>
-  <button class="btn" id="againBtn" hidden></button>
-  <div class="foot">Face Attendance</div>
 </div>
 
 <script>
@@ -186,67 +196,144 @@ function faBuildShift(code, settings) {
     };
 }
 
-/* Minutes late for a check-in made at minute m (lateness counts in blocks, e.g. 7:01 = 30 min). */
-function faLateFor(def, m) { return m > def.start ? Math.ceil((m - def.start) / def.lateBlock) * def.lateBlock : 0; }
+/* ---------------------------------------------------------------------------------------------
+   v7.01 scanning model: every scan is simply the next event of the day - the FIRST scan is a
+   check-in (IN), then the scans alternate OUT, IN, OUT ... The system looks at what the employee
+   already scanned, never at the clock alone:
+     - nothing scanned yet            -> IN (even if it is during the break: coming back after morning leave)
+     - last event was IN              -> OUT (going out / leaving / going home)
+     - last event was OUT             -> IN  (back again)
+   Valid scan times: the first IN of a shift any time from 15 min before the start (late rules apply);
+   every later scan inside the break (any minute) or inside the first 15 minutes of ANY hour
+   (01:00-01:15, 02:00-02:15 ... 23:00-23:15, 00:00-00:15). Time away from work between an OUT and a
+   later IN counts as work (the employee was out on company business); the break itself is never paid.
+   --------------------------------------------------------------------------------------------- */
 
-/* Leave hours for a leave scan made at minute m, given what is already recorded for the day.
-   Rules (owner, v6.99):
-   - scanned in the break window (break start .. +15 min): the time worked before the break is kept,
-     the rest of the 8 hours is leave (checked in on time = 4h worked + 4h leave).
-   - scanned after that window but before the break ends: counted as a FULL-day absence (8h leave).
-   - scanned when the break has ended (or later): the morning's working hours are still counted
-     (check-in .. break start, lateness removed) and the REST of the 8 hours is leave.
-     e.g. check-in 09:00 (2h late), scan 13:00 on shift F -> 2h worked + 6h leave.
-   - no check-in recorded: a break-window scan = half day (4h); any later scan = full day (8h). */
-function faLeaveHours(def, m, state) {
-    var ci = state && state.checkin;
-    var inWindow = m <= def.breakStart + def.win;
-    if (!inWindow && m < def.breakEnd) return def.fullHours;
-    if (!ci) return inWindow ? def.halfHours : def.fullHours;
-    var late = parseFloat(ci.lateMinutes);
-    if (!isFinite(late)) { var t = faHM(ci.time); late = isNaN(t) ? 0 : faLateFor(def, t); }
-    var worked = Math.max(0, def.breakStart - (def.start + late));
-    var h = def.fullHours - worked / 60;
-    return Math.round(Math.max(0, Math.min(def.fullHours, h)) * 100) / 100;
+/* Lateness in blocks (1 minute late = one block, e.g. 30 minutes; 31 minutes late = two blocks). */
+function faLateBlocks(minutesLate, block) { return minutesLate > 0 ? Math.ceil(minutesLate / block) * block : 0; }
+function faLateFor(def, m) { return faLateBlocks(m - def.start, def.lateBlock); }
+
+/* Events already recorded for the day, oldest first. state = { ev:{key:{k,m,t}}, ... } and, for days
+   recorded before v7.01, the old { checkin, checkout, leave } slots. */
+function faStateEvents(state) {
+    var out = [];
+    if (!state) return out;
+    if (state.ev && typeof state.ev === 'object') {
+        Object.keys(state.ev).forEach(function (key) {
+            var e = state.ev[key];
+            if (e && (e.k === 'in' || e.k === 'out') && isFinite(parseFloat(e.m))) out.push({ key: key, k: e.k, m: parseFloat(e.m), t: e.t || '' });
+        });
+    }
+    if (!out.length) {
+        [['checkin', 'in'], ['checkout', 'out'], ['leave', 'out']].forEach(function (p) {
+            var e = state[p[0]];
+            if (e && !isNaN(faHM(e.time))) out.push({ key: p[0], k: p[1], m: faHM(e.time), t: e.time });
+        });
+    }
+    out.sort(function (a, b) { return (a.m - b.m) || (a.k === 'in' ? -1 : 1); });
+    return out;
 }
 
-/* What does a scan at minute m (on the shift's own time axis) mean for this shift?
-   state (optional) = what is already recorded for this employee + shift date. */
+function faInBreak(def, m) { return m >= def.breakStart && m < def.breakEnd; }
+/* later scans are valid in the break or in the first `win` minutes of an hour */
+function faAllowedLater(def, m) { return faInBreak(def, m) || (((m % 60) + 60) % 60) <= def.win; }
+function faNextWindow(def, m) {
+    var next = (Math.floor(m / 60) + 1) * 60;
+    if (def.breakStart > m && def.breakStart < next) next = def.breakStart;
+    return next;
+}
+
+/* Where paid work starts for a first check-in at minute m (late rules; the break is not paid). */
+function faEffStart(def, m) {
+    if (m < def.breakStart) return def.start + faLateFor(def, m);
+    if (m < def.breakEnd) return def.breakEnd;
+    return def.breakEnd + faLateBlocks(m - def.breakEnd, def.lateBlock);
+}
+/* Where paid work ends for the LAST check-out at minute m: leaving in the break = the break start;
+   leaving in the first minutes of an hour = that hour; any other (manual) time = as entered. */
+function faEffEnd(def, m) {
+    if (faInBreak(def, m)) return def.breakStart;
+    var r = ((m % 60) + 60) % 60;
+    return r <= def.win ? m - r : m;
+}
+function faOtFor(def, effEnd) { return effEnd > def.end ? Math.floor((effEnd - def.end) / 60) : 0; }
+
+/* What does a scan at minute m (on the shift's own time axis) mean for this shift, given the day's
+   state so far? Returns { ok:true, kind:'in'|'out', ... } or { ok:false, code, params }. */
 function faClassify(def, m, state) {
     if (m < def.openMin) return { ok: false, code: 'tooEarly', params: { at: faMinToHM(def.openMin) } };
     if (m > def.closeMin) return { ok: false, code: 'closed', params: {} };
-    if (m < def.breakStart) {
-        return { ok: true, kind: 'checkin', lateMinutes: faLateFor(def, m), otHours: 0, leaveHours: 0 };
+    var evs = faStateEvents(state);
+    var last = evs[evs.length - 1];
+    if (!last) {
+        if (m >= def.end) return { ok: false, code: 'closed', params: {} };
+        return { ok: true, kind: 'in', first: true, lateMinutes: m < def.breakStart ? faLateFor(def, m) : 0, otHours: 0, leaveHours: 0, inBreak: faInBreak(def, m) };
     }
-    if (m <= def.breakStart + def.win) return { ok: true, kind: 'halfday', lateMinutes: 0, otHours: 0, leaveHours: faLeaveHours(def, m, state) };
-    if (m < def.ot[0].from) return { ok: true, kind: 'fullday', lateMinutes: 0, otHours: 0, leaveHours: faLeaveHours(def, m, state) };
-    for (var i = 0; i < def.ot.length; i++) {
-        if (m >= def.ot[i].from && m <= def.ot[i].to) return { ok: true, kind: 'checkout', lateMinutes: 0, otHours: def.ot[i].hours, leaveHours: 0 };
-        if (i + 1 < def.ot.length && m > def.ot[i].to && m < def.ot[i + 1].from) {
-            return { ok: false, code: 'noWindow', params: { at: faMinToHM(def.ot[i + 1].from) } };
-        }
-    }
-    return { ok: false, code: 'closed', params: {} };
+    if (!faAllowedLater(def, m)) return { ok: false, code: 'noWindow', params: { at: faMinToHM(faNextWindow(def, m)) } };
+    if (last.k === 'in') return { ok: true, kind: 'out', first: false, lateMinutes: 0, otHours: faOtFor(def, faEffEnd(def, m)), leaveHours: 0, inBreak: faInBreak(def, m) };
+    return { ok: true, kind: 'in', first: false, lateMinutes: 0, otHours: 0, leaveHours: 0, inBreak: faInBreak(def, m) };
 }
 
-function faSlotFor(kind) { return kind === 'checkin' ? 'checkin' : (kind === 'checkout' ? 'checkout' : 'leave'); }
+var FA_BURST_MS = 90000;   /* repeated scans of the same face within this time are one "burst" */
+function faBurstActive(state, nowMs) {
+    var b = state && state.burst;
+    return !!(b && isFinite(parseFloat(b.last)) && nowMs - b.last >= 0 && nowMs - b.last <= FA_BURST_MS);
+}
 
-/* Given what is already recorded for this employee + shift date, may this kind of scan go
-   through? state = { checkin:{time}, checkout:{time}, leave:{time} } or null. */
-function faDecide(state, cls) {
-    state = state || {};
-    var k = cls.kind;
-    if (k === 'checkin') {
-        if (state.checkin) return { ok: false, code: 'alreadyCheckedIn', params: { at: state.checkin.time || '' } };
-        if (state.leave) return { ok: false, code: 'alreadyLeave', params: { at: state.leave.time || '' } };
-    } else if (k === 'checkout') {
-        if (state.checkout) return { ok: false, code: 'alreadyCheckedOut', params: { at: state.checkout.time || '' } };
-        if (state.leave) return { ok: false, code: 'alreadyLeave', params: { at: state.leave.time || '' } };
-    } else {
-        if (state.leave) return { ok: false, code: 'alreadyLeave', params: { at: state.leave.time || '' } };
-        if (state.checkout) return { ok: false, code: 'alreadyCheckedOut', params: { at: state.checkout.time || '' } };
+/* Applies one scan to the day's state (also used inside the database transaction so two phones can
+   never both be recorded). A burst of repeated scans keeps only the first one for the calculation;
+   the 2nd and the very last scan of the burst are saved for the record (kind 'repeat').
+   Returns { ok:false, code, params } | { ok:true, repeat:true, n, recKey, newState, first } |
+           { ok:true, repeat:false, cls, newState }. */
+function faApplyScan(def, m, time, state, nowMs, key) {
+    var cur = state ? JSON.parse(JSON.stringify(state)) : {};
+    if (faBurstActive(cur, nowMs)) {
+        var n = (parseInt(cur.burst.n, 10) || 1) + 1;
+        var lastKey = cur.burst.lastKey || '';
+        var recKey = n === 2 ? key : (lastKey || key);
+        cur.burst = { first: cur.burst.first, last: nowMs, n: n, lastKey: n === 2 ? '' : recKey };
+        var evs = faStateEvents(cur);
+        return { ok: true, repeat: true, n: n, recKey: recKey, newState: cur, last: evs[evs.length - 1] || null };
     }
-    return { ok: true };
+    var cls = faClassify(def, m, cur);
+    if (!cls.ok) return cls;
+    if (!cur.ev) {
+        /* an old-style day: carry its slots over as events so the sequence stays correct */
+        cur.ev = {};
+        faStateEvents(cur).forEach(function (e) { cur.ev[e.key] = { k: e.k, m: e.m, t: e.t }; });
+        delete cur.checkin; delete cur.checkout; delete cur.leave;
+    }
+    cur.ev[key] = { k: cls.kind, m: m, t: time };
+    cur.burst = { first: nowMs, last: nowMs, n: 1, lastKey: '' };
+    return { ok: true, repeat: false, cls: cls, newState: cur };
+}
+
+/* The events of a day must alternate IN, OUT, IN, OUT ... starting with IN (checked after sorting by time). */
+function faEventsValid(evs) {
+    var sorted = evs.slice().sort(function (a, b) { return (a.m - b.m) || (a.k === 'in' ? -1 : 1); });
+    for (var i = 0; i < sorted.length; i++) {
+        if (sorted[i].k !== (i % 2 === 0 ? 'in' : 'out')) return false;
+    }
+    return true;
+}
+/* Admin "Manual entry": adds one IN or OUT at any time (no window rules), keeping the day valid.
+   Returns { ok:false, code:'order' } or { ok:true, cls:{kind,lateMinutes,otHours,first}, newState }. */
+function faApplyManual(def, kind, m, time, state, key) {
+    var cur = state ? JSON.parse(JSON.stringify(state)) : {};
+    var evs = faStateEvents(cur);
+    var next = evs.concat([{ key: key, k: kind, m: m, t: time }]);
+    if (!faEventsValid(next)) return { ok: false, code: 'order', params: {} };
+    if (!cur.ev) {
+        cur.ev = {};
+        evs.forEach(function (e) { cur.ev[e.key] = { k: e.k, m: e.m, t: e.t }; });
+        delete cur.checkin; delete cur.checkout; delete cur.leave;
+    }
+    cur.ev[key] = { k: kind, m: m, t: time };
+    var first = evs.length === 0 || m < evs[0].m;
+    var cls = { ok: true, kind: kind, first: first,
+        lateMinutes: (kind === 'in' && first && m < def.breakStart) ? faLateFor(def, m) : 0,
+        otHours: kind === 'out' ? faOtFor(def, faEffEnd(def, m)) : 0, leaveHours: 0, inBreak: faInBreak(def, m) };
+    return { ok: true, cls: cls, newState: cur };
 }
 
 function faLocal(epochMs, tz) {
@@ -277,14 +364,18 @@ function faResolveScan(epochMs, getInfo, settings) {
             rejects.push({ date: c.date, ok: false, code: code === 'H' ? 'dayOff' : 'noShift', params: {}, rank: code === 'H' ? 1.5 : 0 });
             continue;
         }
+        if (faBurstActive(info.state, epochMs)) {
+            var evs = faStateEvents(info.state);
+            var lastEv = evs[evs.length - 1] || null;
+            return { ok: true, repeat: true, shiftDate: c.date, shiftCode: code, def: def, scanMin: c.m, time: faMinToHM(loc.minutes), localDate: today,
+                     last: lastEv, lastTime: lastEv ? lastEv.t : '' };
+        }
         var cls = faClassify(def, c.m, info.state);
         if (!cls.ok) {
             rejects.push({ date: c.date, ok: false, code: cls.code, params: cls.params, rank: (c.m >= def.openMin && c.m <= def.closeMin) ? 2 : 1 });
             continue;
         }
-        var dec = faDecide(info.state, cls);
-        if (!dec.ok) { rejects.push({ date: c.date, ok: false, code: dec.code, params: dec.params, rank: 3 }); continue; }
-        return { ok: true, shiftDate: c.date, shiftCode: code, def: def, cls: cls, scanMin: c.m, time: faMinToHM(loc.minutes), localDate: today };
+        return { ok: true, repeat: false, shiftDate: c.date, shiftCode: code, def: def, cls: cls, scanMin: c.m, time: faMinToHM(loc.minutes), localDate: today };
     }
     var best = rejects[0];
     for (var j = 1; j < rejects.length; j++) { if (rejects[j].rank >= best.rank) best = rejects[j]; }
@@ -294,9 +385,55 @@ function faResolveScan(epochMs, getInfo, settings) {
 function faOverlap(a1, a2, b1, b2) { var lo = Math.max(a1, b1), hi = Math.min(a2, b2); return hi > lo ? hi - lo : 0; }
 
 /* Daily figures for one employee on one shift date, from that day's scan records
+   (each record: { kind, time, scanMin, lateMinutes }). Paid work = from the first check-in (late
+   rules) to the last check-out inside the shift's paid time, break excluded, time out between an
+   OUT and a later IN counted as work (company business). Leave = the rest of the paid day.
+   Overtime = whole hours after the shift end up to the last check-out. */
+function faSummarizeDay(def, recs, settings) {
+    var evs = (recs || []).filter(function (r) { return r && (r.kind === 'in' || r.kind === 'out'); }).map(function (r) {
+        var m = parseFloat(r.scanMin);
+        if (!isFinite(m)) m = faHM(r.time);
+        return { k: r.kind, m: m, t: r.time || '', late: parseFloat(r.lateMinutes) };
+    }).sort(function (a, b) { return (a.m - b.m) || (a.k === 'in' ? -1 : 1); });
+    if (!evs.length) return faSummarizeLegacy(def, recs, settings);
+    var first = evs[0], last = evs[evs.length - 1];
+    var lastOut = null, k;
+    for (k = evs.length - 1; k >= 0; k--) { if (evs[k].k === 'out') { lastOut = evs[k]; break; } }
+    var res = { checkIn: first.k === 'in' ? first.t : '', checkOut: lastOut ? lastOut.t : '', workMin: null, nightMin: 0, leaveHours: 0, otHours: 0, lateMinutes: 0, remarks: [], scans: evs.length };
+    if (first.k !== 'in') { res.remarks.push('missingCheckIn'); return res; }
+    res.lateMinutes = isFinite(first.late) ? first.late : (first.m < def.breakStart ? faLateFor(def, first.m) : 0);
+    if (evs.length > 2) res.remarks.push('outings');
+    if (last.k === 'in') { res.remarks.push('missingCheckOut'); if (res.lateMinutes > 0) res.remarks.push('late'); return res; }
+    var effS = faEffStart(def, first.m), effE = faEffEnd(def, last.m);
+    var paidEnd = Math.min(effE, def.end);
+    var parts = [];
+    if (paidEnd > effS) {
+        if (effS < def.breakStart) parts.push([effS, Math.min(paidEnd, def.breakStart)]);
+        if (paidEnd > def.breakEnd) parts.push([Math.max(effS, def.breakEnd), paidEnd]);
+    }
+    var nS = faHM(settings.nightStart), nE = faHM(settings.nightEnd);
+    if (nE <= nS) nE += 1440;
+    var work = 0, night = 0;
+    parts.forEach(function (p) {
+        if (p[1] <= p[0]) return;
+        work += p[1] - p[0];
+        for (var q = -1; q <= 2; q++) night += faOverlap(p[0], p[1], nS + 1440 * q, nE + 1440 * q);
+    });
+    var full = def.fullHours * 60;
+    work = Math.min(work, full);
+    res.workMin = work;
+    res.nightMin = night;
+    res.otHours = faOtFor(def, effE);
+    res.leaveHours = Math.round(Math.max(0, full - work) / 60 * 100) / 100;
+    if (res.lateMinutes > 0) res.remarks.push('late');
+    if (res.leaveHours > 0) res.remarks.push(res.leaveHours >= def.fullHours ? 'fullDayLeave' : (res.leaveHours === def.halfHours ? 'halfDayLeave' : 'partLeave'));
+    return res;
+}
+
+/* Daily figures for one employee on one shift date, from that day's scan records
    (each record: { kind, time, lateMinutes, otHours, leaveHours }). Working time is the shift's
    own paid time (start..end minus the break) reduced by lateness; OT is reported separately. */
-function faSummarizeDay(def, recs, settings) {
+function faSummarizeLegacy(def, recs, settings) {
     var by = {};
     (recs || []).forEach(function (r) { if (!by[r.kind] || (r.time || '') < (by[r.kind].time || '')) by[r.kind] = r; });
     var ci = by.checkin, co = by.checkout, hd = by.halfday, fd = by.fullday;
@@ -346,7 +483,7 @@ const TR = {
   processing:'Saving your scan...', camDenied:'Cannot open the camera. Please allow camera access in your browser settings, then reload this page.',
   locDenied:'Your location is needed to scan. Please allow location access, then tap the button to try again.', engineFailed:'Could not load the face scanner. Please check your internet connection and reload this page.',
   noTemplates:'No faces are registered yet. Please contact the office.', noCamera:'This browser cannot use the camera. Please open the page in Chrome or Safari.',
-  kind_checkin:'Check-in', kind_checkout:'Check-out', kind_leave:'Leave request', leaveLine:'Leave: {l} hour(s) · Working hours counted: {w} hour(s)',
+  kind_checkin:'Check-in', kind_checkout:'Check-out', kind_back:'Check-in (back at work)', outBreak:'Check-out during break time', r_repeat:'Already recorded at {at}. Please step away from the camera.',
   onTime:'On time', late:'Late: {min} minutes', ot:'Overtime: {h} hour(s)', recorded:'Recorded', where:'Location', at:'Time',
   r_tooEarly:'Too early. Check-in opens at {at}.', r_closed:'Scanning is closed for your shift. Please go to the office so an admin can record it for you.',
   r_restTime:'It is your break time, so scans are not recorded now. If you need to request leave, scan again at {at}.', r_noWindow:'This is not a valid scan time. The next scan window starts at {at}.',
@@ -361,7 +498,7 @@ const TR = {
   processing:'កំពុងរក្សាទុកការស្កេនរបស់អ្នក...', camDenied:'មិនអាចបើកកាមេរ៉ាបានទេ។ សូមអនុញ្ញាតកាមេរ៉ាក្នុងការកំណត់កម្មវិធីរុករក រួចផ្ទុកទំព័រនេះឡើងវិញ។',
   locDenied:'ត្រូវការទីតាំងរបស់អ្នកដើម្បីស្កេន។ សូមអនុញ្ញាតទីតាំង រួចចុចប៊ូតុងដើម្បីសាកល្បងម្តងទៀត។', engineFailed:'មិនអាចផ្ទុកប្រព័ន្ធស្កេនមុខបានទេ។ សូមពិនិត្យអ៊ីនធឺណិត រួចផ្ទុកទំព័រនេះឡើងវិញ។',
   noTemplates:'មិនទាន់មានមុខណាត្រូវបានចុះឈ្មោះទេ។ សូមទាក់ទងការិយាល័យ។', noCamera:'កម្មវិធីរុករកនេះមិនអាចប្រើកាមេរ៉ាបានទេ។ សូមបើកទំព័រនេះក្នុង Chrome ឬ Safari។',
-  kind_checkin:'ចូលធ្វើការ', kind_checkout:'ចេញពីធ្វើការ', kind_leave:'សំណើសុំច្បាប់', leaveLine:'ច្បាប់៖ {l} ម៉ោង · ម៉ោងធ្វើការដែលរាប់៖ {w} ម៉ោង',
+  kind_checkin:'ចូលធ្វើការ', kind_checkout:'ចេញពីធ្វើការ', kind_back:'ចូលធ្វើការវិញ', outBreak:'ចេញក្នុងម៉ោងសម្រាក', r_repeat:'បានកត់ត្រារួចហើយនៅម៉ោង {at}។ សូមងាកចេញពីកាមេរ៉ា។',
   onTime:'ទាន់ពេល', late:'យឺត៖ {min} នាទី', ot:'ម៉ោងបន្ថែម៖ {h} ម៉ោង', recorded:'បានកត់ត្រា', where:'ទីតាំង', at:'ម៉ោង',
   r_tooEarly:'ឆាប់ពេក។ ការស្កេនចូលបើកនៅម៉ោង {at}។', r_closed:'ការស្កេនបានបិទសម្រាប់វេនរបស់អ្នក។ សូមទៅការិយាល័យដើម្បីឱ្យអ្នកគ្រប់គ្រងកត់ត្រាជូន។',
   r_restTime:'ឥឡូវជាពេលសម្រាក ដូច្នេះការស្កេនមិនត្រូវបានកត់ត្រាទេ។ ប្រសិនបើអ្នកចង់សុំច្បាប់ សូមស្កេនម្តងទៀតនៅម៉ោង {at}។', r_noWindow:'នេះមិនមែនជាម៉ោងស្កេនត្រឹមត្រូវទេ។ ម៉ោងស្កេនបន្ទាប់ចាប់ផ្តើមនៅម៉ោង {at}។',
@@ -376,7 +513,7 @@ const TR = {
   processing:'正在保存打卡...', camDenied:'无法打开摄像头。请在浏览器设置中允许使用摄像头，然后重新加载此页面。',
   locDenied:'打卡需要获取您的位置。请允许位置权限，然后点击按钮重试。', engineFailed:'无法加载人脸识别。请检查网络连接并重新加载此页面。',
   noTemplates:'尚未登记任何人脸。请联系办公室。', noCamera:'此浏览器无法使用摄像头。请使用 Chrome 或 Safari 打开此页面。',
-  kind_checkin:'上班打卡', kind_checkout:'下班打卡', kind_leave:'请假申请', leaveLine:'请假：{l}小时 · 计入工作时间：{w}小时',
+  kind_checkin:'上班打卡', kind_checkout:'下班打卡', kind_back:'返回上班打卡', outBreak:'休息时间下班打卡', r_repeat:'已在 {at} 记录。请离开摄像头。',
   onTime:'准时', late:'迟到：{min}分钟', ot:'加班：{h}小时', recorded:'已记录', where:'位置', at:'时间',
   r_tooEarly:'太早了。上班打卡将于 {at} 开放。', r_closed:'您的班次打卡已关闭。请到办公室，由管理员为您补录。',
   r_restTime:'现在是您的休息时间，打卡不会被记录。如需请假，请在 {at} 再次打卡。', r_noWindow:'现在不是有效的打卡时间。下一个打卡时段从 {at} 开始。',
@@ -503,7 +640,7 @@ function bestMatch(desc) {
 const video = $('video');
 async function startCamera() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('nocam');
-  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
+  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 1280 } }, audio: false });
   video.srcObject = stream;
   await new Promise(function (res) { if (video.readyState >= 2) res(); else video.onloadeddata = res; });
   try { await video.play(); } catch (e) {}
@@ -553,12 +690,30 @@ $('againBtn').addEventListener('click', async function () {
     await requestLocation();
     if (!position) { setStatus('locDenied', null, true); setAgain('retry'); return; }
   }
-  $('result').hidden = true; lastResult = null; $('cam').classList.remove('found');
+  $('result').hidden = true; lastResult = null; $('cam').classList.remove('found'); hideFaceBox();
   lastId = null; streak = 0; unknownStreak = 0;
   mode = 'scanning'; setStatus('lookingForFace'); scheduleTick();
 });
 
-function scheduleTick() { setTimeout(tick, 350); }
+/* draws the box that follows the face (the video is mirrored and shown with object-fit: cover) */
+function drawFaceBox(box, ok, name) {
+  const fb = $('faceBox');
+  if (!box || !video.videoWidth) { fb.hidden = true; return; }
+  const cam = $('cam');
+  const cw = cam.clientWidth, ch = cam.clientHeight, vw = video.videoWidth, vh = video.videoHeight;
+  const sc = Math.max(cw / vw, ch / vh);
+  const ox = (cw - vw * sc) / 2, oy = (ch - vh * sc) / 2;
+  const w = box.width * sc, h = box.height * sc;
+  const left = cw - (ox + (box.x + box.width) * sc);
+  const top = oy + box.y * sc;
+  fb.style.left = left + 'px'; fb.style.top = top + 'px'; fb.style.width = w + 'px'; fb.style.height = h + 'px';
+  fb.classList.toggle('ok', !!ok);
+  $('faceName').textContent = ok ? (name || '') : '';
+  fb.hidden = false;
+}
+function hideFaceBox() { $('faceBox').hidden = true; $('faceBox').classList.remove('ok'); }
+
+function scheduleTick() { setTimeout(tick, 250); }
 async function tick() {
   if (mode !== 'scanning') return;
   let det = null;
@@ -566,17 +721,19 @@ async function tick() {
     det = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.5 })).withFaceLandmarks().withFaceDescriptor();
   } catch (e) { console.warn('detect error', e); }
   if (mode !== 'scanning') return;
-  if (!det) { streak = 0; lastId = null; unknownStreak = 0; $('cam').classList.remove('found'); setStatus('lookingForFace'); return scheduleTick(); }
+  if (!det) { streak = 0; lastId = null; unknownStreak = 0; $('cam').classList.remove('found'); hideFaceBox(); setStatus('lookingForFace'); return scheduleTick(); }
   const box = det.detection && det.detection.box;
-  if (box && video.videoWidth && box.width < video.videoWidth * 0.2) { streak = 0; setStatus('moveCloser'); return scheduleTick(); }
+  if (box && video.videoWidth && box.width < video.videoWidth * 0.2) { streak = 0; drawFaceBox(box, false); $('cam').classList.remove('found'); setStatus('moveCloser'); return scheduleTick(); }
   const m = bestMatch(det.descriptor);
   if (!m.ok) {
     streak = 0; lastId = null; unknownStreak++;
+    drawFaceBox(box, false);
     $('cam').classList.remove('found');
     if (unknownStreak >= 4) setStatus('notRecognized', null, true);
     return scheduleTick();
   }
   unknownStreak = 0;
+  drawFaceBox(box, true, m.name);
   $('cam').classList.add('found');
   if (m.id === lastId) streak++; else { lastId = m.id; streak = 1; }
   if (streak >= 2) { await processScan(m); return; }
@@ -620,41 +777,52 @@ async function processScan(m) {
     if (!position) { mode = 'result'; setStatus('locDenied', null, true); $('cam').classList.remove('found'); setAgain('retry'); return; }
     await Promise.race([geocodePromise, new Promise(function (r) { setTimeout(r, 3000); })]);
 
-    /* claim the slot first (a transaction), so two quick scans can never both be recorded */
-    const slot = faSlotFor(res.cls.kind);
+    /* The day's scans are a sequence: the first is IN, then OUT, IN, OUT ... The decision is made
+       again inside a database transaction on the day's state, so two quick scans (or two phones)
+       can never both be recorded. A burst of repeated scans keeps only the first one for the
+       calculation; the 2nd and the last scan of the burst are saved for the record. */
+    const newRef = db.ref('faceScans/' + res.shiftDate).push();
+    const key = newRef.key;
     const stateRef = db.ref('faceScanState/' + res.shiftDate + '/' + m.id);
+    let applied = null;
     const claim = await stateRef.transaction(function (cur) {
-      if (!faDecide(cur, res.cls).ok) return;
-      const n = cur ? JSON.parse(JSON.stringify(cur)) : {};
-      n[slot] = { kind: res.cls.kind, time: res.time };
-      if (res.cls.kind === 'checkin') n[slot].lateMinutes = res.cls.lateMinutes || 0;
-      return n;
+      applied = faApplyScan(res.def, res.scanMin, res.time, cur, when, key);
+      if (!applied.ok) return;
+      return applied.newState;
     });
-    if (!claim.committed) {
-      const dec = faDecide(claim.snapshot.val(), res.cls);
-      return showResult({ type: 'reject', code: dec.code || 'saveFailed', params: dec.params || {}, name: m.name, id: m.id, photo: photo, time: res.time });
+    if (!claim.committed || !applied || !applied.ok) {
+      const a = applied || { code: 'saveFailed', params: {} };
+      return showResult({ type: 'reject', code: a.code || 'saveFailed', params: a.params || {}, name: m.name, id: m.id, photo: photo, time: res.time });
     }
-    const rec = {
-      empId: m.id, empName: m.name, shiftDate: res.shiftDate, shiftCode: res.shiftCode, kind: res.cls.kind,
+    const base = {
+      empId: m.id, empName: m.name, shiftDate: res.shiftDate, shiftCode: res.shiftCode,
       time: res.time, scanMin: res.scanMin, localDate: res.localDate, ts: when, serverTs: firebase.database.ServerValue.TIMESTAMP,
       clockSource: serverOffsetKnown ? 'server' : 'device',
-      lateMinutes: res.cls.lateMinutes || 0, otHours: res.cls.otHours || 0, leaveHours: res.cls.leaveHours || 0,
       lat: position.lat, lng: position.lng, accuracy: position.accuracy, address: address || '',
-      matchDistance: Math.round(m.dist * 1000) / 1000, source: 'scan', device: (navigator.userAgent || '').slice(0, 140)
+      matchDistance: Math.round(m.dist * 1000) / 1000, device: (navigator.userAgent || '').slice(0, 140)
     };
+    if (applied.repeat) {
+      /* same face scanned again within moments: not a new event - kept as a 'repeat' record (2nd + last only) */
+      const lastEv = applied.last;
+      try {
+        await db.ref('faceScans/' + res.shiftDate + '/' + applied.recKey).set(Object.assign({}, base, { kind: 'repeat', burstN: applied.n, repeatOf: lastEv ? lastEv.k : '', lateMinutes: 0, otHours: 0, leaveHours: 0, source: 'scan' }));
+      } catch (e) { console.warn('repeat record not saved', e); }
+      return showResult({ type: 'reject', code: 'repeat', params: { at: lastEv && lastEv.t ? lastEv.t : res.time }, name: m.name, id: m.id, photo: photo, time: res.time });
+    }
+    const cls = applied.cls;
+    const rec = Object.assign({}, base, { kind: cls.kind, first: !!cls.first, inBreak: !!cls.inBreak, lateMinutes: cls.lateMinutes || 0, otHours: cls.otHours || 0, leaveHours: 0, source: 'scan' });
     try {
-      const newRef = db.ref('faceScans/' + res.shiftDate).push();
       await newRef.set(rec);
       await Promise.all([
-        db.ref('faceScanPhotos/' + res.shiftDate + '/' + newRef.key).set(photo),
+        db.ref('faceScanPhotos/' + res.shiftDate + '/' + key).set(photo),
         db.ref('faceScanPhotoDates/' + res.shiftDate).set(true)
       ]);
     } catch (e) {
-      console.error('save failed, releasing slot', e);
-      try { await db.ref('faceScanState/' + res.shiftDate + '/' + m.id + '/' + slot).remove(); } catch (e2) {}
+      console.error('save failed, releasing the scan', e);
+      try { await stateRef.child('ev/' + key).remove(); await stateRef.child('burst').remove(); } catch (e2) {}
       return showResult({ type: 'reject', code: 'saveFailed', params: {}, name: m.name, id: m.id, photo: photo, time: res.time });
     }
-    showResult({ type: 'ok', kind: res.cls.kind, late: rec.lateMinutes, ot: rec.otHours, leave: rec.leaveHours, full: res.def.fullHours, name: m.name, id: m.id, photo: photo, time: res.time, address: address, lat: position.lat, lng: position.lng });
+    showResult({ type: 'ok', kind: cls.kind, first: !!cls.first, inBreak: !!cls.inBreak, late: rec.lateMinutes, ot: rec.otHours, name: m.name, id: m.id, photo: photo, time: res.time, address: address, lat: position.lat, lng: position.lng });
   } catch (e) {
     console.error('scan failed', e);
     showResult({ type: 'reject', code: 'saveFailed', params: {}, name: m.name, id: m.id, photo: null, time: '' });
@@ -666,6 +834,7 @@ function showResult(r) {
   mode = 'result'; lastResult = r;
   setStatus(null);
   $('cam').classList.remove('found');
+  hideFaceBox();
   renderResult(r);
   setAgain('scan');
   $('againBtn').hidden = true;   /* the pop-up has its own close / OK buttons */
@@ -677,17 +846,18 @@ function renderResult(r) {
   if (r.type === 'ok') {
     el.className = 'result ok';
     let extra = '';
-    const isLeave = (r.kind === 'halfday' || r.kind === 'fullday');
-    if (isLeave) extra = tr('leaveLine', { l: Number(r.leave), w: Math.max(0, Math.round((r.full - r.leave) * 100) / 100) });
-    else if (r.kind === 'checkin') extra = r.late > 0 ? tr('late', { min: r.late }) : tr('onTime');
-    else if (r.kind === 'checkout') extra = r.ot > 0 ? tr('ot', { h: r.ot }) : '';
+    if (r.kind === 'in' && r.first && !r.inBreak && r.late > 0) extra = tr('late', { min: r.late });
+    else if (r.kind === 'in' && r.first && !r.inBreak) extra = tr('onTime');
+    else if (r.kind === 'out' && r.ot > 0) extra = tr('ot', { h: r.ot });
+    else if (r.kind === 'out' && r.inBreak) extra = tr('outBreak');
+    const label = r.kind === 'out' ? tr('kind_checkout') : (r.first ? tr('kind_checkin') : tr('kind_back'));
     html = '<div class="big">&#10003;</div><div class="who">' + escapeHtml(r.name) + ' (' + escapeHtml(r.id) + ')</div>' +
-      '<div class="kind">' + escapeHtml(tr(isLeave ? 'kind_leave' : 'kind_' + r.kind)) + '</div>' +
+      '<div class="kind">' + escapeHtml(label) + '</div>' +
       '<div class="line">' + escapeHtml(tr('recorded')) + ' &middot; ' + escapeHtml(tr('at')) + ' ' + escapeHtml(r.time) + (extra ? '<br>' + escapeHtml(extra) : '') + '</div>' +
       (r.photo ? '<img alt="" src="' + r.photo + '">' : '') +
       '<div class="small">' + escapeHtml(tr('where')) + ': ' + escapeHtml(r.address || (r.lat.toFixed(5) + ', ' + r.lng.toFixed(5))) + '</div>';
   } else {
-    const soft = (r.code === 'dayOff' || r.code === 'restTime' || r.code === 'noWindow' || r.code === 'tooEarly' || r.code.indexOf('already') === 0);
+    const soft = (r.code === 'dayOff' || r.code === 'restTime' || r.code === 'noWindow' || r.code === 'tooEarly' || r.code === 'repeat' || r.code.indexOf('already') === 0);
     el.className = 'result ' + (soft ? 'warn' : 'bad');
     html = '<div class="big">' + (soft ? '!' : '&#10007;') + '</div><div class="who">' + escapeHtml(r.name) + ' (' + escapeHtml(r.id) + ')</div>' +
       '<div class="line">' + escapeHtml(r.code === 'saveFailed' ? tr('saveFailed') : tr('r_' + r.code, r.params)) + '</div>';
