@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.02</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.03</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2428,7 +2428,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.02
+     HR & Administration System Version 7.03
  </div>
 </div>
 
@@ -3683,7 +3683,7 @@
         faDeleteEnrollConfirm: "Delete the face enrollment for {name}? They will not be able to scan until enrolled again.",
         faNoEnrollments: "No faces enrolled yet.",
         faRulesTitle: "Shift rules",
-        faRulesSub: "Times for each shift. Overtime hours: how many whole hours after the shift end scanning stays open (for example 0,1,2,3). Check-in is open from 15 minutes before the start; later scans are accepted in the break and in the first minutes of every hour. H (rest day) needs no settings: scans on an H day are ignored.",
+        faRulesSub: "Times for each shift. Overtime hours: how many whole hours after the shift end scanning stays open (for example 0,1,2,3). Scanning opens 15 minutes before the start and every scan is accepted at any minute. A check-out before the shift end counts the missing time in 30-minute blocks (shift ending 16:00: 15:42 = 30 min leave, 15:10 = 1 hour leave). H (rest day) needs no settings: scans on an H day are ignored.",
         faShiftStart: "Start",
         faShiftEnd: "End",
         faBreakStart: "Break start",
@@ -4540,7 +4540,7 @@
         faDeleteEnrollConfirm: "លុបការចុះឈ្មោះមុខរបស់ {name} មែនទេ? គាត់នឹងមិនអាចស្កេនបានរហូតដល់ចុះឈ្មោះម្តងទៀត។",
         faNoEnrollments: "មិនទាន់មានមុខណាត្រូវបានចុះឈ្មោះទេ។",
         faRulesTitle: "ច្បាប់វេន",
-        faRulesSub: "ម៉ោងសម្រាប់វេននីមួយៗ។ ម៉ោងបន្ថែម៖ ចំនួនម៉ោងពេញបន្ទាប់ពីម៉ោងចប់វេនដែលការស្កេននៅតែបើក (ឧទាហរណ៍ 0,1,2,3)។ ការចូលបើកពី ១៥ នាទីមុនម៉ោងចាប់ផ្តើម ការស្កេនបន្តបន្ទាប់ត្រូវបានទទួលក្នុងម៉ោងសម្រាក និងក្នុងនាទីដំបូងនៃរៀងរាល់ម៉ោង។ ថ្ងៃ H មិនត្រូវការការកំណត់ទេ៖ ការស្កេនក្នុងថ្ងៃ H ត្រូវបានមិនអើពើ។",
+        faRulesSub: "ម៉ោងសម្រាប់វេននីមួយៗ។ ម៉ោងបន្ថែម៖ ចំនួនម៉ោងពេញបន្ទាប់ពីម៉ោងចប់វេនដែលការស្កេននៅតែបើក (ឧទាហរណ៍ 0,1,2,3)។ ការស្កេនបើកមុនម៉ោងចាប់ផ្តើម ១៥ នាទី ហើយទទួលយកគ្រប់នាទី។ ការចេញមុនម៉ោងចប់វេនគណនាម៉ោងដែលខ្វះជាប្លុក ៣០ នាទី (វេនចប់ម៉ោង 16:00៖ 15:42 = ច្បាប់ ៣០ នាទី, 15:10 = ១ ម៉ោង)។ ថ្ងៃ H មិនត្រូវការការកំណត់ទេ៖ ការស្កេនក្នុងថ្ងៃ H ត្រូវបានមិនអើពើ។",
         faShiftStart: "ចាប់ផ្តើម",
         faShiftEnd: "បញ្ចប់",
         faBreakStart: "ចាប់ផ្តើមសម្រាក",
@@ -5359,7 +5359,7 @@
         faDeleteEnrollConfirm: "确定删除 {name} 的人脸登记吗？重新登记前将无法打卡。",
         faNoEnrollments: "尚未登记任何人脸。",
         faRulesTitle: "班次规则",
-        faRulesSub: "每个班次的时间。加班小时：班次结束后继续开放打卡的整小时数（例如 0,1,2,3）。上班打卡从开始前15分钟开放；之后的打卡在休息时间以及每小时的前几分钟内有效。H（休息日）无需设置：H 日的打卡会被忽略。",
+        faRulesSub: "每个班次的时间。加班小时：班次结束后继续开放打卡的整小时数（例如 0,1,2,3）。打卡从开始前15分钟开放，任何分钟的打卡都被接受。早于下班时间的下班打卡，缺少的时间按30分钟为单位计算（16:00下班的班次：15:42 = 请假30分钟，15:10 = 请假1小时）。H（休息日）无需设置：H 日的打卡会被忽略。",
         faShiftStart: "开始",
         faShiftEnd: "结束",
         faBreakStart: "休息开始",
@@ -12140,10 +12140,10 @@ function faBuildShift(code, settings) {
      - nothing scanned yet            -> IN (even if it is during the break: coming back after morning leave)
      - last event was IN              -> OUT (going out / leaving / going home)
      - last event was OUT             -> IN  (back again)
-   Valid scan times: the first IN of a shift any time from 15 min before the start (late rules apply);
-   every later scan inside the break (any minute) or inside the first 15 minutes of ANY hour
-   (01:00-01:15, 02:00-02:15 ... 23:00-23:15, 00:00-00:15). Time away from work between an OUT and a
-   later IN counts as work (the employee was out on company business); the break itself is never paid.
+   Valid scan times: any minute from 15 min before the shift start until the overtime limit (a first
+   IN after the start is simply late; a check-out is NOT limited to a window). Time away from work
+   between an OUT and a later IN counts as work (the employee was out on company business); the
+   break itself is never paid.
    --------------------------------------------------------------------------------------------- */
 
 /* Lateness in blocks (1 minute late = one block, e.g. 30 minutes; 31 minutes late = two blocks). */
@@ -12186,12 +12186,15 @@ function faEffStart(def, m) {
     if (m < def.breakEnd) return def.breakEnd;
     return def.breakEnd + faLateBlocks(m - def.breakEnd, def.lateBlock);
 }
-/* Where paid work ends for the LAST check-out at minute m: leaving in the break = the break start;
-   leaving in the first minutes of an hour = that hour; any other (manual) time = as entered. */
+/* Where paid work ends for the LAST check-out at minute m (any minute is a valid check-out):
+   - in the break: the break start (the morning counts, e.g. 07:00-11:00 = 4h);
+   - before the shift end: rounded DOWN to the previous half hour, so the missing time is counted in
+     blocks of 30 minutes (M shift ends 16:00: 15:42 = 30 min leave, 15:10 = 1 hour leave);
+   - at/after the shift end: as scanned - overtime counts whole hours after the shift end. */
 function faEffEnd(def, m) {
     if (faInBreak(def, m)) return def.breakStart;
-    var r = ((m % 60) + 60) % 60;
-    return r <= def.win ? m - r : m;
+    if (m < def.end) return def.end - Math.ceil((def.end - m) / def.lateBlock) * def.lateBlock;
+    return m;
 }
 function faOtFor(def, effEnd) { return effEnd > def.end ? Math.floor((effEnd - def.end) / 60) : 0; }
 
@@ -12206,7 +12209,6 @@ function faClassify(def, m, state) {
         if (m >= def.end) return { ok: false, code: 'closed', params: {} };
         return { ok: true, kind: 'in', first: true, lateMinutes: m < def.breakStart ? faLateFor(def, m) : 0, otHours: 0, leaveHours: 0, inBreak: faInBreak(def, m) };
     }
-    if (!faAllowedLater(def, m)) return { ok: false, code: 'noWindow', params: { at: faMinToHM(faNextWindow(def, m)) } };
     if (last.k === 'in') return { ok: true, kind: 'out', first: false, lateMinutes: 0, otHours: faOtFor(def, faEffEnd(def, m)), leaveHours: 0, inBreak: faInBreak(def, m) };
     return { ok: true, kind: 'in', first: false, lateMinutes: 0, otHours: 0, leaveHours: 0, inBreak: faInBreak(def, m) };
 }
