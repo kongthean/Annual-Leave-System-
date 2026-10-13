@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.09</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.10</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2428,7 +2428,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.09
+     HR & Administration System Version 7.10
  </div>
 </div>
 
@@ -12234,11 +12234,14 @@ var FA_FIRST_IN_WINDOW_MS = 30 * 60000;   /* after the day's FIRST check-in, a s
 function faBurstActive(state, nowMs, m, def) {
     var b = state && state.burst;
     if (!(b && isFinite(parseFloat(b.last)) && nowMs - b.last >= 0)) return false;
-    if (nowMs - b.last <= FA_BURST_MS) return true;
-    /* the day's only event is the first IN: a 2nd scan within 30 min of it is a repeat, not a check-out */
     var evs = faStateEvents(state);
-    if (evs.length === 1 && evs[0].k === 'in' && isFinite(parseFloat(b.first)) && nowMs - b.first >= 0 && nowMs - b.first < FA_FIRST_IN_WINDOW_MS &&
-        def && isFinite(m) && m < def.end - 30) return true;
+    /* the burst only counts while the scan it belongs to still exists (a deleted scan must not block later scans) */
+    var anchor = b.evKey ? evs.filter(function (e) { return e.key === b.evKey; })[0] : null;
+    if (b.evKey && !anchor) return false;
+    if (nowMs - b.last <= FA_BURST_MS) return 'burst';
+    /* the day's only event is a first IN made by a scan: a 2nd scan within 30 min of it is a repeat, not a check-out */
+    if (anchor && evs.length === 1 && anchor.k === 'in' && isFinite(parseFloat(b.first)) && nowMs - b.first >= 0 && nowMs - b.first < FA_FIRST_IN_WINDOW_MS &&
+        def && isFinite(m) && m < def.end - 30) return 'first';
     return false;
 }
 
@@ -12249,13 +12252,14 @@ function faBurstActive(state, nowMs, m, def) {
            { ok:true, repeat:false, cls, newState }. */
 function faApplyScan(def, m, time, state, nowMs, key) {
     var cur = state ? JSON.parse(JSON.stringify(state)) : {};
-    if (faBurstActive(cur, nowMs, m, def)) {
+    var via = faBurstActive(cur, nowMs, m, def);
+    if (via) {
         var n = (parseInt(cur.burst.n, 10) || 1) + 1;
         var lastKey = cur.burst.lastKey || '';
         var recKey = n === 2 ? key : (lastKey || key);
-        cur.burst = { first: cur.burst.first, last: nowMs, n: n, lastKey: n === 2 ? '' : recKey };
+        cur.burst = { first: cur.burst.first, last: nowMs, n: n, lastKey: n === 2 ? '' : recKey, evKey: cur.burst.evKey || '' };
         var evs = faStateEvents(cur);
-        return { ok: true, repeat: true, n: n, recKey: recKey, newState: cur, last: evs[evs.length - 1] || null };
+        return { ok: true, repeat: true, via: via, n: n, recKey: recKey, newState: cur, last: evs[evs.length - 1] || null };
     }
     var cls = faClassify(def, m, cur);
     if (!cls.ok) return cls;
@@ -12266,7 +12270,7 @@ function faApplyScan(def, m, time, state, nowMs, key) {
         delete cur.checkin; delete cur.checkout; delete cur.leave;
     }
     cur.ev[key] = { k: cls.kind, m: m, t: time };
-    cur.burst = { first: nowMs, last: nowMs, n: 1, lastKey: '' };
+    cur.burst = { first: nowMs, last: nowMs, n: 1, lastKey: '', evKey: key };
     return { ok: true, repeat: false, cls: cls, newState: cur };
 }
 
