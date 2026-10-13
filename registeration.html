@@ -234,6 +234,16 @@ function faStateEvents(state) {
     return out;
 }
 
+/* Paid minutes (the break is not paid) between minute a and minute b of the shift. */
+function faPaidMin(def, a, b) {
+    return faOverlap(a, b, def.start, def.breakStart) + faOverlap(a, b, def.breakEnd, def.end);
+}
+/* Time missed before the first check-in, in minutes of paid time (shown as "Late"):
+   M shift, first scan 13:57 -> work starts 14:00 -> 4 h morning + 2 h = 6 h late. */
+function faLateMissed(def, m) {
+    if (m >= def.end) return 0;
+    return faPaidMin(def, def.start, faEffStart(def, m));
+}
 function faInBreak(def, m) { return m >= def.breakStart && m < def.breakEnd; }
 /* later scans are valid in the break or in the first `win` minutes of an hour */
 function faAllowedLater(def, m) { return faInBreak(def, m) || (((m % 60) + 60) % 60) <= def.win; }
@@ -270,7 +280,7 @@ function faClassify(def, m, state) {
     var last = evs[evs.length - 1];
     if (!last) {
         if (m >= def.end) return { ok: false, code: 'closed', params: {} };
-        return { ok: true, kind: 'in', first: true, lateMinutes: m < def.breakStart ? faLateFor(def, m) : 0, otHours: 0, leaveHours: 0, inBreak: faInBreak(def, m) };
+        return { ok: true, kind: 'in', first: true, lateMinutes: faLateMissed(def, m), otHours: 0, leaveHours: 0, inBreak: faInBreak(def, m) };
     }
     if (last.k === 'in') return { ok: true, kind: 'out', first: false, lateMinutes: 0, otHours: faOtFor(def, faEffEnd(def, m)), leaveHours: 0, inBreak: faInBreak(def, m) };
     return { ok: true, kind: 'in', first: false, lateMinutes: 0, otHours: 0, leaveHours: 0, inBreak: faInBreak(def, m) };
@@ -340,7 +350,7 @@ function faApplyManual(def, kind, m, time, state, key) {
     cur.ev[key] = { k: kind, m: m, t: time };
     var first = evs.length === 0 || m < evs[0].m;
     var cls = { ok: true, kind: kind, first: first,
-        lateMinutes: (kind === 'in' && first && m < def.breakStart) ? faLateFor(def, m) : 0,
+        lateMinutes: (kind === 'in' && first) ? faLateMissed(def, m) : 0,
         otHours: kind === 'out' ? faOtFor(def, faEffEnd(def, m)) : 0, leaveHours: 0, inBreak: faInBreak(def, m) };
     return { ok: true, cls: cls, newState: cur };
 }
@@ -402,13 +412,16 @@ function faSummarizeDay(def, recs, settings) {
     var evs = (recs || []).filter(function (r) { return r && (r.kind === 'in' || r.kind === 'out'); }).map(function (r) {
         var m = parseFloat(r.scanMin);
         if (!isFinite(m)) m = faHM(r.time);
-        return { k: r.kind, m: m, t: r.time || '', late: parseFloat(r.lateMinutes) };
+        return { k: r.kind, m: m, t: r.time || '', t2: r.time2 || '', late: parseFloat(r.lateMinutes) };
     }).sort(function (a, b) { return (a.m - b.m) || (a.k === 'in' ? -1 : 1); });
     if (!evs.length) return faSummarizeLegacy(def, recs, settings);
     var first = evs[0], last = evs[evs.length - 1];
     var lastOut = null, k;
     for (k = evs.length - 1; k >= 0; k--) { if (evs[k].k === 'out') { lastOut = evs[k]; break; } }
     var res = { checkIn: first.k === 'in' ? first.t : '', checkOut: lastOut ? lastOut.t : '', workMin: null, nightMin: 0, leaveHours: 0, otHours: 0, lateMinutes: 0, remarks: [], scans: evs.length };
+    /* every scan time of the day in order, a quick 2nd scan of the same moment right after it: 06:45 / 06:46 / 11:00 / 11:55 / 16:02 */
+    res.times = []; evs.forEach(function (e) { if (e.t) res.times.push(e.t); if (e.t2) res.times.push(e.t2); });
+    res.timesText = res.times.join(' / ');
     if (first.k !== 'in') { res.remarks.push('missingCheckIn'); return res; }
     res.lateMinutes = isFinite(first.late) ? first.late : (first.m < def.breakStart ? faLateFor(def, first.m) : 0);
     if (evs.length > 2) res.remarks.push('outings');
@@ -811,8 +824,12 @@ async function processScan(m) {
       matchDistance: Math.round(m.dist * 1000) / 1000, device: (navigator.userAgent || '').slice(0, 140)
     };
     if (applied.repeat) {
-      /* same face scanned again within moments: nothing new is saved - show the same success pop-up of the recorded check-in / check-out */
+      /* same face scanned again: nothing new is created. Only the FIRST repeat (the 2nd scan) is noted on the same
+         check-in / check-out line, e.g. 06:45 / 06:46. Later repeats are ignored. */
       const lastEv = applied.last;
+      if (applied.n === 2 && lastEv && lastEv.key && ['checkin', 'checkout', 'leave'].indexOf(lastEv.key) < 0) {
+        try { await db.ref('faceScans/' + res.shiftDate + '/' + lastEv.key + '/time2').set(res.time); } catch (e) { console.warn('2nd scan time not saved', e); }
+      }
       return showResult({ type: 'ok', kind: lastEv ? lastEv.k : 'in', name: m.name, id: m.id, photo: photo, time: lastEv && lastEv.t ? lastEv.t : res.time, address: address, lat: position.lat, lng: position.lng });
     }
     const cls = applied.cls;
