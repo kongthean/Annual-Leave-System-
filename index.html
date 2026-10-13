@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.06</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.07</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2045,7 +2045,7 @@
                  <table class="master-tbl tbl-wide" id="faLiveTable">
                      <thead><tr>
                          <th data-i18n="tblActions">Actions</th><th data-i18n="faColTime">Time</th><th data-i18n="tblId">ID</th><th data-i18n="tblName">Name</th>
-                         <th data-i18n="faColShift">Shift</th><th data-i18n="faColType">Type</th><th data-i18n="faColLate">Late (hrs)</th><th data-i18n="faColOT">OT (hrs)</th>
+                         <th data-i18n="faColShift">Shift</th><th data-i18n="faColType">Type</th><th data-i18n="faColDayScans">All scans of the day</th><th data-i18n="faColLate">Late (hrs)</th><th data-i18n="faColOT">OT (hrs)</th>
                          <th data-i18n="faColLeave">Leave (hrs)</th><th data-i18n="faColLocation">Location</th><th data-i18n="faColPhoto">Photo</th><th data-i18n="faColSource">Source</th>
                      </tr></thead>
                      <tbody></tbody>
@@ -2428,7 +2428,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.06
+     HR & Administration System Version 7.07
  </div>
 </div>
 
@@ -3730,6 +3730,8 @@
         faExportPdf: "Export PDF",
         faReportTitle: "Daily Attendance Report",
         faColNo: "No.",
+        faColDayScans: "All scans of the day",
+        faColScanTimes: "Check-in / Check-out",
         faColCheckIn: "Check-in",
         faColCheckOut: "Check-out",
         faColWorkHrs: "Total working hours",
@@ -4587,6 +4589,8 @@
         faExportPdf: "នាំចេញ PDF",
         faReportTitle: "របាយការណ៍វត្តមានប្រចាំថ្ងៃ",
         faColNo: "ល.រ",
+        faColDayScans: "ម៉ោងស្កេនទាំងអស់ក្នុងថ្ងៃ",
+        faColScanTimes: "ម៉ោងចូល / ចេញ",
         faColCheckIn: "ម៉ោងចូល",
         faColCheckOut: "ម៉ោងចេញ",
         faColWorkHrs: "ម៉ោងធ្វើការសរុប",
@@ -5406,6 +5410,8 @@
         faExportPdf: "导出 PDF",
         faReportTitle: "每日考勤报告",
         faColNo: "序号",
+        faColDayScans: "当天全部打卡",
+        faColScanTimes: "上班 / 下班打卡",
         faColCheckIn: "上班时间",
         faColCheckOut: "下班时间",
         faColWorkHrs: "总工作小时",
@@ -12171,6 +12177,16 @@ function faStateEvents(state) {
     return out;
 }
 
+/* Paid minutes (the break is not paid) between minute a and minute b of the shift. */
+function faPaidMin(def, a, b) {
+    return faOverlap(a, b, def.start, def.breakStart) + faOverlap(a, b, def.breakEnd, def.end);
+}
+/* Time missed before the first check-in, in minutes of paid time (shown as "Late"):
+   M shift, first scan 13:57 -> work starts 14:00 -> 4 h morning + 2 h = 6 h late. */
+function faLateMissed(def, m) {
+    if (m >= def.end) return 0;
+    return faPaidMin(def, def.start, faEffStart(def, m));
+}
 function faInBreak(def, m) { return m >= def.breakStart && m < def.breakEnd; }
 /* later scans are valid in the break or in the first `win` minutes of an hour */
 function faAllowedLater(def, m) { return faInBreak(def, m) || (((m % 60) + 60) % 60) <= def.win; }
@@ -12207,7 +12223,7 @@ function faClassify(def, m, state) {
     var last = evs[evs.length - 1];
     if (!last) {
         if (m >= def.end) return { ok: false, code: 'closed', params: {} };
-        return { ok: true, kind: 'in', first: true, lateMinutes: m < def.breakStart ? faLateFor(def, m) : 0, otHours: 0, leaveHours: 0, inBreak: faInBreak(def, m) };
+        return { ok: true, kind: 'in', first: true, lateMinutes: faLateMissed(def, m), otHours: 0, leaveHours: 0, inBreak: faInBreak(def, m) };
     }
     if (last.k === 'in') return { ok: true, kind: 'out', first: false, lateMinutes: 0, otHours: faOtFor(def, faEffEnd(def, m)), leaveHours: 0, inBreak: faInBreak(def, m) };
     return { ok: true, kind: 'in', first: false, lateMinutes: 0, otHours: 0, leaveHours: 0, inBreak: faInBreak(def, m) };
@@ -12277,7 +12293,7 @@ function faApplyManual(def, kind, m, time, state, key) {
     cur.ev[key] = { k: kind, m: m, t: time };
     var first = evs.length === 0 || m < evs[0].m;
     var cls = { ok: true, kind: kind, first: first,
-        lateMinutes: (kind === 'in' && first && m < def.breakStart) ? faLateFor(def, m) : 0,
+        lateMinutes: (kind === 'in' && first) ? faLateMissed(def, m) : 0,
         otHours: kind === 'out' ? faOtFor(def, faEffEnd(def, m)) : 0, leaveHours: 0, inBreak: faInBreak(def, m) };
     return { ok: true, cls: cls, newState: cur };
 }
@@ -12339,13 +12355,16 @@ function faSummarizeDay(def, recs, settings) {
     var evs = (recs || []).filter(function (r) { return r && (r.kind === 'in' || r.kind === 'out'); }).map(function (r) {
         var m = parseFloat(r.scanMin);
         if (!isFinite(m)) m = faHM(r.time);
-        return { k: r.kind, m: m, t: r.time || '', late: parseFloat(r.lateMinutes) };
+        return { k: r.kind, m: m, t: r.time || '', t2: r.time2 || '', late: parseFloat(r.lateMinutes) };
     }).sort(function (a, b) { return (a.m - b.m) || (a.k === 'in' ? -1 : 1); });
     if (!evs.length) return faSummarizeLegacy(def, recs, settings);
     var first = evs[0], last = evs[evs.length - 1];
     var lastOut = null, k;
     for (k = evs.length - 1; k >= 0; k--) { if (evs[k].k === 'out') { lastOut = evs[k]; break; } }
     var res = { checkIn: first.k === 'in' ? first.t : '', checkOut: lastOut ? lastOut.t : '', workMin: null, nightMin: 0, leaveHours: 0, otHours: 0, lateMinutes: 0, remarks: [], scans: evs.length };
+    /* every scan time of the day in order, a quick 2nd scan of the same moment right after it: 06:45 / 06:46 / 11:00 / 11:55 / 16:02 */
+    res.times = []; evs.forEach(function (e) { if (e.t) res.times.push(e.t); if (e.t2) res.times.push(e.t2); });
+    res.timesText = res.times.join(' / ');
     if (first.k !== 'in') { res.remarks.push('missingCheckIn'); return res; }
     res.lateMinutes = isFinite(first.late) ? first.late : (first.m < def.breakStart ? faLateFor(def, first.m) : 0);
     if (evs.length > 2) res.remarks.push('outings');
@@ -12547,8 +12566,13 @@ function faRenderLive() {
         '<span class="fa-chip warn">' + faEsc(t('faChipInside')) + ': ' + inside + '</span>' +
         '<span class="fa-chip bad">' + faEsc(t('faChipNoScan')) + ': ' + none + '</span>' +
         '<div style="font-size:11px; color:#64748b; margin-top:2px;">' + faEsc(t('faLiveNote')) + '</div>';
-    const rows = faLiveScans.slice().sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
-    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="12" style="text-align:center; color:#94a3b8;">' + faEsc(t('faNoScans')) + '</td></tr>'; return; }
+    const rows = faLiveScans.filter(function (r) { return r.kind !== 'repeat'; }).sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+    /* all scan times of each employee for the day, in order: 06:45 / 11:00 / 11:55 / 16:02 (a quick 2nd scan is added next to its time) */
+    const dayText = {};
+    Object.keys(byEmp).forEach(function (id) {
+        dayText[id] = byEmp[id].slice().sort(function (a, b) { return (a.scanMin - b.scanMin) || ((a.ts || 0) - (b.ts || 0)); }).map(function (r) { return r.time + (r.time2 ? ' / ' + r.time2 : ''); }).join(' / ');
+    });
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="13" style="text-align:center; color:#94a3b8;">' + faEsc(t('faNoScans')) + '</td></tr>'; return; }
     const admin = faIsAdmin();
     tbody.innerHTML = rows.map(function (r) {
         const hasLoc = r.lat !== undefined && r.lat !== null;
@@ -12559,9 +12583,9 @@ function faRenderLive() {
         const manualNote = (r.source === 'manual' && r.note) ? '<div style="font-size:10px; color:#64748b;">' + faEsc(r.note) + '</div>' : '';
         return '<tr>' +
             '<td>' + (admin ? '<button class="btn-delete" onclick="faDeleteScan(\'' + r.key + '\', this)" title="Delete">' + ICON_DELETE + '</button>' : '') + '</td>' +
-            '<td><b>' + faEsc(r.time) + '</b>' + (r.scanMin >= 1440 ? ' (+1)' : '') + '</td>' +
+            '<td><b>' + faEsc(r.time) + (r.time2 ? ' / ' + faEsc(r.time2) : '') + '</b>' + (r.scanMin >= 1440 ? ' (+1)' : '') + '</td>' +
             '<td>' + faEsc(r.empId) + '</td><td style="text-align:left;">' + faEsc(r.empName) + '</td>' +
-            '<td>' + faEsc(r.shiftCode) + '</td><td>' + faEsc(t('faKind_' + r.kind)) + '</td>' +
+            '<td>' + faEsc(r.shiftCode) + '</td><td>' + faEsc(t('faKind_' + r.kind)) + '</td><td style="white-space:nowrap;">' + faEsc(dayText[r.empId] || '') + '</td>' +
             '<td>' + faLateHrs(r.lateMinutes) + '</td><td>' + (r.otHours ? faNum(r.otHours) : '') + '</td><td>' + (r.leaveHours ? faNum(r.leaveHours) : '') + '</td>' +
             '<td style="text-align:left; max-width:240px;">' + loc + '</td><td>' + photo + '</td>' +
             '<td>' + faEsc(r.source === 'manual' ? t('faSourceManual') : t('faSourceScan')) + manualNote + '</td></tr>';
@@ -12870,7 +12894,7 @@ function faManualPreview() {
     if (!isNaN(faHM(time))) {
         const m = faHM(time) + (faEl('faManualNextDay').checked ? 1440 : 0);
         if (kind === 'in') {
-            msg += ' - ' + fillTemplate(t('faManualAutoLate'), { h: faLateHrs(m < ctx.def.breakStart ? faLateFor(ctx.def, m) : 0) || '0' });
+            msg += ' - ' + fillTemplate(t('faManualAutoLate'), { h: faLateHrs(faLateMissed(ctx.def, m)) || '0' });
         } else if (kind === 'out') {
             msg += ' - ' + fillTemplate(t('faManualAutoOt'), { h: faOtFor(ctx.def, faEffEnd(ctx.def, m)) });
         }
@@ -12985,19 +13009,19 @@ function faBuildReportHtml(rows, opts) {
         if (s.workMin !== null) totWork += s.workMin;
         totNight += s.nightMin || 0; totLeave += s.leaveHours || 0; totOt += s.otHours || 0;
         return '<tr><td style="text-align:center;">' + (i + 1) + '</td><td>' + faEsc(r.id) + '</td><td>' + faEsc(r.name) + '</td>' +
-            '<td style="text-align:center;">' + faEsc(s.checkIn) + '</td><td style="text-align:center;">' + faEsc(s.checkOut) + '</td>' +
+            '<td style="text-align:center; white-space:nowrap;">' + faEsc(s.timesText || (s.checkIn + (s.checkOut ? ' / ' + s.checkOut : ''))) + '</td>' +
             '<td style="text-align:center;">' + faHours(s.workMin) + '</td><td style="text-align:center;">' + (s.workMin === null ? '' : faHours(s.nightMin)) + '</td>' +
             '<td style="text-align:center;">' + (s.leaveHours ? faNum(s.leaveHours) : '') + '</td><td style="text-align:center;">' + (s.otHours ? faNum(s.otHours) : '') + '</td>' +
             '<td>' + faEsc(faRemarkText(r, lang)) + '</td></tr>';
     }).join('');
-    const total = '<tr style="font-weight:700; background:#f1f5f9;"><td colspan="5" style="text-align:right;">' + faEsc(L('faTotal')) + '</td><td style="text-align:center;">' + faNum(totWork / 60) + '</td><td style="text-align:center;">' + faNum(totNight / 60) + '</td><td style="text-align:center;">' + faNum(totLeave) + '</td><td style="text-align:center;">' + faNum(totOt) + '</td><td></td></tr>';
+    const total = '<tr style="font-weight:700; background:#f1f5f9;"><td colspan="4" style="text-align:right;">' + faEsc(L('faTotal')) + '</td><td style="text-align:center;">' + faNum(totWork / 60) + '</td><td style="text-align:center;">' + faNum(totNight / 60) + '</td><td style="text-align:center;">' + faNum(totLeave) + '</td><td style="text-align:center;">' + faNum(totOt) + '</td><td></td></tr>';
     const extra = (opts.extra || '').split('\n').filter(function (x) { return x.trim(); }).map(faEsc).join('<br>');
     return '<div style="text-align:center; margin-bottom:10px;">' +
         (opts.dept ? '<div style="font-size:17px; font-weight:800;">' + faEsc(opts.dept) + '</div>' : '') +
         '<div style="font-size:15px; font-weight:700;">' + faEsc(L('faReportTitle')) + ' - ' + faEsc(opts.date) + '</div>' +
         (extra ? '<div style="font-size:12px; margin-top:4px;">' + extra + '</div>' : '') + '</div>' +
         '<table class="fa-report" style="border-collapse:collapse; width:100%;"><thead><tr style="background:#e2e8f0;">' +
-        '<th>' + faEsc(L('faColNo')) + '</th><th>' + faEsc(L('tblId')) + '</th><th>' + faEsc(L('tblName')) + '</th><th>' + faEsc(L('faColCheckIn')) + '</th><th>' + faEsc(L('faColCheckOut')) + '</th>' +
+        '<th>' + faEsc(L('faColNo')) + '</th><th>' + faEsc(L('tblId')) + '</th><th>' + faEsc(L('tblName')) + '</th><th>' + faEsc(L('faColScanTimes')) + '</th>' +
         '<th>' + faEsc(L('faColWorkHrs')) + '</th><th>' + faEsc(L('faColNightHrs')) + '</th><th>' + faEsc(L('faColLeaveHrs')) + '</th><th>' + faEsc(L('faColOtHrs')) + '</th><th>' + faEsc(L('faColRemarks')) + '</th>' +
         '</tr></thead><tbody>' + body + total + '</tbody></table>';
 }
