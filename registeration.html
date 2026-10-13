@@ -331,15 +331,25 @@ function faApplyScan(def, m, time, state, nowMs, key) {
     return { ok: true, repeat: false, cls: cls, newState: cur };
 }
 
-/* v7.09: the day's events = what the state node holds PLUS every saved check-in / check-out record of that
-   employee for that shift date (the records are what the admin sees in Live Scans). Both sources are merged by
-   record key, so a record can never be "invisible" to the next scan. recs: [{ _key, kind, scanMin, time }]. */
+/* v7.11: the saved check-in / check-out RECORDS of the employee for the shift date (the rows the admin sees in
+   Live Scans) are the truth for the day's sequence. A leftover entry in the state node whose record no longer
+   exists (a "ghost", e.g. a scan removed another way) is ignored, so it can never turn the next scan into
+   the wrong type. The burst timer stays in the state. recs: [{ _key, kind, scanMin, time }] or null when the
+   records could not be read (then the state node alone is used, as before).
+   Days recorded before v7.01 (kinds checkin / checkout / halfday / fullday) keep the old rule: state + records. */
 function faStateWithRecords(state, recs) {
     var cur = state ? JSON.parse(JSON.stringify(state)) : {};
-    if (!cur.ev) {
-        var old = faStateEvents(cur);
+    var legacyKinds = { checkin: 1, checkout: 1, halfday: 1, fullday: 1 };
+    var hasLegacy = !!(recs && recs.some(function (r) { return r && legacyKinds[r.kind]; }));
+    if (!recs || hasLegacy) {
+        if (!cur.ev) {
+            var old = faStateEvents(cur);
+            cur.ev = {};
+            old.forEach(function (e) { cur.ev[e.key] = { k: e.k, m: e.m, t: e.t }; });
+            delete cur.checkin; delete cur.checkout; delete cur.leave;
+        }
+    } else {
         cur.ev = {};
-        old.forEach(function (e) { cur.ev[e.key] = { k: e.k, m: e.m, t: e.t }; });
         delete cur.checkin; delete cur.checkout; delete cur.leave;
     }
     (recs || []).forEach(function (r) {
@@ -804,10 +814,11 @@ async function readInfoFor(empId, dateStr) {
   } catch (e) { throw e; }
   const st = await db.ref('faceScanState/' + dateStr + '/' + empId).once('value');
   /* the saved scan records of this employee for that shift date (what the admin sees in Live Scans) also count */
-  const recs = [];
+  let recs = null;   /* null = records could not be read, then the day state alone is used */
   try {
     const rs = await db.ref('faceScans/' + dateStr).once('value');
     const rv = rs.val() || {};
+    recs = [];
     Object.keys(rv).forEach(function (k) { const r = rv[k]; if (r && r.empId === empId) recs.push({ _key: k, kind: r.kind, scanMin: r.scanMin, time: r.time }); });
   } catch (e) { console.warn('records not read, using the day state only', e); }
   recsByDate[dateStr] = recs;
