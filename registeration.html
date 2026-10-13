@@ -423,7 +423,7 @@ function faSummarizeDay(def, recs, settings) {
     res.times = []; evs.forEach(function (e) { if (e.t) res.times.push(e.t); if (e.t2) res.times.push(e.t2); });
     res.timesText = res.times.join(' / ');
     if (first.k !== 'in') { res.remarks.push('missingCheckIn'); return res; }
-    res.lateMinutes = isFinite(first.late) ? first.late : (first.m < def.breakStart ? faLateFor(def, first.m) : 0);
+    res.lateMinutes = faLateMissed(def, first.m);   /* always from the first check-in time, so records saved before v7.07 are shown correctly too */
     if (evs.length > 2) res.remarks.push('outings');
     if (last.k === 'in') { res.remarks.push('missingCheckOut'); if (res.lateMinutes > 0) res.remarks.push('late'); return res; }
     var effS = faEffStart(def, first.m), effE = faEffEnd(def, last.m);
