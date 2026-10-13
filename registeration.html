@@ -811,12 +811,9 @@ async function processScan(m) {
       matchDistance: Math.round(m.dist * 1000) / 1000, device: (navigator.userAgent || '').slice(0, 140)
     };
     if (applied.repeat) {
-      /* same face scanned again within moments: not a new event - kept as a 'repeat' record (2nd + last only) */
+      /* same face scanned again within moments: nothing new is saved - show the same success pop-up of the recorded check-in / check-out */
       const lastEv = applied.last;
-      try {
-        await db.ref('faceScans/' + res.shiftDate + '/' + applied.recKey).set(Object.assign({}, base, { kind: 'repeat', burstN: applied.n, repeatOf: lastEv ? lastEv.k : '', lateMinutes: 0, otHours: 0, leaveHours: 0, source: 'scan' }));
-      } catch (e) { console.warn('repeat record not saved', e); }
-      return showResult({ type: 'reject', code: 'repeat', params: { at: lastEv && lastEv.t ? lastEv.t : res.time }, name: m.name, id: m.id, photo: photo, time: res.time });
+      return showResult({ type: 'ok', kind: lastEv ? lastEv.k : 'in', name: m.name, id: m.id, photo: photo, time: lastEv && lastEv.t ? lastEv.t : res.time, address: address, lat: position.lat, lng: position.lng });
     }
     const cls = applied.cls;
     const rec = Object.assign({}, base, { kind: cls.kind, first: !!cls.first, inBreak: !!cls.inBreak, lateMinutes: cls.lateMinutes || 0, otHours: cls.otHours || 0, leaveHours: 0, source: 'scan' });
@@ -854,12 +851,8 @@ function renderResult(r) {
   let html = '';
   if (r.type === 'ok') {
     el.className = 'result ok';
-    let extra = '';
-    if (r.kind === 'in' && r.first && !r.inBreak && r.late > 0) extra = tr('late', { min: r.late });
-    else if (r.kind === 'in' && r.first && !r.inBreak) extra = tr('onTime');
-    else if (r.kind === 'out' && r.ot > 0) extra = tr('ot', { h: r.ot });
-    else if (r.kind === 'out' && r.inBreak) extra = tr('outBreak');
-    const label = r.kind === 'out' ? tr('kind_checkout') : (r.first ? tr('kind_checkin') : tr('kind_back'));
+    const label = r.kind === 'out' ? tr('kind_checkout') : tr('kind_checkin');
+    const extra = '';
     html = '<div class="big">&#10003;</div><div class="who">' + escapeHtml(r.name) + ' (' + escapeHtml(r.id) + ')</div>' +
       '<div class="kind">' + escapeHtml(label) + '</div>' +
       '<div class="line">' + escapeHtml(tr('recorded')) + ' &middot; ' + escapeHtml(tr('at')) + ' ' + escapeHtml(r.time) + (extra ? '<br>' + escapeHtml(extra) : '') + '</div>' +
