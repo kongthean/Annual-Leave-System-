@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.00</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.01</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2430,7 +2430,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.00
+     HR & Administration System Version 7.01
  </div>
 </div>
 
@@ -3852,6 +3852,8 @@
         renewMonthsLeft: "{m} month(s) left",
         renewNoneFound: "No employees are due for renewal within that period.",
         renewMatchCount: "{n} employee(s) will be exported",
+        renewMonthsDaysLeft: "{m} month(s) {d} day(s) left",
+        renewDaysLeft: "{d} day(s) left",
         renewOverdue: "AL end date has passed",
 
         /* v6.00 */
@@ -4229,6 +4231,8 @@
         renewMonthsLeft: "នៅសល់ {m} ខែ",
         renewNoneFound: "គ្មានបុគ្គលិកណាត្រូវបន្តក្នុងរយៈពេលនោះទេ។",
         renewMatchCount: "បុគ្គលិក {n} នាក់នឹងត្រូវបាននាំចេញ",
+        renewMonthsDaysLeft: "នៅសល់ {m} ខែ {d} ថ្ងៃ",
+        renewDaysLeft: "នៅសល់ {d} ថ្ងៃ",
         renewOverdue: "ផុតកំណត់ថ្ងៃបញ្ចប់ច្បាប់ប្រចាំឆ្នាំរួចហើយ",
          lblSearch: "ស្វែងរកបុគ្គលិក:",
          btnExport: "នាំចេញជា Excel (.xlsx)",
@@ -5011,6 +5015,8 @@
         renewMonthsLeft: "还剩{m}个月",
         renewNoneFound: "该期间内没有需要续期的员工。",
         renewMatchCount: "将导出 {n} 名员工",
+        renewMonthsDaysLeft: "还剩{m}个月{d}天",
+        renewDaysLeft: "还剩{d}天",
         renewOverdue: "年假结束日期已过",
          lblLeaveDate: "请假日期",
          lblEmpId: "员工编号",
@@ -8834,6 +8840,32 @@ function renewalNextDate(endStr) {
     if (isNaN(d.getTime())) return '';
     return d.getFullYear() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0');
 }
+/* exact time left until the renewal date (the day after the AL end date): whole calendar months
+   plus the remaining days, counted from today. Display only - the 'within N months' filter below
+   still uses the app's usual months-left figure. */
+function renewalLeft(endStr, now) {
+    const nd = renewalNextDate(endStr);
+    if (!nd) return { m: 0, d: 0 };
+    const p = nd.split('.').map(Number);
+    const t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const r = new Date(p[0], p[1] - 1, p[2]);
+    if (r <= t0) return { m: 0, d: 0 };
+    let m = (r.getFullYear() - t0.getFullYear()) * 12 + (r.getMonth() - t0.getMonth());
+    if (r.getDate() < t0.getDate()) m--;
+    const anchor = (mm) => {
+        const y = t0.getFullYear() + Math.floor((t0.getMonth() + mm) / 12), mo = (t0.getMonth() + mm) % 12;
+        const last = new Date(y, mo + 1, 0).getDate();
+        return new Date(y, mo, Math.min(t0.getDate(), last));
+    };
+    m = Math.max(0, m);
+    const d = Math.round((r - anchor(m)) / 86400000);
+    return { m: m, d: d };
+}
+function renewalLeftText(left, lang) {
+    if (left.m > 0 && left.d > 0) return fillTemplate(tLang('renewMonthsDaysLeft', lang), left);
+    if (left.m > 0) return fillTemplate(tLang('renewMonthsLeft', lang), { m: left.m });
+    return fillTemplate(tLang('renewDaysLeft', lang), { d: left.d });
+}
 function buildRenewalRows(maxMonths, dept) {
     const now = new Date();
     const todayKey = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
@@ -8852,7 +8884,7 @@ function buildRenewalRows(maxMonths, dept) {
         const totalUsed = ((parseFloat(emp.prevUsed) || 0) + (parseFloat(emp.monthUsed) || 0)) - (parseFloat(emp.exceeded) || 0);
         const entitled = parseFloat(emp.entitled) || 0;
         const remaining = entitled - totalUsed + (parseFloat(emp.carried) || 0);
-        rows.push({ emp, startStr, endStr, months, overdue: endKey > 0 && endKey < todayKey, entitled, totalUsed, remaining });
+        rows.push({ emp, startStr, endStr, months, left: renewalLeft(endStr, now), overdue: endKey > 0 && endKey < todayKey, entitled, totalUsed, remaining });
     });
     rows.sort((a, b) => (a.months - b.months) || (a.emp.id || '').localeCompare(b.emp.id || '', undefined, { numeric: true }));
     return rows;
@@ -8892,7 +8924,7 @@ function exportRenewalList(maxMonths, lang, dept) {
     const aoa = [[title + (dept ? ' - ' + dept : '')], header];
     rows.forEach((r, i) => {
         const nd = renewalNextDate(r.endStr);
-        const until = (nd ? nd + ' ' : '') + '(' + fillTemplate(tLang('renewMonthsLeft', lang), { m: r.months }) + ')';
+        const until = (nd ? nd + ' ' : '') + '(' + renewalLeftText(r.left, lang) + ')';
         const remark = [r.emp.remarks || '', r.overdue ? tLang('renewOverdue', lang) : ''].filter(Boolean).join('; ');
         aoa.push([i + 1, r.emp.id, r.emp.name, r.emp.joinDate || '', r.startStr, r.endStr,
             Number(r.entitled.toFixed(2)), Number(r.totalUsed.toFixed(2)), Number(r.remaining.toFixed(2)), until, remark]);
