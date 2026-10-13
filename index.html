@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.05</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.06</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2045,7 +2045,7 @@
                  <table class="master-tbl tbl-wide" id="faLiveTable">
                      <thead><tr>
                          <th data-i18n="tblActions">Actions</th><th data-i18n="faColTime">Time</th><th data-i18n="tblId">ID</th><th data-i18n="tblName">Name</th>
-                         <th data-i18n="faColShift">Shift</th><th data-i18n="faColType">Type</th><th data-i18n="faColLate">Late (min)</th><th data-i18n="faColOT">OT (hrs)</th>
+                         <th data-i18n="faColShift">Shift</th><th data-i18n="faColType">Type</th><th data-i18n="faColLate">Late (hrs)</th><th data-i18n="faColOT">OT (hrs)</th>
                          <th data-i18n="faColLeave">Leave (hrs)</th><th data-i18n="faColLocation">Location</th><th data-i18n="faColPhoto">Photo</th><th data-i18n="faColSource">Source</th>
                      </tr></thead>
                      <tbody></tbody>
@@ -2428,7 +2428,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.05
+     HR & Administration System Version 7.06
  </div>
 </div>
 
@@ -3639,7 +3639,7 @@
         faColTime: "Time",
         faColType: "Type",
         faColShift: "Shift",
-        faColLate: "Late (min)",
+        faColLate: "Late (hrs)",
         faColOT: "OT (hrs)",
         faColLeave: "Leave (hrs)",
         faColLocation: "Location",
@@ -3716,7 +3716,7 @@
         faManualSaved: "Manual entry saved.",
         faManualNoShift: "This employee has no working shift (M/F/G) on that date.",
         faManualNeedFields: "Fill in the Employee ID, date and time.",
-        faManualAutoLate: "Calculated late: {min} minutes",
+        faManualAutoLate: "Calculated late: {h} hours",
         faManualAutoOt: "Suggested overtime: {h} hour(s)",
         faManualDuplicate: "That entry already exists for this employee and date. Delete it from Live Scans first.",
         faExportTitle: "Daily attendance PDF",
@@ -3740,7 +3740,7 @@
         faRemNoScan: "No scan",
         faRemMissingOut: "Missing check-out",
         faRemMissingIn: "Missing check-in",
-        faRemLate: "Late {min} min",
+        faRemLate: "Late {h} hrs",
         faRemHalf: "Half-day leave",
         faRemFull: "Full-day leave",
         faRemPartLeave: "Leave request ({h} h)",
@@ -4496,7 +4496,7 @@
         faColTime: "ម៉ោង",
         faColType: "ប្រភេទ",
         faColShift: "វេន",
-        faColLate: "យឺត (នាទី)",
+        faColLate: "យឺត (ម៉ោង)",
         faColOT: "ម៉ោងបន្ថែម (ម៉ោង)",
         faColLeave: "ច្បាប់ (ម៉ោង)",
         faColLocation: "ទីតាំង",
@@ -4573,7 +4573,7 @@
         faManualSaved: "បានរក្សាទុកការបញ្ចូលដោយដៃ។",
         faManualNoShift: "និយោជិតនេះមិនមានវេនធ្វើការ (M/F/G) នៅកាលបរិច្ឆេទនោះទេ។",
         faManualNeedFields: "សូមបំពេញអត្តលេខនិយោជិត កាលបរិច្ឆេទ និងម៉ោង។",
-        faManualAutoLate: "ការយឺតដែលគណនា៖ {min} នាទី",
+        faManualAutoLate: "ការយឺតដែលគណនា៖ {h} ម៉ោង",
         faManualAutoOt: "ម៉ោងបន្ថែមដែលណែនាំ៖ {h} ម៉ោង",
         faManualDuplicate: "ការបញ្ចូលនោះមានរួចហើយសម្រាប់និយោជិត និងកាលបរិច្ឆេទនេះ។ សូមលុបវាពីការស្កេនផ្ទាល់ជាមុនសិន។",
         faExportTitle: "PDF វត្តមានប្រចាំថ្ងៃ",
@@ -4597,7 +4597,7 @@
         faRemNoScan: "មិនបានស្កេន",
         faRemMissingOut: "ខ្វះការស្កេនចេញ",
         faRemMissingIn: "ខ្វះការស្កេនចូល",
-        faRemLate: "យឺត {min} នាទី",
+        faRemLate: "យឺត {h} ម៉ោង",
         faRemHalf: "ច្បាប់កន្លះថ្ងៃ",
         faRemFull: "ច្បាប់ពេញមួយថ្ងៃ",
         faRemPartLeave: "សំណើសុំច្បាប់ ({h} ម៉ោង)",
@@ -5315,7 +5315,7 @@
         faColTime: "时间",
         faColType: "类型",
         faColShift: "班次",
-        faColLate: "迟到（分钟）",
+        faColLate: "迟到（小时）",
         faColOT: "加班（小时）",
         faColLeave: "请假（小时）",
         faColLocation: "位置",
@@ -5392,7 +5392,7 @@
         faManualSaved: "手动录入已保存。",
         faManualNoShift: "该员工在该日期没有工作班次（M/F/G）。",
         faManualNeedFields: "请填写员工编号、日期和时间。",
-        faManualAutoLate: "计算迟到：{min} 分钟",
+        faManualAutoLate: "计算迟到：{h} 小时",
         faManualAutoOt: "建议加班：{h} 小时",
         faManualDuplicate: "该员工在该日期已有此记录。请先在实时打卡中删除。",
         faExportTitle: "每日考勤 PDF",
@@ -5416,7 +5416,7 @@
         faRemNoScan: "无打卡",
         faRemMissingOut: "缺少下班打卡",
         faRemMissingIn: "缺少上班打卡",
-        faRemLate: "迟到 {min} 分钟",
+        faRemLate: "迟到 {h} 小时",
         faRemHalf: "半天假",
         faRemFull: "全天假",
         faRemPartLeave: "请假申请（{h}小时）",
@@ -12456,10 +12456,14 @@ db.ref('faceAttHeader').on('value', function (snap) {
 });
 
 function faEl(id) { return document.getElementById(id); }
+/* late time is shown in hours: 30 min = 0.5, 60 min = 1, 90 min = 1.5 */
+function faLateHrs(min) { const n = parseFloat(min); return isFinite(n) && n > 0 ? String(Math.round(n / 60 * 100) / 100) : ''; }
 function faEsc(s) { return escapePrintText(s == null ? '' : String(s)); }
 function faIsAdmin() { return (sessionStorage.getItem('loggedInRole') || 'admin') === 'admin'; }
 function faTodayStr() { return faLocal(Date.now(), faSettings.tzOffsetMinutes).dateStr; }
-function faHours(min) { return (min === null || min === undefined) ? '' : (min / 60).toFixed(2); }
+/* every hour figure is shown as 0.5 / 1 / 1.5 (no trailing zeros) */
+function faNum(h) { const n = parseFloat(h); return isFinite(n) ? String(Math.round(n * 100) / 100) : ''; }
+function faHours(min) { return (min === null || min === undefined) ? '' : faNum(min / 60); }
 function faSortById(a, b) { return String(a).localeCompare(String(b), undefined, { numeric: true }); }
 
 function faInitTab() {
@@ -12558,7 +12562,7 @@ function faRenderLive() {
             '<td><b>' + faEsc(r.time) + '</b>' + (r.scanMin >= 1440 ? ' (+1)' : '') + '</td>' +
             '<td>' + faEsc(r.empId) + '</td><td style="text-align:left;">' + faEsc(r.empName) + '</td>' +
             '<td>' + faEsc(r.shiftCode) + '</td><td>' + faEsc(t('faKind_' + r.kind)) + '</td>' +
-            '<td>' + (r.lateMinutes || '') + '</td><td>' + (r.otHours || '') + '</td><td>' + (r.leaveHours || '') + '</td>' +
+            '<td>' + faLateHrs(r.lateMinutes) + '</td><td>' + (r.otHours ? faNum(r.otHours) : '') + '</td><td>' + (r.leaveHours ? faNum(r.leaveHours) : '') + '</td>' +
             '<td style="text-align:left; max-width:240px;">' + loc + '</td><td>' + photo + '</td>' +
             '<td>' + faEsc(r.source === 'manual' ? t('faSourceManual') : t('faSourceScan')) + manualNote + '</td></tr>';
     }).join('');
@@ -12866,7 +12870,7 @@ function faManualPreview() {
     if (!isNaN(faHM(time))) {
         const m = faHM(time) + (faEl('faManualNextDay').checked ? 1440 : 0);
         if (kind === 'in') {
-            msg += ' - ' + fillTemplate(t('faManualAutoLate'), { min: m < ctx.def.breakStart ? faLateFor(ctx.def, m) : 0 });
+            msg += ' - ' + fillTemplate(t('faManualAutoLate'), { h: faLateHrs(m < ctx.def.breakStart ? faLateFor(ctx.def, m) : 0) || '0' });
         } else if (kind === 'out') {
             msg += ' - ' + fillTemplate(t('faManualAutoOt'), { h: faOtFor(ctx.def, faEffEnd(ctx.def, m)) });
         }
@@ -12959,14 +12963,14 @@ async function faBuildReportData(date, dept) {
 function faRemarkText(row, lang) {
     const out = [];
     row.sum.remarks.forEach(function (c) {
-        if (c === 'late') out.push(fillTemplate(tLang('faRemLate', lang), { min: row.sum.lateMinutes }));
+        if (c === 'late') out.push(fillTemplate(tLang('faRemLate', lang), { h: faLateHrs(row.sum.lateMinutes) || '0' }));
         else if (c === 'noScan') out.push(tLang('faRemNoScan', lang));
         else if (c === 'missingCheckOut') out.push(tLang('faRemMissingOut', lang));
         else if (c === 'missingCheckIn') out.push(tLang('faRemMissingIn', lang));
         else if (c === 'halfDayLeave') out.push(tLang('faRemHalf', lang));
         else if (c === 'fullDayLeave') out.push(tLang('faRemFull', lang));
         else if (c === 'outings') out.push(tLang('faRemOutings', lang));
-        else if (c === 'partLeave') out.push(fillTemplate(tLang('faRemPartLeave', lang), { h: Number(row.sum.leaveHours).toFixed(2) }));
+        else if (c === 'partLeave') out.push(fillTemplate(tLang('faRemPartLeave', lang), { h: faNum(row.sum.leaveHours) }));
     });
     if (row.manual) out.push(tLang('faRemManual', lang));
     return out.join('; ');
@@ -12983,10 +12987,10 @@ function faBuildReportHtml(rows, opts) {
         return '<tr><td style="text-align:center;">' + (i + 1) + '</td><td>' + faEsc(r.id) + '</td><td>' + faEsc(r.name) + '</td>' +
             '<td style="text-align:center;">' + faEsc(s.checkIn) + '</td><td style="text-align:center;">' + faEsc(s.checkOut) + '</td>' +
             '<td style="text-align:center;">' + faHours(s.workMin) + '</td><td style="text-align:center;">' + (s.workMin === null ? '' : faHours(s.nightMin)) + '</td>' +
-            '<td style="text-align:center;">' + (s.leaveHours ? Number(s.leaveHours).toFixed(2) : '') + '</td><td style="text-align:center;">' + (s.otHours ? Number(s.otHours).toFixed(2) : '') + '</td>' +
+            '<td style="text-align:center;">' + (s.leaveHours ? faNum(s.leaveHours) : '') + '</td><td style="text-align:center;">' + (s.otHours ? faNum(s.otHours) : '') + '</td>' +
             '<td>' + faEsc(faRemarkText(r, lang)) + '</td></tr>';
     }).join('');
-    const total = '<tr style="font-weight:700; background:#f1f5f9;"><td colspan="5" style="text-align:right;">' + faEsc(L('faTotal')) + '</td><td style="text-align:center;">' + (totWork / 60).toFixed(2) + '</td><td style="text-align:center;">' + (totNight / 60).toFixed(2) + '</td><td style="text-align:center;">' + totLeave.toFixed(2) + '</td><td style="text-align:center;">' + totOt.toFixed(2) + '</td><td></td></tr>';
+    const total = '<tr style="font-weight:700; background:#f1f5f9;"><td colspan="5" style="text-align:right;">' + faEsc(L('faTotal')) + '</td><td style="text-align:center;">' + faNum(totWork / 60) + '</td><td style="text-align:center;">' + faNum(totNight / 60) + '</td><td style="text-align:center;">' + faNum(totLeave) + '</td><td style="text-align:center;">' + faNum(totOt) + '</td><td></td></tr>';
     const extra = (opts.extra || '').split('\n').filter(function (x) { return x.trim(); }).map(faEsc).join('<br>');
     return '<div style="text-align:center; margin-bottom:10px;">' +
         (opts.dept ? '<div style="font-size:17px; font-weight:800;">' + faEsc(opts.dept) + '</div>' : '') +
