@@ -640,7 +640,7 @@ function bestMatch(desc) {
 const video = $('video');
 async function startCamera() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('nocam');
-  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 1280 } }, audio: false });
+  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
   video.srcObject = stream;
   await new Promise(function (res) { if (video.readyState >= 2) res(); else video.onloadeddata = res; });
   try { await video.play(); } catch (e) {}
