@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.14</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.15</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1221,6 +1221,7 @@
          <div style="display:flex; gap:8px; flex-wrap:wrap;">
              <button class="quick-btn green" onclick="openExportLangModal('master')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
              <button class="quick-btn amber" onclick="openLeaveReportModal()" data-i18n="btnExportLeaveReport">Export Leave Report</button>
+             <button type="button" class="quick-btn slate admin-only" id="mlSettingsBtn" style="width:auto; min-width:auto; min-height:auto; padding:8px 12px;" onclick="mlOpen()" data-i18n-title="mlBtnTitle" title="Master Sheet settings"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
          </div>
      </div>
  
@@ -2274,6 +2275,53 @@
      </div>
  </div>
 
+ <!-- v7.15: MASTER SHEET SETTINGS window -->
+ <div class="modal" id="mlModal">
+     <div class="modal-content" style="max-width:720px;">
+         <style>
+             .ml-switch { display:flex; gap:10px; align-items:flex-start; margin:10px 0 4px; }
+             .ml-switch input { width:18px; height:18px; margin-top:2px; flex:none; }
+             .ml-switch b { font-size:14px; }
+             .ml-desc { font-size:12px; color:#64748b; margin:0 0 8px 28px; }
+             .ml-rule { display:flex; gap:6px; align-items:center; margin-bottom:6px; }
+             .ml-rule input { width:110px; } .ml-rule input[data-k="to"] { width:190px; }
+             .ml-box { border:1px solid #e2e8f0; border-radius:10px; padding:10px 14px; margin-bottom:10px; background:#f8fafc; }
+         </style>
+         <div class="modal-header"><h4 data-i18n="mlTitle">Master Sheet Settings</h4><button class="modal-close" onclick="mlClose()">&times;</button></div>
+         <p style="font-size:12px; color:#64748b; margin-bottom:8px;" data-i18n="mlSub">Both switches are off until you turn them on. Dates and hours can always be edited by hand.</p>
+
+         <div class="ml-box">
+             <label class="ml-switch"><input type="checkbox" id="mlAutoRenew" onchange="mlRefreshPreview()"><b data-i18n="mlAutoRenew">Automatically renew AL dates</b></label>
+             <p class="ml-desc" data-i18n="mlAutoRenewDesc">When an employee's AL End Date has passed, the next year is filled in: the new start is the day after the old end date, the new end is one year later. Example: 2025.01.01 - 2025.12.31 becomes 2026.01.01 - 2026.12.31. Used hours and carried forward are not changed. Resigned employees are skipped.</p>
+         </div>
+
+         <div class="ml-box">
+             <label class="ml-switch"><input type="checkbox" id="mlAutoEntitled" onchange="mlRefreshPreview()"><b data-i18n="mlAutoEntitled">Set entitled hours by years of work</b></label>
+             <p class="ml-desc" data-i18n="mlAutoEntitledDesc">Fills the Entitled Hours from the table below when a new AL year starts, and suggests it when you add or edit an employee. Existing hours are only changed when a new AL year starts or when you press the button further down. Your manual edits are never overwritten in between.</p>
+             <div style="margin-left:28px;">
+                 <div style="font-size:11px; color:#64748b; margin-bottom:6px;" data-i18n="mlRulesHint">Year 1 = the first 12 months after the join date (the Years of Work column shows 0). Leave "To" empty for "and above".</div>
+                 <div id="mlRules"></div>
+                 <button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:6px 12px;" onclick="mlAddRule()" data-i18n="mlAddRule">+ Add rule</button>
+                 <div id="mlRuleErr" style="color:#dc2626; font-size:12px; margin-top:6px;"></div>
+             </div>
+         </div>
+
+         <div class="ml-box">
+             <h5 style="margin:0 0 4px;" data-i18n="mlPreviewTitle">What would change right now</h5>
+             <div id="mlPreview"></div>
+             <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+                 <button type="button" class="quick-btn amber" id="mlRenewNowBtn" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px;" onclick="mlRenewNow(this)" data-i18n="mlRenewNow">Renew ended AL cycles now</button>
+                 <button type="button" class="quick-btn slate" id="mlApplyEntBtn" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px;" onclick="mlApplyEntitledNow(this)" data-i18n="mlApplyEntNow">Apply the entitled rule to current employees now</button>
+             </div>
+         </div>
+
+         <div style="display:flex; gap:10px; justify-content:flex-end;">
+             <button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:8px 18px;" onclick="mlClose()" data-i18n="btnCancel">Cancel</button>
+             <button type="button" class="quick-btn green" style="width:auto; min-width:auto; min-height:auto; padding:8px 18px;" onclick="mlSave(this)" data-i18n="mlSave">Save settings</button>
+         </div>
+     </div>
+ </div>
+
  <!-- TAB 10: DEPARTMENTS (v5.00) -->
  <div id="tab-dept" class="tab-panel">
      <h3 data-i18n="deptTitle">Departments / Teams</h3>
@@ -2524,7 +2572,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.14
+     HR & Administration System Version 7.15
  </div>
 </div>
 
@@ -2696,7 +2744,7 @@
              <div class="form-group"><label data-i18n="tblStatus">Status</label>
                  <select id="editStatus"><option value="Active">Active</option><option value="Resigned">Resigned</option></select>
              </div>
-             <div class="form-group"><label data-i18n="tblEntitled">Entitled Hours</label><input type="number" id="editEntitled" step="0.5" required></div>
+             <div class="form-group"><label data-i18n="tblEntitled">Entitled Hours</label><input type="number" id="editEntitled" step="0.5" required><div id="editEntitledHint" style="font-size:11px; color:#0e7490; margin-top:3px;"></div></div>
              <div class="form-group"><label data-i18n="tblStart">AL Start Date</label><input type="text" id="editStartDate"></div>
          </div>
          <div class="grid-3">
@@ -3711,6 +3759,39 @@
         notifPersonalLeaveMsg: "You have a Personal Leave record of {hours} hour(s). Total Personal Leave this month: {total} hours.",
         notifLeaveDeductedMsg2: "Your Annual Leave entitlement has been deducted {hours} hour(s) use for your leave on {date}. Used for {type}. Remaining Hours: {remaining} hours.",
         notifPersonalLeaveMsg2: "You have a personal leave record of {hours} hour(s) for your leave on {date}. Total personal leave this month: {total} hours.",
+        /* v7.15 Master Sheet settings */
+        mlBtnTitle: "Master Sheet settings",
+        mlTitle: "Master Sheet Settings",
+        mlSub: "Both switches are off until you turn them on. Dates and hours can always be edited by hand.",
+        mlAutoRenew: "Automatically renew AL dates",
+        mlAutoRenewDesc: "When an employee's AL End Date has passed, the next year is filled in: the new start is the day after the old end date, the new end is one year later. Example: 2025.01.01 - 2025.12.31 becomes 2026.01.01 - 2026.12.31. Used hours and carried forward are not changed. Resigned employees are skipped.",
+        mlAutoEntitled: "Set entitled hours by years of work",
+        mlAutoEntitledDesc: "Fills the Entitled Hours from the table below when a new AL year starts, and suggests it when you add or edit an employee. Existing hours are only changed when a new AL year starts or when you press the button further down. Your manual edits are never overwritten in between.",
+        mlRulesHint: "Year 1 = the first 12 months after the join date (the Years of Work column shows 0). Leave \"To\" empty for \"and above\".",
+        mlFrom: "From year",
+        mlToOpen: "To year (empty = and above)",
+        mlHours: "Hours",
+        mlRemove: "Remove",
+        mlAddRule: "+ Add rule",
+        mlRuleErr: "Check the table: years must not overlap, \"To\" must not be smaller than \"From\", hours must be above 0, and only the last row can be left open (\"and above\").",
+        mlNeedRules: "Add at least one rule before turning this on.",
+        mlPreviewTitle: "What would change right now",
+        mlPrevRenew: "AL cycles that have ended",
+        mlPrevEntitled: "Entitled hours different from the table",
+        mlColCycle: "AL dates (now → new)",
+        mlColEntitled: "Entitled hours (now → new)",
+        mlColYear: "Year of service",
+        mlNothing: "Nothing needs to change right now.",
+        mlRenewNow: "Renew ended AL cycles now",
+        mlApplyEntNow: "Apply the entitled rule to current employees now",
+        mlSave: "Save settings",
+        mlSaved: "Settings saved.",
+        mlConfirmOn: "Turning this on will renew the AL dates of {n} employee(s) right now (see the list). Continue?",
+        mlConfirmRenew: "Renew the AL dates of {n} employee(s) now?",
+        mlConfirmEnt: "Change the entitled hours of {n} employee(s) now?",
+        mlDone: "Updated {n} employee(s).",
+        mlHintSuggest: "Your table suggests {h} hours (year {y} of service)",
+        mlHintUse: "Use",
         /* v7.14 Export */
         navExport: "Export",
         xcSub: "Choose what to export, fill in the document details, then export it as PDF, Excel or Word. The Export buttons on each page still download directly.",
@@ -4624,6 +4705,39 @@
         notifPersonalLeaveMsg: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
         notifLeaveDeductedMsg2: "សិទ្ធិច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំរបស់អ្នកត្រូវបានកាត់កង {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ ប្រើសម្រាប់៖ {type}។ ម៉ោងនៅសល់៖ {remaining} ម៉ោង។",
         notifPersonalLeaveMsg2: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
+        /* v7.15 Master Sheet settings */
+        mlBtnTitle: "ការកំណត់តារាងមេ",
+        mlTitle: "ការកំណត់តារាងមេ",
+        mlSub: "កុងតាក់ទាំងពីរបិទរហូតដល់អ្នកបើក។ កាលបរិច្ឆេទ និងម៉ោងអាចកែដោយដៃបានជានិច្ច។",
+        mlAutoRenew: "បន្តកាលបរិច្ឆេទច្បាប់ប្រចាំឆ្នាំដោយស្វ័យប្រវត្តិ",
+        mlAutoRenewDesc: "នៅពេលថ្ងៃបញ្ចប់ច្បាប់ប្រចាំឆ្នាំរបស់និយោជិតផុតកំណត់ ឆ្នាំបន្ទាប់នឹងត្រូវបំពេញ៖ ថ្ងៃចាប់ផ្ដើមថ្មីគឺថ្ងៃបន្ទាប់ពីថ្ងៃបញ្ចប់ចាស់ ថ្ងៃបញ្ចប់ថ្មីគឺមួយឆ្នាំក្រោយ។ ឧទាហរណ៍៖ 2025.01.01 - 2025.12.31 ក្លាយជា 2026.01.01 - 2026.12.31។ ម៉ោងដែលបានប្រើ និងម៉ោងបន្តមិនត្រូវបានផ្លាស់ប្ដូរទេ។ និយោជិតដែលបានលាឈប់ត្រូវបានរំលង។",
+        mlAutoEntitled: "កំណត់ម៉ោងសិទ្ធិតាមឆ្នាំធ្វើការ",
+        mlAutoEntitledDesc: "បំពេញម៉ោងសិទ្ធិពីតារាងខាងក្រោមនៅពេលឆ្នាំច្បាប់ថ្មីចាប់ផ្ដើម ហើយណែនាំនៅពេលអ្នកបន្ថែម ឬកែនិយោជិត។ ម៉ោងដែលមានស្រាប់ត្រូវបានផ្លាស់ប្ដូរលុះត្រាតែឆ្នាំច្បាប់ថ្មីចាប់ផ្ដើម ឬអ្នកចុចប៊ូតុងខាងក្រោម។ ការកែដោយដៃរបស់អ្នកមិនត្រូវបានសរសេរជាន់លើទេ។",
+        mlRulesHint: "ឆ្នាំទី 1 = ១២ ខែដំបូងបន្ទាប់ពីថ្ងៃចូលធ្វើការ (ជួរ ឆ្នាំធ្វើការ បង្ហាញ 0)។ ទុក \"ដល់\" ទទេសម្រាប់ \"និងលើសពីនេះ\"។",
+        mlFrom: "ពីឆ្នាំទី",
+        mlToOpen: "ដល់ឆ្នាំទី (ទទេ = និងលើសពីនេះ)",
+        mlHours: "ម៉ោង",
+        mlRemove: "លុប",
+        mlAddRule: "+ បន្ថែមច្បាប់",
+        mlRuleErr: "សូមពិនិត្យតារាង៖ ឆ្នាំមិនត្រូវត្រួតគ្នា \"ដល់\" មិនត្រូវតូចជាង \"ពី\" ម៉ោងត្រូវលើសពី 0 ហើយមានតែជួរចុងក្រោយទេដែលអាចទុកបើកចំហ (\"និងលើសពីនេះ\")។",
+        mlNeedRules: "សូមបន្ថែមច្បាប់យ៉ាងតិចមួយមុនពេលបើកវា។",
+        mlPreviewTitle: "អ្វីដែលនឹងផ្លាស់ប្ដូរឥឡូវនេះ",
+        mlPrevRenew: "វដ្តច្បាប់ប្រចាំឆ្នាំដែលបានបញ្ចប់",
+        mlPrevEntitled: "ម៉ោងសិទ្ធិខុសពីតារាង",
+        mlColCycle: "កាលបរិច្ឆេទច្បាប់ប្រចាំឆ្នាំ (ឥឡូវ → ថ្មី)",
+        mlColEntitled: "ម៉ោងសិទ្ធិ (ឥឡូវ → ថ្មី)",
+        mlColYear: "ឆ្នាំនៃការបម្រើការងារ",
+        mlNothing: "មិនចាំបាច់ផ្លាស់ប្ដូរអ្វីឥឡូវនេះទេ។",
+        mlRenewNow: "បន្តវដ្តច្បាប់ប្រចាំឆ្នាំដែលបានបញ្ចប់ឥឡូវនេះ",
+        mlApplyEntNow: "អនុវត្តច្បាប់ម៉ោងសិទ្ធិលើនិយោជិតបច្ចុប្បន្នឥឡូវនេះ",
+        mlSave: "រក្សាទុកការកំណត់",
+        mlSaved: "បានរក្សាទុកការកំណត់។",
+        mlConfirmOn: "ការបើកវានឹងបន្តកាលបរិច្ឆេទច្បាប់ប្រចាំឆ្នាំរបស់និយោជិត {n} នាក់ឥឡូវនេះ (មើលបញ្ជី)។ បន្ត?",
+        mlConfirmRenew: "បន្តកាលបរិច្ឆេទច្បាប់ប្រចាំឆ្នាំរបស់និយោជិត {n} នាក់ឥឡូវនេះ?",
+        mlConfirmEnt: "ផ្លាស់ប្ដូរម៉ោងសិទ្ធិរបស់និយោជិត {n} នាក់ឥឡូវនេះ?",
+        mlDone: "បានធ្វើបច្ចុប្បន្នភាពនិយោជិត {n} នាក់។",
+        mlHintSuggest: "តារាងរបស់អ្នកណែនាំ {h} ម៉ោង (ឆ្នាំទី {y} នៃការបម្រើការងារ)",
+        mlHintUse: "ប្រើ",
         /* v7.14 Export */
         navExport: "នាំចេញ",
         xcSub: "ជ្រើសរើសអ្វីដែលត្រូវនាំចេញ បំពេញព័ត៌មានឯកសារ បន្ទាប់មកនាំចេញជា PDF, Excel ឬ Word។ ប៊ូតុងនាំចេញនៅតាមទំព័រនីមួយៗនៅតែទាញយកដោយផ្ទាល់ដដែល។",
@@ -5499,6 +5613,39 @@
         notifPersonalLeaveMsg: "您有一笔{hours}小时的事假记录。本月事假总计：{total}小时。",
         notifLeaveDeductedMsg2: "您的年假额度已扣除{hours}小时，对应您在{date}的休假。用途：{type}。剩余小时数：{remaining}小时。",
         notifPersonalLeaveMsg2: "您有一笔{hours}小时的事假记录，对应您在{date}的休假。本月事假总计：{total}小时。",
+        /* v7.15 Master Sheet settings */
+        mlBtnTitle: "总表设置",
+        mlTitle: "总表设置",
+        mlSub: "两个开关在你打开之前都是关闭的。日期和小时始终可以手动修改。",
+        mlAutoRenew: "自动续期年假日期",
+        mlAutoRenewDesc: "当员工的年假结束日期已过，系统会自动填入下一年：新的开始日期是旧结束日期的次日，新的结束日期是一年后。例如：2025.01.01 - 2025.12.31 会变为 2026.01.01 - 2026.12.31。已用小时和结转小时不会改变。已离职员工会被跳过。",
+        mlAutoEntitled: "按工作年限设置应享小时",
+        mlAutoEntitledDesc: "新的年假年度开始时，会按下表填入应享小时，并在你新增或编辑员工时给出建议。现有小时只会在新年假年度开始时，或你点击下方按钮时才会更改。你的手动修改不会被覆盖。",
+        mlRulesHint: "第 1 年 = 入职后的前 12 个月（“工作年数”一栏显示 0）。“到”留空表示“及以上”。",
+        mlFrom: "从第几年",
+        mlToOpen: "到第几年（留空 = 及以上）",
+        mlHours: "小时",
+        mlRemove: "删除",
+        mlAddRule: "+ 添加规则",
+        mlRuleErr: "请检查表格：年份不能重叠，“到”不能小于“从”，小时必须大于 0，只有最后一行可以留空（“及以上”）。",
+        mlNeedRules: "开启前请至少添加一条规则。",
+        mlPreviewTitle: "现在会更改的内容",
+        mlPrevRenew: "已结束的年假周期",
+        mlPrevEntitled: "应享小时与表格不一致",
+        mlColCycle: "年假日期（现在 → 新）",
+        mlColEntitled: "应享小时（现在 → 新）",
+        mlColYear: "工作年度",
+        mlNothing: "目前无需更改。",
+        mlRenewNow: "立即续期已结束的年假周期",
+        mlApplyEntNow: "立即对现有员工应用应享小时规则",
+        mlSave: "保存设置",
+        mlSaved: "设置已保存。",
+        mlConfirmOn: "开启后将立即续期 {n} 名员工的年假日期（见列表）。是否继续？",
+        mlConfirmRenew: "现在续期 {n} 名员工的年假日期？",
+        mlConfirmEnt: "现在修改 {n} 名员工的应享小时？",
+        mlDone: "已更新 {n} 名员工。",
+        mlHintSuggest: "你的表格建议 {h} 小时（工作第 {y} 年）",
+        mlHintUse: "使用",
         /* v7.14 Export */
         navExport: "导出",
         xcSub: "选择要导出的内容，填写文件信息，然后导出为 PDF、Excel 或 Word。各页面上的导出按钮仍然直接下载。",
@@ -6419,6 +6566,8 @@ function renderEmpShiftCalendar() {
      renderEmployeeList();
      if (typeof faOnLanguageChanged === 'function') faOnLanguageChanged();
      if (typeof xcOnLanguageChanged === 'function') xcOnLanguageChanged();
+     document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.getAttribute('data-i18n-title')); });
+     if (typeof mlOnLanguageChanged === 'function') mlOnLanguageChanged();
 
      const loggedInLabel = document.getElementById('empLoggedInAsLabel');
      const loggedInId = sessionStorage.getItem('empLoggedInId');
@@ -13905,6 +14054,318 @@ function xcExport(btn) {
             win.document.close();
         }
     });
+}
+
+
+/* ML-RULES-BEGIN */
+/* v7.15: pure rules for the Master Sheet settings (no screen, no database - unit tested in test_ml_rules.js).
+   Dates are 'YYYY.MM.DD' strings; every date is handled as a UTC day number so time zones never move a day. */
+var ML_DAY = 86400000;
+function mlPad(n) { return (n < 10 ? '0' : '') + n; }
+function mlParse(s) {
+    var m = /^(\d{4})[.\-](\d{1,2})[.\-](\d{1,2})$/.exec(String(s == null ? '' : s).trim());
+    if (!m) return null;
+    var y = +m[1], mo = +m[2], d = +m[3];
+    var t = Date.UTC(y, mo - 1, d), dt = new Date(t);
+    if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;
+    return { y: y, m: mo, d: d, t: t };
+}
+function mlFmt(t) { var dt = new Date(t); return dt.getUTCFullYear() + '.' + mlPad(dt.getUTCMonth() + 1) + '.' + mlPad(dt.getUTCDate()); }
+function mlTodayT(now) { now = now || new Date(); return Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()); }
+
+/* The AL cycle after the one that ended: starts the day after the old end date, lasts one year.
+   2025.01.01 - 2025.12.31 -> 2026.01.01 - 2026.12.31. If several years were missed it moves forward
+   year by year until the cycle contains today. Returns null while the stored cycle has not ended. */
+function mlNextCycle(endStr, todayT) {
+    var e = mlParse(endStr);
+    if (!e || e.t >= todayT) return null;
+    var endT = e.t, startT = 0, n = 0;
+    while (endT < todayT && n < 60) {
+        startT = endT + ML_DAY;
+        var sd = new Date(startT);
+        endT = Date.UTC(sd.getUTCFullYear() + 1, sd.getUTCMonth(), sd.getUTCDate()) - ML_DAY;
+        n++;
+    }
+    if (endT < todayT) return null;
+    return { startStr: mlFmt(startT), endStr: mlFmt(endT), yearRange: new Date(startT).getUTCFullYear() + '-' + new Date(endT).getUTCFullYear(), cycles: n };
+}
+
+/* year of service: year 1 = the first 12 months after joining (the Years of Work column shows 0) */
+function mlServiceYear(joinStr, atT) {
+    var j = mlParse(joinStr);
+    if (!j) return null;
+    var a = new Date(atT), c = a.getUTCFullYear() - j.y;
+    if (a.getUTCMonth() + 1 < j.m || (a.getUTCMonth() + 1 === j.m && a.getUTCDate() < j.d)) c--;
+    return Math.max(0, c) + 1;
+}
+
+/* rules: [{from, to|null, hours}] - returns null when fine, otherwise a short code */
+function mlValidateRules(list) {
+    if (!list || !list.length) return null;
+    var rows = [];
+    for (var i = 0; i < list.length; i++) {
+        var r = list[i] || {};
+        var from = Number(r.from), hours = Number(r.hours);
+        var to = (r.to === null || r.to === undefined || r.to === '') ? null : Number(r.to);
+        if (!isFinite(from) || from < 1 || Math.floor(from) !== from) return 'from';
+        if (to !== null && (!isFinite(to) || Math.floor(to) !== to || to < from)) return 'to';
+        if (!isFinite(hours) || hours <= 0) return 'hours';
+        rows.push({ from: from, to: to, hours: hours });
+    }
+    rows.sort(function (a, b) { return a.from - b.from; });
+    for (var k = 1; k < rows.length; k++) {
+        if (rows[k - 1].to === null || rows[k].from <= rows[k - 1].to) return 'overlap';
+    }
+    return null;
+}
+function mlEntitledFor(rules, idx) {
+    if (idx === null || idx === undefined) return null;
+    for (var i = 0; i < (rules || []).length; i++) {
+        var r = rules[i], from = Number(r.from), to = (r.to === null || r.to === undefined || r.to === '') ? null : Number(r.to);
+        if (idx >= from && (to === null || idx <= to)) return Number(r.hours);
+    }
+    return null;
+}
+/* the first day of the employee's current cycle: the stored AL Start Date, else the join-date anniversary */
+function mlCycleStart(emp, todayT) {
+    var s = mlParse(emp.startDate);
+    if (s) return s.t;
+    var j = mlParse(emp.joinDate);
+    if (!j) return null;
+    var y = new Date(todayT).getUTCFullYear(), ann = Date.UTC(y, j.m - 1, j.d);
+    if (ann > todayT) ann = Date.UTC(y - 1, j.m - 1, j.d);
+    return ann;
+}
+function mlSuggest(emp, st, todayT) {
+    if (!st || !st.rules || !st.rules.length || mlValidateRules(st.rules)) return null;
+    var cs = mlCycleStart(emp, todayT);
+    if (cs === null) return null;
+    var idx = mlServiceYear(emp.joinDate, cs), h = mlEntitledFor(st.rules, idx);
+    return h === null ? null : { hours: h, year: idx };
+}
+/* mode 'renew': employees whose stored AL End Date has passed (and, when withEntitled, the entitled hours of the new cycle).
+   mode 'entitled': employees whose entitled hours differ from the rule for their current cycle.
+   Resigned employees and employees without a stored AL End Date are never touched. */
+function mlPlan(emps, st, todayT, mode, withEntitled) {
+    var out = [], rulesOk = !!(st && st.rules && st.rules.length && !mlValidateRules(st.rules));
+    (emps || []).forEach(function (e) {
+        if (!e || e.status === 'Resigned') return;
+        var oldH = parseFloat(e.entitled) || 0;
+        if (mode === 'renew') {
+            var nc = mlNextCycle(e.endDate, todayT);
+            if (!nc) return;
+            var newH = oldH, yr = null;
+            if (withEntitled && rulesOk) {
+                yr = mlServiceYear(e.joinDate, mlParse(nc.startStr).t);
+                var h = mlEntitledFor(st.rules, yr);
+                if (h !== null) newH = h;
+            }
+            out.push({ key: e.firebaseKey, id: e.id, name: e.name, oldStart: e.startDate || '', oldEnd: e.endDate, newStart: nc.startStr, newEnd: nc.endStr, newRange: nc.yearRange, oldHours: oldH, newHours: newH, hoursChanged: newH !== oldH, year: yr });
+        } else {
+            if (!rulesOk) return;
+            var sg = mlSuggest(e, st, todayT);
+            if (!sg || sg.hours === oldH) return;
+            out.push({ key: e.firebaseKey, id: e.id, name: e.name, oldHours: oldH, newHours: sg.hours, year: sg.year });
+        }
+    });
+    return out;
+}
+function mlNormalizeSettings(v) {
+    v = v || {};
+    var rules = [];
+    var src = v.rules || [];
+    if (!Array.isArray(src)) src = Object.keys(src).map(function (k) { return src[k]; });
+    src.forEach(function (r) {
+        if (!r) return;
+        rules.push({ from: Number(r.from), to: (r.to === null || r.to === undefined || r.to === '') ? null : Number(r.to), hours: Number(r.hours) });
+    });
+    return { autoRenew: v.autoRenew === true, autoEntitled: v.autoEntitled === true, rules: rules };
+}
+/* ML-RULES-END */
+
+/* ================= v7.15: MASTER SHEET SETTINGS =================
+   Small settings window next to the Export buttons of the Master Sheet. Admin only.
+   Both switches are OFF until the admin turns them on, and nothing is changed by merely adding this feature.
+   1. Automatically renew AL dates: when an employee's stored AL End Date has passed, the next year is filled in.
+   2. Entitled hours by year of service: the admin's own table (from year - to year - hours).
+   Only the AL Start Date, AL End Date, Year Range and (if switched on) Entitled Hours are written.
+   Used hours, carried forward and every other figure are never touched. Dates and hours can still be edited by hand. */
+let mlSettings = { autoRenew: false, autoEntitled: false, rules: [] };
+let mlLoaded = false, mlRunning = false, mlRetryAt = 0, mlFormRules = [];
+
+db.ref('masterSettings').on('value', function (snap) {
+    mlSettings = mlNormalizeSettings(snap.val());
+    mlLoaded = true;
+    mlAutoTick();
+});
+
+function mlIsAdminLoggedIn() { return sessionStorage.getItem('isLoggedIn') === 'true' && sessionStorage.getItem('loggedInRole') === 'admin'; }
+function mlEl(id) { return document.getElementById(id); }
+function mlEsc(s) { return escapeHtmlText(s == null ? '' : String(s)); }
+
+/* ---------- the automatic part ---------- */
+function mlAutoTick() {
+    if (mlRunning || !mlLoaded || !mlSettings.autoRenew || !mlIsAdminLoggedIn()) return;
+    if (!employees.length || Date.now() < mlRetryAt) return;
+    const plan = mlPlan(employees, mlSettings, mlTodayT(), 'renew', mlSettings.autoEntitled);
+    if (!plan.length) return;
+    mlRunning = true;
+    mlApplyRenew(plan, 'al_auto_renew').then(function () { mlRunning = false; })
+        .catch(function () { mlRunning = false; mlRetryAt = Date.now() + 600000; });
+}
+setInterval(mlAutoTick, 30000);
+
+function mlApplyRenew(plan, action) {
+    return Promise.all(plan.map(function (p) {
+        const upd = { startDate: p.newStart, endDate: p.newEnd, yearRange: p.newRange };
+        if (p.hoursChanged) upd.entitled = p.newHours;
+        return db.ref('employees/' + p.key).update(upd).then(function () {
+            logActivity(action, 'employee', p.id || p.key, p.name || '',
+                'AL ' + p.oldStart + ' - ' + p.oldEnd + ' -> ' + p.newStart + ' - ' + p.newEnd + (p.hoursChanged ? '; entitled ' + p.oldHours + ' -> ' + p.newHours : ''));
+        });
+    })).then(function () { showToast(true, fillTemplate(t('mlDone'), { n: plan.length })); });
+}
+
+function mlApplyEntitled(plan) {
+    return Promise.all(plan.map(function (p) {
+        return db.ref('employees/' + p.key).update({ entitled: p.newHours }).then(function () {
+            logActivity('entitled_rule', 'employee', p.id || p.key, p.name || '', 'entitled ' + p.oldHours + ' -> ' + p.newHours + ' (year of service ' + p.year + ')');
+        });
+    })).then(function () { showToast(true, fillTemplate(t('mlDone'), { n: plan.length })); });
+}
+
+/* ---------- the window ---------- */
+function mlOpen() {
+    if (!mlIsAdminLoggedIn()) return;
+    mlEl('mlAutoRenew').checked = mlSettings.autoRenew;
+    mlEl('mlAutoEntitled').checked = mlSettings.autoEntitled;
+    mlFormRules = mlSettings.rules.map(function (r) { return { from: r.from, to: r.to === null ? '' : r.to, hours: r.hours }; });
+    if (!mlFormRules.length) mlFormRules.push({ from: '', to: '', hours: '' });
+    mlRenderRules();
+    mlEl('mlModal').style.display = 'flex';
+    mlRefreshPreview();
+}
+function mlClose() { mlEl('mlModal').style.display = 'none'; }
+
+function mlRenderRules() {
+    mlEl('mlRules').innerHTML = mlFormRules.map(function (r, i) {
+        return '<div class="ml-rule"><input type="number" min="1" step="1" value="' + mlEsc(r.from) + '" data-k="from" data-i="' + i + '" oninput="mlRuleInput(this)" placeholder="' + mlEsc(t('mlFrom')) + '">' +
+            '<span>-</span><input type="number" min="1" step="1" value="' + mlEsc(r.to) + '" data-k="to" data-i="' + i + '" oninput="mlRuleInput(this)" placeholder="' + mlEsc(t('mlToOpen')) + '">' +
+            '<span>=</span><input type="number" min="0" step="0.5" value="' + mlEsc(r.hours) + '" data-k="hours" data-i="' + i + '" oninput="mlRuleInput(this)" placeholder="' + mlEsc(t('mlHours')) + '">' +
+            '<button type="button" class="btn-delete" onclick="mlRemoveRule(' + i + ')" title="' + mlEsc(t('mlRemove')) + '">&times;</button></div>';
+    }).join('');
+}
+function mlRuleInput(el) { mlFormRules[+el.getAttribute('data-i')][el.getAttribute('data-k')] = el.value; mlRefreshPreview(); }
+function mlAddRule() {
+    const last = mlFormRules[mlFormRules.length - 1];
+    const nextFrom = last && last.to !== '' && isFinite(Number(last.to)) ? Number(last.to) + 1 : '';
+    mlFormRules.push({ from: nextFrom, to: '', hours: '' });
+    mlRenderRules();
+}
+function mlRemoveRule(i) { mlFormRules.splice(i, 1); if (!mlFormRules.length) mlFormRules.push({ from: '', to: '', hours: '' }); mlRenderRules(); mlRefreshPreview(); }
+
+/* rows left completely empty are ignored; the rest are checked */
+function mlReadForm() {
+    const rules = mlFormRules.filter(function (r) { return String(r.from) !== '' || String(r.to) !== '' || String(r.hours) !== ''; })
+        .map(function (r) { return { from: Number(r.from), to: String(r.to) === '' ? null : Number(r.to), hours: Number(r.hours) }; });
+    return { autoRenew: mlEl('mlAutoRenew').checked, autoEntitled: mlEl('mlAutoEntitled').checked, rules: rules };
+}
+
+function mlPreviewTable(head, rows, more) {
+    return '<div class="table-responsive" style="max-height:220px; overflow:auto;"><table class="xc-table" style="border-collapse:collapse; width:100%; font-size:12px;"><thead><tr>' +
+        head.map(function (h) { return '<th style="border:1px solid #cbd5e1; padding:3px 6px; background:#e2e8f0;">' + mlEsc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td style="border:1px solid #cbd5e1; padding:3px 6px;">' + mlEsc(c) + '</td>'; }).join('') + '</tr>'; }).join('') +
+        '</tbody></table></div>' + (more > 0 ? '<div style="font-size:11px; color:#64748b;">+' + more + '</div>' : '');
+}
+
+function mlRefreshPreview() {
+    const box = mlEl('mlPreview');
+    if (!box) return;
+    const f = mlReadForm();
+    const err = mlValidateRules(f.rules);
+    mlEl('mlRuleErr').textContent = err ? t('mlRuleErr') : '';
+    const today = mlTodayT();
+    const ren = mlPlan(employees, f, today, 'renew', f.autoEntitled && !err);
+    const ent = err ? [] : mlPlan(employees, f, today, 'entitled');
+    const LIM = 100;
+    let html = '';
+    html += '<h5 style="margin:10px 0 4px;">' + mlEsc(t('mlPrevRenew')) + ' (' + ren.length + ')</h5>';
+    html += ren.length ? mlPreviewTable([t('tblId'), t('tblName'), t('mlColCycle'), t('mlColEntitled')],
+        ren.slice(0, LIM).map(function (p) { return [p.id, p.name, (p.oldStart || '-') + ' - ' + p.oldEnd + '  →  ' + p.newStart + ' - ' + p.newEnd, p.hoursChanged ? p.oldHours + ' → ' + p.newHours : String(p.oldHours)]; }), ren.length - LIM)
+        : '<div style="font-size:12px; color:#64748b;">' + mlEsc(t('mlNothing')) + '</div>';
+    html += '<h5 style="margin:10px 0 4px;">' + mlEsc(t('mlPrevEntitled')) + ' (' + ent.length + ')</h5>';
+    html += ent.length ? mlPreviewTable([t('tblId'), t('tblName'), t('mlColYear'), t('mlColEntitled')],
+        ent.slice(0, LIM).map(function (p) { return [p.id, p.name, p.year, p.oldHours + ' → ' + p.newHours]; }), ent.length - LIM)
+        : '<div style="font-size:12px; color:#64748b;">' + mlEsc(t('mlNothing')) + '</div>';
+    box.innerHTML = html;
+    mlEl('mlRenewNowBtn').disabled = !ren.length;
+    mlEl('mlApplyEntBtn').disabled = !ent.length;
+}
+
+async function mlSave(btn) {
+    const f = mlReadForm();
+    const err = mlValidateRules(f.rules);
+    if (err) { showToast(false, t('mlRuleErr')); return; }
+    if (f.autoEntitled && !f.rules.length) { showToast(false, t('mlNeedRules')); return; }
+    const plan = (f.autoRenew && !mlSettings.autoRenew) ? mlPlan(employees, f, mlTodayT(), 'renew', f.autoEntitled) : [];
+    if (plan.length && !(await showConfirm(fillTemplate(t('mlConfirmOn'), { n: plan.length })))) return;
+    withBusyButton(btn, function () {
+        return db.ref('masterSettings').set(f).then(function () {
+            logActivity('master_settings', 'settings', 'masterSettings', '', 'autoRenew=' + f.autoRenew + '; autoEntitled=' + f.autoEntitled + '; rules=' + f.rules.length);
+            mlSettings = mlNormalizeSettings(f);
+            showToast(true, t('mlSaved'));
+            return plan.length ? mlApplyRenew(plan, 'al_auto_renew') : null;
+        }).then(function () { mlRefreshPreview(); }).catch(function () { showToast(false); });
+    });
+}
+
+async function mlRenewNow(btn) {
+    const f = mlReadForm();
+    if (mlValidateRules(f.rules)) { showToast(false, t('mlRuleErr')); return; }
+    const plan = mlPlan(employees, f, mlTodayT(), 'renew', f.autoEntitled);
+    if (!plan.length) return;
+    if (!(await showConfirm(fillTemplate(t('mlConfirmRenew'), { n: plan.length })))) return;
+    withBusyButton(btn, function () { return mlApplyRenew(plan, 'al_renew').then(mlRefreshPreview).catch(function () { showToast(false); }); });
+}
+
+async function mlApplyEntitledNow(btn) {
+    const f = mlReadForm();
+    if (mlValidateRules(f.rules) || !f.rules.length) { showToast(false, t('mlRuleErr')); return; }
+    const plan = mlPlan(employees, f, mlTodayT(), 'entitled');
+    if (!plan.length) return;
+    if (!(await showConfirm(fillTemplate(t('mlConfirmEnt'), { n: plan.length })))) return;
+    withBusyButton(btn, function () { return mlApplyEntitled(plan).then(mlRefreshPreview).catch(function () { showToast(false); }); });
+}
+
+/* ---------- suggestions in the forms (nothing is saved by them) ---------- */
+function mlSuggestNewEmployee() {
+    const jd = mlEl('newJoinDate'), eh = mlEl('newEntitled');
+    if (!jd || !eh || !mlSettings.autoEntitled || !jd.value) return;
+    const sg = mlSuggest({ joinDate: jd.value.replace(/-/g, '.'), startDate: '' }, mlSettings, mlTodayT());
+    if (!sg) return;
+    if (eh.value === '' || eh.value === eh.getAttribute('data-ml')) { eh.value = sg.hours; eh.setAttribute('data-ml', String(sg.hours)); }
+}
+function mlEditHint() {
+    const box = mlEl('editEntitledHint');
+    if (!box) return;
+    box.innerHTML = '';
+    if (!mlSettings.autoEntitled) return;
+    const sg = mlSuggest({ joinDate: mlEl('editJoinDate').value.trim(), startDate: mlEl('editStartDate').value.trim() }, mlSettings, mlTodayT());
+    if (!sg || String(parseFloat(mlEl('editEntitled').value)) === String(sg.hours)) return;
+    box.innerHTML = mlEsc(fillTemplate(t('mlHintSuggest'), { h: sg.hours, y: sg.year })) + ' <a href="#" onclick="mlUseHint(' + sg.hours + '); return false;">' + mlEsc(t('mlHintUse')) + '</a>';
+}
+function mlUseHint(h) { mlEl('editEntitled').value = h; mlEditHint(); }
+(function () {
+    const o = openEditModal;
+    openEditModal = function (index) { o(index); mlEditHint(); };
+    ['editJoinDate', 'editStartDate', 'editEntitled'].forEach(function (id) { const el = mlEl(id); if (el) el.addEventListener('input', mlEditHint); });
+    const nj = mlEl('newJoinDate');
+    if (nj) { nj.addEventListener('change', mlSuggestNewEmployee); nj.addEventListener('input', mlSuggestNewEmployee); }
+})();
+
+function mlOnLanguageChanged() {
+    if (mlEl('mlModal') && mlEl('mlModal').style.display === 'flex') { mlRenderRules(); mlRefreshPreview(); }
+    mlEditHint();
 }
 
 
