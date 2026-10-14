@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.19</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.20</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1928,7 +1928,7 @@
                      </div>
                      <div class="form-group">
                          <label data-i18n="tblEntitled">Entitled Hours</label>
-                         <input type="number" id="newEntitled" placeholder="e.g. 0.00" required>
+                         <input type="number" id="newEntitled" placeholder="e.g. 0.00" required><div id="newCheck" style="margin-top:4px;"></div>
                      </div>
                      <div class="form-group">
                          <label data-i18n="tblRemarks">Remarks</label>
@@ -2610,7 +2610,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.19
+     HR & Administration System Version 7.20
  </div>
 </div>
 
@@ -2753,7 +2753,7 @@
          <h4 data-i18n="modalEditTitle">Edit Employee Master Record</h4>
          <button class="modal-close" onclick="closeModal()">&times;</button>
      </div>
-     <form id="editForm">
+     <form id="editForm"><div id="editCheckTop" style="margin-bottom:10px;"></div>
          <input type="hidden" id="editIndex">
          <div class="grid-3">
              <div class="form-group"><label data-i18n="lblEmpId">Employee ID</label><input type="text" id="editId" required></div>
@@ -2811,7 +2811,7 @@
              <div class="form-group"><label data-i18n="tblYearRange">Year Range</label><input type="text" id="editYearRange"></div>
          </div>
          <div class="form-group"><label data-i18n="tblRemarks">Remarks</label><input type="text" id="editRemarks"></div>
-         <button type="button" class="btn-submit" style="background:#dc2626; color:#fff; margin-top:14px;" onclick="resetMonthlyFieldsInEditForm()" data-i18n="btnResetMonthly">Reset Monthly</button>
+         <div id="editCheckBottom" style="margin-top:12px;"></div><button type="button" class="btn-submit" style="background:#dc2626; color:#fff; margin-top:14px;" onclick="resetMonthlyFieldsInEditForm()" data-i18n="btnResetMonthly">Reset Monthly</button>
          <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:14px;" data-i18n="btnSaveChanges">Save Changes</button>
      </form>
  </div>
@@ -3865,6 +3865,22 @@
         mlStNone: "No employees to show.",
         mlStOpenSettings: "Open Settings",
         mlStClose: "Close",
+        ckAllGood: "Dates, year range and entitled hours look correct.",
+        ckJoinBad: "Join Date is not a valid date. Use YYYY.MM.DD.",
+        ckStartBad: "AL Start Date is not a valid date. Use YYYY.MM.DD.",
+        ckEndBad: "AL End Date is not a valid date. Use YYYY.MM.DD.",
+        ckStartBeforeJoin: "AL Start Date ({s}) is before the Join Date ({j}). It cannot start before the employee joined.",
+        ckAnniv: "AL Start Date should be on the join-date anniversary ({md}), for example {ex}.",
+        ckEndOrder: "AL End Date must be after the AL Start Date.",
+        ckLen: "AL End Date should be {e} (one year after the AL Start Date).",
+        ckRange: "Year Range is {r}, but the AL dates {s} - {e} give {x}. Please change it to {x}.",
+        ckEnded: "This AL year ended on {e}. Renew the AL dates (or turn on automatic renewal in Settings).",
+        ckFuture: "AL Start Date ({s}) is in the future.",
+        ckEntitled: "Entitled Hours is {y}, but your table gives {x} hours for {n} years of work (counted at the AL Start Date).",
+        acctDelete: "Delete",
+        acctDeleteConfirm: "Delete the account \"{name}\" ({user})? This person will no longer be able to log in. Employee records are not affected.",
+        acctDeleteSelf: "You cannot delete the account you are logged in with.",
+        acctDeleteLastAdmin: "You cannot delete the last active Administration account.",
         /* v7.14 Export */
         navExport: "Export",
         xcSub: "Choose what to export, fill in the document details, then export it as PDF, Excel or Word. The Export buttons on each page still download directly.",
@@ -4846,6 +4862,22 @@
         mlStNone: "គ្មាននិយោជិតត្រូវបង្ហាញទេ។",
         mlStOpenSettings: "បើកការកំណត់",
         mlStClose: "បិទ",
+        ckAllGood: "កាលបរិច្ឆេទ ឆ្នាំ និងម៉ោងសិទ្ធិមើលទៅត្រឹមត្រូវ។",
+        ckJoinBad: "ថ្ងៃចូលធ្វើការមិនត្រឹមត្រូវ។ សូមប្រើ YYYY.MM.DD។",
+        ckStartBad: "ថ្ងៃចាប់ផ្ដើម AL មិនត្រឹមត្រូវ។ សូមប្រើ YYYY.MM.DD។",
+        ckEndBad: "ថ្ងៃបញ្ចប់ AL មិនត្រឹមត្រូវ។ សូមប្រើ YYYY.MM.DD។",
+        ckStartBeforeJoin: "ថ្ងៃចាប់ផ្ដើម AL ({s}) មុនថ្ងៃចូលធ្វើការ ({j})។ វាមិនអាចចាប់ផ្ដើមមុនពេលបុគ្គលិកចូលធ្វើការបានទេ។",
+        ckAnniv: "ថ្ងៃចាប់ផ្ដើម AL គួរតែនៅថ្ងៃគម្រប់ខួបចូលធ្វើការ ({md}) ឧទាហរណ៍ {ex}។",
+        ckEndOrder: "ថ្ងៃបញ្ចប់ AL ត្រូវតែក្រោយថ្ងៃចាប់ផ្ដើម AL។",
+        ckLen: "ថ្ងៃបញ្ចប់ AL គួរតែជា {e} (មួយឆ្នាំបន្ទាប់ពីថ្ងៃចាប់ផ្ដើម AL)។",
+        ckRange: "Year Range គឺ {r} ប៉ុន្តែកាលបរិច្ឆេទ AL {s} - {e} ត្រូវជា {x}។ សូមកែទៅ {x}។",
+        ckEnded: "ឆ្នាំ AL នេះបានបញ្ចប់នៅ {e}។ សូមបន្តកាលបរិច្ឆេទ AL (ឬបើកការបន្តស្វ័យប្រវត្តិក្នុងការកំណត់)។",
+        ckFuture: "ថ្ងៃចាប់ផ្ដើម AL ({s}) នៅអនាគត។",
+        ckEntitled: "ម៉ោងសិទ្ធិគឺ {y} ប៉ុន្តែតារាងរបស់អ្នកផ្ដល់ {x} ម៉ោងសម្រាប់ {n} ឆ្នាំធ្វើការ (រាប់នៅថ្ងៃចាប់ផ្ដើម AL)។",
+        acctDelete: "លុប",
+        acctDeleteConfirm: "លុបគណនី \"{name}\" ({user})? អ្នកនេះនឹងមិនអាចចូលប្រព័ន្ធបានទៀតទេ។ កំណត់ត្រានិយោជិតមិនប៉ះពាល់ទេ។",
+        acctDeleteSelf: "អ្នកមិនអាចលុបគណនីដែលអ្នកកំពុងប្រើចូលបានទេ។",
+        acctDeleteLastAdmin: "អ្នកមិនអាចលុបគណនីអ្នកគ្រប់គ្រងដែលសកម្មចុងក្រោយបានទេ។",
         /* v7.14 Export */
         navExport: "នាំចេញ",
         xcSub: "ជ្រើសរើសអ្វីដែលត្រូវនាំចេញ បំពេញព័ត៌មានឯកសារ បន្ទាប់មកនាំចេញជា PDF, Excel ឬ Word។ ប៊ូតុងនាំចេញនៅតាមទំព័រនីមួយៗនៅតែទាញយកដោយផ្ទាល់ដដែល។",
@@ -5789,6 +5821,22 @@
         mlStNone: "没有可显示的员工。",
         mlStOpenSettings: "打开设置",
         mlStClose: "关闭",
+        ckAllGood: "日期、年度范围和应享小时看起来正确。",
+        ckJoinBad: "入职日期无效，请使用 YYYY.MM.DD。",
+        ckStartBad: "年假开始日期无效，请使用 YYYY.MM.DD。",
+        ckEndBad: "年假结束日期无效，请使用 YYYY.MM.DD。",
+        ckStartBeforeJoin: "年假开始日期（{s}）早于入职日期（{j}），不能早于员工入职。",
+        ckAnniv: "年假开始日期应在入职周年日（{md}），例如 {ex}。",
+        ckEndOrder: "年假结束日期必须晚于开始日期。",
+        ckLen: "年假结束日期应为 {e}（开始日期之后一年）。",
+        ckRange: "年度范围为 {r}，但年假日期 {s} - {e} 应为 {x}，请改为 {x}。",
+        ckEnded: "此年假年度已于 {e} 结束。请续期年假日期（或在设置中开启自动续期）。",
+        ckFuture: "年假开始日期（{s}）在将来。",
+        ckEntitled: "应享小时为 {y}，但您的表格对 {n} 年工作年限给出 {x} 小时（按年假开始日期计算）。",
+        acctDelete: "删除",
+        acctDeleteConfirm: "删除账户“{name}”（{user}）？此人将无法再登录。员工记录不受影响。",
+        acctDeleteSelf: "不能删除您当前登录的账户。",
+        acctDeleteLastAdmin: "不能删除最后一个启用的管理员账户。",
         /* v7.14 Export */
         navExport: "导出",
         xcSub: "选择要导出的内容，填写文件信息，然后导出为 PDF、Excel 或 Word。各页面上的导出按钮仍然直接下载。",
@@ -8374,6 +8422,7 @@ function filterMakeupTable() {
          <tr>
              <td>
                  <button class="btn-edit" style="font-size:10px; padding:3px 8px;" onclick="toggleAccountDisabled('${a.firebaseKey}', ${!a.disabled})">${a.disabled ? t('btnEnable') : t('btnDisable')}</button>
+                 <button class="btn-delete" style="font-size:10px; padding:3px 8px; margin-top:4px;" onclick="deleteAccount('${a.firebaseKey}', this)" title="${t('acctDelete')}">${t('acctDelete')}</button>
              </td>
              <td><input type="text" value="${a.name || ''}" style="width:110px;" onchange="updateAccountField('${a.firebaseKey}', 'name', this.value)"></td>
              <td><input type="text" value="${a.username || ''}" style="width:100px;" onchange="updateAccountField('${a.firebaseKey}', 'username', this.value)"></td>
@@ -8395,6 +8444,23 @@ function filterMakeupTable() {
 
  function updateAccountField(firebaseKey, field, value) {
      db.ref('accounts/' + firebaseKey).update({ [field]: value }).then(() => showToast(true)).catch(() => showToast(false));
+ }
+
+ /* v7.20: Management can now delete an HR / Administration account (after a confirmation).
+    Never the account you are logged in with, and never the last active Administration account,
+    so nobody can lock the system. Employee records and employee logins are not touched. */
+ async function deleteAccount(firebaseKey, btnEl) {
+     if ((sessionStorage.getItem('loggedInRole') || '') !== 'admin') { showToast(false, t('hrNotAllowedMsg')); return; }
+     const acc = accounts.find(a => a.firebaseKey === firebaseKey);
+     if (!acc) return;
+     if (acc.username === sessionStorage.getItem('loggedInAccountUsername')) { showToast(false, t('acctDeleteSelf')); return; }
+     const otherActiveAdmins = accounts.filter(a => a.firebaseKey !== firebaseKey && a.role === 'admin' && !a.disabled);
+     if (acc.role === 'admin' && !acc.disabled && otherActiveAdmins.length === 0) { showToast(false, t('acctDeleteLastAdmin')); return; }
+     if (!(await showConfirm(fillTemplate(t('acctDeleteConfirm'), { name: acc.name || acc.username, user: acc.username })))) return;
+     withBusyButton(btnEl, () => db.ref('accounts/' + firebaseKey).remove().then(() => {
+         logActivity('account_delete', 'account', acc.username || firebaseKey, acc.name || '', acc.role || '');
+         showToast(true);
+     }).catch(() => showToast(false)));
  }
 
  function toggleAccountDisabled(firebaseKey, disabled) {
@@ -14368,6 +14434,46 @@ function mlStatus(emps, st, todayT) {
     });
     return { rows: rows, counts: c, rulesOk: rulesOk, useEnt: useEnt };
 }
+
+/* v7.20: checks one employee record (as typed in the Edit / Add form) and returns a list of problems {code, p}.
+   Advisory only - saving is never blocked. Resigned employees are only checked for a valid join date. */
+function mlCheckRecord(rec, st, todayT) {
+    var out = [], join = mlParse(rec.joinDate);
+    if (String(rec.joinDate || '').trim() !== '' && !join) { out.push({ code: 'ckJoinBad', p: {} }); return out; }
+    if (!join || rec.status === 'Resigned') return out;
+    var sRaw = String(rec.startDate || '').trim(), eRaw = String(rec.endDate || '').trim(), rRaw = String(rec.yearRange || '').trim();
+    var s = sRaw ? mlParse(sRaw) : null, e = eRaw ? mlParse(eRaw) : null;
+    if (sRaw && !s) out.push({ code: 'ckStartBad', p: {} });
+    if (eRaw && !e) out.push({ code: 'ckEndBad', p: {} });
+    if (s && s.t < join.t) out.push({ code: 'ckStartBeforeJoin', p: { s: mlFmt(s.t), j: mlFmt(join.t) } });
+    else if (s) {
+        if (s.m !== join.m || s.d !== join.d) out.push({ code: 'ckAnniv', p: { md: mlPad(join.m) + '.' + mlPad(join.d), ex: s.y + '.' + mlPad(join.m) + '.' + mlPad(join.d) } });
+    }
+    if (s && e) {
+        if (e.t <= s.t) out.push({ code: 'ckEndOrder', p: {} });
+        else {
+            var expEnd = Date.UTC(s.y + 1, s.m - 1, s.d) - ML_DAY;
+            if (e.t !== expEnd) out.push({ code: 'ckLen', p: { e: mlFmt(expEnd) } });
+        }
+        if (rRaw) {
+            var expR = s.y + '-' + e.y;
+            if (rRaw !== expR) out.push({ code: 'ckRange', p: { r: rRaw, s: mlFmt(s.t), e: mlFmt(e.t), x: expR } });
+        }
+    }
+    if (s && !e && eRaw === '') { /* the form fills the end date itself on save */ }
+    if (e && e.t < todayT && !(st && st.autoRenew)) out.push({ code: 'ckEnded', p: { e: mlFmt(e.t) } });
+    if (s && s.t > todayT) out.push({ code: 'ckFuture', p: { s: mlFmt(s.t) } });
+    var rulesOk = !!(st && st.rules && st.rules.length && !mlValidateRules(st.rules));
+    var ent = parseFloat(rec.entitled);
+    if (rulesOk && !isNaN(ent)) {
+        var cs = s ? s.t : mlCycleStart(rec, todayT);
+        if (cs !== null && cs >= join.t) {
+            var yrs = mlServiceYear(rec.joinDate, cs), h = mlEntitledFor(st.rules, yrs);
+            if (h !== null && h !== ent) out.push({ code: 'ckEntitled', p: { y: ent, x: h, n: yrs } });
+        }
+    }
+    return out;
+}
 /* ML-RULES-END */
 
 /* ================= v7.15: MASTER SHEET SETTINGS =================
@@ -14547,6 +14653,8 @@ function mlStOpen() {
     mlStFilter = 'all';
     mlEl('mlStModal').style.display = 'flex';
     mlStRender();
+    mlEditCheck();
+    mlNewCheck();
 }
 function mlStClose() { mlEl('mlStModal').style.display = 'none'; }
 function mlStSetFilter(f) { mlStFilter = f; mlStRender(); }
@@ -14600,6 +14708,36 @@ function mlStRender() {
 /* keep the window up to date while it is open (employees or settings change) */
 db.ref('employees').on('value', function () { setTimeout(mlStRender, 600); });
 db.ref('masterSettings').on('value', function () { setTimeout(mlStRender, 100); });
+
+
+/* ================= v7.20: red warnings while editing / adding an employee ================= */
+function mlCheckHtml(list, okText) {
+    if (!list.length) return okText ? '<div style="color:#15803d; font-size:12px; font-weight:600;">✔ ' + mlEsc(okText) + '</div>' : '';
+    return '<div style="color:#dc2626; font-size:12px; line-height:1.55; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:6px 10px;">' +
+        list.map(function (w) { return '<div>⚠ ' + mlEsc(fillTemplate(t(w.code), w.p)) + '</div>'; }).join('') + '</div>';
+}
+function mlEditCheck() {
+    const top = mlEl('editCheckTop'), bot = mlEl('editCheckBottom');
+    if (!top || !bot || !mlEl('editJoinDate')) return;
+    const rec = { joinDate: mlEl('editJoinDate').value.trim(), startDate: mlEl('editStartDate').value, endDate: mlEl('editEndDate').value, yearRange: mlEl('editYearRange').value, entitled: mlEl('editEntitled').value, status: mlEl('editStatus').value };
+    const list = mlCheckRecord(rec, mlSettings, mlTodayT());
+    const ok = (mlParse(rec.joinDate) && rec.status !== 'Resigned' && String(rec.startDate).trim() && String(rec.endDate).trim()) ? t('ckAllGood') : '';
+    const html = mlCheckHtml(list, ok);
+    top.innerHTML = html; bot.innerHTML = html;
+}
+function mlNewCheck() {
+    const box = mlEl('newCheck'), jd = mlEl('newJoinDate'), eh = mlEl('newEntitled');
+    if (!box || !jd || !eh) return;
+    const rec = { joinDate: (jd.value || '').replace(/-/g, '.'), startDate: '', endDate: '', yearRange: '', entitled: eh.value, status: mlEl('newStatus') ? mlEl('newStatus').value : 'Active' };
+    box.innerHTML = mlCheckHtml(mlCheckRecord(rec, mlSettings, mlTodayT()), '');
+}
+(function () {
+    const o = openEditModal;
+    openEditModal = function (index) { o(index); mlEditCheck(); };
+    ['editJoinDate', 'editStartDate', 'editEndDate', 'editYearRange', 'editEntitled', 'editStatus'].forEach(function (id) { const el = mlEl(id); if (el) { el.addEventListener('input', mlEditCheck); el.addEventListener('change', mlEditCheck); } });
+    ['newJoinDate', 'newEntitled', 'newStatus'].forEach(function (id) { const el = mlEl(id); if (el) { el.addEventListener('input', mlNewCheck); el.addEventListener('change', mlNewCheck); } });
+})();
+db.ref('masterSettings').on('value', function () { mlEditCheck(); mlNewCheck(); });
 
 function mlOnLanguageChanged() {
     if (mlEl('mlModal') && mlEl('mlModal').style.display === 'flex') { mlRenderRules(); mlRefreshPreview(); }
