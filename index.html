@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.11</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.12</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2112,6 +2112,11 @@
              <div class="fa-grid">
                  <div class="form-group" style="margin-bottom:0;"><label data-i18n="faWindowMinutes">Scan window length (minutes)</label><input type="number" id="faSetWindow" min="1" max="120"></div>
                  <div class="form-group" style="margin-bottom:0;"><label data-i18n="faLateBlock">Late counted in blocks of (minutes)</label><input type="number" id="faSetLate" min="1" max="120"></div>
+                 <div class="form-group" style="margin-bottom:0;"><label data-i18n="faEarlyBlock">Early check-out counted in blocks of (minutes)</label><input type="number" id="faSetEarly" min="1" max="240"></div>
+                 <div class="form-group" style="margin-bottom:0;"><label data-i18n="faOtBlock">Overtime counted in blocks of (minutes)</label><input type="number" id="faSetOtBlock" min="1" max="240"></div>
+                 <div class="form-group" style="margin-bottom:0;"><label data-i18n="faRepeatSec">Repeat scan: ignore a scan within (seconds)</label><input type="number" id="faSetRepeatSec" min="1" max="600"></div>
+                 <div class="form-group" style="margin-bottom:0;"><label data-i18n="faFirstInRepeat">After the first check-in, ignore a scan within (minutes)</label><input type="number" id="faSetFirstIn" min="1" max="240"></div>
+                 <div class="form-group" style="margin-bottom:0;"><label data-i18n="faTzHours">Time zone (hours from UTC, Cambodia = 7)</label><input type="number" id="faSetTz" min="-12" max="14" step="0.5"></div>
                  <div class="form-group" style="margin-bottom:0;"><label data-i18n="faHalfDayHrs">Half-day leave hours</label><input type="number" id="faSetHalf" min="0.5" step="0.5"></div>
                  <div class="form-group" style="margin-bottom:0;"><label data-i18n="faFullDayHrs">Full-day leave hours</label><input type="number" id="faSetFull" min="1" step="0.5"></div>
                  <div class="form-group" style="margin-bottom:0;"><label data-i18n="faNightStart">Night hours start</label><input type="time" id="faSetNightStart"></div>
@@ -2428,7 +2433,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.11
+     HR & Administration System Version 7.12
  </div>
 </div>
 
@@ -3683,14 +3688,21 @@
         faDeleteEnrollConfirm: "Delete the face enrollment for {name}? They will not be able to scan until enrolled again.",
         faNoEnrollments: "No faces enrolled yet.",
         faRulesTitle: "Shift rules",
-        faRulesSub: "Times for each shift. Overtime hours: how many whole hours after the shift end scanning stays open (for example 0,1,2,3). Scanning opens 15 minutes before the start and every scan is accepted at any minute. A check-out before the shift end counts the missing time in 30-minute blocks (shift ending 16:00: 15:42 = 30 min leave, 15:10 = 1 hour leave). H (rest day) needs no settings: scans on an H day are ignored.",
+        faRulesSub: "Edit the times of each shift, then press Save settings. They are used by the scan page, the reports and the shift times shown in Shift Check. Overtime hours: how many hours after the shift end scanning stays open (for example 0,1,2,3). The general settings below control how late, early check-out, overtime and repeat scans are counted. H (rest day) needs no settings: scans on an H day are ignored.",
         faShiftStart: "Start",
         faShiftEnd: "End",
         faBreakStart: "Break start",
         faBreakEnd: "Break end",
         faOtHours: "Overtime hours (comma separated)",
         faRulesGeneral: "General settings",
-        faWindowMinutes: "Scan window length (minutes)",
+        faWindowMinutes: "Scanning opens before the shift starts (minutes)",
+        faEarlyBlock: "Early check-out counted in blocks of (minutes)",
+        faOtBlock: "Overtime counted in blocks of (minutes)",
+        faRepeatSec: "Repeat scan: ignore a scan within (seconds)",
+        faFirstInRepeat: "After the first check-in, ignore a scan within (minutes)",
+        faTzHours: "Time zone (hours from UTC, Cambodia = 7)",
+        faHourOne: "hour",
+        faHourMany: "hours",
         faLateBlock: "Late counted in blocks of (minutes)",
         faHalfDayHrs: "Half-day leave hours",
         faFullDayHrs: "Full-day leave hours",
@@ -4542,14 +4554,21 @@
         faDeleteEnrollConfirm: "លុបការចុះឈ្មោះមុខរបស់ {name} មែនទេ? គាត់នឹងមិនអាចស្កេនបានរហូតដល់ចុះឈ្មោះម្តងទៀត។",
         faNoEnrollments: "មិនទាន់មានមុខណាត្រូវបានចុះឈ្មោះទេ។",
         faRulesTitle: "ច្បាប់វេន",
-        faRulesSub: "ម៉ោងសម្រាប់វេននីមួយៗ។ ម៉ោងបន្ថែម៖ ចំនួនម៉ោងពេញបន្ទាប់ពីម៉ោងចប់វេនដែលការស្កេននៅតែបើក (ឧទាហរណ៍ 0,1,2,3)។ ការស្កេនបើកមុនម៉ោងចាប់ផ្តើម ១៥ នាទី ហើយទទួលយកគ្រប់នាទី។ ការចេញមុនម៉ោងចប់វេនគណនាម៉ោងដែលខ្វះជាប្លុក ៣០ នាទី (វេនចប់ម៉ោង 16:00៖ 15:42 = ច្បាប់ ៣០ នាទី, 15:10 = ១ ម៉ោង)។ ថ្ងៃ H មិនត្រូវការការកំណត់ទេ៖ ការស្កេនក្នុងថ្ងៃ H ត្រូវបានមិនអើពើ។",
+        faRulesSub: "កែម៉ោងរបស់វេននីមួយៗ ហើយចុចរក្សាទុក។ ម៉ោងទាំងនេះប្រើដោយទំព័រស្កេន របាយការណ៍ និងម៉ោងវេនដែលបង្ហាញក្នុងការពិនិត្យវេន។ ម៉ោងបន្ថែម៖ ចំនួនម៉ោងបន្ទាប់ពីម៉ោងចប់វេនដែលការស្កេននៅតែបើក (ឧទាហរណ៍ 0,1,2,3)។ ការកំណត់ទូទៅខាងក្រោមគ្រប់គ្រងរបៀបគិតការយឺត ការចេញមុន ម៉ោងបន្ថែម និងការស្កេនម្តងទៀត។ H (ថ្ងៃសម្រាក) មិនត្រូវការកំណត់ទេ៖ ការស្កេនក្នុងថ្ងៃ H ត្រូវបានមិនយកចិត្តទុកដាក់។",
         faShiftStart: "ចាប់ផ្តើម",
         faShiftEnd: "បញ្ចប់",
         faBreakStart: "ចាប់ផ្តើមសម្រាក",
         faBreakEnd: "បញ្ចប់សម្រាក",
         faOtHours: "ម៉ោងបន្ថែម (បំបែកដោយក្បៀស)",
         faRulesGeneral: "ការកំណត់ទូទៅ",
-        faWindowMinutes: "រយៈពេលបង្អួចស្កេន (នាទី)",
+        faWindowMinutes: "ការស្កេនបើកមុនម៉ោងចូលវេន (នាទី)",
+        faEarlyBlock: "ការចេញមុនម៉ោងគិតជាចន្លោះ (នាទី)",
+        faOtBlock: "ម៉ោងបន្ថែមគិតជាចន្លោះ (នាទី)",
+        faRepeatSec: "ស្កេនម្តងទៀត៖ មិនគិតការស្កេនក្នុងរយៈពេល (វិនាទី)",
+        faFirstInRepeat: "បន្ទាប់ពីចូលដំបូង មិនគិតការស្កេនក្នុងរយៈពេល (នាទី)",
+        faTzHours: "ល្វែងម៉ោង (ម៉ោងពី UTC, កម្ពុជា = 7)",
+        faHourOne: "ម៉ោង",
+        faHourMany: "ម៉ោង",
         faLateBlock: "ការយឺតគិតជាចន្លោះ (នាទី)",
         faHalfDayHrs: "ម៉ោងច្បាប់កន្លះថ្ងៃ",
         faFullDayHrs: "ម៉ោងច្បាប់ពេញមួយថ្ងៃ",
@@ -5363,14 +5382,21 @@
         faDeleteEnrollConfirm: "确定删除 {name} 的人脸登记吗？重新登记前将无法打卡。",
         faNoEnrollments: "尚未登记任何人脸。",
         faRulesTitle: "班次规则",
-        faRulesSub: "每个班次的时间。加班小时：班次结束后继续开放打卡的整小时数（例如 0,1,2,3）。打卡从开始前15分钟开放，任何分钟的打卡都被接受。早于下班时间的下班打卡，缺少的时间按30分钟为单位计算（16:00下班的班次：15:42 = 请假30分钟，15:10 = 请假1小时）。H（休息日）无需设置：H 日的打卡会被忽略。",
+        faRulesSub: "修改每个班次的时间后点击保存。打卡页面、报表以及“班次查询”中显示的班次时间都会使用这些设置。加班小时：下班后多少小时内仍可打卡（例如 0,1,2,3）。下方的通用设置用于控制迟到、提前下班、加班和重复打卡的计算方式。H（休息日）无需设置：休息日的打卡会被忽略。",
         faShiftStart: "开始",
         faShiftEnd: "结束",
         faBreakStart: "休息开始",
         faBreakEnd: "休息结束",
         faOtHours: "加班小时（用逗号分隔）",
         faRulesGeneral: "通用设置",
-        faWindowMinutes: "打卡时段长度（分钟）",
+        faWindowMinutes: "上班前多少分钟开始可打卡（分钟）",
+        faEarlyBlock: "提前下班按多少分钟为一档计算（分钟）",
+        faOtBlock: "加班按多少分钟为一档计算（分钟）",
+        faRepeatSec: "重复打卡：多少秒内再次打卡不计（秒）",
+        faFirstInRepeat: "首次上班打卡后，多少分钟内再次打卡不计（分钟）",
+        faTzHours: "时区（与UTC相差小时数，柬埔寨 = 7）",
+        faHourOne: "小时",
+        faHourMany: "小时",
         faLateBlock: "迟到按多少分钟为一档计算",
         faHalfDayHrs: "半天假小时数",
         faFullDayHrs: "全天假小时数",
@@ -7879,6 +7905,7 @@ function filterMakeupTable() {
  /* ================= v5.00: SHIFT ROSTER ================= */
  function shiftTimeBreakText(type) {
      if (type === 'H') return { time: t('shiftHLabel'), brk: '' };
+     if (typeof faShiftTextFor === 'function') { const custom = faShiftTextFor(type); if (custom) return custom; }
      const timeKeyMap = { M: 'shiftMTime', F: 'shiftFTime', G: 'shiftGTime' };
      const brkKeyMap = { M: 'shiftMBreak', F: 'shiftFBreak', G: 'shiftGBreak' };
      return { time: t(timeKeyMap[type] || '') || '-', brk: t(brkKeyMap[type] || '') || '-' };
@@ -12064,6 +12091,10 @@ var FA_DEFAULTS = {
     tzOffsetMinutes: 420,        /* Cambodia = UTC+7, no daylight saving */
     windowMinutes: 15,           /* width of the check-in-before-start, break and check-out windows */
     lateBlockMinutes: 30,        /* lateness is counted in blocks of this many minutes */
+    earlyOutBlockMinutes: 30,    /* a check-out before the shift end counts the missing time in blocks of this many minutes */
+    otBlockMinutes: 60,          /* overtime is counted in blocks of this many minutes (60 = whole hours) */
+    repeatSeconds: 90,           /* scans of the same face within this many seconds of the last one are repeats (nothing saved) */
+    firstInRepeatMinutes: 30,    /* a 2nd scan less than this many minutes after the day's first check-in is a repeat, not a check-out */
     halfDayHours: 4,
     fullDayHours: 8,
     matchThreshold: 0.5,         /* face distance; lower = stricter */
@@ -12095,7 +12126,7 @@ function faMinToHM(m) {
 function faMergeSettings(saved) {
     var out = JSON.parse(JSON.stringify(FA_DEFAULTS));
     if (!saved || typeof saved !== 'object') return out;
-    ['tzOffsetMinutes', 'windowMinutes', 'lateBlockMinutes', 'halfDayHours', 'fullDayHours', 'matchThreshold', 'photoRetentionDays'].forEach(function (k) {
+    ['tzOffsetMinutes', 'windowMinutes', 'lateBlockMinutes', 'earlyOutBlockMinutes', 'otBlockMinutes', 'repeatSeconds', 'firstInRepeatMinutes', 'halfDayHours', 'fullDayHours', 'matchThreshold', 'photoRetentionDays'].forEach(function (k) {
         var v = parseFloat(saved[k]);
         if (isFinite(v) && v > 0 || (k === 'tzOffsetMinutes' && isFinite(v))) out[k] = v;
     });
@@ -12134,7 +12165,8 @@ function faBuildShift(code, settings) {
     var ot = hrs.map(function (h) { return { from: e + h * 60, to: e + h * 60 + w, hours: h }; });
     return {
         code: code, start: s, end: e, breakStart: bs, breakEnd: be, win: w,
-        lateBlock: settings.lateBlockMinutes, halfHours: settings.halfDayHours, fullHours: settings.fullDayHours,
+        lateBlock: settings.lateBlockMinutes, earlyBlock: settings.earlyOutBlockMinutes, otBlock: settings.otBlockMinutes,
+        burstMs: settings.repeatSeconds * 1000, firstInMs: settings.firstInRepeatMinutes * 60000, halfHours: settings.halfDayHours, fullHours: settings.fullDayHours,
         ot: ot, openMin: s - w, closeMin: ot[ot.length - 1].to
     };
 }
@@ -12209,10 +12241,10 @@ function faEffStart(def, m) {
    - at/after the shift end: as scanned - overtime counts whole hours after the shift end. */
 function faEffEnd(def, m) {
     if (faInBreak(def, m)) return def.breakStart;
-    if (m < def.end) return def.end - Math.ceil((def.end - m) / def.lateBlock) * def.lateBlock;
+    if (m < def.end) { var eb = def.earlyBlock || def.lateBlock; return def.end - Math.ceil((def.end - m) / eb) * eb; }
     return m;
 }
-function faOtFor(def, effEnd) { return effEnd > def.end ? Math.floor((effEnd - def.end) / 60) : 0; }
+function faOtFor(def, effEnd) { var b = def.otBlock || 60; return effEnd > def.end ? Math.floor((effEnd - def.end) / b) * b / 60 : 0; }
 
 /* What does a scan at minute m (on the shift's own time axis) mean for this shift, given the day's
    state so far? Returns { ok:true, kind:'in'|'out', ... } or { ok:false, code, params }. */
@@ -12238,10 +12270,10 @@ function faBurstActive(state, nowMs, m, def) {
     /* the burst only counts while the scan it belongs to still exists (a deleted scan must not block later scans) */
     var anchor = b.evKey ? evs.filter(function (e) { return e.key === b.evKey; })[0] : null;
     if (b.evKey && !anchor) return false;
-    if (nowMs - b.last <= FA_BURST_MS) return 'burst';
+    if (nowMs - b.last <= (def && def.burstMs ? def.burstMs : FA_BURST_MS)) return 'burst';
     /* the day's only event is a first IN made by a scan: a 2nd scan within 30 min of it is a repeat, not a check-out */
-    if (anchor && evs.length === 1 && anchor.k === 'in' && isFinite(parseFloat(b.first)) && nowMs - b.first >= 0 && nowMs - b.first < FA_FIRST_IN_WINDOW_MS &&
-        def && isFinite(m) && m < def.end - 30) return 'first';
+    if (anchor && evs.length === 1 && anchor.k === 'in' && isFinite(parseFloat(b.first)) && nowMs - b.first >= 0 && nowMs - b.first < (def && def.firstInMs ? def.firstInMs : FA_FIRST_IN_WINDOW_MS) &&
+        def && isFinite(m) && m < def.end - (def.earlyBlock || 30)) return 'first';
     return false;
 }
 
@@ -12389,16 +12421,17 @@ function faSummarizeDay(def, recs, settings) {
     var evs = (recs || []).filter(function (r) { return r && (r.kind === 'in' || r.kind === 'out'); }).map(function (r) {
         var m = parseFloat(r.scanMin);
         if (!isFinite(m)) m = faHM(r.time);
-        return { k: r.kind, m: m, t: r.time || '', t2: r.time2 || '', late: parseFloat(r.lateMinutes) };
+        return { k: r.kind, m: m, t: r.time || '', late: parseFloat(r.lateMinutes) };
     }).sort(function (a, b) { return (a.m - b.m) || (a.k === 'in' ? -1 : 1); });
     if (!evs.length) return faSummarizeLegacy(def, recs, settings);
     var first = evs[0], last = evs[evs.length - 1];
     var lastOut = null, k;
     for (k = evs.length - 1; k >= 0; k--) { if (evs[k].k === 'out') { lastOut = evs[k]; break; } }
     var res = { checkIn: first.k === 'in' ? first.t : '', checkOut: lastOut ? lastOut.t : '', workMin: null, nightMin: 0, leaveHours: 0, otHours: 0, lateMinutes: 0, remarks: [], scans: evs.length };
-    /* every scan time of the day in order, a quick 2nd scan of the same moment right after it: 06:45 / 06:46 / 11:00 / 11:55 / 16:02 */
-    res.times = []; evs.forEach(function (e) { if (e.t) res.times.push(e.t); if (e.t2) res.times.push(e.t2); });
+    /* every scan time of the day in order: 06:45 / 11:00 / 11:55 / 16:02 (repeat scans are never saved) */
+    res.times = []; evs.forEach(function (e) { if (e.t) res.times.push(e.t); });
     res.timesText = res.times.join(' / ');
+    res.timesCompact = res.times.map(function (x) { return x.replace(':', ''); }).join(',');   /* like the old report: 0657,1000,1158,1900 */
     if (first.k !== 'in') { res.remarks.push('missingCheckIn'); return res; }
     res.lateMinutes = faLateMissed(def, first.m);   /* always from the first check-in time, so records saved before v7.07 are shown correctly too */
     if (evs.length > 2) res.remarks.push('outings');
@@ -12604,7 +12637,7 @@ function faRenderLive() {
     /* all scan times of each employee for the day, in order: 06:45 / 11:00 / 11:55 / 16:02 (a quick 2nd scan is added next to its time) */
     const dayText = {};
     Object.keys(byEmp).forEach(function (id) {
-        dayText[id] = byEmp[id].slice().sort(function (a, b) { return (a.scanMin - b.scanMin) || ((a.ts || 0) - (b.ts || 0)); }).map(function (r) { return r.time + (r.time2 ? ' / ' + r.time2 : ''); }).join(' / ');
+        dayText[id] = byEmp[id].slice().sort(function (a, b) { return (a.scanMin - b.scanMin) || ((a.ts || 0) - (b.ts || 0)); }).map(function (r) { return r.time; }).join(' / ');
     });
     /* Late / OT / Leave are worked out live from the day's scans, so they update the moment a scan arrives:
        Late on the first check-in line; OT and Leave on the last check-out line (once the employee has checked out). */
@@ -12639,7 +12672,7 @@ function faRenderLive() {
         }
         return '<tr>' +
             '<td>' + (admin ? '<button class="btn-delete" onclick="faDeleteScan(\'' + r.key + '\', this)" title="Delete">' + ICON_DELETE + '</button>' : '') + '</td>' +
-            '<td><b>' + faEsc(r.time) + (r.time2 ? ' / ' + faEsc(r.time2) : '') + '</b>' + (r.scanMin >= 1440 ? ' (+1)' : '') + '</td>' +
+            '<td><b>' + faEsc(r.time) + '</b>' + (r.scanMin >= 1440 ? ' (+1)' : '') + '</td>' +
             '<td>' + faEsc(r.empId) + '</td><td style="text-align:left;">' + faEsc(r.empName) + '</td>' +
             '<td>' + faEsc(r.shiftCode) + '</td><td>' + faEsc(t('faKind_' + r.kind)) + '</td><td style="white-space:nowrap;">' + faEsc(dayText[r.empId] || '') + '</td>' +
             '<td>' + lateTxt + '</td><td>' + otTxt + '</td><td>' + leaveTxt + '</td>' +
@@ -12862,6 +12895,18 @@ async function faDeleteEnrollment(id, btn) {
     });
 }
 
+/* The shift times shown in Shift Check / Check Details come from the shift rules saved here (Rules & Settings),
+   so the roster text always matches what the scan rules use. Returns null if the shift is unknown. */
+function faShiftTextFor(code) {
+    const c = faSettings && faSettings.shifts && faSettings.shifts[code];
+    if (!c) return null;
+    const bs = faHM(c.breakStart);
+    let be = faHM(c.breakEnd);
+    while (be <= bs) be += 1440;
+    const h = Math.round((be - bs) / 60 * 100) / 100;
+    return { time: c.start + ' - ' + c.end, brk: c.breakStart + ' - ' + c.breakEnd + ' (' + h + ' ' + t(h === 1 ? 'faHourOne' : 'faHourMany') + ')' };
+}
+
 /* ------------------------------ RULES & SETTINGS ------------------------------ */
 function faFillRulesForm() {
     const tbody = document.querySelector('#faRulesTable tbody');
@@ -12881,13 +12926,22 @@ function faFillRulesForm() {
     faEl('faSetFull').value = faSettings.fullDayHours;
     faEl('faSetNightStart').value = faSettings.nightStart;
     faEl('faSetNightEnd').value = faSettings.nightEnd;
+    faEl('faSetEarly').value = faSettings.earlyOutBlockMinutes;
+    faEl('faSetOtBlock').value = faSettings.otBlockMinutes;
+    faEl('faSetRepeatSec').value = faSettings.repeatSeconds;
+    faEl('faSetFirstIn').value = faSettings.firstInRepeatMinutes;
+    faEl('faSetTz').value = Math.round(faSettings.tzOffsetMinutes / 60 * 100) / 100;
     faEl('faSetMatch').value = faSettings.matchThreshold;
     faEl('faSetRetention').value = faSettings.photoRetentionDays;
 }
 
 function faSaveRules(btn) {
     const obj = {
-        tzOffsetMinutes: faSettings.tzOffsetMinutes,
+        tzOffsetMinutes: Math.round(parseFloat(faEl('faSetTz').value) * 60),
+        earlyOutBlockMinutes: parseFloat(faEl('faSetEarly').value),
+        otBlockMinutes: parseFloat(faEl('faSetOtBlock').value),
+        repeatSeconds: parseFloat(faEl('faSetRepeatSec').value),
+        firstInRepeatMinutes: parseFloat(faEl('faSetFirstIn').value),
         windowMinutes: parseFloat(faEl('faSetWindow').value),
         lateBlockMinutes: parseFloat(faEl('faSetLate').value),
         halfDayHours: parseFloat(faEl('faSetHalf').value),
@@ -12899,10 +12953,11 @@ function faSaveRules(btn) {
         shifts: {}
     };
     const cand = faMergeSettings(null);
-    ['windowMinutes', 'lateBlockMinutes', 'halfDayHours', 'fullDayHours', 'matchThreshold', 'photoRetentionDays'].forEach(function (k) {
+    ['windowMinutes', 'lateBlockMinutes', 'earlyOutBlockMinutes', 'otBlockMinutes', 'repeatSeconds', 'firstInRepeatMinutes', 'halfDayHours', 'fullDayHours', 'matchThreshold', 'photoRetentionDays'].forEach(function (k) {
         if (!(obj[k] > 0)) { cand.__bad = true; } else cand[k] = obj[k];
     });
-    if (isNaN(faHM(obj.nightStart)) || isNaN(faHM(obj.nightEnd))) cand.__bad = true;
+    if (isNaN(faHM(obj.nightStart)) || isNaN(faHM(obj.nightEnd)) || !isFinite(obj.tzOffsetMinutes) || Math.abs(obj.tzOffsetMinutes) > 14 * 60) cand.__bad = true;
+    else cand.tzOffsetMinutes = obj.tzOffsetMinutes;
     if (cand.__bad) { showToast(false, t('faRulesInvalidGeneral')); return; }
     for (const code of ['M', 'F', 'G']) {
         const otRaw = faEl('faR_' + code + '_ot').value.split(',').map(function (x) { return parseFloat(x.trim()); }).filter(function (x) { return isFinite(x) && x >= 0; });
@@ -13072,7 +13127,7 @@ function faBuildReportHtml(rows, opts) {
         if (s.workMin !== null) totWork += s.workMin;
         totNight += s.nightMin || 0; totLeave += s.leaveHours || 0; totOt += s.otHours || 0;
         return '<tr><td style="text-align:center;">' + (i + 1) + '</td><td>' + faEsc(r.id) + '</td><td>' + faEsc(r.name) + '</td>' +
-            '<td style="text-align:center; white-space:nowrap;">' + faEsc(s.timesText || (s.checkIn + (s.checkOut ? ' / ' + s.checkOut : ''))) + '</td>' +
+            '<td style="text-align:center; white-space:nowrap;">' + faEsc(s.timesCompact || ((s.checkIn || '') + (s.checkOut ? ',' + s.checkOut : '')).replace(/:/g, '')) + '</td>' +
             '<td style="text-align:center;">' + faHours(s.workMin) + '</td><td style="text-align:center;">' + (s.workMin === null ? '' : faHours(s.nightMin)) + '</td>' +
             '<td style="text-align:center;">' + (s.leaveHours ? faNum(s.leaveHours) : '') + '</td><td style="text-align:center;">' + (s.otHours ? faNum(s.otHours) : '') + '</td>' +
             '<td>' + faEsc(faRemarkText(r, lang)) + '</td></tr>';
