@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.15</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.16</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2285,6 +2285,7 @@
              .ml-desc { font-size:12px; color:#64748b; margin:0 0 8px 28px; }
              .ml-rule { display:flex; gap:6px; align-items:center; margin-bottom:6px; }
              .ml-rule input { width:110px; } .ml-rule input[data-k="to"] { width:190px; }
+             .ml-formula { display:flex; gap:6px; align-items:center; flex-wrap:wrap; font-size:12px; margin:6px 0 8px; } .ml-formula input { width:64px; }
              .ml-box { border:1px solid #e2e8f0; border-radius:10px; padding:10px 14px; margin-bottom:10px; background:#f8fafc; }
          </style>
          <div class="modal-header"><h4 data-i18n="mlTitle">Master Sheet Settings</h4><button class="modal-close" onclick="mlClose()">&times;</button></div>
@@ -2299,8 +2300,14 @@
              <label class="ml-switch"><input type="checkbox" id="mlAutoEntitled" onchange="mlRefreshPreview()"><b data-i18n="mlAutoEntitled">Set entitled hours by years of work</b></label>
              <p class="ml-desc" data-i18n="mlAutoEntitledDesc">Fills the Entitled Hours from the table below when a new AL year starts, and suggests it when you add or edit an employee. Existing hours are only changed when a new AL year starts or when you press the button further down. Your manual edits are never overwritten in between.</p>
              <div style="margin-left:28px;">
-                 <div style="font-size:11px; color:#64748b; margin-bottom:6px;" data-i18n="mlRulesHint">Year 1 = the first 12 months after the join date (the Years of Work column shows 0). Leave "To" empty for "and above".</div>
+                 <div style="font-size:11px; color:#64748b; margin-bottom:6px;" data-i18n="mlRulesHint">Use the same number as the "Years of Work" column: 0 = the first 12 months, 1 = one full year, and so on. The benefit starts from day one. Example: 0 - 2 = 144, 3 - 5 = 152, 6 - 8 = 160. Leave "To" empty for "and above".</div>
                  <div id="mlRules"></div>
+                 <div class="ml-formula"><span data-i18n="mlFormulaLbl">Quick fill:</span>
+                     <input type="number" id="mlFBase" value="144" min="1" step="0.5" title="base"> <span>+</span>
+                     <input type="number" id="mlFAdd" value="8" min="0" step="0.5" title="extra"> <span data-i18n="mlFormulaEvery">every</span>
+                     <input type="number" id="mlFEvery" value="3" min="1" step="1" title="years"> <span data-i18n="mlFormulaYears">years, steps:</span>
+                     <input type="number" id="mlFSteps" value="4" min="1" max="30" step="1" title="steps">
+                     <button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:5px 10px;" onclick="mlMakeFormula()" data-i18n="mlFormulaBtn">Create table</button></div>
                  <button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:6px 12px;" onclick="mlAddRule()" data-i18n="mlAddRule">+ Add rule</button>
                  <div id="mlRuleErr" style="color:#dc2626; font-size:12px; margin-top:6px;"></div>
              </div>
@@ -2572,7 +2579,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.15
+     HR & Administration System Version 7.16
  </div>
 </div>
 
@@ -3767,9 +3774,9 @@
         mlAutoRenewDesc: "When an employee's AL End Date has passed, the next year is filled in: the new start is the day after the old end date, the new end is one year later. Example: 2025.01.01 - 2025.12.31 becomes 2026.01.01 - 2026.12.31. Used hours and carried forward are not changed. Resigned employees are skipped.",
         mlAutoEntitled: "Set entitled hours by years of work",
         mlAutoEntitledDesc: "Fills the Entitled Hours from the table below when a new AL year starts, and suggests it when you add or edit an employee. Existing hours are only changed when a new AL year starts or when you press the button further down. Your manual edits are never overwritten in between.",
-        mlRulesHint: "Year 1 = the first 12 months after the join date (the Years of Work column shows 0). Leave \"To\" empty for \"and above\".",
-        mlFrom: "From year",
-        mlToOpen: "To year (empty = and above)",
+        mlRulesHint: "Use the same number as the \"Years of Work\" column: 0 = the first 12 months, 1 = one full year, and so on. The benefit starts from day one. Example: 0 - 2 = 144, 3 - 5 = 152, 6 - 8 = 160. Leave \"To\" empty for \"and above\".",
+        mlFrom: "From (years of work)",
+        mlToOpen: "To (empty = and above)",
         mlHours: "Hours",
         mlRemove: "Remove",
         mlAddRule: "+ Add rule",
@@ -3780,7 +3787,7 @@
         mlPrevEntitled: "Entitled hours different from the table",
         mlColCycle: "AL dates (now → new)",
         mlColEntitled: "Entitled hours (now → new)",
-        mlColYear: "Year of service",
+        mlColYear: "Years of work",
         mlNothing: "Nothing needs to change right now.",
         mlRenewNow: "Renew ended AL cycles now",
         mlApplyEntNow: "Apply the entitled rule to current employees now",
@@ -3790,8 +3797,12 @@
         mlConfirmRenew: "Renew the AL dates of {n} employee(s) now?",
         mlConfirmEnt: "Change the entitled hours of {n} employee(s) now?",
         mlDone: "Updated {n} employee(s).",
-        mlHintSuggest: "Your table suggests {h} hours (year {y} of service)",
+        mlHintSuggest: "Your table suggests {h} hours (years of work: {y})",
         mlHintUse: "Use",
+        mlFormulaLbl: "Quick fill:",
+        mlFormulaEvery: "every",
+        mlFormulaYears: "years, steps:",
+        mlFormulaBtn: "Create table",
         /* v7.14 Export */
         navExport: "Export",
         xcSub: "Choose what to export, fill in the document details, then export it as PDF, Excel or Word. The Export buttons on each page still download directly.",
@@ -4713,9 +4724,9 @@
         mlAutoRenewDesc: "នៅពេលថ្ងៃបញ្ចប់ច្បាប់ប្រចាំឆ្នាំរបស់និយោជិតផុតកំណត់ ឆ្នាំបន្ទាប់នឹងត្រូវបំពេញ៖ ថ្ងៃចាប់ផ្ដើមថ្មីគឺថ្ងៃបន្ទាប់ពីថ្ងៃបញ្ចប់ចាស់ ថ្ងៃបញ្ចប់ថ្មីគឺមួយឆ្នាំក្រោយ។ ឧទាហរណ៍៖ 2025.01.01 - 2025.12.31 ក្លាយជា 2026.01.01 - 2026.12.31។ ម៉ោងដែលបានប្រើ និងម៉ោងបន្តមិនត្រូវបានផ្លាស់ប្ដូរទេ។ និយោជិតដែលបានលាឈប់ត្រូវបានរំលង។",
         mlAutoEntitled: "កំណត់ម៉ោងសិទ្ធិតាមឆ្នាំធ្វើការ",
         mlAutoEntitledDesc: "បំពេញម៉ោងសិទ្ធិពីតារាងខាងក្រោមនៅពេលឆ្នាំច្បាប់ថ្មីចាប់ផ្ដើម ហើយណែនាំនៅពេលអ្នកបន្ថែម ឬកែនិយោជិត។ ម៉ោងដែលមានស្រាប់ត្រូវបានផ្លាស់ប្ដូរលុះត្រាតែឆ្នាំច្បាប់ថ្មីចាប់ផ្ដើម ឬអ្នកចុចប៊ូតុងខាងក្រោម។ ការកែដោយដៃរបស់អ្នកមិនត្រូវបានសរសេរជាន់លើទេ។",
-        mlRulesHint: "ឆ្នាំទី 1 = ១២ ខែដំបូងបន្ទាប់ពីថ្ងៃចូលធ្វើការ (ជួរ ឆ្នាំធ្វើការ បង្ហាញ 0)។ ទុក \"ដល់\" ទទេសម្រាប់ \"និងលើសពីនេះ\"។",
-        mlFrom: "ពីឆ្នាំទី",
-        mlToOpen: "ដល់ឆ្នាំទី (ទទេ = និងលើសពីនេះ)",
+        mlRulesHint: "ប្រើលេខដូចជួរ \"ឆ្នាំធ្វើការ\"៖ 0 = ១២ ខែដំបូង, 1 = មួយឆ្នាំពេញ ហើយបន្តបែបនេះ។ សិទ្ធិចាប់ផ្ដើមពីថ្ងៃដំបូង។ ឧទាហរណ៍៖ 0 - 2 = 144, 3 - 5 = 152, 6 - 8 = 160។ ទុក \"ដល់\" ទទេសម្រាប់ \"និងលើសពីនេះ\"។",
+        mlFrom: "ពី (ឆ្នាំធ្វើការ)",
+        mlToOpen: "ដល់ (ទទេ = និងលើសពីនេះ)",
         mlHours: "ម៉ោង",
         mlRemove: "លុប",
         mlAddRule: "+ បន្ថែមច្បាប់",
@@ -4726,7 +4737,7 @@
         mlPrevEntitled: "ម៉ោងសិទ្ធិខុសពីតារាង",
         mlColCycle: "កាលបរិច្ឆេទច្បាប់ប្រចាំឆ្នាំ (ឥឡូវ → ថ្មី)",
         mlColEntitled: "ម៉ោងសិទ្ធិ (ឥឡូវ → ថ្មី)",
-        mlColYear: "ឆ្នាំនៃការបម្រើការងារ",
+        mlColYear: "ឆ្នាំធ្វើការ",
         mlNothing: "មិនចាំបាច់ផ្លាស់ប្ដូរអ្វីឥឡូវនេះទេ។",
         mlRenewNow: "បន្តវដ្តច្បាប់ប្រចាំឆ្នាំដែលបានបញ្ចប់ឥឡូវនេះ",
         mlApplyEntNow: "អនុវត្តច្បាប់ម៉ោងសិទ្ធិលើនិយោជិតបច្ចុប្បន្នឥឡូវនេះ",
@@ -4736,8 +4747,12 @@
         mlConfirmRenew: "បន្តកាលបរិច្ឆេទច្បាប់ប្រចាំឆ្នាំរបស់និយោជិត {n} នាក់ឥឡូវនេះ?",
         mlConfirmEnt: "ផ្លាស់ប្ដូរម៉ោងសិទ្ធិរបស់និយោជិត {n} នាក់ឥឡូវនេះ?",
         mlDone: "បានធ្វើបច្ចុប្បន្នភាពនិយោជិត {n} នាក់។",
-        mlHintSuggest: "តារាងរបស់អ្នកណែនាំ {h} ម៉ោង (ឆ្នាំទី {y} នៃការបម្រើការងារ)",
+        mlHintSuggest: "តារាងរបស់អ្នកណែនាំ {h} ម៉ោង (ឆ្នាំធ្វើការ៖ {y})",
         mlHintUse: "ប្រើ",
+        mlFormulaLbl: "បំពេញរហ័ស៖",
+        mlFormulaEvery: "រាល់",
+        mlFormulaYears: "ឆ្នាំ ចំនួនជំហាន៖",
+        mlFormulaBtn: "បង្កើតតារាង",
         /* v7.14 Export */
         navExport: "នាំចេញ",
         xcSub: "ជ្រើសរើសអ្វីដែលត្រូវនាំចេញ បំពេញព័ត៌មានឯកសារ បន្ទាប់មកនាំចេញជា PDF, Excel ឬ Word។ ប៊ូតុងនាំចេញនៅតាមទំព័រនីមួយៗនៅតែទាញយកដោយផ្ទាល់ដដែល។",
@@ -5621,9 +5636,9 @@
         mlAutoRenewDesc: "当员工的年假结束日期已过，系统会自动填入下一年：新的开始日期是旧结束日期的次日，新的结束日期是一年后。例如：2025.01.01 - 2025.12.31 会变为 2026.01.01 - 2026.12.31。已用小时和结转小时不会改变。已离职员工会被跳过。",
         mlAutoEntitled: "按工作年限设置应享小时",
         mlAutoEntitledDesc: "新的年假年度开始时，会按下表填入应享小时，并在你新增或编辑员工时给出建议。现有小时只会在新年假年度开始时，或你点击下方按钮时才会更改。你的手动修改不会被覆盖。",
-        mlRulesHint: "第 1 年 = 入职后的前 12 个月（“工作年数”一栏显示 0）。“到”留空表示“及以上”。",
-        mlFrom: "从第几年",
-        mlToOpen: "到第几年（留空 = 及以上）",
+        mlRulesHint: "请使用与“工作年数”一栏相同的数字：0 = 前 12 个月，1 = 满一年，依此类推。福利从第一天起生效。例如：0 - 2 = 144，3 - 5 = 152，6 - 8 = 160。“到”留空表示“及以上”。",
+        mlFrom: "从（工作年数）",
+        mlToOpen: "到（留空 = 及以上）",
         mlHours: "小时",
         mlRemove: "删除",
         mlAddRule: "+ 添加规则",
@@ -5634,7 +5649,7 @@
         mlPrevEntitled: "应享小时与表格不一致",
         mlColCycle: "年假日期（现在 → 新）",
         mlColEntitled: "应享小时（现在 → 新）",
-        mlColYear: "工作年度",
+        mlColYear: "工作年数",
         mlNothing: "目前无需更改。",
         mlRenewNow: "立即续期已结束的年假周期",
         mlApplyEntNow: "立即对现有员工应用应享小时规则",
@@ -5644,8 +5659,12 @@
         mlConfirmRenew: "现在续期 {n} 名员工的年假日期？",
         mlConfirmEnt: "现在修改 {n} 名员工的应享小时？",
         mlDone: "已更新 {n} 名员工。",
-        mlHintSuggest: "你的表格建议 {h} 小时（工作第 {y} 年）",
+        mlHintSuggest: "你的表格建议 {h} 小时（工作年数：{y}）",
         mlHintUse: "使用",
+        mlFormulaLbl: "快速填写：",
+        mlFormulaEvery: "每",
+        mlFormulaYears: "年，步数：",
+        mlFormulaBtn: "生成表格",
         /* v7.14 Export */
         navExport: "导出",
         xcSub: "选择要导出的内容，填写文件信息，然后导出为 PDF、Excel 或 Word。各页面上的导出按钮仍然直接下载。",
@@ -14090,13 +14109,14 @@ function mlNextCycle(endStr, todayT) {
     return { startStr: mlFmt(startT), endStr: mlFmt(endT), yearRange: new Date(startT).getUTCFullYear() + '-' + new Date(endT).getUTCFullYear(), cycles: n };
 }
 
-/* year of service: year 1 = the first 12 months after joining (the Years of Work column shows 0) */
+/* years of work = completed years at that date, the same number as the Master Sheet "Years of Work" column
+   (0 = the first 12 months after joining, 1 = one full year, ...). An employee gets the benefit from day one. */
 function mlServiceYear(joinStr, atT) {
     var j = mlParse(joinStr);
     if (!j) return null;
     var a = new Date(atT), c = a.getUTCFullYear() - j.y;
     if (a.getUTCMonth() + 1 < j.m || (a.getUTCMonth() + 1 === j.m && a.getUTCDate() < j.d)) c--;
-    return Math.max(0, c) + 1;
+    return Math.max(0, c);
 }
 
 /* rules: [{from, to|null, hours}] - returns null when fine, otherwise a short code */
@@ -14107,7 +14127,7 @@ function mlValidateRules(list) {
         var r = list[i] || {};
         var from = Number(r.from), hours = Number(r.hours);
         var to = (r.to === null || r.to === undefined || r.to === '') ? null : Number(r.to);
-        if (!isFinite(from) || from < 1 || Math.floor(from) !== from) return 'from';
+        if (!isFinite(from) || from < 0 || Math.floor(from) !== from) return 'from';
         if (to !== null && (!isFinite(to) || Math.floor(to) !== to || to < from)) return 'to';
         if (!isFinite(hours) || hours <= 0) return 'hours';
         rows.push({ from: from, to: to, hours: hours });
@@ -14179,7 +14199,9 @@ function mlNormalizeSettings(v) {
         if (!r) return;
         rules.push({ from: Number(r.from), to: (r.to === null || r.to === undefined || r.to === '') ? null : Number(r.to), hours: Number(r.hours) });
     });
-    return { autoRenew: v.autoRenew === true, autoEntitled: v.autoEntitled === true, rules: rules };
+    /* rules saved by v7.15 counted "year 1" as the first year; they are now counted from 0 like the Years of Work column */
+    if (v.yearBase !== 0) rules = rules.map(function (r) { return { from: Math.max(0, r.from - 1), to: r.to === null ? null : Math.max(0, r.to - 1), hours: r.hours }; });
+    return { autoRenew: v.autoRenew === true, autoEntitled: v.autoEntitled === true, rules: rules, yearBase: 0 };
 }
 /* ML-RULES-END */
 
@@ -14187,7 +14209,7 @@ function mlNormalizeSettings(v) {
    Small settings window next to the Export buttons of the Master Sheet. Admin only.
    Both switches are OFF until the admin turns them on, and nothing is changed by merely adding this feature.
    1. Automatically renew AL dates: when an employee's stored AL End Date has passed, the next year is filled in.
-   2. Entitled hours by year of service: the admin's own table (from year - to year - hours).
+   2. Entitled hours by years of work (counted like the Years of Work column, from 0): the admin's own table (from year - to year - hours).
    Only the AL Start Date, AL End Date, Year Range and (if switched on) Entitled Hours are written.
    Used hours, carried forward and every other figure are never touched. Dates and hours can still be edited by hand. */
 let mlSettings = { autoRenew: false, autoEntitled: false, rules: [] };
@@ -14229,7 +14251,7 @@ function mlApplyRenew(plan, action) {
 function mlApplyEntitled(plan) {
     return Promise.all(plan.map(function (p) {
         return db.ref('employees/' + p.key).update({ entitled: p.newHours }).then(function () {
-            logActivity('entitled_rule', 'employee', p.id || p.key, p.name || '', 'entitled ' + p.oldHours + ' -> ' + p.newHours + ' (year of service ' + p.year + ')');
+            logActivity('entitled_rule', 'employee', p.id || p.key, p.name || '', 'entitled ' + p.oldHours + ' -> ' + p.newHours + ' (years of work ' + p.year + ')');
         });
     })).then(function () { showToast(true, fillTemplate(t('mlDone'), { n: plan.length })); });
 }
@@ -14249,8 +14271,8 @@ function mlClose() { mlEl('mlModal').style.display = 'none'; }
 
 function mlRenderRules() {
     mlEl('mlRules').innerHTML = mlFormRules.map(function (r, i) {
-        return '<div class="ml-rule"><input type="number" min="1" step="1" value="' + mlEsc(r.from) + '" data-k="from" data-i="' + i + '" oninput="mlRuleInput(this)" placeholder="' + mlEsc(t('mlFrom')) + '">' +
-            '<span>-</span><input type="number" min="1" step="1" value="' + mlEsc(r.to) + '" data-k="to" data-i="' + i + '" oninput="mlRuleInput(this)" placeholder="' + mlEsc(t('mlToOpen')) + '">' +
+        return '<div class="ml-rule"><input type="number" min="0" step="1" value="' + mlEsc(r.from) + '" data-k="from" data-i="' + i + '" oninput="mlRuleInput(this)" placeholder="' + mlEsc(t('mlFrom')) + '">' +
+            '<span>-</span><input type="number" min="0" step="1" value="' + mlEsc(r.to) + '" data-k="to" data-i="' + i + '" oninput="mlRuleInput(this)" placeholder="' + mlEsc(t('mlToOpen')) + '">' +
             '<span>=</span><input type="number" min="0" step="0.5" value="' + mlEsc(r.hours) + '" data-k="hours" data-i="' + i + '" oninput="mlRuleInput(this)" placeholder="' + mlEsc(t('mlHours')) + '">' +
             '<button type="button" class="btn-delete" onclick="mlRemoveRule(' + i + ')" title="' + mlEsc(t('mlRemove')) + '">&times;</button></div>';
     }).join('');
@@ -14262,13 +14284,22 @@ function mlAddRule() {
     mlFormRules.push({ from: nextFrom, to: '', hours: '' });
     mlRenderRules();
 }
+/* quick fill from the company formula: base + (extra x step number), a new step every N years, last step open-ended */
+function mlMakeFormula() {
+    const base = Number(mlEl('mlFBase').value), add = Number(mlEl('mlFAdd').value), every = Number(mlEl('mlFEvery').value), steps = Number(mlEl('mlFSteps').value);
+    if (!isFinite(base) || base <= 0 || !isFinite(add) || add < 0 || !(every >= 1) || !(steps >= 1) || steps > 30) { showToast(false, t('mlRuleErr')); return; }
+    mlFormRules = [];
+    for (let k = 0; k < steps; k++) mlFormRules.push({ from: k * every, to: k === steps - 1 ? '' : (k + 1) * every - 1, hours: base + k * add });
+    mlRenderRules();
+    mlRefreshPreview();
+}
 function mlRemoveRule(i) { mlFormRules.splice(i, 1); if (!mlFormRules.length) mlFormRules.push({ from: '', to: '', hours: '' }); mlRenderRules(); mlRefreshPreview(); }
 
 /* rows left completely empty are ignored; the rest are checked */
 function mlReadForm() {
     const rules = mlFormRules.filter(function (r) { return String(r.from) !== '' || String(r.to) !== '' || String(r.hours) !== ''; })
         .map(function (r) { return { from: Number(r.from), to: String(r.to) === '' ? null : Number(r.to), hours: Number(r.hours) }; });
-    return { autoRenew: mlEl('mlAutoRenew').checked, autoEntitled: mlEl('mlAutoEntitled').checked, rules: rules };
+    return { autoRenew: mlEl('mlAutoRenew').checked, autoEntitled: mlEl('mlAutoEntitled').checked, rules: rules, yearBase: 0 };
 }
 
 function mlPreviewTable(head, rows, more) {
