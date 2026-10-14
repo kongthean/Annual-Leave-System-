@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.18</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.19</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1221,7 +1221,8 @@
          <div style="display:flex; gap:8px; flex-wrap:wrap;">
              <button class="quick-btn green" onclick="openExportLangModal('master')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
              <button class="quick-btn amber" onclick="openLeaveReportModal()" data-i18n="btnExportLeaveReport">Export Leave Report</button>
-             <button type="button" class="quick-btn slate admin-only" id="mlSettingsBtn" style="width:auto; min-width:auto; min-height:auto; padding:8px 12px;" onclick="mlOpen()" data-i18n-title="mlBtnTitle" title="Master Sheet settings"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+             <button type="button" class="quick-btn slate admin-only" id="mlSettingsBtn" style="width:auto; min-width:auto; min-height:auto; padding:8px 12px; display:inline-flex; align-items:center; gap:6px;" onclick="mlOpen()" data-i18n-title="mlBtnTitle" title="Master Sheet settings"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span data-i18n="mlBtnText">Settings</span></button>
+             <button type="button" class="quick-btn slate admin-only" id="mlStatusBtn" style="width:auto; min-width:auto; min-height:auto; padding:8px 12px; display:inline-flex; align-items:center; gap:6px;" onclick="mlStOpen()" data-i18n-title="mlStBtnTitle" title="AL Check"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span data-i18n="mlStBtnText">AL Check</span></button>
          </div>
      </div>
  
@@ -2346,6 +2347,19 @@
      </div>
  </div>
 
+
+ <!-- v7.19: AL CHECK window (read only) -->
+ <div class="modal" id="mlStModal">
+     <div class="modal-content" style="max-width:980px; box-sizing:border-box; width:100%;">
+         <div class="modal-header"><h4 data-i18n="mlStTitle">AL Check</h4><button class="modal-close" onclick="mlStClose()">&times;</button></div>
+         <div style="font-size:12px; color:#64748b; margin-bottom:8px;" data-i18n="mlStSub">Every employee, and whether the automatic AL renewal and entitled hours will work for them. Nothing is changed here.</div>
+         <div id="mlStBody"></div>
+         <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; margin-top:10px;">
+             <button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:8px 18px;" onclick="mlStClose(); mlOpen();" data-i18n="mlStOpenSettings">Open Settings</button>
+             <button type="button" class="quick-btn green" style="width:auto; min-width:auto; min-height:auto; padding:8px 18px;" onclick="mlStClose()" data-i18n="mlStClose">Close</button>
+         </div>
+     </div>
+ </div>
  <!-- TAB 10: DEPARTMENTS (v5.00) -->
  <div id="tab-dept" class="tab-panel">
      <h3 data-i18n="deptTitle">Departments / Teams</h3>
@@ -2596,7 +2610,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.18
+     HR & Administration System Version 7.19
  </div>
 </div>
 
@@ -3821,6 +3835,36 @@
         mlFEveryLbl: "New level every (years)",
         mlFRows: "Number of rows",
         mlPreviewNote: "With the first switch on, these employees are renewed when you press Save settings. After that it happens by itself.",
+        mlBtnText: "Settings",
+        mlStBtnText: "AL Check",
+        mlStBtnTitle: "See all employees and when the AL renewal happens",
+        mlStTitle: "AL Check",
+        mlStSub: "Every employee, and whether the automatic AL renewal and entitled hours will work for them. Nothing is changed here.",
+        mlStEngRenew: "Automatic AL renewal",
+        mlStEngEnt: "Entitled hours by years of work",
+        mlStOn: "ON",
+        mlStOff: "OFF",
+        mlStRulesBad: "the table is empty or not valid",
+        mlStWho: "It runs by itself while an admin has the system open, within about 10 seconds. If nobody opens it, it catches up the next time an admin opens it.",
+        mlStAll: "All",
+        mlStAttention: "Need attention",
+        mlStOk: "OK",
+        mlStRenewNow: "Renewing now",
+        mlStSkipped: "Resigned (skipped)",
+        mlStColJoin: "Join date",
+        mlStColYears: "Years of work",
+        mlStColAL: "AL Start - End",
+        mlStColEnt: "Entitled hours (now → next AL year)",
+        mlStColStatus: "Status",
+        mlStOkTxt: "OK - renews on {d} ({n} days left)",
+        mlStRenewTxt: "Will renew automatically to {a}",
+        mlStOffTxt: "AL year ended but automatic renewal is OFF",
+        mlStNoDateTxt: "No valid AL End Date - please fill it in the Edit form",
+        mlStNoJoinTxt: "No valid Join Date - entitled hours cannot be set",
+        mlStNoRuleTxt: "The table has no rule for {y} years of work",
+        mlStNone: "No employees to show.",
+        mlStOpenSettings: "Open Settings",
+        mlStClose: "Close",
         /* v7.14 Export */
         navExport: "Export",
         xcSub: "Choose what to export, fill in the document details, then export it as PDF, Excel or Word. The Export buttons on each page still download directly.",
@@ -4772,6 +4816,36 @@
         mlFEveryLbl: "កម្រិតថ្មីរាល់ (ឆ្នាំ)",
         mlFRows: "ចំនួនជួរ",
         mlPreviewNote: "ពេលកុងតាក់ទីមួយបើក និយោជិតទាំងនេះនឹងត្រូវបន្តនៅពេលអ្នកចុចរក្សាទុកការកំណត់។ បន្ទាប់ពីនោះវាកើតឡើងដោយខ្លួនឯង។",
+        mlBtnText: "ការកំណត់",
+        mlStBtnText: "ពិនិត្យច្បាប់ឆ្នាំ",
+        mlStBtnTitle: "មើលនិយោជិតទាំងអស់ និងពេលបន្តច្បាប់ប្រចាំឆ្នាំ",
+        mlStTitle: "ពិនិត្យច្បាប់ប្រចាំឆ្នាំ",
+        mlStSub: "និយោជិតគ្រប់រូប និងថាតើការបន្តច្បាប់ និងម៉ោងសិទ្ធិស្វ័យប្រវត្តិនឹងដំណើរការសម្រាប់ពួកគេឬអត់។ គ្មានអ្វីត្រូវបានផ្លាស់ប្ដូរនៅទីនេះទេ។",
+        mlStEngRenew: "ការបន្តច្បាប់ប្រចាំឆ្នាំស្វ័យប្រវត្តិ",
+        mlStEngEnt: "ម៉ោងសិទ្ធិតាមឆ្នាំធ្វើការ",
+        mlStOn: "បើក",
+        mlStOff: "បិទ",
+        mlStRulesBad: "តារាងទទេ ឬមិនត្រឹមត្រូវ",
+        mlStWho: "វាដំណើរការដោយខ្លួនឯង ពេល admin បើកប្រព័ន្ធ ក្នុងរយៈពេលប្រហែល ១០ វិនាទី។ បើគ្មាននរណាបើក វានឹងតាមទាន់ពេល admin បើកលើកក្រោយ។",
+        mlStAll: "ទាំងអស់",
+        mlStAttention: "ត្រូវការយកចិត្តទុកដាក់",
+        mlStOk: "ល្អ",
+        mlStRenewNow: "កំពុងបន្តឥឡូវ",
+        mlStSkipped: "លាឈប់ (រំលង)",
+        mlStColJoin: "ថ្ងៃចូលធ្វើការ",
+        mlStColYears: "ឆ្នាំធ្វើការ",
+        mlStColAL: "ចាប់ផ្ដើម - បញ្ចប់ AL",
+        mlStColEnt: "ម៉ោងសិទ្ធិ (ឥឡូវ → ឆ្នាំ AL ក្រោយ)",
+        mlStColStatus: "ស្ថានភាព",
+        mlStOkTxt: "ល្អ - បន្តនៅថ្ងៃ {d} (នៅសល់ {n} ថ្ងៃ)",
+        mlStRenewTxt: "នឹងបន្តដោយស្វ័យប្រវត្តិទៅ {a}",
+        mlStOffTxt: "ឆ្នាំ AL ចប់ហើយ ប៉ុន្តែការបន្តស្វ័យប្រវត្តិបិទ",
+        mlStNoDateTxt: "គ្មានថ្ងៃបញ្ចប់ AL ត្រឹមត្រូវ - សូមបំពេញក្នុងទម្រង់កែ",
+        mlStNoJoinTxt: "គ្មានថ្ងៃចូលធ្វើការត្រឹមត្រូវ - មិនអាចកំណត់ម៉ោងសិទ្ធិបានទេ",
+        mlStNoRuleTxt: "តារាងមិនមានច្បាប់សម្រាប់ {y} ឆ្នាំធ្វើការទេ",
+        mlStNone: "គ្មាននិយោជិតត្រូវបង្ហាញទេ។",
+        mlStOpenSettings: "បើកការកំណត់",
+        mlStClose: "បិទ",
         /* v7.14 Export */
         navExport: "នាំចេញ",
         xcSub: "ជ្រើសរើសអ្វីដែលត្រូវនាំចេញ បំពេញព័ត៌មានឯកសារ បន្ទាប់មកនាំចេញជា PDF, Excel ឬ Word។ ប៊ូតុងនាំចេញនៅតាមទំព័រនីមួយៗនៅតែទាញយកដោយផ្ទាល់ដដែល។",
@@ -5685,6 +5759,36 @@
         mlFEveryLbl: "每隔几年一个新等级",
         mlFRows: "行数",
         mlPreviewNote: "第一个开关打开后，点击“保存设置”时会续期这些员工。之后会自动进行。",
+        mlBtnText: "设置",
+        mlStBtnText: "年假检查",
+        mlStBtnTitle: "查看所有员工及年假续期时间",
+        mlStTitle: "年假检查",
+        mlStSub: "显示每位员工，以及自动年假续期和应享小时是否对其生效。此处不会修改任何内容。",
+        mlStEngRenew: "自动年假续期",
+        mlStEngEnt: "按工作年限的应享小时",
+        mlStOn: "开",
+        mlStOff: "关",
+        mlStRulesBad: "表格为空或无效",
+        mlStWho: "管理员打开系统时会在约 10 秒内自动运行。如果无人打开，则在管理员下次打开时补上。",
+        mlStAll: "全部",
+        mlStAttention: "需要处理",
+        mlStOk: "正常",
+        mlStRenewNow: "正在续期",
+        mlStSkipped: "已离职（跳过）",
+        mlStColJoin: "入职日期",
+        mlStColYears: "工作年数",
+        mlStColAL: "年假开始 - 结束",
+        mlStColEnt: "应享小时（现在 → 下个年假年度）",
+        mlStColStatus: "状态",
+        mlStOkTxt: "正常 - 将于 {d} 续期（剩 {n} 天）",
+        mlStRenewTxt: "将自动续期为 {a}",
+        mlStOffTxt: "年假年度已结束，但自动续期已关闭",
+        mlStNoDateTxt: "没有有效的年假结束日期 - 请在编辑表单中填写",
+        mlStNoJoinTxt: "没有有效的入职日期 - 无法设置应享小时",
+        mlStNoRuleTxt: "表格中没有适用于 {y} 年工作年限的规则",
+        mlStNone: "没有可显示的员工。",
+        mlStOpenSettings: "打开设置",
+        mlStClose: "关闭",
         /* v7.14 Export */
         navExport: "导出",
         xcSub: "选择要导出的内容，填写文件信息，然后导出为 PDF、Excel 或 Word。各页面上的导出按钮仍然直接下载。",
@@ -14223,6 +14327,47 @@ function mlNormalizeSettings(v) {
     if (v.yearBase !== 0) rules = rules.map(function (r) { return { from: Math.max(0, r.from - 1), to: r.to === null ? null : Math.max(0, r.to - 1), hours: r.hours }; });
     return { autoRenew: v.autoRenew === true, autoEntitled: v.autoEntitled === true, rules: rules, yearBase: 0 };
 }
+
+/* v7.19: status of every employee for the "AL Check" window (read only - nothing is written).
+   code: resigned | nodate | offended | nojoin | norule | renewnow | ok.  attention = needs the admin's eyes. */
+function mlStatus(emps, st, todayT) {
+    var rulesOk = !!(st && st.rules && st.rules.length && !mlValidateRules(st.rules));
+    var useEnt = !!(st && st.autoEntitled && rulesOk);
+    var rows = [], c = { total: 0, ok: 0, renewnow: 0, attention: 0, resigned: 0 };
+    (emps || []).forEach(function (e) {
+        if (!e) return;
+        var oldH = parseFloat(e.entitled) || 0;
+        var r = { key: e.firebaseKey, id: e.id, name: e.name, joinDate: e.joinDate || '', startDate: e.startDate || '', endDate: e.endDate || '', entNow: oldH, entNext: null, yearsNow: mlServiceYear(e.joinDate, todayT), nextStart: '', nextEnd: '', daysLeft: null, code: 'ok', year: null };
+        c.total++;
+        if (e.status === 'Resigned') { r.code = 'resigned'; c.resigned++; rows.push(r); return; }
+        var end = mlParse(e.endDate);
+        if (!end) { r.code = 'nodate'; c.attention++; rows.push(r); return; }
+        var nextStartT;
+        if (end.t < todayT) {
+            var nc = mlNextCycle(e.endDate, todayT);
+            if (!nc) { r.code = 'nodate'; c.attention++; rows.push(r); return; }
+            r.nextStart = nc.startStr; r.nextEnd = nc.endStr; nextStartT = mlParse(nc.startStr).t;
+            r.code = (st && st.autoRenew) ? 'renewnow' : 'offended';
+        } else {
+            nextStartT = end.t + ML_DAY;
+            r.nextStart = mlFmt(nextStartT);
+            r.nextEnd = mlFmt(Date.UTC(new Date(nextStartT).getUTCFullYear() + 1, new Date(nextStartT).getUTCMonth(), new Date(nextStartT).getUTCDate()) - ML_DAY);
+            r.daysLeft = Math.round((end.t - todayT) / ML_DAY);
+        }
+        if (useEnt) {
+            r.year = mlServiceYear(e.joinDate, nextStartT);
+            if (r.year === null) { if (r.code === 'ok' || r.code === 'renewnow') r.code = 'nojoin'; }
+            else {
+                var h = mlEntitledFor(st.rules, r.year);
+                if (h === null) { if (r.code === 'ok' || r.code === 'renewnow') r.code = 'norule'; }
+                else r.entNext = h;
+            }
+        }
+        if (r.code === 'ok') c.ok++; else if (r.code === 'renewnow') c.renewnow++; else c.attention++;
+        rows.push(r);
+    });
+    return { rows: rows, counts: c, rulesOk: rulesOk, useEnt: useEnt };
+}
 /* ML-RULES-END */
 
 /* ================= v7.15: MASTER SHEET SETTINGS =================
@@ -14393,9 +14538,73 @@ function mlUseHint(h) { mlEl('editEntitled').value = h; mlEditHint(); }
     if (nj) { nj.addEventListener('change', mlSuggestNewEmployee); nj.addEventListener('input', mlSuggestNewEmployee); }
 })();
 
+
+/* ================= v7.19: AL CHECK window (read only) =================
+   Shows every employee, whether the automatic functions will work for them, and when the next renewal happens. Nothing is written here. */
+let mlStFilter = 'all';
+function mlStOpen() {
+    if (!mlIsAdminLoggedIn()) return;
+    mlStFilter = 'all';
+    mlEl('mlStModal').style.display = 'flex';
+    mlStRender();
+}
+function mlStClose() { mlEl('mlStModal').style.display = 'none'; }
+function mlStSetFilter(f) { mlStFilter = f; mlStRender(); }
+function mlStText(r) {
+    switch (r.code) {
+        case 'resigned': return t('mlStResignedTxt');
+        case 'nodate': return t('mlStNoDateTxt');
+        case 'offended': return t('mlStOffTxt');
+        case 'nojoin': return t('mlStNoJoinTxt');
+        case 'norule': return fillTemplate(t('mlStNoRuleTxt'), { y: r.year });
+        case 'renewnow': return fillTemplate(t('mlStRenewTxt'), { a: r.nextStart + ' - ' + r.nextEnd });
+        default: return fillTemplate(t('mlStOkTxt'), { d: r.nextStart, n: r.daysLeft });
+    }
+}
+function mlStRender() {
+    const box = mlEl('mlStBody');
+    if (!box || mlEl('mlStModal').style.display !== 'flex') return;
+    const res = mlStatus(employees, mlSettings, mlTodayT());
+    const c = res.counts;
+    const on = function (v) { return '<b style="color:' + (v ? '#15803d' : '#b91c1c') + ';">' + mlEsc(t(v ? 'mlStOn' : 'mlStOff')) + '</b>'; };
+    let html = '<div class="ml-box" style="font-size:13px; line-height:1.7;">' +
+        mlEsc(t('mlStEngRenew')) + ': ' + on(mlSettings.autoRenew) + '<br>' +
+        mlEsc(t('mlStEngEnt')) + ': ' + on(mlSettings.autoEntitled && res.rulesOk) +
+        ((mlSettings.autoEntitled && !res.rulesOk) ? ' <span style="color:#b91c1c;">(' + mlEsc(t('mlStRulesBad')) + ')</span>' : '') +
+        '<div style="font-size:11px; color:#64748b; margin-top:4px;">' + mlEsc(t('mlStWho')) + '</div></div>';
+    const chip = function (key, label, n, color) {
+        const act = mlStFilter === key;
+        return '<button type="button" onclick="mlStSetFilter(\'' + key + '\')" style="border:2px solid ' + color + '; background:' + (act ? color : '#fff') + '; color:' + (act ? '#fff' : color) + '; border-radius:20px; padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; margin:0 6px 6px 0;">' + mlEsc(label) + ' ' + n + '</button>';
+    };
+    html += '<div>' + chip('all', t('mlStAll'), c.total, '#475569') + chip('attention', t('mlStAttention'), c.attention, '#dc2626') + chip('ok', t('mlStOk'), c.ok, '#16a34a') + chip('renewnow', t('mlStRenewNow'), c.renewnow, '#d97706') + chip('resigned', t('mlStSkipped'), c.resigned, '#64748b') + '</div>';
+    const attn = { nodate: 1, offended: 1, nojoin: 1, norule: 1 };
+    const rows = res.rows.filter(function (r) {
+        if (mlStFilter === 'all') return true;
+        if (mlStFilter === 'attention') return !!attn[r.code];
+        return r.code === mlStFilter;
+    });
+    const col = { ok: '#16a34a', renewnow: '#d97706', resigned: '#64748b', nodate: '#dc2626', offended: '#dc2626', nojoin: '#dc2626', norule: '#dc2626' };
+    const th = function (k) { return '<th style="border:1px solid #cbd5e1; padding:4px 6px; background:#e2e8f0; position:sticky; top:0; white-space:nowrap;">' + mlEsc(t(k)) + '</th>'; };
+    const td = function (v, extra) { return '<td style="border:1px solid #cbd5e1; padding:4px 6px;' + (extra || '') + '">' + mlEsc(v) + '</td>'; };
+    if (!rows.length) html += '<div style="font-size:13px; color:#64748b; padding:10px 0;">' + mlEsc(t('mlStNone')) + '</div>';
+    else html += '<div class="table-responsive" style="max-height:55vh; overflow:auto;"><table style="border-collapse:collapse; width:100%; font-size:12px;"><thead><tr>' +
+        th('tblId') + th('tblName') + th('mlStColStatus') + th('mlStColJoin') + th('mlStColYears') + th('mlStColAL') + th('mlStColEnt') + '</tr></thead><tbody>' +
+        rows.map(function (r) {
+            const ent = (r.entNext !== null && r.entNext !== r.entNow) ? r.entNow + ' → ' + r.entNext : String(r.entNow);
+            const stc = '<td style="border:1px solid #cbd5e1; padding:4px 6px; min-width:170px; color:' + col[r.code] + '; font-weight:700;">' + mlEsc((r.code === 'ok' ? '\u2714 ' : r.code === 'renewnow' ? '\u21BB ' : r.code === 'resigned' ? '' : '\u26A0 ') + mlStText(r)) + '</td>';
+            return '<tr>' + td(r.id) + td(r.name) + stc + td(r.joinDate || '-') + td(r.yearsNow === null ? '-' : r.yearsNow) +
+                td((r.startDate || '-') + ' - ' + (r.endDate || '-'), ' white-space:nowrap;') + td(ent, ' white-space:nowrap;') + '</tr>';
+        }).join('') + '</tbody></table></div>';
+    box.innerHTML = html;
+}
+/* keep the window up to date while it is open (employees or settings change) */
+db.ref('employees').on('value', function () { setTimeout(mlStRender, 600); });
+db.ref('masterSettings').on('value', function () { setTimeout(mlStRender, 100); });
+
 function mlOnLanguageChanged() {
     if (mlEl('mlModal') && mlEl('mlModal').style.display === 'flex') { mlRenderRules(); mlRefreshPreview(); }
     mlEditHint();
+    mlStRender();
 }
 
 
