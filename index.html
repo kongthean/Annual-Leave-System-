@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.12</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.13</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2155,7 +2155,7 @@
      <!-- EXPORT PDF -->
      <div id="faSec-export" class="fa-sec">
          <div class="dash-card">
-             <h4 data-i18n="faExportTitle">Daily attendance PDF</h4>
+             <h4 data-i18n="faExportTitle">Daily attendance report</h4>
              <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="faExportSub">Export a finished day (normally the next morning, after 7:00 AM). The PDF opens in a print window - choose "Save as PDF".</p>
              <div class="fa-grid">
                  <div class="form-group" style="margin-bottom:0; min-width:170px;"><label data-i18n="faExportDate">Report date</label><input type="date" id="faExportDate"></div>
@@ -2163,11 +2163,30 @@
                  <div class="form-group" style="margin-bottom:0; min-width:160px;"><label data-i18n="faExportLang">Report language</label>
                      <select id="faExportLang"><option value="en">English</option><option value="km">ខ្មែរ</option><option value="zh">中文</option></select></div>
              </div>
+             <div class="fa-grid" style="margin-top:10px;">
+                 <div class="form-group" style="margin-bottom:0; min-width:170px;"><label data-i18n="faExportFormat">Export format</label>
+                     <select id="faExportFormat"><option value="pdf">PDF</option><option value="excel">Excel (.xlsx)</option><option value="word">Word (.doc)</option></select></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:170px;"><label data-i18n="faHdrAlign">Header position</label>
+                     <select id="faHdrAlign"><option value="center" data-i18n="faAlignCenter">Center</option><option value="left" data-i18n="faAlignLeft">Left</option><option value="right" data-i18n="faAlignRight">Right</option></select></div>
+             </div>
+             <div class="form-group" style="margin-top:10px;"><label data-i18n="faHeaderTitle">Title (empty = default title)</label><input type="text" id="faHeaderTitle" maxlength="120"></div>
              <div class="form-group"><label data-i18n="faHeaderDept">Header: department name</label><input type="text" id="faHeaderDept" maxlength="120"></div>
+             <div class="form-group"><label data-i18n="faHeaderCode">Factory code (empty = not shown)</label><input type="text" id="faHeaderCode" maxlength="60"></div>
              <div class="form-group"><label data-i18n="faHeaderExtra">Header: extra lines (optional)</label><textarea id="faHeaderExtra" rows="2" maxlength="400" style="width:100%;"></textarea></div>
+             <h5 style="margin:12px 0 4px;" data-i18n="faSigHeading">Signatures</h5>
+             <p style="font-size:11px; color:#64748b; margin-bottom:8px;" data-i18n="faSigHint">Type the title of each signature box, for example Prepared by, Checked by, Approved by. A box with an empty title is not shown. Type a name under the line only if you want it printed.</p>
+             <div class="fa-grid">
+                 <div class="form-group" style="margin-bottom:0; min-width:200px;"><label><span data-i18n="faSigTitleN">Signature title</span> 1</label><input type="text" id="faSigLabel1" maxlength="60"><input type="text" id="faSigName1" maxlength="60" data-i18n-ph="faSigNamePh" placeholder="Name (optional)" style="margin-top:4px;"></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:200px;"><label><span data-i18n="faSigTitleN">Signature title</span> 2</label><input type="text" id="faSigLabel2" maxlength="60"><input type="text" id="faSigName2" maxlength="60" data-i18n-ph="faSigNamePh" placeholder="Name (optional)" style="margin-top:4px;"></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:200px;"><label><span data-i18n="faSigTitleN">Signature title</span> 3</label><input type="text" id="faSigLabel3" maxlength="60"><input type="text" id="faSigName3" maxlength="60" data-i18n-ph="faSigNamePh" placeholder="Name (optional)" style="margin-top:4px;"></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:200px;"><label><span data-i18n="faSigTitleN">Signature title</span> 4</label><input type="text" id="faSigLabel4" maxlength="60"><input type="text" id="faSigName4" maxlength="60" data-i18n-ph="faSigNamePh" placeholder="Name (optional)" style="margin-top:4px;"></div>
+             </div>
+             <div class="form-group" style="margin-top:10px; max-width:300px;"><label data-i18n="faSigPos">Signature position</label>
+                 <select id="faSigPos"><option value="spread" data-i18n="faPosSpread">Bottom - spread across</option><option value="right" data-i18n="faPosRight">Bottom - right side</option><option value="left" data-i18n="faPosLeft">Bottom - left side</option><option value="top" data-i18n="faPosTop">Top - under the header</option></select></div>
+             <p style="font-size:11px; color:#64748b; margin-bottom:8px;" data-i18n="faExcelNote">Excel: the header lines are left-aligned. Signature boxes follow the position you choose.</p>
              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
                  <button type="button" class="quick-btn slate" onclick="faPreviewReport(this)" data-i18n="faPreview">Preview</button>
-                 <button type="button" class="quick-btn green" onclick="faExportReportPdf(this)" data-i18n="faExportPdf">Export PDF</button>
+                 <button type="button" class="quick-btn green" onclick="faExportReport(this)" data-i18n="faExportBtn">Export</button>
              </div>
              <div id="faExportWarn" style="margin-bottom:8px;"></div>
              <div id="faReportPreview" class="table-responsive"></div>
@@ -2433,7 +2452,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.12
+     HR & Administration System Version 7.13
  </div>
 </div>
 
@@ -3731,8 +3750,8 @@
         faManualAutoLate: "Calculated late: {h} hours",
         faManualAutoOt: "Suggested overtime: {h} hour(s)",
         faManualDuplicate: "That entry already exists for this employee and date. Delete it from Live Scans first.",
-        faExportTitle: "Daily attendance PDF",
-        faExportSub: "Export a finished day (normally the next morning, after 7:00 AM). The PDF opens in a print window - choose 'Save as PDF'.",
+        faExportTitle: "Daily attendance report",
+        faExportSub: "Export a finished day (normally the next morning, after 7:00 AM) as PDF, Excel or Word. PDF opens in a print window - choose 'Save as PDF'.",
         faExportDate: "Report date",
         faExportLang: "Report language",
         faAllDepts: "All departments",
@@ -3762,6 +3781,25 @@
         faTotal: "Total",
         faDayNotClosed: "This day is not fully closed yet - some check-outs may still be missing.",
         faNoRowsExport: "Nobody is scheduled or scanned on this date.",
+        faExportFormat: "Export format",
+        faExportBtn: "Export",
+        faHdrAlign: "Header position",
+        faAlignCenter: "Center",
+        faAlignLeft: "Left",
+        faAlignRight: "Right",
+        faHeaderTitle: "Title (empty = default title)",
+        faHeaderCode: "Factory code (empty = not shown)",
+        faRptFactory: "Factory code",
+        faSigHeading: "Signatures",
+        faSigHint: "Type the title of each signature box, for example Prepared by, Checked by, Approved by. A box with an empty title is not shown. Type a name under the line only if you want it printed.",
+        faSigTitleN: "Signature title",
+        faSigNamePh: "Name (optional)",
+        faSigPos: "Signature position",
+        faPosSpread: "Bottom - spread across",
+        faPosRight: "Bottom - right side",
+        faPosLeft: "Bottom - left side",
+        faPosTop: "Top - under the header",
+        faExcelNote: "Excel: the header lines are left-aligned. Signature boxes follow the position you choose.",
         empMenuRequest: "Request",
         empMenuCheckShift: "Check Shift",
         btnCheckMyShift: "Check My Shift",
@@ -4597,8 +4635,8 @@
         faManualAutoLate: "ការយឺតដែលគណនា៖ {h} ម៉ោង",
         faManualAutoOt: "ម៉ោងបន្ថែមដែលណែនាំ៖ {h} ម៉ោង",
         faManualDuplicate: "ការបញ្ចូលនោះមានរួចហើយសម្រាប់និយោជិត និងកាលបរិច្ឆេទនេះ។ សូមលុបវាពីការស្កេនផ្ទាល់ជាមុនសិន។",
-        faExportTitle: "PDF វត្តមានប្រចាំថ្ងៃ",
-        faExportSub: "នាំចេញថ្ងៃដែលបានបញ្ចប់ (ជាធម្មតាព្រឹកថ្ងៃបន្ទាប់ ក្រោយម៉ោង 7:00)។ PDF នឹងបើកក្នុងផ្ទាំងបោះពុម្ព - សូមជ្រើស 'Save as PDF'។",
+        faExportTitle: "របាយការណ៍វត្តមានប្រចាំថ្ងៃ",
+        faExportSub: "នាំចេញថ្ងៃដែលបានបញ្ចប់ (ជាធម្មតាព្រឹកថ្ងៃបន្ទាប់ ក្រោយម៉ោង 7:00) ជា PDF, Excel ឬ Word។ PDF នឹងបើកក្នុងផ្ទាំងបោះពុម្ព - សូមជ្រើស 'Save as PDF'។",
         faExportDate: "កាលបរិច្ឆេទរបាយការណ៍",
         faExportLang: "ភាសារបាយការណ៍",
         faAllDepts: "គ្រប់ផ្នែកទាំងអស់",
@@ -4628,6 +4666,25 @@
         faTotal: "សរុប",
         faDayNotClosed: "ថ្ងៃនេះមិនទាន់បិទពេញលេញទេ - ការស្កេនចេញខ្លះអាចនៅខ្វះ។",
         faNoRowsExport: "គ្មាននរណាមានវេន ឬបានស្កេននៅកាលបរិច្ឆេទនេះទេ។",
+        faExportFormat: "ទម្រង់នាំចេញ",
+        faExportBtn: "នាំចេញ",
+        faHdrAlign: "ទីតាំងក្បាលរបាយការណ៍",
+        faAlignCenter: "កណ្ដាល",
+        faAlignLeft: "ឆ្វេង",
+        faAlignRight: "ស្ដាំ",
+        faHeaderTitle: "ចំណងជើង (ទទេ = ចំណងជើងលំនាំដើម)",
+        faHeaderCode: "លេខកូដរោងចក្រ (ទទេ = មិនបង្ហាញ)",
+        faRptFactory: "លេខកូដរោងចក្រ",
+        faSigHeading: "ហត្ថលេខា",
+        faSigHint: "វាយចំណងជើងនៃប្រអប់ហត្ថលេខានីមួយៗ ឧទាហរណ៍ អ្នករៀបចំ អ្នកត្រួតពិនិត្យ អ្នកអនុម័ត។ ប្រអប់ដែលគ្មានចំណងជើងនឹងមិនបង្ហាញទេ។ វាយឈ្មោះក្រោមបន្ទាត់ លុះត្រាតែអ្នកចង់ឱ្យបោះពុម្ព។",
+        faSigTitleN: "ចំណងជើងហត្ថលេខា",
+        faSigNamePh: "ឈ្មោះ (ស្រេចចិត្ត)",
+        faSigPos: "ទីតាំងហត្ថលេខា",
+        faPosSpread: "ខាងក្រោម - ចែកស្មើគ្នា",
+        faPosRight: "ខាងក្រោម - ខាងស្ដាំ",
+        faPosLeft: "ខាងក្រោម - ខាងឆ្វេង",
+        faPosTop: "ខាងលើ - ក្រោមក្បាលរបាយការណ៍",
+        faExcelNote: "Excel៖ បន្ទាត់ក្បាលរបាយការណ៍តម្រឹមខាងឆ្វេង។ ប្រអប់ហត្ថលេខាតាមទីតាំងដែលអ្នកជ្រើស។",
         empMenuRequest: "សំណើ",
         empMenuCheckShift: "ពិនិត្យវេន",
         btnCheckMyShift: "ពិនិត្យវេនរបស់ខ្ញុំ",
@@ -5425,8 +5482,8 @@
         faManualAutoLate: "计算迟到：{h} 小时",
         faManualAutoOt: "建议加班：{h} 小时",
         faManualDuplicate: "该员工在该日期已有此记录。请先在实时打卡中删除。",
-        faExportTitle: "每日考勤 PDF",
-        faExportSub: "导出已结束的一天（通常在次日早上 7:00 之后）。PDF 会在打印窗口中打开 - 请选择“另存为 PDF”。",
+        faExportTitle: "每日考勤报告",
+        faExportSub: "导出已结束的一天（通常在次日早上 7:00 之后），可选 PDF、Excel 或 Word。PDF 会在打印窗口中打开 - 请选择“另存为 PDF”。",
         faExportDate: "报告日期",
         faExportLang: "报告语言",
         faAllDepts: "所有部门",
@@ -5456,6 +5513,25 @@
         faTotal: "合计",
         faDayNotClosed: "这一天尚未完全结束 - 可能还有下班打卡缺失。",
         faNoRowsExport: "该日期没有排班或打卡的人员。",
+        faExportFormat: "导出格式",
+        faExportBtn: "导出",
+        faHdrAlign: "表头位置",
+        faAlignCenter: "居中",
+        faAlignLeft: "靠左",
+        faAlignRight: "靠右",
+        faHeaderTitle: "标题（留空 = 默认标题）",
+        faHeaderCode: "工厂代码（留空 = 不显示）",
+        faRptFactory: "工厂代码",
+        faSigHeading: "签名",
+        faSigHint: "输入每个签名栏的标题，例如 制表人、审核人、批准人。标题为空的签名栏不会显示。只有需要打印姓名时才在横线下输入姓名。",
+        faSigTitleN: "签名标题",
+        faSigNamePh: "姓名（可选）",
+        faSigPos: "签名位置",
+        faPosSpread: "底部 - 平均分布",
+        faPosRight: "底部 - 右侧",
+        faPosLeft: "底部 - 左侧",
+        faPosTop: "顶部 - 表头下方",
+        faExcelNote: "Excel：表头各行靠左对齐。签名栏按所选位置显示。",
         empMenuRequest: "申请",
         empMenuCheckShift: "查看排班",
         btnCheckMyShift: "查看我的排班",
@@ -12561,6 +12637,7 @@ function faInitTab() {
         faEl('faManualDate').value = y;
         faEl('faExportDate').value = y;
         faEl('faExportLang').value = currentLang || 'en';
+        faApplyPlaceholders();
         faFillRulesForm();
     }
     faFillEmpList();
@@ -13134,14 +13211,40 @@ function faBuildReportHtml(rows, opts) {
     }).join('');
     const total = '<tr style="font-weight:700; background:#f1f5f9;"><td colspan="4" style="text-align:right;">' + faEsc(L('faTotal')) + '</td><td style="text-align:center;">' + faNum(totWork / 60) + '</td><td style="text-align:center;">' + faNum(totNight / 60) + '</td><td style="text-align:center;">' + faNum(totLeave) + '</td><td style="text-align:center;">' + faNum(totOt) + '</td><td></td></tr>';
     const extra = (opts.extra || '').split('\n').filter(function (x) { return x.trim(); }).map(faEsc).join('<br>');
-    return '<div style="text-align:center; margin-bottom:10px;">' +
+    const align = (opts.align === 'left' || opts.align === 'right') ? opts.align : 'center';
+    const title = (opts.title && opts.title.trim()) ? opts.title.trim() : L('faReportTitle');
+    const sigs = faCleanSigs(opts.sigs);
+    const sigPos = opts.sigPos || 'spread';
+    const sigHtml = faSigHtml(sigs, sigPos);
+    const head = '<div style="text-align:' + align + '; margin-bottom:10px;">' +
         (opts.dept ? '<div style="font-size:17px; font-weight:800;">' + faEsc(opts.dept) + '</div>' : '') +
-        '<div style="font-size:15px; font-weight:700;">' + faEsc(L('faReportTitle')) + ' - ' + faEsc(opts.date) + '</div>' +
-        (extra ? '<div style="font-size:12px; margin-top:4px;">' + extra + '</div>' : '') + '</div>' +
+        '<div style="font-size:15px; font-weight:700;">' + faEsc(title) + ' - ' + faEsc(opts.date) + '</div>' +
+        (opts.code && opts.code.trim() ? '<div style="font-size:12px; margin-top:4px;">' + faEsc(L('faRptFactory')) + ': ' + faEsc(opts.code.trim()) + '</div>' : '') +
+        (extra ? '<div style="font-size:12px; margin-top:4px;">' + extra + '</div>' : '') + '</div>';
+    return head + (sigPos === 'top' ? sigHtml : '') +
         '<table class="fa-report" style="border-collapse:collapse; width:100%;"><thead><tr style="background:#e2e8f0;">' +
         '<th>' + faEsc(L('faColNo')) + '</th><th>' + faEsc(L('tblId')) + '</th><th>' + faEsc(L('tblName')) + '</th><th>' + faEsc(L('faColScanTimes')) + '</th>' +
         '<th>' + faEsc(L('faColWorkHrs')) + '</th><th>' + faEsc(L('faColNightHrs')) + '</th><th>' + faEsc(L('faColLeaveHrs')) + '</th><th>' + faEsc(L('faColOtHrs')) + '</th><th>' + faEsc(L('faColRemarks')) + '</th>' +
-        '</tr></thead><tbody>' + body + total + '</tbody></table>';
+        '</tr></thead><tbody>' + body + total + '</tbody></table>' + (sigPos === 'top' ? '' : sigHtml);
+}
+
+/* v7.13: up to four typed signature boxes. A box with an empty title is simply not shown. */
+function faCleanSigs(list) {
+    return (list || []).filter(function (g) { return g && g.label && String(g.label).trim(); })
+        .map(function (g) { return { label: String(g.label).trim(), name: String(g.name || '').trim() }; });
+}
+function faSigHtml(sigs, pos) {
+    if (!sigs.length) return '';
+    const spread = pos === 'spread' || pos === 'top';
+    const w = spread ? Math.floor(100 / sigs.length) : Math.min(28, Math.floor(60 / sigs.length));
+    const cells = sigs.map(function (g) {
+        return '<td style="width:' + w + '%; text-align:center; vertical-align:top; border:none; padding:0 14px;">' +
+            '<div style="height:48px;">&nbsp;</div>' +
+            '<div style="border-top:1px solid #0f172a; padding-top:3px; font-weight:700; font-size:12px;">' + faEsc(g.label) + '</div>' +
+            (g.name ? '<div style="font-size:12px;">' + faEsc(g.name) + '</div>' : '') + '</td>';
+    }).join('');
+    const al = pos === 'right' ? ' align="right"' : (pos === 'left' ? ' align="left"' : '');
+    return '<table' + al + ' class="fa-sig" style="margin-top:' + (pos === 'top' ? '4px; margin-bottom:12px' : '28px') + '; border-collapse:collapse; page-break-inside:avoid;' + (spread ? ' width:100%;' : '') + '"><tr>' + cells + '</tr></table>';
 }
 
 async function faReportParts() {
@@ -13154,7 +13257,13 @@ async function faReportParts() {
     const rows = await faBuildReportData(date, dept);
     faEl('faExportWarn').innerHTML = faDayClosed(date) ? '' : '<span class="fa-chip warn">' + faEsc(t('faDayNotClosed')) + '</span>';
     if (!rows.length) { showToast(false, t('faNoRowsExport')); }
-    return { rows: rows, opts: { lang: faEl('faExportLang').value || 'en', date: date, dept: headerDept || dept, extra: extra } };
+    const sigs = [];
+    for (let i = 1; i <= 4; i++) sigs.push({ label: (faEl('faSigLabel' + i) || {}).value || '', name: (faEl('faSigName' + i) || {}).value || '' });
+    return { rows: rows, opts: {
+        lang: faEl('faExportLang').value || 'en', date: date, dept: headerDept || dept, extra: extra,
+        title: faEl('faHeaderTitle').value, code: faEl('faHeaderCode').value, align: faEl('faHdrAlign').value,
+        sigs: sigs, sigPos: faEl('faSigPos').value
+    } };
 }
 
 function faPreviewReport(btn) {
@@ -13181,9 +13290,121 @@ function faExportReportPdf(btn) {
     });
 }
 
+/* v7.13: one Export button for PDF, Excel or Word */
+function faExportReport(btn) {
+    const fmt = faEl('faExportFormat').value;
+    if (fmt === 'excel') return faExportReportExcel(btn);
+    if (fmt === 'word') return faExportReportWord(btn);
+    return faExportReportPdf(btn);
+}
+
+function faDownloadBlob(blob, name) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+
+function faExportReportWord(btn) {
+    withBusyButton(btn, async function () {
+        const parts = await faReportParts();
+        if (!parts || !parts.rows.length) return;
+        const html = faBuildReportHtml(parts.rows, parts.opts);
+        const doc = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>' +
+            faEsc(tLang('faReportTitle', parts.opts.lang) + ' ' + parts.opts.date) + '</title>' +
+            '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]-->' +
+            '<style>@page Section1 { size:841.9pt 595.3pt; mso-page-orientation:landscape; margin:0.6in; } div.Section1 { page:Section1; } ' +
+            'body{font-family:"Khmer OS","Noto Sans Khmer","Noto Sans SC",Arial,sans-serif; color:#0f172a;} table.fa-report{border-collapse:collapse;} ' +
+            '.fa-report th,.fa-report td{border:1px solid #94a3b8; padding:4px 6px; font-size:10pt;}</style></head><body><div class="Section1">' + html + '</div></body></html>';
+        faDownloadBlob(new Blob(['﻿', doc], { type: 'application/msword' }), 'Attendance_Report_' + parts.opts.date + '.doc');
+    });
+}
+
+function faExcelNum(v) { const n = parseFloat(v); return (v !== '' && v !== null && v !== undefined && isFinite(n)) ? n : (v || ''); }
+
+function faBuildReportAoa(rows, opts) {
+    const lang = opts.lang;
+    const L = function (k) { return tLang(k, lang); };
+    const NC = 9, aoa = [], merges = [];
+    const full = function (text) { const r = aoa.length; aoa.push([text]); merges.push({ s: { r: r, c: 0 }, e: { r: r, c: NC - 1 } }); };
+    const title = (opts.title && opts.title.trim()) ? opts.title.trim() : L('faReportTitle');
+    if (opts.dept) full(opts.dept);
+    full(title + ' - ' + opts.date);
+    if (opts.code && opts.code.trim()) full(L('faRptFactory') + ': ' + opts.code.trim());
+    (opts.extra || '').split('\n').filter(function (x) { return x.trim(); }).forEach(full);
+    const sigs = faCleanSigs(opts.sigs);
+    const sigPos = opts.sigPos || 'spread';
+    const addSigs = function () {
+        if (!sigs.length) return;
+        const span = Math.min(3, Math.floor(NC / sigs.length));
+        const n = sigs.length;
+        const starts = sigs.map(function (g, i) {
+            if (sigPos === 'right') return NC - (n - i) * span;
+            if (sigPos === 'left') return i * span;
+            return Math.floor(i * NC / n) + Math.floor((NC / n - span) / 2);
+        });
+        aoa.push([]); aoa.push([]);
+        const place = function (text, rowOffset) {
+            const r = aoa.length + rowOffset;
+            while (aoa.length <= r) aoa.push([]);
+            sigs.forEach(function (g, i) {
+                const val = text(g);
+                if (val === '') return;
+                aoa[r][starts[i]] = val;
+                if (span > 1) merges.push({ s: { r: r, c: starts[i] }, e: { r: r, c: starts[i] + span - 1 } });
+            });
+        };
+        place(function () { return '______________________'; }, 0);
+        place(function (g) { return g.label; }, 1);
+        place(function (g) { return g.name; }, 2);
+        for (let r = 0; r < aoa.length; r++) for (let c = 0; c < NC; c++) if (aoa[r][c] === undefined) aoa[r][c] = '';
+    };
+    if (sigPos === 'top') { aoa.push([]); addSigs(); }
+    aoa.push([]);
+    const headRow = aoa.length;
+    aoa.push([L('faColNo'), L('tblId'), L('tblName'), L('faColScanTimes'), L('faColWorkHrs'), L('faColNightHrs'), L('faColLeaveHrs'), L('faColOtHrs'), L('faColRemarks')]);
+    let totWork = 0, totNight = 0, totLeave = 0, totOt = 0;
+    rows.forEach(function (r, i) {
+        const s = r.sum;
+        if (s.workMin !== null) totWork += s.workMin;
+        totNight += s.nightMin || 0; totLeave += s.leaveHours || 0; totOt += s.otHours || 0;
+        aoa.push([i + 1, r.id, r.name,
+            s.timesCompact || ((s.checkIn || '') + (s.checkOut ? ',' + s.checkOut : '')).replace(/:/g, ''),
+            faExcelNum(faHours(s.workMin)), s.workMin === null ? '' : faExcelNum(faHours(s.nightMin)),
+            s.leaveHours ? faExcelNum(faNum(s.leaveHours)) : '', s.otHours ? faExcelNum(faNum(s.otHours)) : '',
+            faRemarkText(r, lang)]);
+    });
+    const tr = aoa.length;
+    aoa.push([L('faTotal'), '', '', '', faExcelNum(faNum(totWork / 60)), faExcelNum(faNum(totNight / 60)), faExcelNum(faNum(totLeave)), faExcelNum(faNum(totOt)), '']);
+    merges.push({ s: { r: tr, c: 0 }, e: { r: tr, c: 3 } });
+    if (sigPos !== 'top') { addSigs(); }
+    return { aoa: aoa, merges: merges, headRow: headRow };
+}
+
+function faExportReportExcel(btn) {
+    withBusyButton(btn, async function () {
+        const parts = await faReportParts();
+        if (!parts || !parts.rows.length) return;
+        if (typeof XLSX === 'undefined') { showToast(false); return; }
+        const b = faBuildReportAoa(parts.rows, parts.opts);
+        const ws = XLSX.utils.aoa_to_sheet(b.aoa);
+        ws['!merges'] = b.merges;
+        ws['!cols'] = [{ wch: 6 }, { wch: 10 }, { wch: 24 }, { wch: 24 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 10 }, { wch: 30 }];
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, String(parts.opts.date).slice(0, 31));
+        XLSX.writeFile(wb, 'Attendance_Report_' + parts.opts.date + '.xlsx');
+    });
+}
+
 /* Called from setLanguage() so every table built by this tab follows the language switch. */
+function faApplyPlaceholders() {
+    document.querySelectorAll('[data-i18n-ph]').forEach(function (el) { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
+}
 function faOnLanguageChanged() {
     if (!faInited) return;
+    faApplyPlaceholders();
     faRenderLive();
     faRenderEnrolled();
     faPopulateExportDepts();
