@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.20</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.21</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1008,6 +1008,7 @@
              <div id="statPendingApprovals">0</div>
          </div>
      </div>
+     <div id="mlDashBox" class="dash-card admin-only" style="margin:10px 0; text-align:left;"></div>
 
      <!-- v6.84: second row of 8 overview cards breaking "Total Annual Leave Used This Month" down
           by individual leave type (each a sum, across all employees, of that type's monthly field -
@@ -2552,6 +2553,11 @@
                     <option value="" data-i18n="auditFilterAllActions">All Actions</option>
                 </select>
             </div>
+            <div class="form-group" style="margin-bottom:0; min-width:200px;">
+                <label>&nbsp;</label>
+                <input type="text" id="auditFilterText" oninput="renderAuditLogTable()">
+            </div>
+            <label style="display:flex; gap:6px; align-items:center; font-size:12px; margin-bottom:8px;"><input type="checkbox" id="auditFilterAuto" style="width:auto;" onchange="renderAuditLogTable()"><span data-i18n="auditFilterAutoOnly">Automatic changes only</span></label>
             <button type="button" class="quick-btn" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; flex-direction:row; gap:6px;" onclick="clearAuditLogFilters()" data-i18n="auditClearFilters">Clear Filters</button>
             <button type="button" class="quick-btn green" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; flex-direction:row; gap:6px;" onclick="openExportLangModal('auditlog')" data-i18n="btnExport">Export to Excel (.xlsx)</button>
         </div>
@@ -2610,7 +2616,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.20
+     HR & Administration System Version 7.21
  </div>
 </div>
 
@@ -3233,13 +3239,17 @@
  let pendingLoginAccount = null;
  let pendingSetupSecret = null;
 
- document.getElementById('loginForm').addEventListener('submit', function(e) {
+ document.getElementById('loginForm').addEventListener('submit', async function(e) {
      e.preventDefault();
      const userIn = document.getElementById('loginUser').value.trim();
      const passIn = document.getElementById('loginPass').value.trim();
      const errorDiv = document.getElementById('loginError');
 
-     const found = accounts.find(a => a.username === userIn && a.password === passIn && a.role === loginTargetRole && !a.disabled);
+     let found = null;
+     for (const cand of accounts.filter(a => a.username === userIn && a.role === loginTargetRole && !a.disabled)) {
+         if (await pwVerify(cand, passIn)) { found = cand; break; }
+     }
+     if (found && !found.passwordHash) pwUpgrade(found, passIn);
 
      if (!found) {
          errorDiv.innerText = t('loginErrorMsg');
@@ -3797,6 +3807,26 @@
         notifPersonalLeaveMsg: "You have a Personal Leave record of {hours} hour(s). Total Personal Leave this month: {total} hours.",
         notifLeaveDeductedMsg2: "Your Annual Leave entitlement has been deducted {hours} hour(s) use for your leave on {date}. Used for {type}. Remaining Hours: {remaining} hours.",
         notifPersonalLeaveMsg2: "You have a personal leave record of {hours} hour(s) for your leave on {date}. Total personal leave this month: {total} hours.",
+        /* v7.21 */
+        pwOnceTitle: "New administrator account",
+        pwOnceMsg: "No account existed, so one was created. Write this password down now. It will not be shown again. Change it in Management > Reset password.",
+        pwResetBtn: "Reset password",
+        pwResetTitle: "Reset password",
+        pwNewLabel: "New password",
+        pwResetHint: "At least 6 characters. Tell the person their new password. It cannot be shown again later.",
+        pwResetSave: "Save new password",
+        pwTooShort: "The password must be at least 6 characters.",
+        dashAlTitle: "Annual leave status",
+        dashRenewSoon: "AL renewing in the next 30 days",
+        dashNeedAttention: "Need attention (AL dates missing or ended)",
+        dashFixData: "Records with wrong information",
+        dashLastBackup: "Last backup",
+        dashNever: "never - please press Backup Now",
+        dashDaysAgo: "{n} day(s) ago",
+        mlStFix: "Wrong information",
+        mlStColCheck: "Data check",
+        auditFilterSearchPh: "Search name, ID or details",
+        auditFilterAutoOnly: "Automatic changes only",
         /* v7.15 Master Sheet settings */
         mlBtnTitle: "Master Sheet settings",
         mlTitle: "Master Sheet Settings",
@@ -4794,6 +4824,26 @@
         notifPersonalLeaveMsg: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
         notifLeaveDeductedMsg2: "សិទ្ធិច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំរបស់អ្នកត្រូវបានកាត់កង {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ ប្រើសម្រាប់៖ {type}។ ម៉ោងនៅសល់៖ {remaining} ម៉ោង។",
         notifPersonalLeaveMsg2: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
+        /* v7.21 */
+        pwOnceTitle: "គណនីអ្នកគ្រប់គ្រងថ្មី",
+        pwOnceMsg: "មិនមានគណនីទេ ដូច្នេះបានបង្កើតមួយ។ សូមកត់ពាក្យសម្ងាត់នេះឥឡូវ វានឹងមិនបង្ហាញម្ដងទៀតទេ។ ផ្លាស់ប្ដូរក្នុង Management > កំណត់ពាក្យសម្ងាត់ឡើងវិញ។",
+        pwResetBtn: "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+        pwResetTitle: "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+        pwNewLabel: "ពាក្យសម្ងាត់ថ្មី",
+        pwResetHint: "យ៉ាងតិច ៦ តួអក្សរ។ សូមប្រាប់អ្នកនោះពីពាក្យសម្ងាត់ថ្មី។ វាមិនអាចបង្ហាញម្ដងទៀតបានទេ។",
+        pwResetSave: "រក្សាទុកពាក្យសម្ងាត់ថ្មី",
+        pwTooShort: "ពាក្យសម្ងាត់ត្រូវមានយ៉ាងតិច ៦ តួអក្សរ។",
+        dashAlTitle: "ស្ថានភាពច្បាប់ប្រចាំឆ្នាំ",
+        dashRenewSoon: "AL ត្រូវបន្តក្នុង ៣០ ថ្ងៃខាងមុខ",
+        dashNeedAttention: "ត្រូវការយកចិត្តទុកដាក់ (គ្មានកាលបរិច្ឆេទ AL ឬផុតកំណត់)",
+        dashFixData: "កំណត់ត្រាដែលមានព័ត៌មានមិនត្រឹមត្រូវ",
+        dashLastBackup: "Backup ចុងក្រោយ",
+        dashNever: "មិនធ្លាប់ - សូមចុច Backup Now",
+        dashDaysAgo: "{n} ថ្ងៃមុន",
+        mlStFix: "ព័ត៌មានមិនត្រឹមត្រូវ",
+        mlStColCheck: "ពិនិត្យទិន្នន័យ",
+        auditFilterSearchPh: "ស្វែងរកឈ្មោះ លេខ ID ឬព័ត៌មាន",
+        auditFilterAutoOnly: "តែការផ្លាស់ប្ដូរស្វ័យប្រវត្តិ",
         /* v7.15 Master Sheet settings */
         mlBtnTitle: "ការកំណត់តារាងមេ",
         mlTitle: "ការកំណត់តារាងមេ",
@@ -5753,6 +5803,26 @@
         notifPersonalLeaveMsg: "您有一笔{hours}小时的事假记录。本月事假总计：{total}小时。",
         notifLeaveDeductedMsg2: "您的年假额度已扣除{hours}小时，对应您在{date}的休假。用途：{type}。剩余小时数：{remaining}小时。",
         notifPersonalLeaveMsg2: "您有一笔{hours}小时的事假记录，对应您在{date}的休假。本月事假总计：{total}小时。",
+        /* v7.21 */
+        pwOnceTitle: "新的管理员账户",
+        pwOnceMsg: "当前没有账户，因此已创建一个。请立即记下此密码，之后不会再显示。可在“管理 > 重置密码”中修改。",
+        pwResetBtn: "重置密码",
+        pwResetTitle: "重置密码",
+        pwNewLabel: "新密码",
+        pwResetHint: "至少 6 个字符。请告知该用户新密码，之后无法再次显示。",
+        pwResetSave: "保存新密码",
+        pwTooShort: "密码至少需要 6 个字符。",
+        dashAlTitle: "年假状态",
+        dashRenewSoon: "未来 30 天内续期的年假",
+        dashNeedAttention: "需要处理（缺少年假日期或已结束）",
+        dashFixData: "信息有误的记录",
+        dashLastBackup: "上次备份",
+        dashNever: "从未备份 - 请点击立即备份",
+        dashDaysAgo: "{n} 天前",
+        mlStFix: "信息有误",
+        mlStColCheck: "数据检查",
+        auditFilterSearchPh: "搜索姓名、编号或详情",
+        auditFilterAutoOnly: "仅自动更改",
         /* v7.15 Master Sheet settings */
         mlBtnTitle: "总表设置",
         mlTitle: "总表设置",
@@ -7067,9 +7137,9 @@ function renderEmpShiftCalendar() {
      const data = snapshot.val();
      accounts = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
      if (accounts.length === 0) {
-         // First run: migrate the old single hardcoded admin login (admin/206206) into the new
+         // First run: migrate the old single hardcoded admin login (the default admin) into the new
          // accounts system so nobody gets locked out of Administration System after this update.
-         db.ref('accounts').push({ username: 'admin', password: '206206', name: 'Administrator', role: 'admin', disabled: false });
+         if (!window.__pwCreating) { window.__pwCreating = true; pwCreateDefaultAdmin(); }
      }
      renderAccountsTable();
  });
@@ -8426,7 +8496,7 @@ function filterMakeupTable() {
              </td>
              <td><input type="text" value="${a.name || ''}" style="width:110px;" onchange="updateAccountField('${a.firebaseKey}', 'name', this.value)"></td>
              <td><input type="text" value="${a.username || ''}" style="width:100px;" onchange="updateAccountField('${a.firebaseKey}', 'username', this.value)"></td>
-             <td><input type="text" value="${a.password || ''}" style="width:100px;" onchange="updateAccountField('${a.firebaseKey}', 'password', this.value)"></td>
+             <td><span style="letter-spacing:2px;">&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;</span><br><button class="btn-edit" style="font-size:10px; padding:3px 8px; margin-top:3px;" onclick="pwOpenReset('${a.firebaseKey}')">${t('pwResetBtn')}</button></td>
              <td>
                  <select onchange="updateAccountField('${a.firebaseKey}', 'role', this.value)">
                      <option value="hr" ${a.role === 'hr' ? 'selected' : ''}>${t('roleLabelHR')}</option>
@@ -8482,11 +8552,12 @@ function filterMakeupTable() {
      const role = document.getElementById('newAcctRole').value;
      /* v6.79: this early return used to be silent on a missing required field. */
      if (!name || !username || !password) { showToast(false); return; }
+     if (password.length < 6) { showToast(false, t('pwTooShort')); return; }
      if (accounts.some(a => a.username === username)) {
          showToast(false, t('acctDuplicateUsernameMsg'));
          return;
      }
-     withBusyButton(btnEl, () => db.ref('accounts').push({ name, username, password, role, disabled: false }).then(() => {
+     withBusyButton(btnEl, () => pwFields(password).then(f => db.ref('accounts').push(Object.assign({ name, username, role, disabled: false }, f))).then(() => {
          document.getElementById('newAcctName').value = '';
          document.getElementById('newAcctUsername').value = '';
          document.getElementById('newAcctPassword').value = '';
@@ -9316,12 +9387,14 @@ function filterMakeupTable() {
      if (shiftSheet.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(shiftSheet), "Shifts");
      if (deletedSheet.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(deletedSheet), "RecentlyDeleted");
 
+     v721ExtraBackupSheets(wb);
      if (wb.SheetNames.length === 0) {
          showToast(false, t('backupEmptyMsg'));
          return;
      }
 
      XLSX.writeFile(wb, `Full_Backup_${new Date().toISOString().slice(0,10)}.xlsx`);
+     v721RecordBackup();
      showToast(true, t('toastBackupDone'));
  }
 
@@ -14653,8 +14726,6 @@ function mlStOpen() {
     mlStFilter = 'all';
     mlEl('mlStModal').style.display = 'flex';
     mlStRender();
-    mlEditCheck();
-    mlNewCheck();
 }
 function mlStClose() { mlEl('mlStModal').style.display = 'none'; }
 function mlStSetFilter(f) { mlStFilter = f; mlStRender(); }
@@ -14674,6 +14745,9 @@ function mlStRender() {
     if (!box || mlEl('mlStModal').style.display !== 'flex') return;
     const res = mlStatus(employees, mlSettings, mlTodayT());
     const c = res.counts;
+    const warnMap = {};
+    employees.forEach(function (e) { if (e.status !== 'Resigned') { const w = mlRecordWarnings(e); if (w.length) warnMap[e.firebaseKey] = w; } });
+    const nFix = Object.keys(warnMap).length;
     const on = function (v) { return '<b style="color:' + (v ? '#15803d' : '#b91c1c') + ';">' + mlEsc(t(v ? 'mlStOn' : 'mlStOff')) + '</b>'; };
     let html = '<div class="ml-box" style="font-size:13px; line-height:1.7;">' +
         mlEsc(t('mlStEngRenew')) + ': ' + on(mlSettings.autoRenew) + '<br>' +
@@ -14684,24 +14758,26 @@ function mlStRender() {
         const act = mlStFilter === key;
         return '<button type="button" onclick="mlStSetFilter(\'' + key + '\')" style="border:2px solid ' + color + '; background:' + (act ? color : '#fff') + '; color:' + (act ? '#fff' : color) + '; border-radius:20px; padding:4px 12px; font-size:12px; font-weight:700; cursor:pointer; margin:0 6px 6px 0;">' + mlEsc(label) + ' ' + n + '</button>';
     };
-    html += '<div>' + chip('all', t('mlStAll'), c.total, '#475569') + chip('attention', t('mlStAttention'), c.attention, '#dc2626') + chip('ok', t('mlStOk'), c.ok, '#16a34a') + chip('renewnow', t('mlStRenewNow'), c.renewnow, '#d97706') + chip('resigned', t('mlStSkipped'), c.resigned, '#64748b') + '</div>';
+    html += '<div>' + chip('all', t('mlStAll'), c.total, '#475569') + chip('attention', t('mlStAttention'), c.attention, '#dc2626') + chip('fix', t('mlStFix'), nFix, '#b91c1c') + chip('ok', t('mlStOk'), c.ok, '#16a34a') + chip('renewnow', t('mlStRenewNow'), c.renewnow, '#d97706') + chip('resigned', t('mlStSkipped'), c.resigned, '#64748b') + '</div>';
     const attn = { nodate: 1, offended: 1, nojoin: 1, norule: 1 };
     const rows = res.rows.filter(function (r) {
         if (mlStFilter === 'all') return true;
         if (mlStFilter === 'attention') return !!attn[r.code];
+        if (mlStFilter === 'fix') return !!warnMap[r.key];
         return r.code === mlStFilter;
     });
     const col = { ok: '#16a34a', renewnow: '#d97706', resigned: '#64748b', nodate: '#dc2626', offended: '#dc2626', nojoin: '#dc2626', norule: '#dc2626' };
+    const chk = function (r) { const w = warnMap[r.key]; return '<td style="border:1px solid #cbd5e1; padding:4px 6px; min-width:200px; ' + (w ? 'color:#dc2626;' : 'color:#15803d;') + '">' + (w ? w.map(function (x) { return '\u26A0 ' + mlEsc(fillTemplate(t(x.code), x.p)); }).join('<br>') : (r.code === 'resigned' ? '' : '\u2714')) + '</td>'; };
     const th = function (k) { return '<th style="border:1px solid #cbd5e1; padding:4px 6px; background:#e2e8f0; position:sticky; top:0; white-space:nowrap;">' + mlEsc(t(k)) + '</th>'; };
     const td = function (v, extra) { return '<td style="border:1px solid #cbd5e1; padding:4px 6px;' + (extra || '') + '">' + mlEsc(v) + '</td>'; };
     if (!rows.length) html += '<div style="font-size:13px; color:#64748b; padding:10px 0;">' + mlEsc(t('mlStNone')) + '</div>';
     else html += '<div class="table-responsive" style="max-height:55vh; overflow:auto;"><table style="border-collapse:collapse; width:100%; font-size:12px;"><thead><tr>' +
-        th('tblId') + th('tblName') + th('mlStColStatus') + th('mlStColJoin') + th('mlStColYears') + th('mlStColAL') + th('mlStColEnt') + '</tr></thead><tbody>' +
+        th('tblId') + th('tblName') + th('mlStColStatus') + th('mlStColJoin') + th('mlStColYears') + th('mlStColAL') + th('mlStColEnt') + th('mlStColCheck') + '</tr></thead><tbody>' +
         rows.map(function (r) {
             const ent = (r.entNext !== null && r.entNext !== r.entNow) ? r.entNow + ' → ' + r.entNext : String(r.entNow);
             const stc = '<td style="border:1px solid #cbd5e1; padding:4px 6px; min-width:170px; color:' + col[r.code] + '; font-weight:700;">' + mlEsc((r.code === 'ok' ? '\u2714 ' : r.code === 'renewnow' ? '\u21BB ' : r.code === 'resigned' ? '' : '\u26A0 ') + mlStText(r)) + '</td>';
             return '<tr>' + td(r.id) + td(r.name) + stc + td(r.joinDate || '-') + td(r.yearsNow === null ? '-' : r.yearsNow) +
-                td((r.startDate || '-') + ' - ' + (r.endDate || '-'), ' white-space:nowrap;') + td(ent, ' white-space:nowrap;') + '</tr>';
+                td((r.startDate || '-') + ' - ' + (r.endDate || '-'), ' white-space:nowrap;') + td(ent, ' white-space:nowrap;') + chk(r) + '</tr>';
         }).join('') + '</tbody></table></div>';
     box.innerHTML = html;
 }
@@ -14743,7 +14819,160 @@ function mlOnLanguageChanged() {
     if (mlEl('mlModal') && mlEl('mlModal').style.display === 'flex') { mlRenderRules(); mlRefreshPreview(); }
     mlEditHint();
     mlStRender();
+    mlEditCheck();
+    mlNewCheck();
+    if (typeof mlDashRender === 'function') mlDashRender();
+    if (typeof v721AuditPlaceholder === 'function') v721AuditPlaceholder();
 }
+
+
+/* ================= v7.21 ================= */
+
+/* ---------- 1. Account passwords: stored scrambled (PBKDF2-SHA-256 + salt), hidden in Management, "Reset password" ----------
+   Old accounts keep working with the same password. The first time an admin logs in (or the person logs in) the
+   readable password in the database is replaced by the scrambled one. If the browser cannot scramble (very old),
+   everything keeps working the old way. Employee (Check Record) logins are not part of this. */
+const PW_OK = !!(window.crypto && window.crypto.subtle && window.TextEncoder);
+function pwHex(buf) { return Array.from(new Uint8Array(buf)).map(function (b) { return (b < 16 ? '0' : '') + b.toString(16); }).join(''); }
+function pwSalt() { const a = new Uint8Array(12); crypto.getRandomValues(a); return pwHex(a); }
+async function pwDerive(password, salt) {
+    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: new TextEncoder().encode(salt), iterations: 100000 }, key, 256);
+    return 'pbkdf2$' + salt + '$' + pwHex(bits);
+}
+async function pwFields(password) {
+    if (!PW_OK) return { password: password };
+    return { passwordHash: await pwDerive(password, pwSalt()), password: null };
+}
+async function pwVerify(acc, input) {
+    if (acc.passwordHash) {
+        const p = String(acc.passwordHash).split('$');
+        if (p.length !== 3 || !PW_OK) return false;
+        return (await pwDerive(input, p[1])) === acc.passwordHash;
+    }
+    return acc.password !== undefined && acc.password !== null && String(acc.password) !== '' && String(acc.password) === input;
+}
+async function pwUpgrade(acc, plain) {
+    if (!PW_OK || acc.passwordHash || !plain) return false;
+    try { await db.ref('accounts/' + acc.firebaseKey).update(await pwFields(plain)); return true; } catch (e) { return false; }
+}
+let pwUpgrading = false;
+async function pwUpgradeAll() {
+    if (pwUpgrading || !PW_OK || sessionStorage.getItem('loggedInRole') !== 'admin') return;
+    const todo = accounts.filter(function (a) { return !a.passwordHash && a.password; });
+    if (!todo.length) return;
+    pwUpgrading = true;
+    let n = 0;
+    for (const a of todo) { if (await pwUpgrade(a, String(a.password))) n++; }
+    pwUpgrading = false;
+    if (n) logActivity('password_protect', 'account', '', '', n + ' account(s)');
+}
+(function () {
+    const cl = completeLogin;
+    completeLogin = function (found) { cl(found); if (found && found.role === 'admin') setTimeout(pwUpgradeAll, 1500); };
+})();
+
+function pwShowOnce(username, password) {
+    let d = document.getElementById('pwOnceBox');
+    if (!d) { d = document.createElement('div'); d.id = 'pwOnceBox'; d.className = 'modal'; document.body.appendChild(d); }
+    d.innerHTML = '<div class="modal-content" style="max-width:420px; text-align:center;"><h4>' + escapeHtmlText(t('pwOnceTitle')) + '</h4>' +
+        '<p style="font-size:13px;">' + escapeHtmlText(t('pwOnceMsg')) + '</p>' +
+        '<div style="font-size:18px; font-weight:700; margin:10px 0; user-select:all;">' + escapeHtmlText(username) + ' / ' + escapeHtmlText(password) + '</div>' +
+        '<button type="button" class="btn-submit" onclick="document.getElementById(\'pwOnceBox\').style.display=\'none\'">OK</button></div>';
+    d.style.display = 'flex';
+}
+async function pwCreateDefaultAdmin() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789', a = new Uint8Array(10);
+    crypto.getRandomValues(a);
+    const pw = Array.from(a).map(function (x) { return chars[x % chars.length]; }).join('');
+    const f = await pwFields(pw);
+    await db.ref('accounts').push(Object.assign({ username: 'admin', name: 'Administrator', role: 'admin', disabled: false }, f));
+    pwShowOnce('admin', pw);
+}
+
+function pwOpenReset(firebaseKey) {
+    const acc = accounts.find(function (a) { return a.firebaseKey === firebaseKey; });
+    if (!acc) return;
+    let d = document.getElementById('acctPwModal');
+    if (!d) { d = document.createElement('div'); d.id = 'acctPwModal'; d.className = 'modal'; document.body.appendChild(d); }
+    d.innerHTML = '<div class="modal-content" style="max-width:420px;"><div class="modal-header"><h4>' + escapeHtmlText(t('pwResetTitle')) + '</h4><button class="modal-close" onclick="document.getElementById(\'acctPwModal\').style.display=\'none\'">&times;</button></div>' +
+        '<p style="font-size:13px; margin:0 0 8px;"><b>' + escapeHtmlText(acc.name || acc.username) + '</b> (' + escapeHtmlText(acc.username || '') + ')</p>' +
+        '<div class="form-group"><label>' + escapeHtmlText(t('pwNewLabel')) + '</label><input type="text" id="acctPwNew" autocomplete="off"></div>' +
+        '<div style="font-size:11px; color:#64748b; margin-bottom:10px;">' + escapeHtmlText(t('pwResetHint')) + '</div>' +
+        '<button type="button" class="btn-submit" id="acctPwSave" onclick="pwDoReset(\'' + firebaseKey + '\', this)">' + escapeHtmlText(t('pwResetSave')) + '</button></div>';
+    d.style.display = 'flex';
+}
+function pwDoReset(firebaseKey, btn) {
+    const v = (document.getElementById('acctPwNew').value || '').trim();
+    if (v.length < 6) { showToast(false, t('pwTooShort')); return; }
+    const acc = accounts.find(function (a) { return a.firebaseKey === firebaseKey; });
+    withBusyButton(btn, function () {
+        return pwFields(v).then(function (f) { return db.ref('accounts/' + firebaseKey).update(f); }).then(function () {
+            logActivity('account_password_reset', 'account', acc ? acc.username : firebaseKey, acc ? acc.name || '' : '', '');
+            document.getElementById('acctPwModal').style.display = 'none';
+            showToast(true);
+        }).catch(function () { showToast(false); });
+    });
+}
+
+/* ---------- 2. Backup Now: extra sheets + last-backup time ---------- */
+function v721ExtraBackupSheets(wb) {
+    const rows = [];
+    rows.push({ Setting: 'autoRenew', Value: mlSettings.autoRenew ? 'ON' : 'OFF', From: '', To: '', Hours: '' });
+    rows.push({ Setting: 'autoEntitled', Value: mlSettings.autoEntitled ? 'ON' : 'OFF', From: '', To: '', Hours: '' });
+    (mlSettings.rules || []).forEach(function (r) { rows.push({ Setting: 'rule (years of work)', Value: '', From: r.from, To: r.to === null ? '' : r.to, Hours: r.hours }); });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'MasterSettings');
+    if (accounts.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(accounts.map(function (a) { return { Name: a.name || '', Username: a.username || '', Role: a.role || '', Disabled: a.disabled ? 'yes' : 'no', Authenticator: (a.totpEnabled || a.totpSecret) ? 'on' : 'off' }; })), 'Accounts');
+    if (auditLog.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(auditLog.slice().sort(function (a, b) { return (b.timestamp || 0) - (a.timestamp || 0); }).map(function (a) { return { Time: a.timestamp ? new Date(a.timestamp).toLocaleString() : '', Actor: a.actorName || a.actorRole || '', Action: a.action || '', Target: (a.targetLabel || a.targetId || ''), Details: a.details || '' }; })), 'ActivityLog');
+}
+function v721RecordBackup() {
+    try { db.ref('meta/lastBackup').set({ at: Date.now(), by: sessionStorage.getItem('loggedInAccountName') || '' }); } catch (e) {}
+}
+let v721LastBackup = 0;
+db.ref('meta/lastBackup').on('value', function (s) { const v = s.val(); v721LastBackup = v && v.at ? v.at : 0; mlDashRender(); });
+
+/* ---------- 3. data warnings for one employee record (also used by Dashboard + AL Check) ---------- */
+function mlRecordWarnings(e) {
+    return mlCheckRecord({ joinDate: e.joinDate, startDate: e.startDate, endDate: e.endDate, yearRange: e.yearRange, entitled: e.entitled, status: e.status }, mlSettings, mlTodayT())
+        .filter(function (w) { return w.code !== 'ckEnded'; });
+}
+
+/* ---------- 4. Dashboard box (admin only) ---------- */
+function mlDashRender() {
+    const box = document.getElementById('mlDashBox');
+    if (!box) return;
+    if (!mlLoaded || !employees.length) { box.innerHTML = ''; return; }
+    const res = mlStatus(employees, mlSettings, mlTodayT());
+    const soon = res.rows.filter(function (r) { return r.code === 'ok' && r.daysLeft !== null && r.daysLeft <= 30; }).sort(function (a, b) { return a.daysLeft - b.daysLeft; });
+    const att = res.rows.filter(function (r) { return r.code === 'nodate' || r.code === 'offended' || r.code === 'nojoin' || r.code === 'norule'; });
+    const fix = employees.filter(function (e) { return e.status !== 'Resigned' && mlRecordWarnings(e).length; });
+    const days = v721LastBackup ? Math.floor((Date.now() - v721LastBackup) / 86400000) : null;
+    const bad = days === null || days > 7;
+    const li = function (s) { return '<div>' + s + '</div>'; };
+    box.innerHTML = '<div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;"><b style="font-size:13px;">' + escapeHtmlText(t('dashAlTitle')) + '</b>' +
+        '<button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:5px 12px; font-size:12px;" onclick="mlStOpen()">' + escapeHtmlText(t('mlStBtnText')) + '</button></div>' +
+        '<div style="font-size:12px; line-height:1.7; margin-top:6px;">' +
+        li('↻ ' + escapeHtmlText(t('dashRenewSoon')) + ': <b>' + soon.length + '</b>' + (soon.length ? ' - ' + soon.slice(0, 5).map(function (r) { return escapeHtmlText(r.id + ' (' + r.nextStart + ')'); }).join(', ') + (soon.length > 5 ? ' ...' : '') : '')) +
+        li('<span style="color:' + (att.length ? '#dc2626' : '#15803d') + ';">⚠ ' + escapeHtmlText(t('dashNeedAttention')) + ': <b>' + att.length + '</b></span>') +
+        li('<span style="color:' + (fix.length ? '#dc2626' : '#15803d') + ';">✎ ' + escapeHtmlText(t('dashFixData')) + ': <b>' + fix.length + '</b></span>') +
+        li('<span style="color:' + (bad ? '#dc2626' : '#15803d') + ';">⬇ ' + escapeHtmlText(t('dashLastBackup')) + ': <b>' + escapeHtmlText(days === null ? t('dashNever') : fillTemplate(t('dashDaysAgo'), { n: days })) + '</b></span>') +
+        '</div>';
+}
+db.ref('employees').on('value', function () { setTimeout(mlDashRender, 700); });
+db.ref('masterSettings').on('value', function () { setTimeout(mlDashRender, 200); });
+setInterval(mlDashRender, 60000);
+
+/* ---------- 5. Activity Log: search + "automatic changes only" ---------- */
+function v721AuditMatch(a) {
+    const txt = document.getElementById('auditFilterText'), au = document.getElementById('auditFilterAuto');
+    if (au && au.checked && String(a.action || '').indexOf('al_auto') !== 0) return false;
+    const q = txt ? txt.value.trim().toLowerCase() : '';
+    if (!q) return true;
+    return [a.actorName, a.targetLabel, a.targetId, a.details, a.action].some(function (x) { return String(x || '').toLowerCase().indexOf(q) > -1; });
+}
+function v721AuditPlaceholder() { const x = document.getElementById('auditFilterText'); if (x) x.placeholder = t('auditFilterSearchPh'); }
+
+v721AuditPlaceholder();
 
 
  /* v6.96: leave notifications are stored with a language-neutral kind + params, and turned into
@@ -14899,6 +15128,8 @@ function mlOnLanguageChanged() {
      const f = document.getElementById('auditFilterFrom'); if (f) f.value = '';
      const to = document.getElementById('auditFilterTo'); if (to) to.value = '';
      const a = document.getElementById('auditFilterAction'); if (a) a.value = '';
+     const tx = document.getElementById('auditFilterText'); if (tx) tx.value = '';
+     const au = document.getElementById('auditFilterAuto'); if (au) au.checked = false;
      renderAuditLogTable();
  }
 
@@ -14911,6 +15142,7 @@ function mlOnLanguageChanged() {
      const actionFilter = actionEl ? actionEl.value : '';
      return auditLog.filter(a => {
          if (actionFilter && a.action !== actionFilter) return false;
+         if (!v721AuditMatch(a)) return false;
          if (from || to) {
              const d = a.timestamp ? new Date(a.timestamp).toISOString().slice(0, 10) : '';
              if (from && d < from) return false;
