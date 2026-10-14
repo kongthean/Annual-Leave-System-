@@ -546,7 +546,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.13</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.14</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -945,6 +945,8 @@
 <button id="nav-certificates" onclick="switchTab('tab-certificates', this)" data-i18n="navCertificates" style="display:none;">Certificates</button>
 <!-- v6.98: Face Attendance (admin-only, reachable from Main Menu) -->
 <button id="nav-faceatt" onclick="switchTab('tab-faceatt', this)" data-i18n="navFaceAtt" style="display:none;">Face Attendance</button>
+<!-- v7.14: Export (reachable from Main Menu) -->
+<button id="nav-export" onclick="switchTab('tab-export', this)" data-i18n="navExport" style="display:none;">Export</button>
 
  <!-- TAB 1: DASHBOARD -->
  <div id="tab-home" class="tab-panel active">
@@ -1133,6 +1135,10 @@
 <!-- v6.98: Face Attendance - watch face-scan check-ins live, enroll faces, shift rules, manual entry, daily PDF -->
 <button class="quick-btn admin-only" style="background:linear-gradient(135deg,#0891b2,#164e63);" onclick="triggerNav('tab-faceatt', 'nav-faceatt')">
     <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2"/><path d="M16 4h2a2 2 0 0 1 2 2v2"/><path d="M20 16v2a2 2 0 0 1-2 2h-2"/><path d="M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="11" r="3"/><path d="M7.5 17.5c.9-2 2.6-3 4.5-3s3.6 1 4.5 3"/></svg></span><span class="quick-btn-label" data-i18n="navFaceAtt">Face Attendance</span>
+</button>
+<!-- v7.14: Export - every export in one place, with title, date, department, factory code and signatures -->
+<button class="quick-btn" style="background:linear-gradient(135deg,#4f46e5,#3730a3);" onclick="triggerNav('tab-export', 'nav-export')">
+    <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="11"/><polyline points="9 14 12 11 15 14"/></svg></span><span class="quick-btn-label" data-i18n="navExport">Export</span>
 </button>
      </div>
  
@@ -2202,6 +2208,72 @@
      </div>
  </div>
 
+ <!-- TAB: EXPORT CENTER (v7.14) -->
+ <div id="tab-export" class="tab-panel">
+     <style>
+         .xc-group { margin-bottom:12px; }
+         .xc-group-title { font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px; }
+         .xc-kind { display:inline-block; margin:0 8px 8px 0; padding:9px 14px; border:1.5px solid #cbd5e1; border-radius:10px; background:#fff; color:#0f172a; font-size:13px; font-weight:600; cursor:pointer; }
+         .xc-kind:hover { border-color:#4f46e5; }
+         .xc-kind.sel { background:#4f46e5; border-color:#4f46e5; color:#fff; }
+         .xc-table th, .xc-table td { border:1px solid #94a3b8; }
+     </style>
+     <div class="dash-card">
+         <h4 data-i18n="navExport">Export</h4>
+         <p style="font-size:12px; color:#64748b; margin-bottom:12px;" data-i18n="xcSub">Choose what to export, fill in the document details, then export it as PDF, Excel or Word. The Export buttons on each page still download directly.</p>
+         <h5 style="margin:6px 0 8px;" data-i18n="xcStep1">1. Choose what to export</h5>
+         <div id="xcKindList"></div>
+         <div id="xcKindNote" style="font-size:11px; color:#64748b; margin-bottom:6px;"></div>
+
+         <div id="xcStep2" style="display:none;">
+             <h5 style="margin:14px 0 8px;" data-i18n="xcStep2">2. Document details</h5>
+             <div class="fa-grid">
+                 <div class="form-group" style="margin-bottom:0; min-width:170px;"><label data-i18n="faExportLang">Report language</label>
+                     <select id="xcLang"><option value="en">English</option><option value="km">ខ្មែរ</option><option value="zh">中文</option></select></div>
+                 <div class="form-group" id="xcDeptRow" style="margin-bottom:0; min-width:200px;"><label data-i18n="tblDepartment">Department</label><select id="xcDept"></select></div>
+                 <div class="form-group" id="xcOptMonth" style="margin-bottom:0; min-width:170px; display:none;"><label data-i18n="xcMonthLbl">Month</label><input type="month" id="xcMonth"></div>
+                 <div class="form-group" id="xcOptAtt" style="margin-bottom:0; min-width:170px; display:none;"><label data-i18n="xcAttDateLbl">Attendance date</label><input type="date" id="xcAttDate"></div>
+                 <div class="form-group" id="xcOptRenew" style="margin-bottom:0; min-width:200px; display:none;"><label data-i18n="renewWithinLbl">Renewing within</label><select id="xcRenew"></select></div>
+             </div>
+             <div class="form-group" style="margin-top:10px;"><label data-i18n="faHeaderTitle">Title (empty = default title)</label><input type="text" id="xcTitle" maxlength="150"></div>
+             <div class="fa-grid">
+                 <div class="form-group" style="margin-bottom:0; min-width:170px;"><label data-i18n="xcDocDate">Date on document (empty = not shown)</label><input type="date" id="xcDocDate"></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:200px;"><label data-i18n="faHeaderCode">Factory code (empty = not shown)</label><input type="text" id="xcCode" maxlength="60"></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:240px;"><label data-i18n="xcDeptShown">Department name on document (empty = chosen department)</label><input type="text" id="xcDeptShown" maxlength="120"></div>
+             </div>
+             <div class="form-group" style="margin-top:10px;"><label data-i18n="faHeaderExtra">Header: extra lines (optional)</label><textarea id="xcExtra" rows="2" maxlength="400" style="width:100%;"></textarea></div>
+             <h5 style="margin:12px 0 4px;" data-i18n="faSigHeading">Signatures</h5>
+             <p style="font-size:11px; color:#64748b; margin-bottom:8px;" data-i18n="faSigHint">Type the title of each signature box, for example Prepared by, Checked by, Approved by. A box with an empty title is not shown. Type a name under the line only if you want it printed.</p>
+             <div class="fa-grid">
+                 <div class="form-group" style="margin-bottom:0; min-width:200px;"><label><span data-i18n="faSigTitleN">Signature title</span> 1</label><input type="text" id="xcSigLabel1" maxlength="60"><input type="text" id="xcSigName1" maxlength="60" data-i18n-ph="faSigNamePh" placeholder="Name (optional)" style="margin-top:4px;"></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:200px;"><label><span data-i18n="faSigTitleN">Signature title</span> 2</label><input type="text" id="xcSigLabel2" maxlength="60"><input type="text" id="xcSigName2" maxlength="60" data-i18n-ph="faSigNamePh" placeholder="Name (optional)" style="margin-top:4px;"></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:200px;"><label><span data-i18n="faSigTitleN">Signature title</span> 3</label><input type="text" id="xcSigLabel3" maxlength="60"><input type="text" id="xcSigName3" maxlength="60" data-i18n-ph="faSigNamePh" placeholder="Name (optional)" style="margin-top:4px;"></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:200px;"><label><span data-i18n="faSigTitleN">Signature title</span> 4</label><input type="text" id="xcSigLabel4" maxlength="60"><input type="text" id="xcSigName4" maxlength="60" data-i18n-ph="faSigNamePh" placeholder="Name (optional)" style="margin-top:4px;"></div>
+             </div>
+             <div class="fa-grid" style="margin-top:10px;">
+                 <div class="form-group" style="margin-bottom:0; min-width:200px;"><label data-i18n="faSigPos">Signature position</label>
+                     <select id="xcSigPos"><option value="spread" data-i18n="faPosSpread">Bottom - spread across</option><option value="right" data-i18n="faPosRight">Bottom - right side</option><option value="left" data-i18n="faPosLeft">Bottom - left side</option><option value="top" data-i18n="faPosTop">Top - under the header</option></select></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:170px;"><label data-i18n="faHdrAlign">Header position</label>
+                     <select id="xcAlign"><option value="center" data-i18n="faAlignCenter">Center</option><option value="left" data-i18n="faAlignLeft">Left</option><option value="right" data-i18n="faAlignRight">Right</option></select></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:170px;"><label data-i18n="xcOrient">Page orientation</label>
+                     <select id="xcOrient"><option value="auto" data-i18n="xcOrientAuto">Automatic</option><option value="landscape" data-i18n="xcOrientLand">Landscape</option><option value="portrait" data-i18n="xcOrientPort">Portrait</option></select></div>
+             </div>
+         </div>
+
+         <div id="xcStep3" style="display:none;">
+             <h5 style="margin:14px 0 8px;" data-i18n="xcStep3">3. Export</h5>
+             <div class="form-group" style="max-width:240px;"><label data-i18n="faExportFormat">Export format</label>
+                 <select id="xcFormat"><option value="pdf">PDF</option><option value="excel">Excel (.xlsx)</option><option value="word">Word (.doc)</option></select></div>
+             <p style="font-size:11px; color:#64748b; margin-bottom:8px;" data-i18n="faExcelNote">Excel: the header lines are left-aligned. Signature boxes follow the position you choose.</p>
+             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+                 <button type="button" class="quick-btn slate" onclick="xcPreview(this)" data-i18n="faPreview">Preview</button>
+                 <button type="button" class="quick-btn green" onclick="xcExport(this)" data-i18n="faExportBtn">Export</button>
+             </div>
+             <div id="xcPreview" class="table-responsive"></div>
+         </div>
+     </div>
+ </div>
+
  <!-- TAB 10: DEPARTMENTS (v5.00) -->
  <div id="tab-dept" class="tab-panel">
      <h3 data-i18n="deptTitle">Departments / Teams</h3>
@@ -2452,7 +2524,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.13
+     HR & Administration System Version 7.14
  </div>
 </div>
 
@@ -3639,6 +3711,34 @@
         notifPersonalLeaveMsg: "You have a Personal Leave record of {hours} hour(s). Total Personal Leave this month: {total} hours.",
         notifLeaveDeductedMsg2: "Your Annual Leave entitlement has been deducted {hours} hour(s) use for your leave on {date}. Used for {type}. Remaining Hours: {remaining} hours.",
         notifPersonalLeaveMsg2: "You have a personal leave record of {hours} hour(s) for your leave on {date}. Total personal leave this month: {total} hours.",
+        /* v7.14 Export */
+        navExport: "Export",
+        xcSub: "Choose what to export, fill in the document details, then export it as PDF, Excel or Word. The Export buttons on each page still download directly.",
+        xcStep1: "1. Choose what to export",
+        xcStep2: "2. Document details",
+        xcStep3: "3. Export",
+        xcKMaster: "Master Sheet report",
+        xcKLeaveAvail: "Leave Report - Available This Month",
+        xcKLeaveExceed: "Leave Report - Exceeded Hours",
+        xcKMonthly: "Monthly Report",
+        xcKMonthlyAL: "Monthly Annual Leave",
+        xcKRenewal: "AL Renewal List",
+        xcKEmployee: "Employee Directory",
+        xcKShift: "Shift Calendar",
+        xcKAudit: "Activity Log",
+        xcKFace: "Face Attendance daily report",
+        xcAuditNote: "Uses the filters currently set on the Activity Log page.",
+        xcMonthLbl: "Month",
+        xcAttDateLbl: "Attendance date",
+        xcDocDate: "Date on document (empty = not shown)",
+        xcDateWord: "Date",
+        xcDeptShown: "Department name on document (empty = chosen department)",
+        xcOrient: "Page orientation",
+        xcOrientAuto: "Automatic",
+        xcOrientLand: "Landscape",
+        xcOrientPort: "Portrait",
+        xcNoData: "Nothing to export for these choices.",
+        xcPickFirst: "Choose what to export first.",
         /* v6.98 Face Attendance */
         navFaceAtt: "Face Attendance",
         faTitle: "Face Attendance",
@@ -4524,6 +4624,34 @@
         notifPersonalLeaveMsg: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
         notifLeaveDeductedMsg2: "សិទ្ធិច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំរបស់អ្នកត្រូវបានកាត់កង {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ ប្រើសម្រាប់៖ {type}។ ម៉ោងនៅសល់៖ {remaining} ម៉ោង។",
         notifPersonalLeaveMsg2: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
+        /* v7.14 Export */
+        navExport: "នាំចេញ",
+        xcSub: "ជ្រើសរើសអ្វីដែលត្រូវនាំចេញ បំពេញព័ត៌មានឯកសារ បន្ទាប់មកនាំចេញជា PDF, Excel ឬ Word។ ប៊ូតុងនាំចេញនៅតាមទំព័រនីមួយៗនៅតែទាញយកដោយផ្ទាល់ដដែល។",
+        xcStep1: "១. ជ្រើសរើសអ្វីដែលត្រូវនាំចេញ",
+        xcStep2: "២. ព័ត៌មានឯកសារ",
+        xcStep3: "៣. នាំចេញ",
+        xcKMaster: "របាយការណ៍តារាងមេ",
+        xcKLeaveAvail: "របាយការណ៍ច្បាប់ - ម៉ោងដែលអាចប្រើបានខែនេះ",
+        xcKLeaveExceed: "របាយការណ៍ច្បាប់ - ម៉ោងលើស",
+        xcKMonthly: "របាយការណ៍ប្រចាំខែ",
+        xcKMonthlyAL: "ច្បាប់ប្រចាំឆ្នាំប្រចាំខែ",
+        xcKRenewal: "បញ្ជីបន្តច្បាប់ប្រចាំឆ្នាំ",
+        xcKEmployee: "បញ្ជីនិយោជិត",
+        xcKShift: "ប្រតិទិនវេន",
+        xcKAudit: "កំណត់ហេតុសកម្មភាព",
+        xcKFace: "របាយការណ៍វត្តមានស្កេនមុខប្រចាំថ្ងៃ",
+        xcAuditNote: "ប្រើតម្រងដែលកំពុងកំណត់នៅទំព័រកំណត់ហេតុសកម្មភាព។",
+        xcMonthLbl: "ខែ",
+        xcAttDateLbl: "កាលបរិច្ឆេទវត្តមាន",
+        xcDocDate: "កាលបរិច្ឆេទលើឯកសារ (ទទេ = មិនបង្ហាញ)",
+        xcDateWord: "កាលបរិច្ឆេទ",
+        xcDeptShown: "ឈ្មោះផ្នែកលើឯកសារ (ទទេ = ផ្នែកដែលបានជ្រើស)",
+        xcOrient: "ទិសដៅទំព័រ",
+        xcOrientAuto: "ស្វ័យប្រវត្តិ",
+        xcOrientLand: "ផ្ដេក",
+        xcOrientPort: "បញ្ឈរ",
+        xcNoData: "គ្មានអ្វីត្រូវនាំចេញសម្រាប់ជម្រើសទាំងនេះទេ។",
+        xcPickFirst: "សូមជ្រើសរើសអ្វីដែលត្រូវនាំចេញជាមុនសិន។",
         /* v6.98 Face Attendance */
         navFaceAtt: "វត្តមានតាមការស្កេនមុខ",
         faTitle: "វត្តមានតាមការស្កេនមុខ",
@@ -5371,6 +5499,34 @@
         notifPersonalLeaveMsg: "您有一笔{hours}小时的事假记录。本月事假总计：{total}小时。",
         notifLeaveDeductedMsg2: "您的年假额度已扣除{hours}小时，对应您在{date}的休假。用途：{type}。剩余小时数：{remaining}小时。",
         notifPersonalLeaveMsg2: "您有一笔{hours}小时的事假记录，对应您在{date}的休假。本月事假总计：{total}小时。",
+        /* v7.14 Export */
+        navExport: "导出",
+        xcSub: "选择要导出的内容，填写文件信息，然后导出为 PDF、Excel 或 Word。各页面上的导出按钮仍然直接下载。",
+        xcStep1: "1. 选择要导出的内容",
+        xcStep2: "2. 文件信息",
+        xcStep3: "3. 导出",
+        xcKMaster: "总表报告",
+        xcKLeaveAvail: "请假报告 - 本月可用",
+        xcKLeaveExceed: "请假报告 - 超出小时",
+        xcKMonthly: "月度报告",
+        xcKMonthlyAL: "每月年假",
+        xcKRenewal: "年假续期名单",
+        xcKEmployee: "员工名录",
+        xcKShift: "排班日历",
+        xcKAudit: "操作记录",
+        xcKFace: "人脸考勤每日报告",
+        xcAuditNote: "使用操作记录页面当前设置的筛选条件。",
+        xcMonthLbl: "月份",
+        xcAttDateLbl: "考勤日期",
+        xcDocDate: "文件日期（留空 = 不显示）",
+        xcDateWord: "日期",
+        xcDeptShown: "文件上的部门名称（留空 = 所选部门）",
+        xcOrient: "页面方向",
+        xcOrientAuto: "自动",
+        xcOrientLand: "横向",
+        xcOrientPort: "纵向",
+        xcNoData: "所选条件下没有可导出的内容。",
+        xcPickFirst: "请先选择要导出的内容。",
         /* v6.98 Face Attendance */
         navFaceAtt: "人脸考勤",
         faTitle: "人脸考勤",
@@ -6262,6 +6418,7 @@ function renderEmpShiftCalendar() {
      renderMonthlyReport();
      renderEmployeeList();
      if (typeof faOnLanguageChanged === 'function') faOnLanguageChanged();
+     if (typeof xcOnLanguageChanged === 'function') xcOnLanguageChanged();
 
      const loggedInLabel = document.getElementById('empLoggedInAsLabel');
      const loggedInId = sessionStorage.getItem('empLoggedInId');
@@ -6968,6 +7125,7 @@ async function deleteAnnouncement(firebaseKey, btnEl) {
          if (typeof faIsAdmin === 'function' && !faIsAdmin()) { switchTab('tab-home', document.getElementById('nav-home')); return; }
          faInitTab();
      }
+     if(tabId === 'tab-export') xcInitTab();
  }
  
  function triggerNav(tabId, navBtnId) {
@@ -13410,6 +13568,343 @@ function faOnLanguageChanged() {
     faPopulateExportDepts();
     faManualPreview();
     faRefreshCaptureInfo();
+}
+
+
+/* ================= v7.14: EXPORT CENTER =================
+   One main-menu page that lists every export of the app. The admin picks one, fills in the document
+   details (title, department, date, factory code, extra lines, up to four signature boxes) and
+   exports it as PDF, Excel or Word.
+   The buttons on the other pages are untouched and still download directly.
+
+   The figures are NOT calculated again here. Each export runs the page's own export function while
+   XLSX.writeFile is temporarily replaced, and the finished sheet is read back (xcCapture). So the
+   numbers, columns and language are always exactly what the direct download would have contained. */
+
+const XC_KINDS = [
+    { id: 'master', group: 'navMaster', label: 'xcKMaster', dept: 'native', run: function (o) { exportToExcel('master', o.lang, o.dept); } },
+    { id: 'leaveAvail', group: 'navMaster', label: 'xcKLeaveAvail', dept: 'post', run: function (o) { exportLeaveReport('available', o.lang); } },
+    { id: 'leaveExceed', group: 'navMaster', label: 'xcKLeaveExceed', dept: 'post', run: function (o) { exportLeaveReport('exceeded', o.lang); } },
+    { id: 'monthly', group: 'navMonthlyReport', label: 'xcKMonthly', dept: 'native', run: function (o) { exportToExcel('monthly', o.lang, o.dept); } },
+    { id: 'monthlyal', group: 'navMonthlyAL', label: 'xcKMonthlyAL', dept: 'native', run: function (o) { exportMonthlyALReport(o.lang, o.dept); } },
+    { id: 'renewal', group: 'navMonthlyAL', label: 'xcKRenewal', dept: 'native', opt: 'renew', run: function (o) { exportRenewalList(o.renew === 'all' ? null : parseInt(o.renew, 10), o.lang, o.dept); } },
+    { id: 'employee', group: 'navEmployee', label: 'xcKEmployee', dept: 'native', run: function (o) { exportToExcel('employee', o.lang, o.dept); } },
+    { id: 'shift', group: 'navShiftRoster', label: 'xcKShift', dept: 'post', opt: 'month', headerRows: 2, titleKey: 'shiftCalTitle', run: function (o) {
+        const m = document.getElementById('shiftCalMonth'), s = document.getElementById('shiftCalSearchInput');
+        const keepM = m ? m.value : '', keepS = s ? s.value : '';
+        try { if (m) m.value = o.month; if (s) s.value = ''; exportShiftCalendarToExcel(o.lang); }
+        finally { if (m) m.value = keepM; if (s) s.value = keepS; }
+    } },
+    { id: 'auditlog', group: 'navAuditLog', label: 'xcKAudit', dept: 'none', admin: true, note: 'xcAuditNote', titleKey: 'auditLogTitle', run: function (o) { exportAuditLogToExcel(o.lang); } },
+    { id: 'faceatt', group: 'navFaceAtt', label: 'xcKFace', dept: 'native', opt: 'attdate', admin: true, face: true }
+];
+
+let xcSel = null;
+
+function xcEl(id) { return document.getElementById(id); }
+function xcIsAdmin() { return typeof faIsAdmin === 'function' ? faIsAdmin() : (sessionStorage.getItem('loggedInRole') || 'admin') === 'admin'; }
+function xcKind(id) { return XC_KINDS.filter(function (k) { return k.id === id; })[0] || null; }
+function xcToday() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+
+/* ---------- screen ---------- */
+function xcRenderKinds() {
+    const box = xcEl('xcKindList');
+    if (!box) return;
+    const groups = [];
+    XC_KINDS.forEach(function (k) {
+        if (k.admin && !xcIsAdmin()) return;
+        let g = groups.filter(function (x) { return x.key === k.group; })[0];
+        if (!g) { g = { key: k.group, items: [] }; groups.push(g); }
+        g.items.push(k);
+    });
+    box.innerHTML = groups.map(function (g) {
+        return '<div class="xc-group"><div class="xc-group-title">' + escapeHtmlText(t(g.key)) + '</div>' +
+            g.items.map(function (k) {
+                return '<button type="button" class="xc-kind' + (xcSel === k.id ? ' sel' : '') + '" onclick="xcSelect(\'' + k.id + '\')">' + escapeHtmlText(t(k.label)) + '</button>';
+            }).join('') + '</div>';
+    }).join('');
+}
+
+function xcPopulateDepts() {
+    const sel = xcEl('xcDept');
+    if (!sel) return;
+    const keep = sel.value;
+    const names = {};
+    departments.forEach(function (d) { if (d.name) names[d.name] = true; });
+    employees.forEach(function (e) { if (e.department) names[e.department] = true; });
+    sel.innerHTML = '<option value="">' + escapeHtmlText(t('exportAllDepartments')) + '</option>' +
+        Object.keys(names).sort().map(function (n) { return '<option value="' + escapeHtmlText(n) + '">' + escapeHtmlText(n) + '</option>'; }).join('');
+    sel.value = keep || '';
+}
+
+function xcPopulateRenew() {
+    const sel = xcEl('xcRenew');
+    if (!sel) return;
+    const keep = sel.value || '3';
+    let opts = '<option value="all">' + escapeHtmlText(t('renewAllOpt')) + '</option>';
+    for (let n = 1; n <= 12; n++) opts += '<option value="' + n + '">' + escapeHtmlText(fillTemplate(t('renewMonthsOpt'), { n: n })) + '</option>';
+    sel.innerHTML = opts;
+    sel.value = keep;
+}
+
+function xcSelect(id) {
+    xcSel = id;
+    const k = xcKind(id);
+    xcRenderKinds();
+    xcEl('xcStep2').style.display = k ? '' : 'none';
+    xcEl('xcStep3').style.display = k ? '' : 'none';
+    if (!k) return;
+    xcEl('xcDeptRow').style.display = k.dept === 'none' ? 'none' : '';
+    xcEl('xcOptMonth').style.display = k.opt === 'month' ? '' : 'none';
+    xcEl('xcOptAtt').style.display = k.opt === 'attdate' ? '' : 'none';
+    xcEl('xcOptRenew').style.display = k.opt === 'renew' ? '' : 'none';
+    xcEl('xcKindNote').textContent = k.note ? t(k.note) : '';
+    xcEl('xcPreview').innerHTML = '';
+}
+
+function xcInitTab() {
+    if (!xcEl('xcDocDate').value) xcEl('xcDocDate').value = xcToday();
+    if (!xcEl('xcMonth').value) xcEl('xcMonth').value = xcToday().slice(0, 7);
+    if (!xcEl('xcAttDate').value) xcEl('xcAttDate').value = (typeof faAddDays === 'function' && typeof faTodayStr === 'function') ? faAddDays(faTodayStr(), -1) : xcToday();
+    if (!xcEl('xcLang').value) xcEl('xcLang').value = currentLang || 'en';
+    xcPopulateDepts();
+    xcPopulateRenew();
+    xcApplyPlaceholders();
+    if (xcSel && !xcKind(xcSel)) xcSel = null;
+    if (xcSel && xcKind(xcSel).admin && !xcIsAdmin()) xcSel = null;
+    xcRenderKinds();
+    xcSelect(xcSel);
+}
+
+function xcApplyPlaceholders() {
+    document.querySelectorAll('#tab-export [data-i18n-ph]').forEach(function (el) { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
+}
+
+function xcOnLanguageChanged() {
+    if (!xcEl('xcKindList')) return;
+    xcPopulateDepts();
+    xcPopulateRenew();
+    xcApplyPlaceholders();
+    xcRenderKinds();
+    const k = xcKind(xcSel);
+    if (k) xcEl('xcKindNote').textContent = k.note ? t(k.note) : '';
+}
+
+/* ---------- data: run the page's own export and read the sheet back ---------- */
+function xcCapture(run) {
+    if (typeof XLSX === 'undefined') { showToast(false); return null; }
+    const origWrite = XLSX.writeFile, origToast = window.showToast;
+    let wb = null;
+    XLSX.writeFile = function (w) { wb = w; };
+    window.showToast = function (ok) { if (ok === false || ok === 'pending') origToast.apply(this, arguments); };
+    try { run(); } finally { XLSX.writeFile = origWrite; window.showToast = origToast; }
+    if (!wb) return null;
+    return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '', raw: true });
+}
+
+function xcFromAoa(aoa, kind, o) {
+    if (!aoa || !aoa.length) return null;
+    let nc = 0;
+    aoa.forEach(function (r) { if (r.length > nc) nc = r.length; });
+    const rows = aoa.map(function (r) { const c = r.slice(); while (c.length < nc) c.push(''); return c; });
+    let title = '';
+    const filled = rows[0].filter(function (c) { return c !== '' && c !== null && c !== undefined; });
+    if (filled.length === 1 && rows.length > 1 && nc > 1) { title = String(filled[0]); rows.shift(); }
+    if (!title) title = kind.titleKey ? tLang(kind.titleKey, o.lang) : tLang(kind.label, o.lang);
+    const hr = kind.headerRows || 1;
+    let body = rows.slice(hr);
+    if (kind.dept === 'post' && o.dept) {
+        body = body.filter(function (r) {
+            const e = employees.filter(function (x) { return String(x.id) === String(r[0]); })[0];
+            return e && e.department === o.dept;
+        });
+    }
+    if (!body.length) { showToast(false, t('xcNoData')); return null; }
+    return { title: title, aoa: rows.slice(0, hr).concat(body), headerRows: hr, totalRow: false };
+}
+
+async function xcBuildDataset(k, o) {
+    if (k.face) {
+        if (!o.attdate) { showToast(false, t('faManualNeedFields')); return null; }
+        const rows = await faBuildReportData(o.attdate, o.dept);
+        if (!rows.length) { showToast(false, t('faNoRowsExport')); return null; }
+        const b = faBuildReportAoa(rows, { lang: o.lang, date: o.attdate, dept: '', title: '', code: '', extra: '', sigs: [], sigPos: 'spread' });
+        return { title: String(b.aoa[0][0]), aoa: b.aoa.slice(b.headRow), headerRows: 1, totalRow: true };
+    }
+    const aoa = xcCapture(function () { k.run(o); });
+    return xcFromAoa(aoa, k, o);
+}
+
+/* ---------- document ---------- */
+function xcOptions() {
+    const sigs = [];
+    for (let i = 1; i <= 4; i++) sigs.push({ label: xcEl('xcSigLabel' + i).value, name: xcEl('xcSigName' + i).value });
+    return {
+        lang: xcEl('xcLang').value || 'en', dept: xcEl('xcDept').value, deptShown: xcEl('xcDeptShown').value.trim(),
+        month: xcEl('xcMonth').value, attdate: xcEl('xcAttDate').value, renew: xcEl('xcRenew').value || '3',
+        title: xcEl('xcTitle').value, docDate: xcEl('xcDocDate').value, code: xcEl('xcCode').value, extra: xcEl('xcExtra').value,
+        align: xcEl('xcAlign').value, sigs: sigs, sigPos: xcEl('xcSigPos').value, orient: xcEl('xcOrient').value, format: xcEl('xcFormat').value
+    };
+}
+
+function xcOrientOf(ds, o) {
+    if (o.orient === 'portrait' || o.orient === 'landscape') return o.orient;
+    return (ds.aoa[0] || []).length > 7 ? 'landscape' : 'portrait';
+}
+
+function xcHeadLines(ds, o) {
+    const L = function (k) { return tLang(k, o.lang); };
+    const out = { dept: o.deptShown || o.dept || '', title: (o.title && o.title.trim()) || ds.title, date: o.docDate ? (L('xcDateWord') + ': ' + o.docDate) : '', code: (o.code && o.code.trim()) ? (L('faRptFactory') + ': ' + o.code.trim()) : '' };
+    out.extra = (o.extra || '').split('\n').filter(function (x) { return x.trim(); });
+    return out;
+}
+
+function xcBuildHtml(ds, o) {
+    const hl = xcHeadLines(ds, o);
+    const align = (o.align === 'left' || o.align === 'right') ? o.align : 'center';
+    const nc = (ds.aoa[0] || []).length;
+    const fs = nc > 18 ? 9 : (nc > 12 ? 10 : 12);
+    const cell = 'border:1px solid #94a3b8; padding:3px 5px; font-size:' + fs + 'px;';
+    const sigs = faCleanSigs(o.sigs);
+    const sigPos = o.sigPos || 'spread';
+    const sigHtml = faSigHtml(sigs, sigPos);
+    const head = '<div style="text-align:' + align + '; margin-bottom:10px;">' +
+        (hl.dept ? '<div style="font-size:17px; font-weight:800;">' + faEsc(hl.dept) + '</div>' : '') +
+        '<div style="font-size:15px; font-weight:700;">' + faEsc(hl.title) + '</div>' +
+        (hl.date ? '<div style="font-size:12px; margin-top:4px;">' + faEsc(hl.date) + '</div>' : '') +
+        (hl.code ? '<div style="font-size:12px; margin-top:2px;">' + faEsc(hl.code) + '</div>' : '') +
+        (hl.extra.length ? '<div style="font-size:12px; margin-top:4px;">' + hl.extra.map(faEsc).join('<br>') + '</div>' : '') + '</div>';
+    const hr = ds.headerRows || 1;
+    let thead = '';
+    for (let r = 0; r < hr; r++) {
+        thead += '<tr style="background:#e2e8f0;">';
+        for (let c = 0; c < nc; c++) {
+            const v = ds.aoa[r][c];
+            if (hr === 2 && r === 1 && ds.aoa[1][c] === '' && ds.aoa[0][c] !== '') continue;
+            const span = (hr === 2 && r === 0 && ds.aoa[1][c] === '' && v !== '') ? ' rowspan="2"' : '';
+            thead += '<th' + span + ' style="' + cell + ' text-align:center;">' + faEsc(v) + '</th>';
+        }
+        thead += '</tr>';
+    }
+    let tbody = '';
+    for (let r = hr; r < ds.aoa.length; r++) {
+        const isTotal = ds.totalRow && r === ds.aoa.length - 1;
+        tbody += '<tr' + (isTotal ? ' style="font-weight:700; background:#f1f5f9;"' : '') + '>';
+        for (let c = 0; c < nc; c++) {
+            const v = ds.aoa[r][c];
+            tbody += '<td style="' + cell + (typeof v === 'number' ? ' text-align:center;' : '') + '">' + faEsc(v) + '</td>';
+        }
+        tbody += '</tr>';
+    }
+    return head + (sigPos === 'top' ? sigHtml : '') +
+        '<table class="xc-table" style="border-collapse:collapse; width:100%;"><thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table>' +
+        (sigPos === 'top' ? '' : sigHtml);
+}
+
+function xcBuildExcelAoa(ds, o) {
+    const hl = xcHeadLines(ds, o);
+    const hr = ds.headerRows || 1;
+    const nc = Math.max((ds.aoa[0] || []).length, 4);
+    const aoa = [], merges = [];
+    const full = function (text) { const r = aoa.length; aoa.push([text]); merges.push({ s: { r: r, c: 0 }, e: { r: r, c: nc - 1 } }); };
+    if (hl.dept) full(hl.dept);
+    full(hl.title);
+    if (hl.date) full(hl.date);
+    if (hl.code) full(hl.code);
+    hl.extra.forEach(full);
+    const sigs = faCleanSigs(o.sigs);
+    const sigPos = o.sigPos || 'spread';
+    const addSigs = function () {
+        if (!sigs.length) return;
+        const n = sigs.length;
+        const span = Math.max(1, Math.min(3, Math.floor(nc / n)));
+        const starts = sigs.map(function (g, i) {
+            if (sigPos === 'right') return nc - (n - i) * span;
+            if (sigPos === 'left') return i * span;
+            return Math.floor(i * nc / n) + Math.floor((nc / n - span) / 2);
+        });
+        aoa.push([]); aoa.push([]);
+        const base = aoa.length;
+        [function () { return '______________________'; }, function (g) { return g.label; }, function (g) { return g.name; }].forEach(function (fn, off) {
+            const r = base + off;
+            while (aoa.length <= r) aoa.push([]);
+            sigs.forEach(function (g, i) {
+                const val = fn(g);
+                if (val === '') return;
+                aoa[r][starts[i]] = val;
+                if (span > 1) merges.push({ s: { r: r, c: starts[i] }, e: { r: r, c: starts[i] + span - 1 } });
+            });
+        });
+        for (let r = 0; r < aoa.length; r++) for (let c = 0; c < nc; c++) if (aoa[r][c] === undefined) aoa[r][c] = '';
+    };
+    if (sigPos === 'top') { addSigs(); }
+    aoa.push([]);
+    const tableTop = aoa.length;
+    ds.aoa.forEach(function (r) { const row = r.slice(); while (row.length < nc) row.push(''); aoa.push(row); });
+    if (hr === 2) { for (let c = 0; c < nc; c++) if (ds.aoa[1][c] === '' && ds.aoa[0][c] !== '') merges.push({ s: { r: tableTop, c: c }, e: { r: tableTop + 1, c: c } }); }
+    if (sigPos !== 'top') addSigs();
+    const cols = [];
+    for (let c = 0; c < nc; c++) {
+        let w = 6;
+        ds.aoa.slice(0, 60).forEach(function (r) { const l = String(r[c] === undefined ? '' : r[c]).length; if (l > w) w = l; });
+        cols.push({ wch: Math.min(40, w + 2) });
+    }
+    return { aoa: aoa, merges: merges, cols: cols };
+}
+
+function xcFileBase(k, o) { return 'Export_' + k.id + '_' + (o.docDate || xcToday()); }
+
+async function xcPrepare() {
+    const k = xcKind(xcSel);
+    if (!k) { showToast(false, t('xcPickFirst')); return null; }
+    const o = xcOptions();
+    const ds = await xcBuildDataset(k, o);
+    if (!ds) return null;
+    return { k: k, o: o, ds: ds };
+}
+
+function xcPreview(btn) {
+    withBusyButton(btn, async function () {
+        const p = await xcPrepare();
+        if (!p) return;
+        xcEl('xcPreview').innerHTML = xcBuildHtml(p.ds, p.o);
+    });
+}
+
+const XC_FONT = '"Khmer OS","Noto Sans Khmer","Noto Sans SC",Arial,sans-serif';
+
+function xcExport(btn) {
+    withBusyButton(btn, async function () {
+        const p = await xcPrepare();
+        if (!p) return;
+        const o = p.o, ds = p.ds, orient = xcOrientOf(ds, o);
+        const html = xcBuildHtml(ds, o);
+        const name = xcFileBase(p.k, o);
+        if (o.format === 'excel') {
+            if (typeof XLSX === 'undefined') { showToast(false); return; }
+            const b = xcBuildExcelAoa(ds, o);
+            const ws = XLSX.utils.aoa_to_sheet(b.aoa);
+            ws['!merges'] = b.merges;
+            ws['!cols'] = b.cols;
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, String(ds.title).replace(/[\\\/?*\[\]:]/g, ' ').slice(0, 31) || 'Export');
+            XLSX.writeFile(wb, name + '.xlsx');
+        } else if (o.format === 'word') {
+            const size = orient === 'landscape' ? '841.9pt 595.3pt' : '595.3pt 841.9pt';
+            const doc = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>' + faEsc(ds.title) + '</title>' +
+                '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]-->' +
+                '<style>@page Section1 { size:' + size + '; mso-page-orientation:' + orient + '; margin:0.6in; } div.Section1 { page:Section1; } body{font-family:' + XC_FONT + '; color:#0f172a;} table.xc-table{border-collapse:collapse;}</style>' +
+                '</head><body><div class="Section1">' + html + '</div></body></html>';
+            faDownloadBlob(new Blob(['﻿', doc], { type: 'application/msword' }), name + '.doc');
+        } else {
+            const win = window.open('', '_blank');
+            if (!win) { showToast(false); return; }
+            win.document.write('<!doctype html><html><head><meta charset="utf-8"><title>' + faEsc(ds.title) + '</title>' +
+                '<style>body{font-family:' + XC_FONT + '; padding:14px; color:#0f172a;} @media print { @page { size: A4 ' + orient + '; margin: 10mm; } }</style>' +
+                '</head><body>' + html + '<script>window.onload = function(){ window.print(); };<\/script></body></html>');
+            win.document.close();
+        }
+    });
 }
 
 
