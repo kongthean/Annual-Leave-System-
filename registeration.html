@@ -121,6 +121,10 @@ var FA_DEFAULTS = {
     tzOffsetMinutes: 420,        /* Cambodia = UTC+7, no daylight saving */
     windowMinutes: 15,           /* width of the check-in-before-start, break and check-out windows */
     lateBlockMinutes: 30,        /* lateness is counted in blocks of this many minutes */
+    earlyOutBlockMinutes: 30,    /* a check-out before the shift end counts the missing time in blocks of this many minutes */
+    otBlockMinutes: 60,          /* overtime is counted in blocks of this many minutes (60 = whole hours) */
+    repeatSeconds: 90,           /* scans of the same face within this many seconds of the last one are repeats (nothing saved) */
+    firstInRepeatMinutes: 30,    /* a 2nd scan less than this many minutes after the day's first check-in is a repeat, not a check-out */
     halfDayHours: 4,
     fullDayHours: 8,
     matchThreshold: 0.5,         /* face distance; lower = stricter */
@@ -152,7 +156,7 @@ function faMinToHM(m) {
 function faMergeSettings(saved) {
     var out = JSON.parse(JSON.stringify(FA_DEFAULTS));
     if (!saved || typeof saved !== 'object') return out;
-    ['tzOffsetMinutes', 'windowMinutes', 'lateBlockMinutes', 'halfDayHours', 'fullDayHours', 'matchThreshold', 'photoRetentionDays'].forEach(function (k) {
+    ['tzOffsetMinutes', 'windowMinutes', 'lateBlockMinutes', 'earlyOutBlockMinutes', 'otBlockMinutes', 'repeatSeconds', 'firstInRepeatMinutes', 'halfDayHours', 'fullDayHours', 'matchThreshold', 'photoRetentionDays'].forEach(function (k) {
         var v = parseFloat(saved[k]);
         if (isFinite(v) && v > 0 || (k === 'tzOffsetMinutes' && isFinite(v))) out[k] = v;
     });
@@ -191,7 +195,8 @@ function faBuildShift(code, settings) {
     var ot = hrs.map(function (h) { return { from: e + h * 60, to: e + h * 60 + w, hours: h }; });
     return {
         code: code, start: s, end: e, breakStart: bs, breakEnd: be, win: w,
-        lateBlock: settings.lateBlockMinutes, halfHours: settings.halfDayHours, fullHours: settings.fullDayHours,
+        lateBlock: settings.lateBlockMinutes, earlyBlock: settings.earlyOutBlockMinutes, otBlock: settings.otBlockMinutes,
+        burstMs: settings.repeatSeconds * 1000, firstInMs: settings.firstInRepeatMinutes * 60000, halfHours: settings.halfDayHours, fullHours: settings.fullDayHours,
         ot: ot, openMin: s - w, closeMin: ot[ot.length - 1].to
     };
 }
@@ -266,10 +271,10 @@ function faEffStart(def, m) {
    - at/after the shift end: as scanned - overtime counts whole hours after the shift end. */
 function faEffEnd(def, m) {
     if (faInBreak(def, m)) return def.breakStart;
-    if (m < def.end) return def.end - Math.ceil((def.end - m) / def.lateBlock) * def.lateBlock;
+    if (m < def.end) { var eb = def.earlyBlock || def.lateBlock; return def.end - Math.ceil((def.end - m) / eb) * eb; }
     return m;
 }
-function faOtFor(def, effEnd) { return effEnd > def.end ? Math.floor((effEnd - def.end) / 60) : 0; }
+function faOtFor(def, effEnd) { var b = def.otBlock || 60; return effEnd > def.end ? Math.floor((effEnd - def.end) / b) * b / 60 : 0; }
 
 /* What does a scan at minute m (on the shift's own time axis) mean for this shift, given the day's
    state so far? Returns { ok:true, kind:'in'|'out', ... } or { ok:false, code, params }. */
@@ -295,10 +300,10 @@ function faBurstActive(state, nowMs, m, def) {
     /* the burst only counts while the scan it belongs to still exists (a deleted scan must not block later scans) */
     var anchor = b.evKey ? evs.filter(function (e) { return e.key === b.evKey; })[0] : null;
     if (b.evKey && !anchor) return false;
-    if (nowMs - b.last <= FA_BURST_MS) return 'burst';
+    if (nowMs - b.last <= (def && def.burstMs ? def.burstMs : FA_BURST_MS)) return 'burst';
     /* the day's only event is a first IN made by a scan: a 2nd scan within 30 min of it is a repeat, not a check-out */
-    if (anchor && evs.length === 1 && anchor.k === 'in' && isFinite(parseFloat(b.first)) && nowMs - b.first >= 0 && nowMs - b.first < FA_FIRST_IN_WINDOW_MS &&
-        def && isFinite(m) && m < def.end - 30) return 'first';
+    if (anchor && evs.length === 1 && anchor.k === 'in' && isFinite(parseFloat(b.first)) && nowMs - b.first >= 0 && nowMs - b.first < (def && def.firstInMs ? def.firstInMs : FA_FIRST_IN_WINDOW_MS) &&
+        def && isFinite(m) && m < def.end - (def.earlyBlock || 30)) return 'first';
     return false;
 }
 
@@ -446,16 +451,17 @@ function faSummarizeDay(def, recs, settings) {
     var evs = (recs || []).filter(function (r) { return r && (r.kind === 'in' || r.kind === 'out'); }).map(function (r) {
         var m = parseFloat(r.scanMin);
         if (!isFinite(m)) m = faHM(r.time);
-        return { k: r.kind, m: m, t: r.time || '', t2: r.time2 || '', late: parseFloat(r.lateMinutes) };
+        return { k: r.kind, m: m, t: r.time || '', late: parseFloat(r.lateMinutes) };
     }).sort(function (a, b) { return (a.m - b.m) || (a.k === 'in' ? -1 : 1); });
     if (!evs.length) return faSummarizeLegacy(def, recs, settings);
     var first = evs[0], last = evs[evs.length - 1];
     var lastOut = null, k;
     for (k = evs.length - 1; k >= 0; k--) { if (evs[k].k === 'out') { lastOut = evs[k]; break; } }
     var res = { checkIn: first.k === 'in' ? first.t : '', checkOut: lastOut ? lastOut.t : '', workMin: null, nightMin: 0, leaveHours: 0, otHours: 0, lateMinutes: 0, remarks: [], scans: evs.length };
-    /* every scan time of the day in order, a quick 2nd scan of the same moment right after it: 06:45 / 06:46 / 11:00 / 11:55 / 16:02 */
-    res.times = []; evs.forEach(function (e) { if (e.t) res.times.push(e.t); if (e.t2) res.times.push(e.t2); });
+    /* every scan time of the day in order: 06:45 / 11:00 / 11:55 / 16:02 (repeat scans are never saved) */
+    res.times = []; evs.forEach(function (e) { if (e.t) res.times.push(e.t); });
     res.timesText = res.times.join(' / ');
+    res.timesCompact = res.times.map(function (x) { return x.replace(':', ''); }).join(',');   /* like the old report: 0657,1000,1158,1900 */
     if (first.k !== 'in') { res.remarks.push('missingCheckIn'); return res; }
     res.lateMinutes = faLateMissed(def, first.m);   /* always from the first check-in time, so records saved before v7.07 are shown correctly too */
     if (evs.length > 2) res.remarks.push('outings');
@@ -868,12 +874,8 @@ async function processScan(m) {
       matchDistance: Math.round(m.dist * 1000) / 1000, device: (navigator.userAgent || '').slice(0, 140)
     };
     if (applied.repeat) {
-      /* same face scanned again: nothing new is created. Only the FIRST repeat (the 2nd scan) is noted on the same
-         check-in / check-out line, e.g. 06:45 / 06:46. Later repeats are ignored. */
+      /* same face scanned again: nothing is saved - only the first scan of the moment counts */
       const lastEv = applied.last;
-      if (applied.n === 2 && lastEv && lastEv.key && ['checkin', 'checkout', 'leave'].indexOf(lastEv.key) < 0) {
-        try { await db.ref('faceScans/' + res.shiftDate + '/' + lastEv.key + '/time2').set(res.time); } catch (e) { console.warn('2nd scan time not saved', e); }
-      }
       if (applied.via === 'first') {
         /* a scan 1-30 min after the first check-in: not a check-out - say clearly that nothing new was saved */
         return showResult({ type: 'reject', code: 'repeat', params: { at: lastEv && lastEv.t ? lastEv.t : res.time }, name: m.name, id: m.id, photo: photo, time: res.time });
