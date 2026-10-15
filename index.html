@@ -3084,7 +3084,7 @@
      _toastTimer = setTimeout(() => {
          el.style.opacity = '0';
          setTimeout(() => { el.style.display = 'none'; }, 250);
-     }, isPending ? 4500 : 2000);
+     }, isPending ? 4500 : (success ? 2000 : 6000));
  }
 
  /* v6.79: generic "click registered" guard for Submit/Save/Delete buttons across the app -
@@ -15195,6 +15195,41 @@ saAccountsStart();
         try { localStorage.removeItem('saAlive'); } catch (e) {}
         if (saHbTimer) { clearInterval(saHbTimer); saHbTimer = null; }
         if (wasStaff && !window.__saNoReload) setTimeout(saReload, 900);
+    };
+})();
+
+/* v7.23: when a save is refused by the database, say WHICH part was refused (short text in the red message),
+   so a rules problem can be found at once. Wrapped so that it can never break a save itself. */
+(function () {
+    try {
+        const R = firebase.database && firebase.database.Reference && firebase.database.Reference.prototype;
+        if (R) {
+            const note = function (ref, e) {
+                try {
+                    const p = String(ref && ref.toString ? ref.toString() : '').replace(/^https?:\/\/[^\/]+/, '');
+                    window.__lastDbErr = { t: Date.now(), path: p, code: String((e && (e.code || e.message)) || e).slice(0, 60) };
+                } catch (x) {}
+            };
+            ['set', 'update', 'remove', 'push', 'transaction'].forEach(function (m) {
+                const orig = R[m];
+                if (typeof orig !== 'function') return;
+                R[m] = function () {
+                    let res;
+                    try { res = orig.apply(this, arguments); } catch (e) { note(this, e); throw e; }
+                    try { if (res && typeof res.catch === 'function') { const ref = this; res.catch(function (e) { note(ref, e); }); } } catch (x) {}
+                    return res;
+                };
+            });
+        }
+    } catch (e) {}
+    const st = showToast;
+    showToast = function (success, msg) {
+        if (success === false && !msg && window.__lastDbErr && Date.now() - window.__lastDbErr.t < 6000) {
+            const d = window.__lastDbErr; window.__lastDbErr = null;
+            st(false, t('toastFail') + ' (' + d.code + ' ' + d.path + ')');
+            return;
+        }
+        st(success, msg);
     };
 })();
 
