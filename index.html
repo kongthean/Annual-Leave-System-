@@ -117,7 +117,7 @@
    window.__actorInfo = null;
    window.__actor = new Promise(function (resolve) {
      window.__actorResolve = resolve;
-     var fin = function (a) { window.__actorInfo = a; resolve(a); };
+     var fin = function (a) { window.__actorInfo = a; try { window.__tl = window.__tl || {}; window.__tl.actor = Math.round(performance.now()); } catch (e) {} resolve(a); };
      if (!(typeof firebase.auth === 'function' && typeof firebase.auth().onAuthStateChanged === 'function')) { fin({ type: 'open' }); return; }
      var handled = false, unsub = null;
      unsub = firebase.auth().onAuthStateChanged(function (u) {
@@ -161,7 +161,7 @@
      var empty = { val: function () { return null; } };
      var D = function () { return firebase.database(); };
      var wrap = function (key, v) { var o = {}; if (v) o[key] = v; return { val: function () { return v ? o : null; } }; };
-     window.empListen = function (cb) { window.__actor.then(function (a) {
+     window.empListen = function (cb0) { var cb = function (s) { try { window.__tl = window.__tl || {}; if (!window.__tl.emp) { window.__tl.emp = Math.round(performance.now()); if (window.mtLoadDone) window.mtLoadDone(); } } catch (e) {} cb0(s); }; window.__actor.then(function (a) {
        if (a.type === 'staff' || a.type === 'open') D().ref('employees').on('value', cb);
        else if (a.type === 'employee') D().ref('employees/' + a.key).on('value', function (s) { cb(wrap(a.key, s.val())); });
        else D().ref('employees').on('value', cb, function () { cb(empty); });
@@ -630,7 +630,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.25</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.26</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1092,7 +1092,7 @@
              <div id="statPendingApprovals">0</div>
          </div>
      </div>
-     <div id="mlDashBox" class="dash-card admin-only" style="margin:10px 0; text-align:left;"></div>
+    
 
      <!-- v6.84: second row of 8 overview cards breaking "Total Annual Leave Used This Month" down
           by individual leave type (each a sum, across all employees, of that type's monthly field -
@@ -1257,6 +1257,9 @@
              </table>
          </div>
      </div>
+
+     <!-- v7.26: Annual leave status moved here (under Employee Status) so it no longer sits over the dashboard cards / main menu -->
+     <div id="mlDashBox" class="dash-card admin-only" style="margin:0 0 16px; text-align:left;"></div>
 
      <!-- v6.64: Needs Attention - AL renewals this calendar month + employees currently exceeding
           their monthly leave limit, each row clickable to jump straight to Check Details. -->
@@ -2700,7 +2703,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.25
+     HR & Administration System Version 7.26
  </div>
 </div>
 
@@ -3896,6 +3899,15 @@
         notifPersonalLeaveMsg: "You have a Personal Leave record of {hours} hour(s). Total Personal Leave this month: {total} hours.",
         notifLeaveDeductedMsg2: "Your Annual Leave entitlement has been deducted {hours} hour(s) use for your leave on {date}. Used for {type}. Remaining Hours: {remaining} hours.",
         notifPersonalLeaveMsg2: "You have a personal leave record of {hours} hour(s) for your leave on {date}. Total personal leave this month: {total} hours.",
+        /* v7.26 */
+        mtBannerDefault: "The system is under maintenance. Some functions are temporarily unavailable.",
+        mtPopupTitle: "Under maintenance",
+        mtPopupBody: "{name} is temporarily unavailable while the system is being maintained. Please try again later.",
+        mtOk: "OK",
+        mtViewTag: "View only",
+        mtViewOnlyToast: "Maintenance: view only - changes are not allowed right now.",
+        mtLoading: "Loading data, please wait...",
+        mtTiming: "Last page load: login check {a}s, data {b}s",
         /* v7.24 */
         ecStaffActive: "Administration/HR is signed in on this browser. Please log out of it first, then log in as an employee.",
         ecSummary: "Employee secure login ready: {a} of {b} active employees",
@@ -4921,6 +4933,15 @@
         notifPersonalLeaveMsg: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
         notifLeaveDeductedMsg2: "សិទ្ធិច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំរបស់អ្នកត្រូវបានកាត់កង {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ ប្រើសម្រាប់៖ {type}។ ម៉ោងនៅសល់៖ {remaining} ម៉ោង។",
         notifPersonalLeaveMsg2: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
+        /* v7.26 */
+        mtBannerDefault: "ប្រព័ន្ធកំពុងថែទាំ។ មុខងារមួយចំនួនមិនអាចប្រើបានជាបណ្តោះអាសន្នទេ។",
+        mtPopupTitle: "កំពុងថែទាំ",
+        mtPopupBody: "{name} មិនអាចប្រើបានជាបណ្តោះអាសន្ន ខណៈពេលប្រព័ន្ធកំពុងថែទាំ។ សូមព្យាយាមម្តងទៀតនៅពេលក្រោយ។",
+        mtOk: "យល់ព្រម",
+        mtViewTag: "មើលបានតែប៉ុណ្ណោះ",
+        mtViewOnlyToast: "ការថែទាំ៖ មើលបានតែប៉ុណ្ណោះ - មិនអាចកែប្រែបាននៅពេលនេះទេ។",
+        mtLoading: "កំពុងទាញទិន្នន័យ សូមរង់ចាំ...",
+        mtTiming: "ការបើកទំព័រចុងក្រោយ៖ ពិនិត្យការចូល {a} វិនាទី, ទិន្នន័យ {b} វិនាទី",
         /* v7.24 */
         ecStaffActive: "Administration/HR កំពុងចូលក្នុងកម្មវិធីរុករកនេះ។ សូមចាកចេញជាមុនសិន រួចចូលជាបុគ្គលិក។",
         ecSummary: "ការចូលសុវត្ថិភាពរបស់បុគ្គលិកត្រៀមរួច៖ {a} ក្នុងចំណោម {b} នាក់ដែលកំពុងធ្វើការ",
@@ -5908,6 +5929,15 @@
         notifPersonalLeaveMsg: "您有一笔{hours}小时的事假记录。本月事假总计：{total}小时。",
         notifLeaveDeductedMsg2: "您的年假额度已扣除{hours}小时，对应您在{date}的休假。用途：{type}。剩余小时数：{remaining}小时。",
         notifPersonalLeaveMsg2: "您有一笔{hours}小时的事假记录，对应您在{date}的休假。本月事假总计：{total}小时。",
+        /* v7.26 */
+        mtBannerDefault: "系统正在维护中，部分功能暂时无法使用。",
+        mtPopupTitle: "维护中",
+        mtPopupBody: "系统维护期间，{name} 暂时无法使用，请稍后再试。",
+        mtOk: "好的",
+        mtViewTag: "仅查看",
+        mtViewOnlyToast: "维护中：仅可查看，目前无法修改。",
+        mtLoading: "正在加载数据，请稍候...",
+        mtTiming: "上次页面加载：登录检查 {a} 秒，数据 {b} 秒",
         /* v7.24 */
         ecStaffActive: "此浏览器已登录管理/HR 系统。请先退出，再以员工身份登录。",
         ecSummary: "员工安全登录已就绪：{a} / {b} 名在职员工",
@@ -15425,8 +15455,191 @@ async function ecSync() {
         if (!box || ecLinks === null) return;
         const act = employees.filter(function (e) { return e.status === 'Active'; });
         const ok = act.filter(function (e) { const l = ecLinks[e.firebaseKey]; return l && l.uid && (!ecSigCache[e.firebaseKey] || l.sig === ecSigCache[e.firebaseKey]); }).length;
-        box.innerHTML += '<div style="font-size:12px; margin:0 0 8px; ' + (ok === act.length && ok ? 'color:#15803d;' : 'color:#b45309;') + '">🔒 ' + escapeHtmlText(fillTemplate(t('ecSummary'), { a: ok, b: act.length })) + '</div>';
+        box.innerHTML += '<div style="font-size:12px; margin:0 0 8px; ' + (ok === act.length && ok ? 'color:#15803d;' : 'color:#b45309;') + '">🔒 ' + escapeHtmlText(fillTemplate(t('ecSummary'), { a: ok, b: act.length })) + '</div>' + (window.__tl && window.__tl.emp ? '<div style="font-size:11px; color:#64748b; margin:0 0 8px;">⏱ ' + escapeHtmlText(fillTemplate(t('mtTiming'), { a: ((window.__tl.actor || 0) / 1000).toFixed(1), b: (window.__tl.emp / 1000).toFixed(1) })) + '</div>' : '');
     };
+})();
+
+
+/* ================= v7.25: MAINTENANCE MODE =================
+   Administration sets it on the separate page /maintenance (one switch). While it is on:
+   - a red bar shows at the top of every screen (login, Administration, HR, employee)
+   - each service is "open", "view only" (opens, but nothing can be saved/changed/deleted) or "closed" (icon greyed, a popup explains)
+   - everybody can still log in normally. Data node: maintenance = { on, message{en,km,zh}, bypass, services{id:'open'|'view'|'closed'}, by, at } */
+const MT_SVC = [
+    ['master', 'navMaster', 'tab', 'tab-master'], ['monthly', 'navMonthlyReport', 'tab', 'tab-monthly'], ['monthlyal', 'navMonthlyAL', 'tab', 'tab-monthlyal'],
+    ['employee', 'navEmployee', 'tab', 'tab-employee'], ['leave', 'navLeaveRecords', 'tab', 'tab-leave'], ['att', 'navAttendance', 'tab', 'tab-att'],
+    ['query', 'navEligibility', 'tab', 'tab-query'], ['add', 'navAddEmployee', 'tab', 'tab-add'], ['shift', 'navShiftRoster', 'tab', 'tab-shift'],
+    ['makeup', 'navMakeup', 'tab', 'tab-makeup'], ['attcal', 'navAttCal', 'tab', 'tab-attcal'], ['dept', 'navDepartments', 'tab', 'tab-dept'],
+    ['recdeleted', 'navRecentlyDeleted', 'fn', 'openRecentlyDeletedModal'], ['pending', 'navPendingApprovals', 'fn', 'openPendingApprovalsModal'],
+    ['mgmt', 'navManagement', 'fn', 'openManagementModal'], ['lock', 'navLockSystem', 'fn', 'openLockSystemModal'], ['devices', 'navDeviceLog', 'fn', 'openDeviceLogModal'],
+    ['backup', 'navBackupNow', 'fn', 'openBackupLangModal'], ['notif', 'navManageNotif', 'fn', 'openManageNotifModal'],
+    ['audit', 'navAuditLog', 'tab', 'tab-auditlog'], ['cert', 'navCertificates', 'tab', 'tab-certificates'], ['convert', 'navConvertPhoto', 'fn', 'openConvertPhotoModal'],
+    ['faceatt', 'navFaceAtt', 'tab', 'tab-faceatt'], ['export', 'navExport', 'tab', 'tab-export'],
+    ['emp_request', 'empMenuRequest', 'emp', 'request'], ['emp_shift', 'empMenuCheckShift', 'emp', 'shift']
+];
+let mtData = null, mtModal = null;
+function mtSvc(id) { for (const s of MT_SVC) if (s[0] === id) return s; return null; }
+function mtSvcOfTab(tabId) { for (const s of MT_SVC) if (s[2] === 'tab' && s[3] === tabId) return s[0]; return null; }
+function mtIsOn() { return !!(mtData && mtData.on); }
+function mtBypass() { return !!(mtData && mtData.bypass) && sessionStorage.getItem('isLoggedIn') === 'true' && sessionStorage.getItem('loggedInRole') === 'admin'; }
+function mtMode(id) {
+    if (!id || !mtIsOn() || mtBypass()) return 'open';
+    const m = mtData.services && mtData.services[id];
+    return (m === 'view' || m === 'closed') ? m : 'open';
+}
+function mtMessage() {
+    const m = mtData && mtData.message;
+    const v = m && (m[currentLang] || '');
+    return String(v || '').trim();
+}
+(function () {
+    const st = document.createElement('style');
+    st.textContent = 'body{overflow-anchor:none;}#mtBanner{position:sticky;top:0;z-index:100001;background:#ef4444;color:#fff;text-align:center;font-size:13px;font-weight:600;padding:7px 38px 7px 12px;line-height:1.35;box-shadow:0 2px 6px rgba(0,0,0,.25);}' +
+        '#mtBanner .mt-i{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;border:1.5px solid #fff;border-radius:50%;font-size:12px;line-height:15px;font-style:italic;font-weight:700;}' +
+        '.mt-closed{opacity:.38!important;filter:grayscale(1)!important;cursor:not-allowed!important;}' +
+        '.mt-view{position:relative;}.mt-view::after{content:attr(data-mt);position:absolute;top:3px;right:3px;background:#f59e0b;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;line-height:1.3;}' +
+        '#mtPop{position:fixed;inset:0;z-index:100002;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:16px;}' +
+        '#mtPop .mt-box{background:#fff;border-radius:14px;max-width:380px;width:100%;padding:22px 20px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.35);}' +
+        '#mtPop h3{margin:6px 0 8px;font-size:17px;color:#0f172a;}#mtPop p{font-size:13.5px;color:#475569;line-height:1.5;margin-bottom:8px;}' +
+        '#mtPop button{margin-top:10px;background:#0f172a;color:#fff;border:0;border-radius:8px;padding:9px 28px;font-size:14px;cursor:pointer;}' +
+        '#mtLoading{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:100000;background:#0f172a;color:#fff;font-size:12px;padding:7px 16px;border-radius:20px;box-shadow:0 4px 14px rgba(0,0,0,.3);}';
+    document.head.appendChild(st);
+})();
+function mtBannerRender() {
+    let b = document.getElementById('mtBanner');
+    if (!mtIsOn()) { if (b) b.style.display = 'none'; return; }
+    if (!b) {
+        b = document.createElement('div'); b.id = 'mtBanner';
+        b.innerHTML = '<span id="mtBannerText"></span><span class="mt-i">i</span>';
+        document.body.insertBefore(b, document.body.firstChild);
+    }
+    b.style.display = 'block';
+    document.getElementById('mtBannerText').textContent = mtMessage() || t('mtBannerDefault');
+}
+function mtApplyUI() {
+    MT_SVC.forEach(function (s) {
+        const mode = mtMode(s[0]);
+        let els = [];
+        if (s[2] === 'tab') els = Array.from(document.querySelectorAll('[onclick*="\'' + s[3] + '\'"]'));
+        else if (s[2] === 'fn') els = Array.from(document.querySelectorAll('[onclick^="' + s[3] + '("]'));
+        else { const e = document.getElementById(s[3] === 'shift' ? 'empMenuBtnShift' : 'empMenuBtnRequest'); if (e) els = [e]; }
+        els.forEach(function (el) {
+            el.classList.toggle('mt-closed', mode === 'closed');
+            el.classList.toggle('mt-view', mode === 'view');
+            if (mode === 'view') el.setAttribute('data-mt', t('mtViewTag')); else el.removeAttribute('data-mt');
+        });
+    });
+}
+function mtPopup(id) {
+    const s = mtSvc(id);
+    const old = document.getElementById('mtPop'); if (old) old.remove();
+    const d = document.createElement('div'); d.id = 'mtPop';
+    const name = s ? t(s[1]) : '';
+    const msg = mtMessage();
+    d.innerHTML = '<div class="mt-box"><div style="font-size:30px;">🔧</div><h3></h3><p class="mt-p1"></p><p class="mt-p2" style="font-weight:600;color:#b91c1c;"></p><button type="button"></button></div>';
+    d.querySelector('h3').textContent = t('mtPopupTitle');
+    d.querySelector('.mt-p1').textContent = fillTemplate(t('mtPopupBody'), { name: name });
+    if (msg) d.querySelector('.mt-p2').textContent = msg; else d.querySelector('.mt-p2').remove();
+    const btn = d.querySelector('button'); btn.textContent = t('mtOk'); btn.onclick = function () { d.remove(); };
+    d.addEventListener('click', function (e) { if (e.target === d) d.remove(); });
+    document.body.appendChild(d);
+}
+/* which service is the person using right now? (used to decide whether a save is allowed) */
+function mtCurrentSvc() {
+    if (mtModal) return mtModal;
+    const p = document.querySelector('.tab-panel.active');
+    return p ? mtSvcOfTab(p.id) : null;
+}
+/* guards: closed services cannot be opened (a popup instead) */
+(function () {
+    const sw = switchTab;
+    switchTab = function (tabId) {
+        const id = mtSvcOfTab(tabId);
+        if (id && mtMode(id) === 'closed') { mtPopup(id); return; }
+        mtModal = null;
+        return sw.apply(this, arguments);
+    };
+    MT_SVC.filter(function (s) { return s[2] === 'fn'; }).forEach(function (s) {
+        const o = window[s[3]];
+        if (typeof o !== 'function') return;
+        window[s[3]] = function () {
+            if (mtMode(s[0]) === 'closed') { mtPopup(s[0]); return; }
+            mtModal = s[0];
+            return o.apply(this, arguments);
+        };
+    });
+    const ep = showEmpPanel;
+    showEmpPanel = function (which) {
+        const id = which === 'shift' ? 'emp_shift' : 'emp_request';
+        if (mtMode(id) === 'closed') { mtPopup(id); return; }
+        return ep.apply(this, arguments);
+    };
+    const sl = setLanguage;
+    setLanguage = function () { const r = sl.apply(this, arguments); try { mtBannerRender(); mtApplyUI(); } catch (e) {} return r; };
+})();
+/* view-only / closed: nothing can be saved, changed or deleted in the service that is being used */
+const MT_FREE = ['auditLog', 'deviceSessions', 'faceScanState', 'faceScans', 'faceScanPhotos', 'faceScanPhotoDates', 'empAuth', 'empAuthByKey', 'empLookup', 'staff', 'staffLookup', 'meta', 'maintenance'];
+function mtPathBlocked(path) {
+    const first = String(path || '').replace(/^\/+/, '').split('/')[0];
+    let svc;
+    if (window.__actorInfo && window.__actorInfo.type === 'employee') { if (first !== 'requests') return false; svc = 'emp_request'; }
+    else svc = mtCurrentSvc();
+    if (!svc || mtMode(svc) === 'open') return false;
+    return !(first === '' || MT_FREE.indexOf(first) > -1);
+}
+(function () {
+    try {
+        const R = firebase.database && firebase.database.Reference && firebase.database.Reference.prototype;
+        if (!R) return;
+        let lastToast = 0;
+        ['set', 'update', 'remove', 'push', 'transaction'].forEach(function (m) {
+            const orig = R[m];
+            if (typeof orig !== 'function') return;
+            R[m] = function () {
+                let blocked = false, path = '';
+                try {
+                    if (mtIsOn()) {
+                        path = String(this.toString()).replace(/^https?:\/\/[^\/]+\//, '');
+                        try { path = decodeURIComponent(path); } catch (e) {}
+                        if (m === 'update' && arguments[0] && typeof arguments[0] === 'object') {
+                            blocked = Object.keys(arguments[0]).some(function (k) { return mtPathBlocked((path ? path + '/' : '') + k); });
+                        } else blocked = mtPathBlocked(path);
+                    }
+                } catch (e) { blocked = false; }
+                if (blocked) {
+                    const err = new Error('maintenance: view only'); err.code = 'maintenance';
+                    window.__lastDbErr = { t: Date.now(), path: path, code: 'maintenance' };
+                    if (Date.now() - lastToast > 1500) { lastToast = Date.now(); try { showToast(false, t('mtViewOnlyToast')); } catch (e) {} }
+                    const rej = Promise.reject(err); rej.catch(function () {});
+                    if (m === 'push') { rej.key = 'maintenance-blocked'; }
+                    return rej;
+                }
+                return orig.apply(this, arguments);
+            };
+        });
+    } catch (e) {}
+    const st2 = showToast;
+    showToast = function (success, msg) {
+        if (success === false && !msg && window.__lastDbErr && window.__lastDbErr.code === 'maintenance' && Date.now() - window.__lastDbErr.t < 6000) { window.__lastDbErr = null; st2(false, t('mtViewOnlyToast')); return; }
+        st2(success, msg);
+    };
+})();
+function mtRefresh() {
+    mtBannerRender(); mtApplyUI();
+    try {
+        const cur = mtCurrentSvc();
+        if (cur && mtMode(cur) === 'closed') { mtModal = null; mtPopup(cur); const home = document.getElementById('nav-home'); if (document.getElementById('tab-home') && sessionStorage.getItem('isLoggedIn') === 'true') switchTab('tab-home', home); }
+    } catch (e) {}
+}
+db.ref('maintenance').on('value', function (s) { mtData = s.val(); mtRefresh(); }, function () {});
+/* "loading data" hint + timing (shown while the first lists are still arriving) */
+(function () {
+    const need = sessionStorage.getItem('isLoggedIn') === 'true' || !!sessionStorage.getItem('empLoggedInId');
+    if (!need) return;
+    const d = document.createElement('div'); d.id = 'mtLoading'; d.textContent = t('mtLoading');
+    document.body.appendChild(d);
+    window.mtLoadDone = function () { const e = document.getElementById('mtLoading'); if (e) e.remove(); };
+    setTimeout(window.mtLoadDone, 60000);
 })();
 
 
