@@ -116,30 +116,45 @@
       Left-over logins in the browser (a staff tab closed long ago, an employee who did not log out) are dropped here. */
    window.__actorInfo = null;
    window.__actor = new Promise(function (resolve) {
+     window.__actorResolve = resolve;
      var fin = function (a) { window.__actorInfo = a; resolve(a); };
      if (!(typeof firebase.auth === 'function' && typeof firebase.auth().onAuthStateChanged === 'function')) { fin({ type: 'open' }); return; }
      var handled = false, unsub = null;
      unsub = firebase.auth().onAuthStateChanged(function (u) {
        if (!u || handled) return;
        handled = true; try { if (unsub) unsub(); } catch (e) {}
-       if (u.isAnonymous) { fin({ type: 'visitor', uid: u.uid }); return; }
-       var rd = function (p, n) { return firebase.database().ref(p).once('value').then(function (s) { return s.val(); }, function (e) { if (n > 0) return new Promise(function (r) { setTimeout(r, 300); }).then(function () { return rd(p, n - 1); }); throw e; }); };
+       var rd = function (p, n) { return firebase.database().ref(p).once('value').then(function (s) { return s.val(); }, function (e) { if (n > 0) return new Promise(function (r) { setTimeout(r, 250); }).then(function () { return rd(p, n - 1); }); throw e; }); };
+       if (u.isAnonymous) { rd('systemLock', 40).then(function () { fin({ type: 'visitor', uid: u.uid }); }, function () { fin({ type: 'visitor', uid: u.uid }); }); return; }
        var toVisitor = function () {
-         return firebase.auth().signOut().then(function () { return firebase.auth().signInAnonymously(); }).then(function () { fin({ type: 'visitor', uid: (firebase.auth().currentUser || {}).uid }); }, function () { fin({ type: 'visitor' }); });
+         return firebase.auth().signOut().then(function () { return firebase.auth().signInAnonymously(); }).then(function () { return rd('systemLock', 40).then(null, function () {}); }).then(function () { fin({ type: 'visitor', uid: (firebase.auth().currentUser || {}).uid }); }, function () { fin({ type: 'visitor' }); });
        };
-       rd('staff/' + u.uid, 2).then(function (st) {
+       rd('staff/' + u.uid, 40).then(function (st) {
          if (st) {
            var alive = 0; try { alive = Number(localStorage.getItem('saAlive')) || 0; } catch (e) {}
            if (sessionStorage.getItem('isLoggedIn') !== 'true' && Date.now() - alive > 120000) return toVisitor();
            return fin({ type: 'staff', uid: u.uid, role: st.role, key: st.key });
          }
-         return rd('empAuth/' + u.uid, 2).then(function (e) {
+         return rd('empAuth/' + u.uid, 40).then(function (e) {
            if (e && sessionStorage.getItem('empLoggedInId')) return fin({ type: 'employee', uid: u.uid, key: e.key, id: e.id });
            return toVisitor();
          });
        }).catch(function () { fin({ type: 'visitor', uid: u.uid }); });
      });
    });
+   /* every live list of the page starts only after the question "who is this?" is answered, so that the database
+      already knows the login (a list that starts one moment too early is refused and never tries again) */
+   try {
+     var QP = firebase.database && firebase.database.Query && firebase.database.Query.prototype;
+     if (QP && typeof QP.on === 'function') {
+       var origOn = QP.on;
+       QP.on = function () {
+         var a = arguments, me = this;
+         if (window.__actorInfo) return origOn.apply(me, a);
+         window.__actor.then(function () { origOn.apply(me, a); });
+       };
+     }
+   } catch (e) {}
+   setTimeout(function () { if (!window.__actorInfo) { window.__actorInfo = { type: 'visitor' }; window.__actorResolve({ type: 'visitor' }); } }, 25000);
    /* each list below starts in the way that fits the person: staff read everything, an employee only their own records,
       a visitor tries the old way (works only while the old database rules are on) */
    (function () {
@@ -615,7 +630,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.24</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.25</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2685,7 +2700,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.24
+     HR & Administration System Version 7.25
  </div>
 </div>
 
@@ -7368,6 +7383,7 @@ function renderEmpShiftCalendar() {
  });
 
  function recordDeviceSession(role, label) {
+     if (!window.__actorInfo) { window.__actor.then(function () { recordDeviceSession(role, label); }); return; }
      /* Read the device's current record fresh from Firebase (rather than the local
         deviceSessions cache, which may not have loaded yet) so a fast re-login right
         after page load can never accidentally wipe out a saved custom name or a block. */
@@ -15079,8 +15095,7 @@ async function saBackToAnon() {
     try { await firebase.auth().signInAnonymously(); } catch (e) {}
 }
 async function saCandidates(role, username) {
-    const s = await db.ref('staffLookup/' + saLookupKey(role, username)).once('value');
-    const v = s.val();
+    const v = await saReadRetry('staffLookup/' + saLookupKey(role, username));
     return v ? Object.keys(v) : [];
 }
 async function saRegister(acc, id, uid) {
@@ -15193,8 +15208,8 @@ function saSleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); 
 /* right after signing in, the very first database request can still carry the old (visitor) login - try again a few times */
 async function saReadRetry(path) {
     let last = null;
-    for (let i = 0; i < 5; i++) {
-        try { return (await db.ref(path).once('value')).val(); } catch (e) { last = e; await saSleep(350); }
+    for (let i = 0; i < 40; i++) {
+        try { return (await db.ref(path).once('value')).val(); } catch (e) { last = e; await saSleep(250); }
     }
     throw last;
 }
@@ -15321,8 +15336,7 @@ function ecBlockedByStaff() {
 /* employee login: hidden Firebase login first; returns the employee record or null */
 async function ecLogin(user, pass) {
     if (!EC_OK || !user) return null;
-    const s = await db.ref('empLookup/' + saHexStr(user)).once('value');
-    const v = s.val();
+    const v = await saReadRetry('empLookup/' + saHexStr(user));
     const ids = v ? Object.keys(v) : [];
     for (const id of ids) {
         try {
