@@ -630,7 +630,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.41</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.42</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1296,7 +1296,31 @@
      </div>
  </div>
  
- <!-- TAB 2: MASTER SHEET -->
+ <!-- TAB: ATTENDANCE EXTRACT -->
+<div id="tab-attextract" class="tab-panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:10px;">
+        <h3 data-i18n="lxBtnLeave">Attendance Extract</h3>
+        <button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:6px 14px; font-size:12px;" onclick="closeAttExtract()">&larr; <span data-i18n="lxBack">Back</span></button>
+    </div>
+            <p style="font-size:12px; color:#475569; margin-bottom:10px;" data-i18n="lxIntro">Upload the photo of the daily attendance report.</p>
+            <div id="lxKeyBox" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px; margin-bottom:10px;">
+                <p style="font-size:11px; color:#64748b; margin-bottom:8px;" data-i18n="lxKeyHelp">The photo is read by Claude AI.</p>
+                <input type="password" id="lxKeyInput" autocomplete="off" data-i18n-ph="lxKeyPh" placeholder="Paste API key (sk-ant-...)" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:8px; margin-bottom:8px;">
+                <button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:6px 14px; font-size:12px;" onclick="lxSaveKey()"><span data-i18n="lxKeySaveBtn">Save key</span></button>
+            </div>
+            <div class="form-group">
+                <label data-i18n="lxChoose">Photos of the daily attendance report</label>
+                <input type="file" id="lxFileInput" accept="image/*" multiple>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                <button type="button" class="btn-submit" style="width:auto; padding:9px 22px;" onclick="lxRead(this)"><span data-i18n="lxRead">Read photos</span></button>
+                <button type="button" id="lxKeyChange" class="quick-btn slate" style="display:none; width:auto; min-width:auto; min-height:auto; padding:6px 12px; font-size:11px;" onclick="lxChangeKey()"><span data-i18n="lxKeyChangeBtn">Change key</span></button>
+            </div>
+            <div id="lxStatus" style="font-size:12px; margin:10px 0; display:none;"></div>
+            <div id="lxResults"></div>
+</div>
+
+<!-- TAB 2: MASTER SHEET -->
  <div id="tab-master" class="tab-panel">
      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
          <div>
@@ -2700,7 +2724,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.41
+     HR & Administration System Version 7.42
  </div>
 </div>
 
@@ -3078,30 +3102,6 @@
         <div id="convertPhotoStatus" style="font-size:12px; color:#0f172a; margin:8px 0; display:none;"></div>
         <div id="convertPhotoResults" style="display:flex; flex-direction:column; gap:12px; max-height:420px; overflow-y:auto;"></div>
         </div>
-    </div>
-</div>
-<div class="modal" id="attExtractModal" style="align-items:stretch; justify-content:stretch;">
-    <div class="modal-content" style="max-width:none; width:100%; height:100%; max-height:100vh; border-radius:0; box-sizing:border-box; padding:22px 28px;">
-        <div class="modal-header">
-            <h4 data-i18n="lxBtnLeave">Attendance Extract</h4>
-            <button class="modal-close" onclick="closeAttExtract()">&times;</button>
-        </div>
-            <p style="font-size:12px; color:#475569; margin-bottom:10px;" data-i18n="lxIntro">Upload the photo of the daily attendance report.</p>
-            <div id="lxKeyBox" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px; margin-bottom:10px;">
-                <p style="font-size:11px; color:#64748b; margin-bottom:8px;" data-i18n="lxKeyHelp">The photo is read by Claude AI.</p>
-                <input type="password" id="lxKeyInput" autocomplete="off" data-i18n-ph="lxKeyPh" placeholder="Paste API key (sk-ant-...)" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:8px; margin-bottom:8px;">
-                <button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:6px 14px; font-size:12px;" onclick="lxSaveKey()"><span data-i18n="lxKeySaveBtn">Save key</span></button>
-            </div>
-            <div class="form-group">
-                <label data-i18n="lxChoose">Photos of the daily attendance report</label>
-                <input type="file" id="lxFileInput" accept="image/*" multiple>
-            </div>
-            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-                <button type="button" class="btn-submit" style="width:auto; padding:9px 22px;" onclick="lxRead(this)"><span data-i18n="lxRead">Read photos</span></button>
-                <button type="button" id="lxKeyChange" class="quick-btn slate" style="display:none; width:auto; min-width:auto; min-height:auto; padding:6px 12px; font-size:11px;" onclick="lxChangeKey()"><span data-i18n="lxKeyChangeBtn">Change key</span></button>
-            </div>
-            <div id="lxStatus" style="font-size:12px; margin:10px 0; display:none;"></div>
-            <div id="lxResults"></div>
     </div>
 </div>
 
@@ -15841,7 +15841,7 @@ function mtCurrentSvc() {
 /* per-button control: inside an open service, single buttons can be closed on the maintenance page (faded; a click shows the popup).
    MT_ACT = [service, action, matcher, label key]; matcher "fn:name" (onclick/onchange calls name(...)), "fn:name|text" (and the call contains text), "i:key" (button with data-i18n=key) */
 const MT_ACT = [["master", "export", "fn:openExportLangModal|'master'", "btnExport"], ["master", "leavereport", "fn:openLeaveReportModal", "btnExportLeaveReport"], ["master", "settings", "fn:mlOpen", "mlBtnText"], ["master", "alcheck", "fn:mlStOpen", "mlStBtnText"], ["master", "view", "fn:openMasterDetailModal", "mtA_master_view"], ["master", "edit", "fn:openEditModal", "mtA_master_edit"], ["master", "delete", "fn:confirmDelete", "mtA_master_delete"], ["monthly", "applyall", "fn:applyBulkWorkingHours", "btnApplyAll"], ["monthly", "export", "fn:openExportLangModal|'monthly'", "btnExport"], ["monthly", "view", "fn:openMonthlyDetailModal", "mtA_monthly_view"], ["monthly", "edit", "fn:openEditModal", "mtA_monthly_edit"], ["monthly", "delete", "fn:confirmDelete", "mtA_monthly_delete"], ["monthly", "hours", "fn:updateEmpMonthlyField", "mtA_monthly_hours"], ["monthlyal", "renewal", "fn:openRenewalExportModal", "btnExportRenewal"], ["monthlyal", "export", "fn:openExportLangModal|'monthlyal'", "btnExport"], ["employee", "export", "fn:openExportLangModal|'employee'", "btnExport"], ["employee", "view", "fn:openEmployeeDetailModal", "mtA_employee_view"], ["employee", "edit", "fn:openEditModal", "mtA_employee_edit"], ["employee", "delete", "fn:confirmDelete", "mtA_employee_delete"], ["leave", "submit", "i:btnSubmitLeave", "btnSubmitLeave"], ["att", "load", "i:btnLoadDept", "btnLoadDept"], ["att", "submit", "fn:saveAttendanceDeptBatch", "btnSubmitAtt"], ["query", "check", "i:btnCheckDetails", "btnCheckDetails"], ["add", "bulkimport", "fn:openBulkImportModal", "btnBulkImport"], ["add", "bulkupdate", "fn:openBulkUpdateModal", "btnBulkUpdate"], ["add", "save", "i:btnSaveEmp", "btnSaveEmp"], ["shift", "check", "i:btnCheckShift", "btnCheckShift"], ["shift", "export", "fn:openExportLangModal|'shift'", "btnExport"], ["shift", "editcell", "fn:updateShiftCell", "mtA_shift_editcell"], ["makeup", "submit", "i:btnSubmitMakeup", "btnSubmitMakeup"], ["attcal", "pdf", "fn:exportAttCalToPDF", "btnExportPDF"], ["attcal", "editday", "fn:openAttCalEditModal", "mtA_attcal_editday"], ["dept", "add", "i:btnAddDept", "btnAddDept"], ["dept", "edit", "fn:editDepartment", "mtA_dept_edit"], ["dept", "delete", "fn:deleteDepartment", "mtA_dept_delete"], ["audit", "export", "fn:openExportLangModal|'auditlog'", "btnExport"], ["cert", "generate", "fn:generateCertificate", "btnGenerateCertificate"], ["faceatt", "copylink", "fn:faCopyScanLink", "faCopyLink"], ["faceatt", "camera", "fn:faStartCamera", "faStartCamera"], ["faceatt", "capture", "fn:faCaptureAngle", "faCapture"], ["faceatt", "clear", "fn:faClearCaptures", "faClearCaptures"], ["faceatt", "saveenroll", "fn:faSaveEnrollment", "faSaveEnroll"], ["faceatt", "delenroll", "fn:faDeleteEnrollment", "mtA_faceatt_delenroll"], ["faceatt", "saverules", "fn:faSaveRules", "faSaveRules"], ["faceatt", "resetrules", "fn:faResetRules", "faResetRules"], ["faceatt", "manualsave", "fn:faSaveManual", "faManualSave"], ["faceatt", "preview", "fn:faPreviewReport", "faPreview"], ["faceatt", "export", "fn:faExportReport", "faExportBtn"], ["export", "preview", "fn:xcPreview", "faPreview"], ["export", "export", "fn:xcExport", "faExportBtn"], ["recdeleted", "restore", "fn:restoreEmployee", "mtA_recdeleted_restore"], ["pending", "approve", "fn:approvePendingEdit", "btnApprove"], ["pending", "reject", "fn:rejectPendingEdit", "btnReject"], ["mgmt", "addaccount", "i:btnAddAccount", "btnAddAccount"], ["mgmt", "disable", "fn:toggleAccountDisabled", "mtA_mgmt_disable"], ["mgmt", "delete", "fn:deleteAccount", "mtA_mgmt_delete"], ["mgmt", "editfield", "fn:updateAccountField", "mtA_mgmt_editfield"], ["mgmt", "pwreset", "fn:pwOpenReset", "pwResetBtn"], ["mgmt", "totp", "fn:toggleAccountTotpEnabled", "mtA_mgmt_totp"], ["mgmt", "resettotp", "fn:resetAccountTotp", "btnResetAuthenticator"], ["mgmt", "backupcodes", "fn:regenerateBackupCodes", "btnRegenerateBackupCodes"], ["lock", "apply", "fn:applySystemLockSettings", "btnApplyLock"], ["lock", "unlock", "fn:unlockAllSystems", "btnUnlockAll"], ["devices", "block", "fn:toggleDeviceBlocked", "mtA_devices_block"], ["devices", "rename", "fn:renameDevice", "mtA_devices_rename"], ["backup", "backupnow", "fn:confirmBackupNow", "btnConfirmBackup"], ["notif", "onetime", "fn:openOneTimeNotifModal", "broadcastSectionTitle"], ["notif", "announce", "fn:openComposeNotification", "btnNewAnnouncement"], ["notif", "shiftready", "fn:openNotifyShiftReadyModal", "btnNotifyShiftReady"], ["notif", "cardready", "fn:openCardReadyNotifModal", "btnNotifyCardReady"], ["notif", "delete", "fn:deleteSentNotif", "mtA_notif_delete"], ["convert", "convertphoto", "fn:showExtractPane|'convert'", "lxBtnConvert"], ["convert", "leaveextract", "fn:openAttExtract", "lxBtnLeave"], ["convert", "lxrecord", "fn:lxRecord", "lxRecBtn"], ["convert", "choose", "fn:handleConvertPhotoFileSelected", "mtA_convert_choose"], ["convert", "lxread", "fn:lxRead", "lxRead"], ["convert", "lxkey", "fn:lxSaveKey", "lxKeySaveBtn"], ["convert", "lxexport", "fn:lxExport", "lxExport"], ["bell", "respond", "fn:openComposeNotification", "btnRespond"], ["bell", "processed", "fn:markRequestProcessed", "btnMarkProcessed"], ["bell", "delete", "fn:deleteRequest", "btnDeleteRequest"], ["bell", "dismiss", "fn:dismissAdminAlert", "btnDismiss"], ["emp_request", "submit", "i:btnSubmitRequest", "btnSubmitRequest"], ["emp_shift", "check", "fn:checkMyShift", "mtA_emp_shift_check"], ["master", "settings", "fn:mlSave", "mlBtnText"], ["master", "settings", "fn:mlAddRule", "mlBtnText"], ["master", "settings", "fn:mlRemoveRule", "mlBtnText"], ["master", "settings", "fn:mlMakeFormula", "mlBtnText"], ["notif", "reminders", "fn:addAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:editAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:deleteAnnouncement", "mtA_notif_reminders"]];
-const MT_MODAL_SVC = { recentlyDeletedModal: 'recdeleted', pendingApprovalsModal: 'pending', managementModal: 'mgmt', lockSystemModal: 'lock', deviceLogModal: 'devices', backupLangModal: 'backup', manageNotifModal: 'notif', convertPhotoModal: 'convert', attExtractModal: 'convert', globalSearchModal: 'search', notifModal: 'bell', mlModal: 'master', mlStModal: 'master' };
+const MT_MODAL_SVC = { recentlyDeletedModal: 'recdeleted', pendingApprovalsModal: 'pending', managementModal: 'mgmt', lockSystemModal: 'lock', deviceLogModal: 'devices', backupLangModal: 'backup', manageNotifModal: 'notif', convertPhotoModal: 'convert', 'tab-attextract': 'convert', globalSearchModal: 'search', notifModal: 'bell', mlModal: 'master', mlStModal: 'master' };
 const MT_ACT_BY = {};
 MT_ACT.forEach(function (e) {
     const m = e[2], o = { svc: e[0], id: e[1], label: e[3] };
@@ -16098,10 +16098,10 @@ async function lxReadOne(file, key) {
 }
 function openAttExtract() {
     const m = document.getElementById('convertPhotoModal'); if (m) m.style.display = 'none';
-    const a = document.getElementById('attExtractModal'); if (a) a.style.display = 'flex';
-    lxRenderKey();
+    switchTab('tab-attextract', null); try { sessionStorage.removeItem('activeAdminTab'); } catch (e) {}
+    lxRenderKey(); window.scrollTo(0, 0);
 }
-function closeAttExtract() { const a = document.getElementById('attExtractModal'); if (a) a.style.display = 'none'; }
+function closeAttExtract() { const b = document.getElementById('nav-home'); switchTab('tab-home', b); }
 function lxNum(v) { const n = Number(v); return isFinite(n) && v !== null && v !== '' ? n : 0; }
 var lxDupOk = '';
 async function lxRead(btn) {
