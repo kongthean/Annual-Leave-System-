@@ -630,7 +630,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.26</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.28</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2703,7 +2703,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.26
+     HR & Administration System Version 7.28
  </div>
 </div>
 
@@ -15502,8 +15502,8 @@ function mtMessage() {
     const st = document.createElement('style');
     st.textContent = 'body{overflow-anchor:none;}#mtBanner.mt-inline{position:relative;margin:8px 0;border-radius:10px;box-shadow:none;}#mtBanner{position:sticky;top:0;z-index:100001;background:#ef4444;color:#fff;text-align:center;font-size:13px;font-weight:600;padding:7px 38px 7px 12px;line-height:1.35;box-shadow:0 2px 6px rgba(0,0,0,.25);}' +
         '#mtBanner .mt-i{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;border:1.5px solid #fff;border-radius:50%;font-size:12px;line-height:15px;font-style:italic;font-weight:700;}' +
-        '.mt-closed{opacity:.38!important;filter:grayscale(1)!important;cursor:not-allowed!important;}' +
-        '.mt-view{position:relative;}.mt-view::after{content:attr(data-mt);position:absolute;top:3px;right:3px;background:#f59e0b;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;line-height:1.3;}' +
+        '.mt-closed{opacity:.38!important;cursor:not-allowed!important;}' +
+        '.mt-lock{opacity:.38!important;pointer-events:none!important;cursor:not-allowed!important;}' +
         '#mtPop{position:fixed;inset:0;z-index:100002;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:16px;}' +
         '#mtPop .mt-box{background:#fff;border-radius:14px;max-width:380px;width:100%;padding:22px 20px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.35);}' +
         '#mtPop h3{margin:6px 0 8px;font-size:17px;color:#0f172a;}#mtPop p{font-size:13.5px;color:#475569;line-height:1.5;margin-bottom:8px;}' +
@@ -15543,8 +15543,6 @@ function mtApplyUI() {
         else { const e = document.getElementById(s[3] === 'shift' ? 'empMenuBtnShift' : 'empMenuBtnRequest'); if (e) els = [e]; }
         els.forEach(function (el) {
             el.classList.toggle('mt-closed', mode === 'closed');
-            el.classList.toggle('mt-view', mode === 'view');
-            if (mode === 'view') el.setAttribute('data-mt', t('mtViewTag')); else el.removeAttribute('data-mt');
         });
     });
 }
@@ -15564,10 +15562,42 @@ function mtPopup(id) {
 }
 /* which service is the person using right now? (used to decide whether a save is allowed) */
 function mtCurrentSvc() {
+    const a = window.__actorInfo;
+    if (a && a.type === 'employee') { const sp = document.getElementById('empPanelShift'); return sp && getComputedStyle(sp).display !== 'none' ? 'emp_shift' : 'emp_request'; }
     if (mtModal) return mtModal;
     const p = document.querySelector('.tab-panel.active');
     return p ? mtSvcOfTab(p.id) : null;
 }
+/* inside a "view only" service every button that could change, delete, export or print something is faded and cannot be clicked
+   (buttons that only look: search, filter, sort, next/previous, close, preview stay usable). The database guard below is the real lock. */
+const MT_KEEP = /(detail|view|sort|filter|search|prev|next|page|expand|collapse|close|cancel|clear|render|refresh|populate|goto|jump|zoom)/i;
+function mtKeepEl(el) {
+    if (el.closest('[data-mt-keep], nav, #mtPop, #mtBanner, .lang-dropdown, #globalToast')) return true;
+    const code = (el.getAttribute('onclick') || '') + ' ' + (el.getAttribute('onchange') || '') + ' ' + (el.getAttribute('oninput') || '') + ' ' + (el.id || '');
+    return MT_KEEP.test(code);
+}
+function mtLockScan() {
+    const want = new Set();
+    try {
+        const cur = mtCurrentSvc(), mode = mtMode(cur);
+        if (cur && (mode === 'view' || mode === 'closed')) {
+            const a = window.__actorInfo; let roots = [];
+            const modals = Array.from(document.querySelectorAll('.modal')).filter(function (m) { return getComputedStyle(m).display !== 'none'; });
+            if (a && a.type === 'employee') { const p = document.getElementById(cur === 'emp_shift' ? 'empPanelShift' : 'empPanelRequest'); if (p) roots.push(p); }
+            else if (mtModal) roots = modals;
+            else { const p = document.querySelector('.tab-panel.active'); if (p) roots.push(p); roots = roots.concat(modals); }
+            roots.forEach(function (r) {
+                r.querySelectorAll('button, [onclick], [onchange], input[type=button], input[type=submit], input[type=file]').forEach(function (el) { if (!mtKeepEl(el)) want.add(el); });
+            });
+        }
+    } catch (e) {}
+    document.querySelectorAll('.mt-lock').forEach(function (el) { if (!want.has(el)) el.classList.remove('mt-lock'); });
+    want.forEach(function (el) { el.classList.add('mt-lock'); });
+}
+setInterval(mtLockScan, 400);
+document.addEventListener('click', function (e) { const el = e.target && e.target.closest ? e.target.closest('.mt-lock') : null; if (el) { e.stopPropagation(); e.preventDefault(); } }, true);
+document.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('mt-lock')) { e.stopPropagation(); e.preventDefault(); } }, true);
+
 /* guards: closed services cannot be opened (a popup instead) */
 (function () {
     const sw = switchTab;
@@ -15643,7 +15673,7 @@ function mtPathBlocked(path) {
     };
 })();
 function mtRefresh() {
-    mtBannerRender(); mtApplyUI();
+    mtBannerRender(); mtApplyUI(); mtLockScan();
     try {
         const cur = mtCurrentSvc();
         if (cur && mtMode(cur) === 'closed') { mtModal = null; mtPopup(cur); const home = document.getElementById('nav-home'); if (document.getElementById('tab-home') && sessionStorage.getItem('isLoggedIn') === 'true') switchTab('tab-home', home); }
