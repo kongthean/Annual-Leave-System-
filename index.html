@@ -630,7 +630,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.37</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.38</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2700,7 +2700,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.37
+     HR & Administration System Version 7.38
  </div>
 </div>
 
@@ -3907,6 +3907,11 @@
         mtTiming: "Last page load: login check {a}s, data {b}s",
         mtCheckTitle: "Please wait",
         mtChecking: "Checking the system status. Please wait a moment and try again.",
+        bellFilterAll: "All",
+        bellFilterSystem: "System alerts",
+        bellStatusAny: "Any status",
+        bellNew: "NEW",
+        bellNoMatch: "No notifications match this filter.",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -4969,6 +4974,11 @@
         mtTiming: "ការបើកទំព័រចុងក្រោយ៖ ពិនិត្យការចូល {a} វិនាទី, ទិន្នន័យ {b} វិនាទី",
         mtCheckTitle: "សូមរង់ចាំ",
         mtChecking: "កំពុងពិនិត្យស្ថានភាពប្រព័ន្ធ។ សូមរង់ចាំបន្តិច រួចព្យាយាមម្តងទៀត។",
+        bellFilterAll: "ទាំងអស់",
+        bellFilterSystem: "ការជូនដំណឹងប្រព័ន្ធ",
+        bellStatusAny: "គ្រប់ស្ថានភាព",
+        bellNew: "ថ្មី",
+        bellNoMatch: "គ្មានការជូនដំណឹងដែលត្រូវនឹងតម្រងនេះទេ។",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -5993,6 +6003,11 @@
         mtTiming: "上次页面加载：登录检查 {a} 秒，数据 {b} 秒",
         mtCheckTitle: "请稍候",
         mtChecking: "正在检查系统状态，请稍候再试。",
+        bellFilterAll: "全部",
+        bellFilterSystem: "系统提醒",
+        bellStatusAny: "全部状态",
+        bellNew: "新",
+        bellNoMatch: "没有符合此筛选条件的通知。",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -15769,8 +15784,10 @@ function mtRefresh() {
         if (cur && mtMode(cur) === 'closed') { mtModal = null; mtPopup(cur); const home = document.getElementById('nav-home'); if (document.getElementById('tab-home') && sessionStorage.getItem('isLoggedIn') === 'true') switchTab('tab-home', home); }
     } catch (e) {}
 }
-db.ref('maintenance').on('value', function (s) { mtData = s.val(); mtReady = true; mtRefresh(); }, function () { mtReady = true; });
-setTimeout(function () { mtReady = true; }, 60000);
+/* the last known state is remembered in this browser, so a repeat visit shows an ON maintenance at once (before the database answers) */
+try { const c = JSON.parse(localStorage.getItem('mtCache') || 'null'); if (c && c.on) { mtData = c; try { mtRefresh(); } catch (e) {} } } catch (e) {}
+db.ref('maintenance').on('value', function (s) { mtData = s.val(); mtReady = true; try { localStorage.setItem('mtCache', JSON.stringify(mtData)); } catch (e) {} mtRefresh(); }, function () { mtReady = true; });
+setTimeout(function () { mtReady = true; }, 6000);
 /* "loading data" hint + timing (shown while the first lists are still arriving) */
 (function () {
     const need = sessionStorage.getItem('isLoggedIn') === 'true' || !!sessionStorage.getItem('empLoggedInId');
@@ -15780,6 +15797,77 @@ setTimeout(function () { mtReady = true; }, 60000);
     window.mtLoadDone = function () { const e = document.getElementById('mtLoading'); if (e) e.remove(); };
     setTimeout(window.mtLoadDone, 60000);
 })();
+
+/* ================= v7.38: Requests bell - newest first + filters =================
+   One list for everything (system alerts and employee requests), new/unseen items pinned on top, then newest first.
+   Filters: kind (All / System alerts / each request type) and status (Any / Pending / Processed). The data and the buttons are unchanged. */
+var BELL_KINDS = [['all', 'bellFilterAll'], ['sys', 'bellFilterSystem'], ['annual', 'reqTypeAnnual'], ['info', 'reqTypePersonalInfo'], ['leave', 'reqTypeLeave'], ['makeup', 'reqTypeMakeup'], ['other', 'reqTypeOther']];
+var BELL_STATUS = [['any', 'bellStatusAny'], ['pending', 'statusPending'], ['processed', 'statusProcessed']];
+var BELL_TYPE = { 'Check Annual Leave': 'annual', 'Update Personal Information': 'info', 'Leave Request': 'leave', 'Makeup Attendance Request': 'makeup', 'Other Request': 'other' };
+var bellKind = 'all', bellStatus = 'any', bellNewSet = {};
+function bellSetKind(k) { bellKind = k; renderNotifications(); }
+function bellSetStatus(s) { bellStatus = s; renderNotifications(); }
+function renderNotifications() {
+    const badge = document.getElementById('notifBadge');
+    const adminAlerts = getAdminAlerts();
+    const pendingCount = requests.filter(r => r.status !== 'processed' && !r.seenByAdmin).length + adminAlerts.filter(n => !n.seenByAdmin).length;
+    if (pendingCount > 0) { badge.style.display = 'inline-block'; badge.innerText = pendingCount; } else { badge.style.display = 'none'; }
+    const body = document.getElementById('notifListBody');
+    if (!body) return;
+    const modal = document.getElementById('notifModal');
+    const opening = !modal || modal.style.display !== 'flex';
+    if (opening) {
+        bellNewSet = {};
+        requests.forEach(r => { if (r.status !== 'processed' && !r.seenByAdmin) bellNewSet['r' + r.firebaseKey] = true; });
+        adminAlerts.forEach(n => { if (!n.seenByAdmin) bellNewSet['a' + n.firebaseKey] = true; });
+    }
+    const newTag = '<span style="background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:8px;margin-left:6px;">' + t('bellNew') + '</span>';
+    const items = [];
+    adminAlerts.forEach(n => {
+        const isNew = !!bellNewSet['a' + n.firebaseKey];
+        items.push({ kind: 'sys', status: 'pending', isNew: isNew, ts: n.timestamp || 0, html: `
+         <div class="detail-item" style="flex-direction:column; align-items:flex-start; gap:6px; margin-bottom:10px; background:#fffbeb; border-color:#fde68a;${isNew ? ' border-left:4px solid #ef4444;' : ''}">
+             <div style="display:flex; justify-content:space-between; width:100%;">
+                 <span class="lbl">${n.message || '-'}${isNew ? newTag : ''}</span>
+                 ${n.timestamp ? `<span class="val" style="font-size:10px; color:#94a3b8;">${formatNotifReceivedAt(n.timestamp)}</span>` : ''}
+             </div>
+             <div style="font-size:12px; color:#334155; width:100%; text-align:left;">${n.description || ''}</div>
+             <button class="quick-btn slate" style="padding:4px 10px; font-size:11px;" onclick="dismissAdminAlert('${n.firebaseKey}', this)">${t('btnDismiss')}</button>
+         </div>` });
+    });
+    requests.forEach(r => {
+        const isNew = !!bellNewSet['r' + r.firebaseKey];
+        items.push({ kind: BELL_TYPE[r.type] || 'other', status: r.status === 'processed' ? 'processed' : 'pending', isNew: isNew, ts: r.timestamp || 0, html: `
+         <div class="detail-item" style="flex-direction:column; align-items:flex-start; gap:6px; margin-bottom:10px;${isNew ? ' border-left:4px solid #ef4444;' : ''}">
+             <div style="display:flex; justify-content:space-between; width:100%;">
+                 <span class="lbl">${r.name || '-'} (${r.empId || '-'})${isNew ? newTag : ''}</span>
+                 <span class="val" style="color:${r.status === 'processed' ? '#15803d' : '#d97706'};">${r.status === 'processed' ? t('statusProcessed') : t('statusPending')}</span>
+             </div>
+             ${r.timestamp ? `<div style="font-size:10px; color:#94a3b8;">${t('lblNotifReceivedAt')}: ${formatNotifReceivedAt(r.timestamp)}</div>` : ''}
+             <div style="font-size:12px; color:#334155; width:100%; text-align:left;">
+                 <b>${t('lblReqType')}:</b> ${r.type || '-'} &nbsp;|&nbsp; <b>${t('lblReqDate')}:</b> ${r.date || '-'}<br>
+                 <b>${t('lblReqDescription')}:</b> ${r.description || '-'}<br>
+                 <b>${t('lblReqMethod')}:</b> ${r.method || '-'} &nbsp;|&nbsp; <b>${t('lblReqContact')}:</b> ${r.contact || '-'}
+             </div>
+             <div style="display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
+                 <button class="quick-btn" style="padding:4px 10px; font-size:11px;" onclick="openComposeNotification('${r.empId || ''}', '${r.firebaseKey}')">${t('btnRespond')}</button>
+                 ${r.status !== 'processed' ? `<button class="quick-btn green" style="padding:4px 10px; font-size:11px;" onclick="markRequestProcessed('${r.firebaseKey}', this)">${t('btnMarkProcessed')}</button>` : ''}
+                 <button class="quick-btn slate" style="padding:4px 10px; font-size:11px;" onclick="deleteRequest('${r.firebaseKey}', this)">${t('btnDeleteRequest')}</button>
+             </div>
+         </div>` });
+    });
+    let html = `<p style="font-size:11px; color:#64748b; margin-bottom:10px;">${t('notifSeeManageHint')}</p>`;
+    if (!items.length) { body.innerHTML = html + `<p style="font-size:13px; color:#64748b; text-align:center; padding:20px;">${t('notifEmpty')}</p>`; return; }
+    const chip = (on, label, n, fn, arg) => `<button type="button" onclick="${fn}('${arg}')" style="border:1px solid ${on ? '#0f172a' : '#cbd5e1'}; background:${on ? '#0f172a' : '#fff'}; color:${on ? '#fff' : '#334155'}; border-radius:16px; padding:4px 11px; font-size:12px; cursor:pointer; white-space:nowrap;">${label}${n === null ? '' : ' (' + n + ')'}</button>`;
+    const cnt = k => k === 'all' ? items.length : items.filter(i => i.kind === k).length;
+    html += '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px;">' + BELL_KINDS.map(k => chip(bellKind === k[0], t(k[1]), cnt(k[0]), 'bellSetKind', k[0])).join('') + '</div>';
+    html += '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">' + BELL_STATUS.map(s => chip(bellStatus === s[0], t(s[1]), null, 'bellSetStatus', s[0])).join('') + '</div>';
+    const shown = items.filter(i => (bellKind === 'all' || i.kind === bellKind) && (bellStatus === 'any' || i.status === bellStatus))
+        .sort((a, b) => (b.isNew - a.isNew) || (b.ts - a.ts));
+    html += shown.length ? shown.map(i => i.html).join('') : `<p style="font-size:13px; color:#64748b; text-align:center; padding:20px;">${t('bellNoMatch')}</p>`;
+    body.innerHTML = html;
+    if (opening) { body.scrollTop = 0; if (body.parentElement) body.parentElement.scrollTop = 0; if (modal) modal.scrollTop = 0; }
+}
 
 
  /* v6.96: leave notifications are stored with a language-neutral kind + params, and turned into
