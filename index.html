@@ -95,9 +95,18 @@
       it fails silently to the console only - it does not block the rest of the app from loading,
       since the database rules stay exactly as they were in the Firebase Console until someone
       deliberately changes them there. */
-   if (typeof firebase.auth === 'function') {
-     firebase.auth().signInAnonymously().catch(function (err) {
-       console.error('Anonymous sign-in failed (database rules were NOT changed by this alone - see v6.91 notes):', err);
+   if (typeof firebase.auth === 'function' && typeof firebase.auth().onAuthStateChanged !== 'function') {
+     firebase.auth().signInAnonymously().catch(function (err) { console.error('Anonymous sign-in failed:', err); });
+   } else if (typeof firebase.auth === 'function') {
+     /* v7.22: only sign in anonymously when nobody is signed in yet, and drop a left-over staff session
+        (a staff login that is still stored in the browser after the tab was closed) back to anonymous. */
+     var unsubAuth = firebase.auth().onAuthStateChanged(function (u) {
+       unsubAuth();
+       var back = function () { return firebase.auth().signInAnonymously().catch(function (err) {
+         console.error('Anonymous sign-in failed (database rules were NOT changed by this alone - see v6.91 notes):', err);
+       }); };
+       if (!u) { back(); }
+       else if (!u.isAnonymous && sessionStorage.getItem('isLoggedIn') !== 'true') { firebase.auth().signOut().then(back, back); }
      });
    }
  </script>
@@ -546,7 +555,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.21</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.22</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2616,7 +2625,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.21
+     HR & Administration System Version 7.22
  </div>
 </div>
 
@@ -2679,6 +2688,7 @@
          </form>
 
          <h4 style="margin-bottom:8px;" data-i18n="accountsSectionTitle">HR &amp; Administration Accounts</h4>
+         <div id="saSummary"></div>
          <div class="table-responsive" style="margin-bottom:16px;">
              <table class="master-tbl" id="accountsTable">
                  <thead>
@@ -3246,10 +3256,15 @@
      const errorDiv = document.getElementById('loginError');
 
      let found = null;
-     for (const cand of accounts.filter(a => a.username === userIn && a.role === loginTargetRole && !a.disabled)) {
-         if (await pwVerify(cand, passIn)) { found = cand; break; }
+     window.__staffSecure = false;
+     try { found = await saSecureLogin(loginTargetRole, userIn, passIn); if (found) window.__staffSecure = true; } catch (err) { console.error(err); }
+     if (!found) {
+         for (const cand of accounts.filter(a => a.username === userIn && a.role === loginTargetRole && !a.disabled)) {
+             if (await pwVerify(cand, passIn)) { found = cand; break; }
+         }
+         if (found && !found.passwordHash) pwUpgrade(found, passIn);
+         if (found) { try { await saMigrate(found, passIn); window.__staffSecure = true; } catch (err) { console.error('Secure login could not be activated now:', err); } }
      }
-     if (found && !found.passwordHash) pwUpgrade(found, passIn);
 
      if (!found) {
          errorDiv.innerText = t('loginErrorMsg');
@@ -3807,6 +3822,11 @@
         notifPersonalLeaveMsg: "You have a Personal Leave record of {hours} hour(s). Total Personal Leave this month: {total} hours.",
         notifLeaveDeductedMsg2: "Your Annual Leave entitlement has been deducted {hours} hour(s) use for your leave on {date}. Used for {type}. Remaining Hours: {remaining} hours.",
         notifPersonalLeaveMsg2: "You have a personal leave record of {hours} hour(s) for your leave on {date}. Total personal leave this month: {total} hours.",
+        /* v7.22 */
+        saSecureOn: "Secure login active",
+        saSecurePending: "Not active yet - starts at the next login",
+        saSummary: "Secure login active: {a} of {b} accounts",
+        saReloginMsg: "Your password was changed. Please log in again.",
         /* v7.21 */
         pwOnceTitle: "New administrator account",
         pwOnceMsg: "No account existed, so one was created. Write this password down now. It will not be shown again. Change it in Management > Reset password.",
@@ -4824,6 +4844,11 @@
         notifPersonalLeaveMsg: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
         notifLeaveDeductedMsg2: "សិទ្ធិច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំរបស់អ្នកត្រូវបានកាត់កង {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ ប្រើសម្រាប់៖ {type}។ ម៉ោងនៅសល់៖ {remaining} ម៉ោង។",
         notifPersonalLeaveMsg2: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
+        /* v7.22 */
+        saSecureOn: "ការចូលសុវត្ថិភាពសកម្ម",
+        saSecurePending: "មិនទាន់សកម្ម - ចាប់ផ្ដើមពេលចូលលើកក្រោយ",
+        saSummary: "ការចូលសុវត្ថិភាពសកម្ម៖ {a} ក្នុងចំណោម {b} គណនី",
+        saReloginMsg: "ពាក្យសម្ងាត់របស់អ្នកត្រូវបានផ្លាស់ប្ដូរ។ សូមចូលម្ដងទៀត។",
         /* v7.21 */
         pwOnceTitle: "គណនីអ្នកគ្រប់គ្រងថ្មី",
         pwOnceMsg: "មិនមានគណនីទេ ដូច្នេះបានបង្កើតមួយ។ សូមកត់ពាក្យសម្ងាត់នេះឥឡូវ វានឹងមិនបង្ហាញម្ដងទៀតទេ។ ផ្លាស់ប្ដូរក្នុង Management > កំណត់ពាក្យសម្ងាត់ឡើងវិញ។",
@@ -5803,6 +5828,11 @@
         notifPersonalLeaveMsg: "您有一笔{hours}小时的事假记录。本月事假总计：{total}小时。",
         notifLeaveDeductedMsg2: "您的年假额度已扣除{hours}小时，对应您在{date}的休假。用途：{type}。剩余小时数：{remaining}小时。",
         notifPersonalLeaveMsg2: "您有一笔{hours}小时的事假记录，对应您在{date}的休假。本月事假总计：{total}小时。",
+        /* v7.22 */
+        saSecureOn: "安全登录已启用",
+        saSecurePending: "尚未启用 - 下次登录时启用",
+        saSummary: "安全登录已启用：{a} / {b} 个账户",
+        saReloginMsg: "您的密码已更改，请重新登录。",
         /* v7.21 */
         pwOnceTitle: "新的管理员账户",
         pwOnceMsg: "当前没有账户，因此已创建一个。请立即记下此密码，之后不会再显示。可在“管理 > 重置密码”中修改。",
@@ -8503,7 +8533,7 @@ function filterMakeupTable() {
                      <option value="admin" ${a.role === 'admin' ? 'selected' : ''}>${t('roleLabelAdmin')}</option>
                  </select>
              </td>
-             <td style="color:${a.disabled ? '#dc2626' : '#15803d'}; font-weight:600;">${a.disabled ? t('acctDisabled') : t('acctActive')}</td>
+             <td style="color:${a.disabled ? '#dc2626' : '#15803d'}; font-weight:600;">${a.disabled ? t('acctDisabled') : t('acctActive')}<br><span style="font-size:10px; font-weight:400;">${saStatusLine(a)}</span></td>
              <td>${renderAcctTotpCell(a)}</td>
          </tr>
      `).join('');
@@ -8527,7 +8557,7 @@ function filterMakeupTable() {
      const otherActiveAdmins = accounts.filter(a => a.firebaseKey !== firebaseKey && a.role === 'admin' && !a.disabled);
      if (acc.role === 'admin' && !acc.disabled && otherActiveAdmins.length === 0) { showToast(false, t('acctDeleteLastAdmin')); return; }
      if (!(await showConfirm(fillTemplate(t('acctDeleteConfirm'), { name: acc.name || acc.username, user: acc.username })))) return;
-     withBusyButton(btnEl, () => db.ref('accounts/' + firebaseKey).remove().then(() => {
+     withBusyButton(btnEl, () => Promise.all([db.ref('accounts/' + firebaseKey).remove(), saForget(acc)]).then(() => {
          logActivity('account_delete', 'account', acc.username || firebaseKey, acc.name || '', acc.role || '');
          showToast(true);
      }).catch(() => showToast(false)));
@@ -8557,7 +8587,7 @@ function filterMakeupTable() {
          showToast(false, t('acctDuplicateUsernameMsg'));
          return;
      }
-     withBusyButton(btnEl, () => pwFields(password).then(f => db.ref('accounts').push(Object.assign({ name, username, role, disabled: false }, f))).then(() => {
+     withBusyButton(btnEl, () => pwFields(password).then(f => db.ref('accounts').push(Object.assign({ name, username, role, disabled: false }, f))).then(ref => saAfterAdd(ref.key, { name, username, role }, password)).then(() => {
          document.getElementById('newAcctName').value = '';
          document.getElementById('newAcctUsername').value = '';
          document.getElementById('newAcctPassword').value = '';
@@ -14907,7 +14937,7 @@ function pwDoReset(firebaseKey, btn) {
     if (v.length < 6) { showToast(false, t('pwTooShort')); return; }
     const acc = accounts.find(function (a) { return a.firebaseKey === firebaseKey; });
     withBusyButton(btn, function () {
-        return pwFields(v).then(function (f) { return db.ref('accounts/' + firebaseKey).update(f); }).then(function () {
+        return pwFields(v).then(function (f) { return db.ref('accounts/' + firebaseKey).update(f); }).then(function () { return (typeof saAfterReset === 'function') ? saAfterReset(acc, v) : null; }).then(function () {
             logActivity('account_password_reset', 'account', acc ? acc.username : firebaseKey, acc ? acc.name || '' : '', '');
             document.getElementById('acctPwModal').style.display = 'none';
             showToast(true);
@@ -14973,6 +15003,131 @@ function v721AuditMatch(a) {
 function v721AuditPlaceholder() { const x = document.getElementById('auditFilterText'); if (x) x.placeholder = t('auditFilterSearchPh'); }
 
 v721AuditPlaceholder();
+
+
+/* ================= v7.22: SECURE STAFF LOGIN (Step A) =================
+   Staff still type username + password. Behind the scenes each account also gets a real Firebase login
+   (a hidden address like a1b2...@staff.cambodiainsight.net and a long password worked out from the typed password), so
+   that Firebase itself can tell staff apart from visitors. Nothing here changes how the screens look.
+   - First login on this version: the old password check is used once, then the secure login is created and registered
+     in "staff" (uid -> role) and "staffLookup" (username -> hidden ids). No Firebase console work is needed.
+   - If the secure part ever fails, the old login still works (nobody is locked out). The database rules are NOT changed by this step. */
+const SA_OK = PW_OK && typeof firebase.auth === 'function' && typeof firebase.auth().signInWithEmailAndPassword === 'function' && typeof firebase.auth().onAuthStateChanged === 'function';
+const SA_DOMAIN = 'staff.cambodiainsight.net';
+function saHexStr(s) { return Array.from(new TextEncoder().encode(String(s))).map(function (b) { return (b < 16 ? '0' : '') + b.toString(16); }).join(''); }
+function saLookupKey(role, username) { return saHexStr(role + '|' + username); }
+function saNewId() { const a = new Uint8Array(12); crypto.getRandomValues(a); return 'a' + pwHex(a); }
+function saEmail(id) { return id + '@' + SA_DOMAIN; }
+async function saPw(pass, id) { return (await pwDerive(pass, 'staff-auth:' + id)).split('$')[2].slice(0, 48); }
+async function saBackToAnon() {
+    try { await firebase.auth().signOut(); } catch (e) {}
+    try { await firebase.auth().signInAnonymously(); } catch (e) {}
+}
+async function saCandidates(role, username) {
+    const s = await db.ref('staffLookup/' + saLookupKey(role, username)).once('value');
+    const v = s.val();
+    return v ? Object.keys(v) : [];
+}
+async function saSecureLogin(role, user, pass) {
+    if (!SA_OK) return null;
+    const ids = await saCandidates(role, user);
+    for (const id of ids) {
+        try {
+            await firebase.auth().signInWithEmailAndPassword(saEmail(id), await saPw(pass, id));
+            const acc = accounts.find(function (a) { return a.authId === id && a.role === role && !a.disabled; });
+            if (acc) return acc;
+            await saBackToAnon();
+        } catch (e) { /* wrong password for this one - try the next one */ }
+    }
+    return null;
+}
+async function saRegister(acc, id, uid) {
+    const up = {};
+    if (acc.authId && acc.authId !== id) up['staffLookup/' + saLookupKey(acc.role, acc.username) + '/' + acc.authId] = null;
+    if (acc.uid && acc.uid !== uid) up['staff/' + acc.uid] = null;
+    up['staff/' + uid] = { role: acc.role, name: acc.name || '', key: acc.firebaseKey };
+    up['staffLookup/' + saLookupKey(acc.role, acc.username) + '/' + id] = true;
+    up['accounts/' + acc.firebaseKey + '/authId'] = id;
+    up['accounts/' + acc.firebaseKey + '/uid'] = uid;
+    await db.ref().update(up);
+}
+/* the person is logging in themselves (old password already checked): create their secure login and stay signed in as it */
+async function saMigrate(acc, pass) {
+    if (!SA_OK) throw new Error('secure login not available');
+    const id = saNewId();
+    const cred = await firebase.auth().createUserWithEmailAndPassword(saEmail(id), await saPw(pass, id));
+    await saRegister(acc, id, cred.user.uid);
+}
+/* an Admin creates / replaces the secure login of another account (Add account, Reset password); the Admin stays signed in */
+let saApp2 = null;
+async function saAdminCreate(acc, plain) {
+    if (!SA_OK) return false;
+    if (!saApp2) saApp2 = firebase.initializeApp(firebase.app().options, 'staffSecondary');
+    const a2 = saApp2.auth(), id = saNewId();
+    const cred = await a2.createUserWithEmailAndPassword(saEmail(id), await saPw(plain, id));
+    const uid = cred.user.uid;
+    try { await a2.signOut(); } catch (e) {}
+    await saRegister(acc, id, uid);
+    return true;
+}
+async function saAfterAdd(key, info, plain) {
+    try { await saAdminCreate(Object.assign({ firebaseKey: key }, info), plain); } catch (e) { console.error('Secure login could not be created now (it will be created at the first login):', e); }
+}
+async function saAfterReset(acc, plain) {
+    if (!acc) return;
+    try { await saAdminCreate(acc, plain); } catch (e) { console.error('Secure login could not be replaced now (it will be replaced at the next login):', e); }
+    if (acc.username === sessionStorage.getItem('loggedInAccountUsername') && acc.role === sessionStorage.getItem('loggedInRole')) {
+        showToast(true, t('saReloginMsg'));
+        setTimeout(function () { lockSystem(); }, 1200);
+    }
+}
+async function saForget(acc) {
+    if (!acc) return;
+    const up = {};
+    if (acc.uid) up['staff/' + acc.uid] = null;
+    if (acc.authId) up['staffLookup/' + saLookupKey(acc.role, acc.username) + '/' + acc.authId] = null;
+    if (Object.keys(up).length) await db.ref().update(up);
+}
+(function () {
+    const od = toggleAccountDisabled;
+    toggleAccountDisabled = function (k, d) {
+        od(k, d);
+        const a = accounts.find(function (x) { return x.firebaseKey === k; });
+        if (a && a.uid) { if (d) db.ref('staff/' + a.uid).remove(); else db.ref('staff/' + a.uid).set({ role: a.role, name: a.name || '', key: k }); }
+    };
+    const ou = updateAccountField;
+    updateAccountField = function (k, f, v) {
+        const a = accounts.find(function (x) { return x.firebaseKey === k; });
+        const b = a ? { role: a.role, username: a.username, authId: a.authId, uid: a.uid, name: a.name } : null;
+        ou(k, f, v);
+        if (b && b.authId && b.uid && (f === 'username' || f === 'role' || f === 'name')) {
+            const n = Object.assign({}, b); n[f] = v;
+            const up = {};
+            up['staffLookup/' + saLookupKey(b.role, b.username) + '/' + b.authId] = null;
+            up['staffLookup/' + saLookupKey(n.role, n.username) + '/' + b.authId] = true;
+            up['staff/' + b.uid] = { role: n.role, name: n.name || '', key: k };
+            db.ref().update(up);
+        }
+    };
+    const cl = completeLogin;
+    completeLogin = function (found) { sessionStorage.setItem('saSecure', window.__staffSecure ? '1' : ''); cl(found); };
+    const ls = lockSystem;
+    lockSystem = function () { ls(); sessionStorage.removeItem('saSecure'); if (SA_OK) saBackToAnon(); };
+    const ct = closeTotpVerifyModal;
+    closeTotpVerifyModal = function () { ct(); if (SA_OK && sessionStorage.getItem('isLoggedIn') !== 'true') saBackToAnon(); };
+})();
+
+/* Management: which accounts already have the secure login */
+function saStatusLine(a) {
+    return (a.authId && a.uid) ? '<span style="color:#15803d;">🔒 ' + escapeHtmlText(t('saSecureOn')) + '</span>' : '<span style="color:#b45309;">⏳ ' + escapeHtmlText(t('saSecurePending')) + '</span>';
+}
+function saRenderSummary() {
+    const box = document.getElementById('saSummary');
+    if (!box) return;
+    const n = accounts.filter(function (a) { return a.authId && a.uid; }).length;
+    box.innerHTML = '<div style="font-size:12px; margin:4px 0 8px; ' + (n === accounts.length && n ? 'color:#15803d;' : 'color:#b45309;') + '">🔒 ' + escapeHtmlText(fillTemplate(t('saSummary'), { a: n, b: accounts.length })) + '</div>';
+}
+(function () { const o = renderAccountsTable; renderAccountsTable = function () { o(); saRenderSummary(); }; })();
 
 
  /* v6.96: leave notifications are stored with a language-neutral kind + params, and turned into
