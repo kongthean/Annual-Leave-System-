@@ -630,7 +630,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.40</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.41</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2700,7 +2700,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.40
+     HR & Administration System Version 7.41
  </div>
 </div>
 
@@ -3066,7 +3066,7 @@
             <p style="font-size:12px; color:#64748b; margin-bottom:12px;" data-i18n="lxMenuSub">Choose what you want to do.</p>
             <div style="display:flex; gap:12px; flex-wrap:wrap;">
                 <button type="button" class="quick-btn indigo" style="flex:1; min-width:200px;" onclick="showExtractPane('convert')"><span data-i18n="lxBtnConvert">Convert to Photo</span></button>
-                <button type="button" class="quick-btn green" style="flex:1; min-width:200px;" onclick="showExtractPane('leave')"><span data-i18n="lxBtnLeave">Leave Extract</span></button>
+                <button type="button" class="quick-btn green" style="flex:1; min-width:200px;" onclick="openAttExtract()"><span data-i18n="lxBtnLeave">Attendance Extract</span></button>
             </div>
         </div>
         <div id="convertPhotoPane" style="display:none;">
@@ -3078,7 +3078,14 @@
         <div id="convertPhotoStatus" style="font-size:12px; color:#0f172a; margin:8px 0; display:none;"></div>
         <div id="convertPhotoResults" style="display:flex; flex-direction:column; gap:12px; max-height:420px; overflow-y:auto;"></div>
         </div>
-        <div id="leaveExtractPane" style="display:none;">
+    </div>
+</div>
+<div class="modal" id="attExtractModal" style="align-items:stretch; justify-content:stretch;">
+    <div class="modal-content" style="max-width:none; width:100%; height:100%; max-height:100vh; border-radius:0; box-sizing:border-box; padding:22px 28px;">
+        <div class="modal-header">
+            <h4 data-i18n="lxBtnLeave">Attendance Extract</h4>
+            <button class="modal-close" onclick="closeAttExtract()">&times;</button>
+        </div>
             <p style="font-size:12px; color:#475569; margin-bottom:10px;" data-i18n="lxIntro">Upload the photo of the daily attendance report.</p>
             <div id="lxKeyBox" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px; margin-bottom:10px;">
                 <p style="font-size:11px; color:#64748b; margin-bottom:8px;" data-i18n="lxKeyHelp">The photo is read by Claude AI.</p>
@@ -3095,7 +3102,6 @@
             </div>
             <div id="lxStatus" style="font-size:12px; margin:10px 0; display:none;"></div>
             <div id="lxResults"></div>
-        </div>
     </div>
 </div>
 
@@ -3941,10 +3947,10 @@
         bellNew: "NEW",
         bellNoMatch: "No notifications match this filter.",
         lxBtnConvert: "Convert to Photo",
-        lxBtnLeave: "Leave Extract",
+        lxBtnLeave: "Attendance Extract",
         lxBack: "Back",
         lxMenuSub: "Choose what you want to do.",
-        lxIntro: "Upload the photo or screenshot of the daily attendance report. The system reads who has absent hours (曠工) or permission hours (請假) and lists them here. Nothing is saved in the system.",
+        lxIntro: "Upload the photo or screenshot of the daily attendance report. The system reads every employee: ID, name, time, working hours, OT hours, night shift, absent hours, permission hours, early departure and allowance. You can correct any number before using it.",
         lxKeyHelp: "The photo is read by Claude AI. Paste your Anthropic API key once. It is kept only in this browser on this device (not in the system database). The photo is sent to Anthropic only to be read.",
         lxKeyPh: "Paste API key (sk-ant-...)",
         lxKeySaveBtn: "Save key",
@@ -3953,8 +3959,8 @@
         lxChoose: "Photos of the daily attendance report (you can choose several pages)",
         lxRead: "Read photos",
         lxReading: "Reading photo {a} of {b}...",
-        lxDone: "Done. {n} employee(s) with absent or permission hours.",
-        lxNone: "No absent or permission hours found in the photo(s).",
+        lxDone: "Done. {n} employee(s) read.",
+        lxNone: "No employees found in the photo(s).",
         lxErrKey: "Please paste the API key first.",
         lxErrNoFile: "Please choose at least one photo.",
         lxErrBadKey: "The key was refused. Please check the API key.",
@@ -3963,13 +3969,27 @@
         lxColName: "Name (system)",
         lxColPaper: "Name on paper",
         lxColTimes: "Card times",
-        lxColAbsent: "Absent hours (曠工)",
-        lxColLeave: "Permission hours (請假)",
+        lxColAbsent: "Absent hours",
+        lxColLeave: "Permission hours",
         lxNotInSystem: "Not in system",
         lxReportDate: "Report date: {d}",
-        lxTotals: "{n} employee(s) · absent {a} h · permission {p} h",
+        lxTotals: "{n} employee(s) · working {w} h · OT {o} h · absent {a} h · permission {p} h",
         lxCheckNote: "Please compare with the paper before using. You can correct the hours here.",
         lxExport: "Download Excel",
+        lxRecFail: "Could not record. Nothing was changed. Please try again.",
+        lxRecMissing: "{m} row(s) skipped because the ID is not in the system.",
+        lxRecDone: "Recorded for {n} employee(s) on {d}.",
+        lxRecDup: "{n} employee(s) already have attendance recorded on {d}. Press the button again only if you really want to add again.",
+        lxRecNone: "No working or OT hours to record for employees in the system.",
+        lxRecNeedDate: "Please choose the date first.",
+        lxRecBtn: "Record working & OT hours",
+        lxRecDate: "Date to record",
+        lxRecNote: "Record working hours and OT hours to the Master Sheet and Attendance Calendar. The numbers are ADDED to the existing hours (0 changes nothing). Absent and permission hours are NOT recorded here.",
+        lxColAllow: "Allowance",
+        lxColEarly: "Early departure",
+        lxColNight: "Night shift",
+        lxColOt: "OT hours",
+        lxColWork: "Working hours",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -5038,10 +5058,10 @@
         bellNew: "ថ្មី",
         bellNoMatch: "គ្មានការជូនដំណឹងដែលត្រូវនឹងតម្រងនេះទេ។",
         lxBtnConvert: "បម្លែងទៅជារូបថត",
-        lxBtnLeave: "ស្រង់ទិន្នន័យអវត្តមាន",
+        lxBtnLeave: "ស្រង់ទិន្នន័យវត្តមាន",
         lxBack: "ត្រឡប់ក្រោយ",
         lxMenuSub: "ជ្រើសរើសអ្វីដែលអ្នកចង់ធ្វើ។",
-        lxIntro: "បញ្ចូលរូបថត ឬ screenshot នៃតារាងម៉ោងវត្តមានប្រចាំថ្ងៃ។ ប្រព័ន្ធនឹងអានថាអ្នកណាមានម៉ោងអវត្តមាន (曠工) ឬម៉ោងសុំច្បាប់ (請假) ហើយបង្ហាញនៅទីនេះ។ គ្មានអ្វីត្រូវបានរក្សាទុកក្នុងប្រព័ន្ធទេ។",
+        lxIntro: "បញ្ចូលរូបថត ឬ screenshot នៃតារាងម៉ោងវត្តមានប្រចាំថ្ងៃ។ ប្រព័ន្ធនឹងអានបុគ្គលិកទាំងអស់៖ អត្តលេខ ឈ្មោះ ម៉ោង ម៉ោងធ្វើការ ម៉ោង OT វេនយប់ ម៉ោងអវត្តមាន ម៉ោងសុំច្បាប់ ចេញមុនម៉ោង និងប្រាក់ឧបត្ថម្ភ។ អ្នកអាចកែលេខណាមួយបានមុនប្រើ។",
         lxKeyHelp: "រូបថតត្រូវបានអានដោយ Claude AI។ បិទភ្ជាប់ API key របស់ Anthropic តែម្តង។ វាត្រូវបានរក្សាទុកតែក្នុង browser នៅលើឧបករណ៍នេះប៉ុណ្ណោះ (មិនមែនក្នុងទិន្នន័យប្រព័ន្ធទេ)។ រូបថតត្រូវបានផ្ញើទៅ Anthropic ដើម្បីអានប៉ុណ្ណោះ។",
         lxKeyPh: "បិទភ្ជាប់ API key (sk-ant-...)",
         lxKeySaveBtn: "រក្សាទុក key",
@@ -5050,8 +5070,8 @@
         lxChoose: "រូបថតតារាងម៉ោងវត្តមានប្រចាំថ្ងៃ (អាចជ្រើសរើសច្រើនទំព័រ)",
         lxRead: "អានរូបថត",
         lxReading: "កំពុងអានរូបថត {a} ក្នុងចំណោម {b}...",
-        lxDone: "រួចរាល់។ មានបុគ្គលិក {n} នាក់ដែលមានម៉ោងអវត្តមាន ឬសុំច្បាប់។",
-        lxNone: "រកមិនឃើញម៉ោងអវត្តមាន ឬសុំច្បាប់ក្នុងរូបថតទេ។",
+        lxDone: "រួចរាល់។ បានអានបុគ្គលិក {n} នាក់។",
+        lxNone: "រកមិនឃើញបុគ្គលិកក្នុងរូបថតទេ។",
         lxErrKey: "សូមបិទភ្ជាប់ API key ជាមុនសិន។",
         lxErrNoFile: "សូមជ្រើសរើសរូបថតយ៉ាងតិចមួយ។",
         lxErrBadKey: "key ត្រូវបានបដិសេធ។ សូមពិនិត្យ API key។",
@@ -5060,13 +5080,27 @@
         lxColName: "ឈ្មោះ (ក្នុងប្រព័ន្ធ)",
         lxColPaper: "ឈ្មោះលើក្រដាស",
         lxColTimes: "ម៉ោងស្កេនកាត",
-        lxColAbsent: "ម៉ោងអវត្តមាន (曠工)",
-        lxColLeave: "ម៉ោងសុំច្បាប់ (請假)",
+        lxColAbsent: "ម៉ោងអវត្តមាន",
+        lxColLeave: "ម៉ោងសុំច្បាប់",
         lxNotInSystem: "មិនមានក្នុងប្រព័ន្ធ",
         lxReportDate: "កាលបរិច្ឆេទតារាង៖ {d}",
-        lxTotals: "{n} នាក់ · អវត្តមាន {a} ម៉ោង · សុំច្បាប់ {p} ម៉ោង",
+        lxTotals: "{n} នាក់ · ធ្វើការ {w} ម៉ោង · OT {o} ម៉ោង · អវត្តមាន {a} ម៉ោង · សុំច្បាប់ {p} ម៉ោង",
         lxCheckNote: "សូមប្រៀបធៀបជាមួយក្រដាសមុនប្រើ។ អ្នកអាចកែម៉ោងនៅទីនេះបាន។",
         lxExport: "ទាញយក Excel",
+        lxRecFail: "មិនអាចកត់ត្រាបានទេ។ គ្មានអ្វីត្រូវបានផ្លាស់ប្តូរ។ សូមព្យាយាមម្តងទៀត។",
+        lxRecMissing: "រំលង {m} ជួរ ព្រោះអត្តលេខមិនមានក្នុងប្រព័ន្ធ។",
+        lxRecDone: "បានកត់ត្រាសម្រាប់បុគ្គលិក {n} នាក់ នៅថ្ងៃ {d}។",
+        lxRecDup: "បុគ្គលិក {n} នាក់ មានកំណត់ត្រាវត្តមានរួចហើយនៅថ្ងៃ {d}។ ចុចប៊ូតុងម្តងទៀត លុះត្រាតែអ្នកពិតជាចង់បន្ថែមម្តងទៀត។",
+        lxRecNone: "គ្មានម៉ោងធ្វើការ ឬ OT ត្រូវកត់ត្រាសម្រាប់បុគ្គលិកក្នុងប្រព័ន្ធទេ។",
+        lxRecNeedDate: "សូមជ្រើសរើសកាលបរិច្ឆេទជាមុនសិន។",
+        lxRecBtn: "កត់ត្រាម៉ោងធ្វើការ និង OT",
+        lxRecDate: "កាលបរិច្ឆេទកត់ត្រា",
+        lxRecNote: "កត់ត្រាម៉ោងធ្វើការ និងម៉ោង OT ទៅ Master Sheet និងប្រតិទិនវត្តមាន។ លេខត្រូវបាន បូកបន្ថែម លើម៉ោងដែលមានស្រាប់ (0 មិនផ្លាស់ប្តូរអ្វីទេ)។ ម៉ោងអវត្តមាន និងសុំច្បាប់ មិនត្រូវបានកត់ត្រានៅទីនេះទេ។",
+        lxColAllow: "ប្រាក់ឧបត្ថម្ភ",
+        lxColEarly: "ចេញមុនម៉ោង",
+        lxColNight: "វេនយប់",
+        lxColOt: "ម៉ោង OT",
+        lxColWork: "ម៉ោងធ្វើការ",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -6097,10 +6131,10 @@
         bellNew: "新",
         bellNoMatch: "没有符合此筛选条件的通知。",
         lxBtnConvert: "转换为图片",
-        lxBtnLeave: "缺勤提取",
+        lxBtnLeave: "考勤提取",
         lxBack: "返回",
         lxMenuSub: "请选择要执行的操作。",
-        lxIntro: "上传每日出勤时间表的照片或截图。系统会读取谁有旷工(曠工)或请假(請假)时数，并在此列出。不会保存到系统中。",
+        lxIntro: "上传每日出勤时间表的照片或截图。系统会读取每位员工的：工号、姓名、时间、工作时数、加班时数、夜班、旷工时数、请假时数、早退和补助。使用前可修改任何数字。",
         lxKeyHelp: "照片由 Claude AI 读取。请粘贴一次你的 Anthropic API 密钥，它只保存在此设备的浏览器中(不在系统数据库中)。照片仅为读取而发送给 Anthropic。",
         lxKeyPh: "粘贴 API 密钥 (sk-ant-...)",
         lxKeySaveBtn: "保存密钥",
@@ -6109,8 +6143,8 @@
         lxChoose: "每日出勤时间表照片(可选择多页)",
         lxRead: "读取照片",
         lxReading: "正在读取第 {a} / {b} 张照片...",
-        lxDone: "完成。共有 {n} 名员工有旷工或请假时数。",
-        lxNone: "照片中没有发现旷工或请假时数。",
+        lxDone: "完成。共读取 {n} 名员工。",
+        lxNone: "照片中没有发现员工。",
         lxErrKey: "请先粘贴 API 密钥。",
         lxErrNoFile: "请至少选择一张照片。",
         lxErrBadKey: "密钥被拒绝，请检查 API 密钥。",
@@ -6119,13 +6153,27 @@
         lxColName: "姓名(系统)",
         lxColPaper: "纸上姓名",
         lxColTimes: "刷卡记录",
-        lxColAbsent: "旷工时数(曠工)",
-        lxColLeave: "请假时数(請假)",
+        lxColAbsent: "旷工时数",
+        lxColLeave: "请假时数",
         lxNotInSystem: "系统中没有",
         lxReportDate: "报表日期：{d}",
-        lxTotals: "{n} 人 · 旷工 {a} 小时 · 请假 {p} 小时",
+        lxTotals: "{n} 人 · 工作 {w} 小时 · 加班 {o} 小时 · 旷工 {a} 小时 · 请假 {p} 小时",
         lxCheckNote: "使用前请与纸质报表核对，可在此修改时数。",
         lxExport: "下载 Excel",
+        lxRecFail: "无法记录，未做任何更改。请重试。",
+        lxRecMissing: "{m} 行因工号不在系统中而被跳过。",
+        lxRecDone: "已为 {n} 名员工记录 {d} 的时数。",
+        lxRecDup: "有 {n} 名员工在 {d} 已有考勤记录。只有确实要再次累加时才再按一次按钮。",
+        lxRecNone: "没有可为系统内员工记录的工作或加班时数。",
+        lxRecNeedDate: "请先选择日期。",
+        lxRecBtn: "记录工作和加班时数",
+        lxRecDate: "记录日期",
+        lxRecNote: "将工作时数和加班时数记录到总表和考勤日历。数字会累加到现有时数上(0 不会改变任何数据)。旷工和请假时数不会在此记录。",
+        lxColAllow: "补助",
+        lxColEarly: "早退",
+        lxColNight: "夜班",
+        lxColOt: "加班时数",
+        lxColWork: "工作时数",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -15792,8 +15840,8 @@ function mtCurrentSvc() {
 }
 /* per-button control: inside an open service, single buttons can be closed on the maintenance page (faded; a click shows the popup).
    MT_ACT = [service, action, matcher, label key]; matcher "fn:name" (onclick/onchange calls name(...)), "fn:name|text" (and the call contains text), "i:key" (button with data-i18n=key) */
-const MT_ACT = [["master", "export", "fn:openExportLangModal|'master'", "btnExport"], ["master", "leavereport", "fn:openLeaveReportModal", "btnExportLeaveReport"], ["master", "settings", "fn:mlOpen", "mlBtnText"], ["master", "alcheck", "fn:mlStOpen", "mlStBtnText"], ["master", "view", "fn:openMasterDetailModal", "mtA_master_view"], ["master", "edit", "fn:openEditModal", "mtA_master_edit"], ["master", "delete", "fn:confirmDelete", "mtA_master_delete"], ["monthly", "applyall", "fn:applyBulkWorkingHours", "btnApplyAll"], ["monthly", "export", "fn:openExportLangModal|'monthly'", "btnExport"], ["monthly", "view", "fn:openMonthlyDetailModal", "mtA_monthly_view"], ["monthly", "edit", "fn:openEditModal", "mtA_monthly_edit"], ["monthly", "delete", "fn:confirmDelete", "mtA_monthly_delete"], ["monthly", "hours", "fn:updateEmpMonthlyField", "mtA_monthly_hours"], ["monthlyal", "renewal", "fn:openRenewalExportModal", "btnExportRenewal"], ["monthlyal", "export", "fn:openExportLangModal|'monthlyal'", "btnExport"], ["employee", "export", "fn:openExportLangModal|'employee'", "btnExport"], ["employee", "view", "fn:openEmployeeDetailModal", "mtA_employee_view"], ["employee", "edit", "fn:openEditModal", "mtA_employee_edit"], ["employee", "delete", "fn:confirmDelete", "mtA_employee_delete"], ["leave", "submit", "i:btnSubmitLeave", "btnSubmitLeave"], ["att", "load", "i:btnLoadDept", "btnLoadDept"], ["att", "submit", "fn:saveAttendanceDeptBatch", "btnSubmitAtt"], ["query", "check", "i:btnCheckDetails", "btnCheckDetails"], ["add", "bulkimport", "fn:openBulkImportModal", "btnBulkImport"], ["add", "bulkupdate", "fn:openBulkUpdateModal", "btnBulkUpdate"], ["add", "save", "i:btnSaveEmp", "btnSaveEmp"], ["shift", "check", "i:btnCheckShift", "btnCheckShift"], ["shift", "export", "fn:openExportLangModal|'shift'", "btnExport"], ["shift", "editcell", "fn:updateShiftCell", "mtA_shift_editcell"], ["makeup", "submit", "i:btnSubmitMakeup", "btnSubmitMakeup"], ["attcal", "pdf", "fn:exportAttCalToPDF", "btnExportPDF"], ["attcal", "editday", "fn:openAttCalEditModal", "mtA_attcal_editday"], ["dept", "add", "i:btnAddDept", "btnAddDept"], ["dept", "edit", "fn:editDepartment", "mtA_dept_edit"], ["dept", "delete", "fn:deleteDepartment", "mtA_dept_delete"], ["audit", "export", "fn:openExportLangModal|'auditlog'", "btnExport"], ["cert", "generate", "fn:generateCertificate", "btnGenerateCertificate"], ["faceatt", "copylink", "fn:faCopyScanLink", "faCopyLink"], ["faceatt", "camera", "fn:faStartCamera", "faStartCamera"], ["faceatt", "capture", "fn:faCaptureAngle", "faCapture"], ["faceatt", "clear", "fn:faClearCaptures", "faClearCaptures"], ["faceatt", "saveenroll", "fn:faSaveEnrollment", "faSaveEnroll"], ["faceatt", "delenroll", "fn:faDeleteEnrollment", "mtA_faceatt_delenroll"], ["faceatt", "saverules", "fn:faSaveRules", "faSaveRules"], ["faceatt", "resetrules", "fn:faResetRules", "faResetRules"], ["faceatt", "manualsave", "fn:faSaveManual", "faManualSave"], ["faceatt", "preview", "fn:faPreviewReport", "faPreview"], ["faceatt", "export", "fn:faExportReport", "faExportBtn"], ["export", "preview", "fn:xcPreview", "faPreview"], ["export", "export", "fn:xcExport", "faExportBtn"], ["recdeleted", "restore", "fn:restoreEmployee", "mtA_recdeleted_restore"], ["pending", "approve", "fn:approvePendingEdit", "btnApprove"], ["pending", "reject", "fn:rejectPendingEdit", "btnReject"], ["mgmt", "addaccount", "i:btnAddAccount", "btnAddAccount"], ["mgmt", "disable", "fn:toggleAccountDisabled", "mtA_mgmt_disable"], ["mgmt", "delete", "fn:deleteAccount", "mtA_mgmt_delete"], ["mgmt", "editfield", "fn:updateAccountField", "mtA_mgmt_editfield"], ["mgmt", "pwreset", "fn:pwOpenReset", "pwResetBtn"], ["mgmt", "totp", "fn:toggleAccountTotpEnabled", "mtA_mgmt_totp"], ["mgmt", "resettotp", "fn:resetAccountTotp", "btnResetAuthenticator"], ["mgmt", "backupcodes", "fn:regenerateBackupCodes", "btnRegenerateBackupCodes"], ["lock", "apply", "fn:applySystemLockSettings", "btnApplyLock"], ["lock", "unlock", "fn:unlockAllSystems", "btnUnlockAll"], ["devices", "block", "fn:toggleDeviceBlocked", "mtA_devices_block"], ["devices", "rename", "fn:renameDevice", "mtA_devices_rename"], ["backup", "backupnow", "fn:confirmBackupNow", "btnConfirmBackup"], ["notif", "onetime", "fn:openOneTimeNotifModal", "broadcastSectionTitle"], ["notif", "announce", "fn:openComposeNotification", "btnNewAnnouncement"], ["notif", "shiftready", "fn:openNotifyShiftReadyModal", "btnNotifyShiftReady"], ["notif", "cardready", "fn:openCardReadyNotifModal", "btnNotifyCardReady"], ["notif", "delete", "fn:deleteSentNotif", "mtA_notif_delete"], ["convert", "convertphoto", "fn:showExtractPane|'convert'", "lxBtnConvert"], ["convert", "leaveextract", "fn:showExtractPane|'leave'", "lxBtnLeave"], ["convert", "choose", "fn:handleConvertPhotoFileSelected", "mtA_convert_choose"], ["convert", "lxread", "fn:lxRead", "lxRead"], ["convert", "lxkey", "fn:lxSaveKey", "lxKeySaveBtn"], ["convert", "lxexport", "fn:lxExport", "lxExport"], ["bell", "respond", "fn:openComposeNotification", "btnRespond"], ["bell", "processed", "fn:markRequestProcessed", "btnMarkProcessed"], ["bell", "delete", "fn:deleteRequest", "btnDeleteRequest"], ["bell", "dismiss", "fn:dismissAdminAlert", "btnDismiss"], ["emp_request", "submit", "i:btnSubmitRequest", "btnSubmitRequest"], ["emp_shift", "check", "fn:checkMyShift", "mtA_emp_shift_check"], ["master", "settings", "fn:mlSave", "mlBtnText"], ["master", "settings", "fn:mlAddRule", "mlBtnText"], ["master", "settings", "fn:mlRemoveRule", "mlBtnText"], ["master", "settings", "fn:mlMakeFormula", "mlBtnText"], ["notif", "reminders", "fn:addAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:editAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:deleteAnnouncement", "mtA_notif_reminders"]];
-const MT_MODAL_SVC = { recentlyDeletedModal: 'recdeleted', pendingApprovalsModal: 'pending', managementModal: 'mgmt', lockSystemModal: 'lock', deviceLogModal: 'devices', backupLangModal: 'backup', manageNotifModal: 'notif', convertPhotoModal: 'convert', globalSearchModal: 'search', notifModal: 'bell', mlModal: 'master', mlStModal: 'master' };
+const MT_ACT = [["master", "export", "fn:openExportLangModal|'master'", "btnExport"], ["master", "leavereport", "fn:openLeaveReportModal", "btnExportLeaveReport"], ["master", "settings", "fn:mlOpen", "mlBtnText"], ["master", "alcheck", "fn:mlStOpen", "mlStBtnText"], ["master", "view", "fn:openMasterDetailModal", "mtA_master_view"], ["master", "edit", "fn:openEditModal", "mtA_master_edit"], ["master", "delete", "fn:confirmDelete", "mtA_master_delete"], ["monthly", "applyall", "fn:applyBulkWorkingHours", "btnApplyAll"], ["monthly", "export", "fn:openExportLangModal|'monthly'", "btnExport"], ["monthly", "view", "fn:openMonthlyDetailModal", "mtA_monthly_view"], ["monthly", "edit", "fn:openEditModal", "mtA_monthly_edit"], ["monthly", "delete", "fn:confirmDelete", "mtA_monthly_delete"], ["monthly", "hours", "fn:updateEmpMonthlyField", "mtA_monthly_hours"], ["monthlyal", "renewal", "fn:openRenewalExportModal", "btnExportRenewal"], ["monthlyal", "export", "fn:openExportLangModal|'monthlyal'", "btnExport"], ["employee", "export", "fn:openExportLangModal|'employee'", "btnExport"], ["employee", "view", "fn:openEmployeeDetailModal", "mtA_employee_view"], ["employee", "edit", "fn:openEditModal", "mtA_employee_edit"], ["employee", "delete", "fn:confirmDelete", "mtA_employee_delete"], ["leave", "submit", "i:btnSubmitLeave", "btnSubmitLeave"], ["att", "load", "i:btnLoadDept", "btnLoadDept"], ["att", "submit", "fn:saveAttendanceDeptBatch", "btnSubmitAtt"], ["query", "check", "i:btnCheckDetails", "btnCheckDetails"], ["add", "bulkimport", "fn:openBulkImportModal", "btnBulkImport"], ["add", "bulkupdate", "fn:openBulkUpdateModal", "btnBulkUpdate"], ["add", "save", "i:btnSaveEmp", "btnSaveEmp"], ["shift", "check", "i:btnCheckShift", "btnCheckShift"], ["shift", "export", "fn:openExportLangModal|'shift'", "btnExport"], ["shift", "editcell", "fn:updateShiftCell", "mtA_shift_editcell"], ["makeup", "submit", "i:btnSubmitMakeup", "btnSubmitMakeup"], ["attcal", "pdf", "fn:exportAttCalToPDF", "btnExportPDF"], ["attcal", "editday", "fn:openAttCalEditModal", "mtA_attcal_editday"], ["dept", "add", "i:btnAddDept", "btnAddDept"], ["dept", "edit", "fn:editDepartment", "mtA_dept_edit"], ["dept", "delete", "fn:deleteDepartment", "mtA_dept_delete"], ["audit", "export", "fn:openExportLangModal|'auditlog'", "btnExport"], ["cert", "generate", "fn:generateCertificate", "btnGenerateCertificate"], ["faceatt", "copylink", "fn:faCopyScanLink", "faCopyLink"], ["faceatt", "camera", "fn:faStartCamera", "faStartCamera"], ["faceatt", "capture", "fn:faCaptureAngle", "faCapture"], ["faceatt", "clear", "fn:faClearCaptures", "faClearCaptures"], ["faceatt", "saveenroll", "fn:faSaveEnrollment", "faSaveEnroll"], ["faceatt", "delenroll", "fn:faDeleteEnrollment", "mtA_faceatt_delenroll"], ["faceatt", "saverules", "fn:faSaveRules", "faSaveRules"], ["faceatt", "resetrules", "fn:faResetRules", "faResetRules"], ["faceatt", "manualsave", "fn:faSaveManual", "faManualSave"], ["faceatt", "preview", "fn:faPreviewReport", "faPreview"], ["faceatt", "export", "fn:faExportReport", "faExportBtn"], ["export", "preview", "fn:xcPreview", "faPreview"], ["export", "export", "fn:xcExport", "faExportBtn"], ["recdeleted", "restore", "fn:restoreEmployee", "mtA_recdeleted_restore"], ["pending", "approve", "fn:approvePendingEdit", "btnApprove"], ["pending", "reject", "fn:rejectPendingEdit", "btnReject"], ["mgmt", "addaccount", "i:btnAddAccount", "btnAddAccount"], ["mgmt", "disable", "fn:toggleAccountDisabled", "mtA_mgmt_disable"], ["mgmt", "delete", "fn:deleteAccount", "mtA_mgmt_delete"], ["mgmt", "editfield", "fn:updateAccountField", "mtA_mgmt_editfield"], ["mgmt", "pwreset", "fn:pwOpenReset", "pwResetBtn"], ["mgmt", "totp", "fn:toggleAccountTotpEnabled", "mtA_mgmt_totp"], ["mgmt", "resettotp", "fn:resetAccountTotp", "btnResetAuthenticator"], ["mgmt", "backupcodes", "fn:regenerateBackupCodes", "btnRegenerateBackupCodes"], ["lock", "apply", "fn:applySystemLockSettings", "btnApplyLock"], ["lock", "unlock", "fn:unlockAllSystems", "btnUnlockAll"], ["devices", "block", "fn:toggleDeviceBlocked", "mtA_devices_block"], ["devices", "rename", "fn:renameDevice", "mtA_devices_rename"], ["backup", "backupnow", "fn:confirmBackupNow", "btnConfirmBackup"], ["notif", "onetime", "fn:openOneTimeNotifModal", "broadcastSectionTitle"], ["notif", "announce", "fn:openComposeNotification", "btnNewAnnouncement"], ["notif", "shiftready", "fn:openNotifyShiftReadyModal", "btnNotifyShiftReady"], ["notif", "cardready", "fn:openCardReadyNotifModal", "btnNotifyCardReady"], ["notif", "delete", "fn:deleteSentNotif", "mtA_notif_delete"], ["convert", "convertphoto", "fn:showExtractPane|'convert'", "lxBtnConvert"], ["convert", "leaveextract", "fn:openAttExtract", "lxBtnLeave"], ["convert", "lxrecord", "fn:lxRecord", "lxRecBtn"], ["convert", "choose", "fn:handleConvertPhotoFileSelected", "mtA_convert_choose"], ["convert", "lxread", "fn:lxRead", "lxRead"], ["convert", "lxkey", "fn:lxSaveKey", "lxKeySaveBtn"], ["convert", "lxexport", "fn:lxExport", "lxExport"], ["bell", "respond", "fn:openComposeNotification", "btnRespond"], ["bell", "processed", "fn:markRequestProcessed", "btnMarkProcessed"], ["bell", "delete", "fn:deleteRequest", "btnDeleteRequest"], ["bell", "dismiss", "fn:dismissAdminAlert", "btnDismiss"], ["emp_request", "submit", "i:btnSubmitRequest", "btnSubmitRequest"], ["emp_shift", "check", "fn:checkMyShift", "mtA_emp_shift_check"], ["master", "settings", "fn:mlSave", "mlBtnText"], ["master", "settings", "fn:mlAddRule", "mlBtnText"], ["master", "settings", "fn:mlRemoveRule", "mlBtnText"], ["master", "settings", "fn:mlMakeFormula", "mlBtnText"], ["notif", "reminders", "fn:addAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:editAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:deleteAnnouncement", "mtA_notif_reminders"]];
+const MT_MODAL_SVC = { recentlyDeletedModal: 'recdeleted', pendingApprovalsModal: 'pending', managementModal: 'mgmt', lockSystemModal: 'lock', deviceLogModal: 'devices', backupLangModal: 'backup', manageNotifModal: 'notif', convertPhotoModal: 'convert', attExtractModal: 'convert', globalSearchModal: 'search', notifModal: 'bell', mlModal: 'master', mlStModal: 'master' };
 const MT_ACT_BY = {};
 MT_ACT.forEach(function (e) {
     const m = e[2], o = { svc: e[0], id: e[1], label: e[3] };
@@ -15995,10 +16043,10 @@ var LX_MODEL = 'claude-sonnet-5-5';
 var lxRows = [], lxDate = '';
 function showExtractPane(which) {
     ['extractMenu', 'convertPhotoPane', 'leaveExtractPane'].forEach(function (id) { const e = document.getElementById(id); if (e) e.style.display = 'none'; });
-    const id = which === 'convert' ? 'convertPhotoPane' : (which === 'leave' ? 'leaveExtractPane' : 'extractMenu');
+    if (which === 'leave') { openAttExtract(); return; }
+    const id = which === 'convert' ? 'convertPhotoPane' : 'extractMenu';
     const el = document.getElementById(id); if (el) el.style.display = 'block';
     const back = document.getElementById('extractBackBtn'); if (back) back.style.display = which === 'menu' ? 'none' : 'inline-block';
-    if (which === 'leave') lxRenderKey();
 }
 function lxKey() { try { return localStorage.getItem('lxKey') || ''; } catch (e) { return ''; } }
 function lxRenderKey() {
@@ -16041,20 +16089,27 @@ async function lxReadOne(file, key) {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-        body: JSON.stringify({ model: LX_MODEL, max_tokens: 4096, messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: data } }, { type: 'text', text: LX_PROMPT }] }] })
+        body: JSON.stringify({ model: LX_MODEL, max_tokens: 8192, messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: data } }, { type: 'text', text: LX_PROMPT }] }] })
     });
     let j = null; try { j = await res.json(); } catch (e) {}
     if (!res.ok) { const err = new Error((j && j.error && j.error.message) || ('HTTP ' + res.status)); err.status = res.status; throw err; }
     const txt = (j && j.content || []).filter(function (c) { return c.type === 'text'; }).map(function (c) { return c.text; }).join('');
     return lxParse(txt);
 }
+function openAttExtract() {
+    const m = document.getElementById('convertPhotoModal'); if (m) m.style.display = 'none';
+    const a = document.getElementById('attExtractModal'); if (a) a.style.display = 'flex';
+    lxRenderKey();
+}
+function closeAttExtract() { const a = document.getElementById('attExtractModal'); if (a) a.style.display = 'none'; }
 function lxNum(v) { const n = Number(v); return isFinite(n) && v !== null && v !== '' ? n : 0; }
+var lxDupOk = '';
 async function lxRead(btn) {
     const key = lxKey(); if (!key) { lxStatus(t('lxErrKey'), true); return; }
     const files = Array.from((document.getElementById('lxFileInput') || {}).files || []);
     if (!files.length) { lxStatus(t('lxErrNoFile'), true); return; }
     if (btn) btn.disabled = true;
-    const all = []; lxDate = '';
+    const all = []; lxDate = ''; lxDupOk = '';
     try {
         for (let i = 0; i < files.length; i++) {
             lxStatus(fillTemplate(t('lxReading'), { a: i + 1, b: files.length }), false);
@@ -16065,9 +16120,9 @@ async function lxRead(btn) {
         const seen = {}; lxRows = [];
         all.forEach(function (x) {
             const id = String(x.id || '').replace(/\D/g, ''); if (!id) return;
-            const abs = lxNum(x.absent), lev = lxNum(x.leave); if (!(abs > 0 || lev > 0)) return;
             const k = id + '|' + (x.times || ''); if (seen[k]) return; seen[k] = true;
-            lxRows.push({ id: id, nameEn: String(x.nameEnglish || '').trim(), nameZh: String(x.nameChinese || '').trim(), nameKh: String(x.nameKhmer || '').trim(), times: String(x.times || ''), work: lxNum(x.work), absent: abs, leave: lev });
+            lxRows.push({ id: id, nameEn: String(x.nameEnglish || '').trim(), nameZh: String(x.nameChinese || '').trim(), nameKh: String(x.nameKhmer || '').trim(), times: String(x.times || ''),
+                work: lxNum(x.work), ot: lxNum(x.overtime), night: lxNum(x.night), absent: lxNum(x.absent), leave: lxNum(x.leave), early: lxNum(x.late), allow: lxNum(x.allowance) });
         });
         lxRows.sort(function (a, b) { return a.id < b.id ? -1 : 1; });
         lxRender();
@@ -16077,37 +16132,78 @@ async function lxRead(btn) {
     }
     if (btn) btn.disabled = false;
 }
-function lxEdit(i, k, v) { if (lxRows[i]) { lxRows[i][k] = lxNum(v); lxTotals(); } }
+function lxEdit(i, k, v) { if (lxRows[i]) { lxRows[i][k] = lxNum(v); lxDupOk = ''; lxTotals(); } }
 function lxTotals() {
     const el = document.getElementById('lxTotals'); if (!el) return;
-    const a = lxRows.reduce(function (s, r) { return s + r.absent; }, 0), p = lxRows.reduce(function (s, r) { return s + r.leave; }, 0);
-    el.textContent = (lxDate ? fillTemplate(t('lxReportDate'), { d: lxDate }) + ' · ' : '') + fillTemplate(t('lxTotals'), { n: lxRows.length, a: a, p: p });
+    const sum = function (k) { return lxRows.reduce(function (s, r) { return s + r[k]; }, 0); };
+    el.textContent = (lxDate ? fillTemplate(t('lxReportDate'), { d: lxDate }) + ' · ' : '') + fillTemplate(t('lxTotals'), { n: lxRows.length, w: sum('work'), o: sum('ot'), a: sum('absent'), p: sum('leave') });
 }
+var LX_COLS = [['work', 'lxColWork', '#1d4ed8'], ['ot', 'lxColOt', '#16a34a'], ['night', 'lxColNight', ''], ['absent', 'lxColAbsent', '#dc2626'], ['leave', 'lxColLeave', '#dc2626'], ['early', 'lxColEarly', ''], ['allow', 'lxColAllow', '']];
+function lxEmp(id) { return (typeof employees !== 'undefined' ? employees : []).find(function (e) { return String(e.id) === String(id); }); }
 function lxRender() {
     const box = document.getElementById('lxResults'); if (!box) return;
     if (!lxRows.length) { box.innerHTML = ''; return; }
-    const th = function (k) { return '<th style="padding:6px 8px; text-align:left; background:#f1f5f9; border-bottom:1px solid #cbd5e1; white-space:nowrap;">' + escapeHtmlText(t(k)) + '</th>'; };
-    let h = '<div id="lxTotals" style="font-size:12px; font-weight:700; margin:8px 0;"></div><p style="font-size:11px; color:#b45309; margin:0 0 8px;">' + escapeHtmlText(t('lxCheckNote')) + '</p>' +
-        '<div style="overflow-x:auto; max-height:380px; overflow-y:auto;"><table style="border-collapse:collapse; width:100%; font-size:12px;"><thead><tr>' + th('lxColId') + th('lxColName') + th('lxColPaper') + th('lxColTimes') + th('lxColAbsent') + th('lxColLeave') + '</tr></thead><tbody>';
+    const th = function (k) { return '<th style="padding:7px 8px; text-align:left; background:#f1f5f9; border-bottom:1px solid #cbd5e1; white-space:nowrap; position:sticky; top:0;">' + escapeHtmlText(t(k)) + '</th>'; };
+    const td = 'padding:6px 8px; border-bottom:1px solid #e2e8f0;';
+    let h = '<div id="lxTotals" style="font-size:13px; font-weight:700; margin:8px 0;"></div><p style="font-size:11px; color:#b45309; margin:0 0 8px;">' + escapeHtmlText(t('lxCheckNote')) + '</p>' +
+        '<div style="overflow:auto; max-height:58vh; border:1px solid #e2e8f0; border-radius:8px;"><table style="border-collapse:collapse; width:100%; font-size:12px;"><thead><tr>' + th('lxColId') + th('lxColName') + th('lxColPaper') + th('lxColTimes') + LX_COLS.map(function (c) { return th(c[1]); }).join('') + '</tr></thead><tbody>';
     lxRows.forEach(function (r, i) {
-        const emp = (typeof employees !== 'undefined' ? employees : []).find(function (e) { return String(e.id) === r.id; });
+        const emp = lxEmp(r.id);
         const sys = emp ? escapeHtmlText(emp.name || '') : '<span style="color:#dc2626;">' + escapeHtmlText(t('lxNotInSystem')) + '</span>';
         const paper = escapeHtmlText([r.nameKh, r.nameEn, r.nameZh].filter(Boolean).join(' / '));
-        const inp = function (k, v) { return '<input type="number" step="0.5" min="0" value="' + v + '" onchange="lxEdit(' + i + ',\'' + k + '\',this.value)" style="width:64px; padding:3px 5px; border:1px solid #cbd5e1; border-radius:5px;">'; };
-        h += '<tr><td style="padding:6px 8px; border-bottom:1px solid #e2e8f0; font-weight:700;">' + escapeHtmlText(r.id) + '</td><td style="padding:6px 8px; border-bottom:1px solid #e2e8f0;">' + sys + '</td><td style="padding:6px 8px; border-bottom:1px solid #e2e8f0;">' + paper + '</td><td style="padding:6px 8px; border-bottom:1px solid #e2e8f0; white-space:nowrap;">' + escapeHtmlText(r.times) + '</td><td style="padding:6px 8px; border-bottom:1px solid #e2e8f0;">' + inp('absent', r.absent) + '</td><td style="padding:6px 8px; border-bottom:1px solid #e2e8f0;">' + inp('leave', r.leave) + '</td></tr>';
+        const inp = function (c) { return '<td style="' + td + '"><input type="number" step="0.5" min="0" value="' + r[c[0]] + '" onchange="lxEdit(' + i + ',\'' + c[0] + '\',this.value)" style="width:62px; padding:3px 5px; border:1px solid #cbd5e1; border-radius:5px;' + (c[2] ? ' font-weight:800; color:' + c[2] + ';' : '') + '"></td>'; };
+        h += '<tr><td style="' + td + ' font-weight:700;">' + escapeHtmlText(r.id) + '</td><td style="' + td + '">' + sys + '</td><td style="' + td + '">' + paper + '</td><td style="' + td + ' white-space:nowrap;">' + escapeHtmlText(r.times) + '</td>' + LX_COLS.map(inp).join('') + '</tr>';
     });
-    h += '</tbody></table></div><button type="button" class="btn-submit" style="margin-top:10px; background:#16a34a;" onclick="lxExport()">' + escapeHtmlText(t('lxExport')) + '</button>';
+    h += '</tbody></table></div>' +
+        '<div style="margin-top:14px; padding:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px;"><div style="font-size:12px; color:#166534; margin-bottom:8px;">' + escapeHtmlText(t('lxRecNote')) + '</div>' +
+        '<div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;"><label style="font-size:12px; font-weight:700;">' + escapeHtmlText(t('lxRecDate')) + '</label><input type="date" id="lxRecDate" value="' + escapeHtmlText(/^\d{4}-\d{2}-\d{2}$/.test(lxDate) ? lxDate : '') + '" onchange="lxDupOk=\'\'" style="padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px;">' +
+        '<button type="button" class="btn-submit" style="width:auto; padding:9px 20px; background:#16a34a;" onclick="lxRecord(this)">' + escapeHtmlText(t('lxRecBtn')) + '</button>' +
+        '<button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; font-size:12px;" onclick="lxExport()">' + escapeHtmlText(t('lxExport')) + '</button></div>' +
+        '<div id="lxRecMsg" style="font-size:12px; margin-top:8px; display:none;"></div></div>';
     box.innerHTML = h; lxTotals();
+}
+function lxRecMsg(msg, bad) { const el = document.getElementById('lxRecMsg'); if (!el) return; el.style.display = msg ? 'block' : 'none'; el.style.color = bad ? '#dc2626' : '#166534'; el.style.fontWeight = '700'; el.textContent = msg || ''; }
+/* Records ONLY working hours + OT hours. The numbers are ADDED to what is already in the master sheet (same as Attendance Record), never replaced.
+   Absent / permission / night / early / allowance are never touched. */
+function lxRecord(btn) {
+    const date = (document.getElementById('lxRecDate') || {}).value || '';
+    if (!date) { lxRecMsg(t('lxRecNeedDate'), true); return; }
+    const per = {}; let missing = 0;
+    lxRows.forEach(function (r) {
+        if (!(r.work > 0 || r.ot > 0)) return;
+        const emp = lxEmp(r.id); if (!emp || !emp.firebaseKey) { missing++; return; }
+        const p = per[emp.firebaseKey] || (per[emp.firebaseKey] = { emp: emp, work: 0, ot: 0 });
+        p.work += r.work; p.ot += r.ot;
+    });
+    const keys = Object.keys(per);
+    if (!keys.length) { lxRecMsg(t('lxRecNone'), true); return; }
+    const dups = keys.filter(function (k) { return (typeof attendanceHistory !== 'undefined' ? attendanceHistory : []).some(function (h) { return String(h.empId) === String(per[k].emp.id) && h.date === date; }); });
+    if (dups.length && lxDupOk !== date) { lxDupOk = date; lxRecMsg(fillTemplate(t('lxRecDup'), { n: dups.length, d: date }), true); return; }
+    const updates = {}, hist = [];
+    keys.forEach(function (k) {
+        const p = per[k];
+        updates['employees/' + k + '/workHours'] = (parseFloat(p.emp.workHours) || 0) + p.work;
+        updates['employees/' + k + '/otHours'] = (parseFloat(p.emp.otHours) || 0) + p.ot;
+        hist.push({ empId: p.emp.id, empName: p.emp.name, workHours: p.work, otHours: p.ot, date: date, timestamp: Date.now() });
+    });
+    if (btn) btn.disabled = true;
+    db.ref().update(updates).then(function () {
+        hist.forEach(function (x) { db.ref('attendanceHistory').push(x); });
+        try { logActivity('Attendance Extract', 'Attendance', date, date, keys.length + ' employee(s)'); } catch (e) {}
+        lxDupOk = '';
+        lxRecMsg(fillTemplate(t('lxRecDone'), { n: keys.length, d: date }) + (missing ? ' ' + fillTemplate(t('lxRecMissing'), { m: missing }) : ''), false);
+        showToast(true);
+    }).catch(function () { lxRecMsg(t('lxRecFail'), true); showToast(false); }).then(function () { if (btn) btn.disabled = false; });
 }
 function lxExport() {
     if (!lxRows.length || typeof XLSX === 'undefined') return;
     const rows = lxRows.map(function (r) {
-        const emp = (typeof employees !== 'undefined' ? employees : []).find(function (e) { return String(e.id) === r.id; });
+        const emp = lxEmp(r.id);
         const o = {}; o[t('lxColId')] = r.id; o[t('lxColName')] = emp ? (emp.name || '') : ''; o[t('lxColPaper')] = [r.nameKh, r.nameEn, r.nameZh].filter(Boolean).join(' / ');
-        o[t('lxColTimes')] = r.times; o[t('lxColAbsent')] = r.absent; o[t('lxColLeave')] = r.leave; return o;
+        o[t('lxColTimes')] = r.times; LX_COLS.forEach(function (c) { o[t(c[1])] = r[c[0]]; }); return o;
     });
-    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Leave Extract');
-    XLSX.writeFile(wb, 'Leave_Extract_' + (lxDate || new Date().toISOString().slice(0, 10)) + '.xlsx');
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Attendance Extract');
+    XLSX.writeFile(wb, 'Attendance_Extract_' + (lxDate || new Date().toISOString().slice(0, 10)) + '.xlsx');
 }
 
 
