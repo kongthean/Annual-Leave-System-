@@ -15475,13 +15475,19 @@ const MT_SVC = [
     ['backup', 'navBackupNow', 'fn', 'openBackupLangModal'], ['notif', 'navManageNotif', 'fn', 'openManageNotifModal'],
     ['audit', 'navAuditLog', 'tab', 'tab-auditlog'], ['cert', 'navCertificates', 'tab', 'tab-certificates'], ['convert', 'navConvertPhoto', 'fn', 'openConvertPhotoModal'],
     ['faceatt', 'navFaceAtt', 'tab', 'tab-faceatt'], ['export', 'navExport', 'tab', 'tab-export'],
+    ['search', 'globalSearchTitle', 'fn', 'openGlobalSearch'], ['bell', 'notifTitle', 'fn', 'toggleNotifPanel'],
     ['emp_request', 'empMenuRequest', 'emp', 'request'], ['emp_shift', 'empMenuCheckShift', 'emp', 'shift']
 ];
 let mtData = null, mtModal = null;
 function mtSvc(id) { for (const s of MT_SVC) if (s[0] === id) return s; return null; }
 function mtSvcOfTab(tabId) { for (const s of MT_SVC) if (s[2] === 'tab' && s[3] === tabId) return s[0]; return null; }
 function mtIsOn() { return !!(mtData && mtData.on); }
-function mtBypass() { return !!(mtData && mtData.bypass) && sessionStorage.getItem('isLoggedIn') === 'true' && sessionStorage.getItem('loggedInRole') === 'admin'; }
+/* only the Administration accounts ticked on the maintenance page keep full access (e.g. one account for testing) */
+function mtBypass() {
+    if (!(mtData && mtData.bypassKeys) || sessionStorage.getItem('isLoggedIn') !== 'true' || sessionStorage.getItem('loggedInRole') !== 'admin') return false;
+    const a = window.__actorInfo;
+    return !!(a && a.type === 'staff' && a.role === 'admin' && a.key && mtData.bypassKeys[a.key] === true);
+}
 function mtMode(id) {
     if (!id || !mtIsOn() || mtBypass()) return 'open';
     const m = mtData.services && mtData.services[id];
@@ -15494,7 +15500,7 @@ function mtMessage() {
 }
 (function () {
     const st = document.createElement('style');
-    st.textContent = 'body{overflow-anchor:none;}#mtBanner{position:sticky;top:0;z-index:100001;background:#ef4444;color:#fff;text-align:center;font-size:13px;font-weight:600;padding:7px 38px 7px 12px;line-height:1.35;box-shadow:0 2px 6px rgba(0,0,0,.25);}' +
+    st.textContent = 'body{overflow-anchor:none;}#mtBanner.mt-inline{position:relative;margin:8px 0;border-radius:10px;box-shadow:none;}#mtBanner{position:sticky;top:0;z-index:100001;background:#ef4444;color:#fff;text-align:center;font-size:13px;font-weight:600;padding:7px 38px 7px 12px;line-height:1.35;box-shadow:0 2px 6px rgba(0,0,0,.25);}' +
         '#mtBanner .mt-i{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;border:1.5px solid #fff;border-radius:50%;font-size:12px;line-height:15px;font-style:italic;font-weight:700;}' +
         '.mt-closed{opacity:.38!important;filter:grayscale(1)!important;cursor:not-allowed!important;}' +
         '.mt-view{position:relative;}.mt-view::after{content:attr(data-mt);position:absolute;top:3px;right:3px;background:#f59e0b;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;line-height:1.3;}' +
@@ -15514,8 +15520,20 @@ function mtBannerRender() {
         document.body.insertBefore(b, document.body.firstChild);
     }
     b.style.display = 'block';
+    mtPlace();
     document.getElementById('mtBannerText').textContent = mtMessage() || t('mtBannerDefault');
 }
+/* where the red bar sits: Administration/HR -> right under the menu tabs; employee -> top of the employee page; login / chooser -> top of the page */
+function mtPlace() {
+    const b = document.getElementById('mtBanner'); if (!b || b.style.display === 'none') return;
+    const shown = function (e) { return !!e && getComputedStyle(e).display !== 'none'; };
+    const admin = document.getElementById('adminApp'), emp = document.getElementById('employeeApp');
+    const nav = admin ? admin.querySelector('nav') : null;
+    if (shown(admin) && nav) { if (b.previousElementSibling !== nav) nav.insertAdjacentElement('afterend', b); b.classList.add('mt-inline'); }
+    else if (shown(emp)) { if (emp.firstElementChild !== b) emp.insertBefore(b, emp.firstChild); b.classList.add('mt-inline'); }
+    else { if (document.body.firstElementChild !== b) document.body.insertBefore(b, document.body.firstChild); b.classList.remove('mt-inline'); }
+}
+setInterval(mtPlace, 400);
 function mtApplyUI() {
     MT_SVC.forEach(function (s) {
         const mode = mtMode(s[0]);
