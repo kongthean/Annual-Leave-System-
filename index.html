@@ -630,7 +630,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.36</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.37</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1257,9 +1257,6 @@
              </table>
          </div>
      </div>
-
-     <!-- v7.26: Annual leave status moved here (under Employee Status) so it no longer sits over the dashboard cards / main menu -->
-     <div id="mlDashBox" class="dash-card admin-only" style="margin:0 0 16px; text-align:left;"></div>
 
      <!-- v6.64: Needs Attention - AL renewals this calendar month + employees currently exceeding
           their monthly leave limit, each row clickable to jump straight to Check Details. -->
@@ -2703,7 +2700,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.36
+     HR & Administration System Version 7.37
  </div>
 </div>
 
@@ -3908,6 +3905,8 @@
         mtViewOnlyToast: "Maintenance: view only - changes are not allowed right now.",
         mtLoading: "Loading data, please wait...",
         mtTiming: "Last page load: login check {a}s, data {b}s",
+        mtCheckTitle: "Please wait",
+        mtChecking: "Checking the system status. Please wait a moment and try again.",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -3933,6 +3932,7 @@
         mtA_notif_delete: "Delete sent notification",
         mtA_convert_choose: "Choose photo file",
         mtA_emp_shift_check: "Check my shift",
+        mtA_notif_reminders: "Dashboard reminders: add / edit / delete",
         /* v7.24 */
         ecStaffActive: "Administration/HR is signed in on this browser. Please log out of it first, then log in as an employee.",
         ecSummary: "Employee secure login ready: {a} of {b} active employees",
@@ -4967,6 +4967,8 @@
         mtViewOnlyToast: "ការថែទាំ៖ មើលបានតែប៉ុណ្ណោះ - មិនអាចកែប្រែបាននៅពេលនេះទេ។",
         mtLoading: "កំពុងទាញទិន្នន័យ សូមរង់ចាំ...",
         mtTiming: "ការបើកទំព័រចុងក្រោយ៖ ពិនិត្យការចូល {a} វិនាទី, ទិន្នន័យ {b} វិនាទី",
+        mtCheckTitle: "សូមរង់ចាំ",
+        mtChecking: "កំពុងពិនិត្យស្ថានភាពប្រព័ន្ធ។ សូមរង់ចាំបន្តិច រួចព្យាយាមម្តងទៀត។",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -4992,6 +4994,7 @@
         mtA_notif_delete: "លុបការជូនដំណឹងដែលបានផ្ញើ",
         mtA_convert_choose: "ជ្រើសរើសឯកសាររូបភាព",
         mtA_emp_shift_check: "ពិនិត្យវេនរបស់ខ្ញុំ",
+        mtA_notif_reminders: "ការរំលឹកលើ Dashboard៖ បន្ថែម/កែ/លុប",
         /* v7.24 */
         ecStaffActive: "Administration/HR កំពុងចូលក្នុងកម្មវិធីរុករកនេះ។ សូមចាកចេញជាមុនសិន រួចចូលជាបុគ្គលិក។",
         ecSummary: "ការចូលសុវត្ថិភាពរបស់បុគ្គលិកត្រៀមរួច៖ {a} ក្នុងចំណោម {b} នាក់ដែលកំពុងធ្វើការ",
@@ -5988,6 +5991,8 @@
         mtViewOnlyToast: "维护中：仅可查看，目前无法修改。",
         mtLoading: "正在加载数据，请稍候...",
         mtTiming: "上次页面加载：登录检查 {a} 秒，数据 {b} 秒",
+        mtCheckTitle: "请稍候",
+        mtChecking: "正在检查系统状态，请稍候再试。",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -6013,6 +6018,7 @@
         mtA_notif_delete: "删除已发送通知",
         mtA_convert_choose: "选择照片文件",
         mtA_emp_shift_check: "查看我的班次",
+        mtA_notif_reminders: "仪表板提醒：添加/编辑/删除",
         /* v7.24 */
         ecStaffActive: "此浏览器已登录管理/HR 系统。请先退出，再以员工身份登录。",
         ecSummary: "员工安全登录已就绪：{a} / {b} 名在职员工",
@@ -15553,7 +15559,9 @@ const MT_SVC = [
     ['search', 'globalSearchTitle', 'fn', 'openGlobalSearch'], ['bell', 'notifTitle', 'fn', 'toggleNotifPanel'],
     ['emp_request', 'empMenuRequest', 'emp', 'request'], ['emp_shift', 'empMenuCheckShift', 'emp', 'shift']
 ];
-let mtData = null, mtModal = null;
+let mtData = null, mtModal = null, mtReady = false;
+/* until the maintenance state has arrived, a logged-in person cannot start any action (so nothing can be changed in the first moments) */
+function mtUnknown() { return !mtReady && (sessionStorage.getItem('isLoggedIn') === 'true' || !!sessionStorage.getItem('empLoggedInId')); }
 function mtSvc(id) { for (const s of MT_SVC) if (s[0] === id) return s; return null; }
 function mtSvcOfTab(tabId) { for (const s of MT_SVC) if (s[2] === 'tab' && s[3] === tabId) return s[0]; return null; }
 function mtIsOn() { return !!(mtData && mtData.on); }
@@ -15606,7 +15614,12 @@ function mtPlace() {
     const nav = admin ? admin.querySelector('nav') : null;
     if (shown(admin) && nav) { if (b.previousElementSibling !== nav) nav.insertAdjacentElement('afterend', b); b.classList.add('mt-inline'); }
     else if (shown(emp)) { const hd = emp.querySelector(':scope > .header'); if (hd) { if (b.previousElementSibling !== hd) hd.insertAdjacentElement('afterend', b); } else if (emp.firstElementChild !== b) emp.insertBefore(b, emp.firstChild); b.classList.add('mt-inline'); }
-    else { if (document.body.firstElementChild !== b) document.body.insertBefore(b, document.body.firstChild); b.classList.remove('mt-inline'); }
+    else {
+        let hd = null;
+        document.querySelectorAll('body > div > .header').forEach(function (h) { if (!hd && shown(h) && h.getClientRects().length) hd = h; });
+        if (hd) { if (b.previousElementSibling !== hd) hd.insertAdjacentElement('afterend', b); b.classList.add('mt-inline'); }
+        else { if (document.body.firstElementChild !== b) document.body.insertBefore(b, document.body.firstChild); b.classList.remove('mt-inline'); }
+    }
 }
 setInterval(mtPlace, 400);
 function mtApplyUI() {
@@ -15621,15 +15634,15 @@ function mtApplyUI() {
         });
     });
 }
-function mtPopup(id, actLabel) {
+function mtPopup(id, actLabel, wait) {
     const s = mtSvc(id);
     const old = document.getElementById('mtPop'); if (old) old.remove();
     const d = document.createElement('div'); d.id = 'mtPop';
     const name = actLabel || (s ? t(s[1]) : '');
     const msg = mtMessage();
     d.innerHTML = '<div class="mt-box"><div style="font-size:30px;">🔧</div><h3></h3><p class="mt-p1"></p><p class="mt-p2" style="font-weight:600;color:#b91c1c;"></p><button type="button"></button></div>';
-    d.querySelector('h3').textContent = t('mtPopupTitle');
-    d.querySelector('.mt-p1').textContent = fillTemplate(t('mtPopupBody'), { name: name });
+    d.querySelector('h3').textContent = t(wait ? 'mtCheckTitle' : 'mtPopupTitle');
+    d.querySelector('.mt-p1').textContent = wait ? t('mtChecking') : fillTemplate(t('mtPopupBody'), { name: name });
     d.querySelector('.mt-p2').remove();
     const btn = d.querySelector('button'); btn.textContent = t('mtOk'); btn.onclick = function () { d.remove(); };
     d.addEventListener('click', function (e) { if (e.target === d) d.remove(); });
@@ -15645,8 +15658,8 @@ function mtCurrentSvc() {
 }
 /* per-button control: inside an open service, single buttons can be closed on the maintenance page (faded; a click shows the popup).
    MT_ACT = [service, action, matcher, label key]; matcher "fn:name" (onclick/onchange calls name(...)), "fn:name|text" (and the call contains text), "i:key" (button with data-i18n=key) */
-const MT_ACT = [["master", "export", "fn:openExportLangModal|'master'", "btnExport"], ["master", "leavereport", "fn:openLeaveReportModal", "btnExportLeaveReport"], ["master", "settings", "fn:mlOpen", "mlBtnText"], ["master", "alcheck", "fn:mlStOpen", "mlStBtnText"], ["master", "view", "fn:openMasterDetailModal", "mtA_master_view"], ["master", "edit", "fn:openEditModal", "mtA_master_edit"], ["master", "delete", "fn:confirmDelete", "mtA_master_delete"], ["monthly", "applyall", "fn:applyBulkWorkingHours", "btnApplyAll"], ["monthly", "export", "fn:openExportLangModal|'monthly'", "btnExport"], ["monthly", "view", "fn:openMonthlyDetailModal", "mtA_monthly_view"], ["monthly", "edit", "fn:openEditModal", "mtA_monthly_edit"], ["monthly", "delete", "fn:confirmDelete", "mtA_monthly_delete"], ["monthly", "hours", "fn:updateEmpMonthlyField", "mtA_monthly_hours"], ["monthlyal", "renewal", "fn:openRenewalExportModal", "btnExportRenewal"], ["monthlyal", "export", "fn:openExportLangModal|'monthlyal'", "btnExport"], ["employee", "export", "fn:openExportLangModal|'employee'", "btnExport"], ["employee", "view", "fn:openEmployeeDetailModal", "mtA_employee_view"], ["employee", "edit", "fn:openEditModal", "mtA_employee_edit"], ["employee", "delete", "fn:confirmDelete", "mtA_employee_delete"], ["leave", "submit", "i:btnSubmitLeave", "btnSubmitLeave"], ["att", "load", "i:btnLoadDept", "btnLoadDept"], ["att", "submit", "fn:saveAttendanceDeptBatch", "btnSubmitAtt"], ["query", "check", "i:btnCheckDetails", "btnCheckDetails"], ["add", "bulkimport", "fn:openBulkImportModal", "btnBulkImport"], ["add", "bulkupdate", "fn:openBulkUpdateModal", "btnBulkUpdate"], ["add", "save", "i:btnSaveEmp", "btnSaveEmp"], ["shift", "check", "i:btnCheckShift", "btnCheckShift"], ["shift", "export", "fn:openExportLangModal|'shift'", "btnExport"], ["shift", "editcell", "fn:updateShiftCell", "mtA_shift_editcell"], ["makeup", "submit", "i:btnSubmitMakeup", "btnSubmitMakeup"], ["attcal", "pdf", "fn:exportAttCalToPDF", "btnExportPDF"], ["attcal", "editday", "fn:openAttCalEditModal", "mtA_attcal_editday"], ["dept", "add", "i:btnAddDept", "btnAddDept"], ["dept", "edit", "fn:editDepartment", "mtA_dept_edit"], ["dept", "delete", "fn:deleteDepartment", "mtA_dept_delete"], ["audit", "export", "fn:openExportLangModal|'auditlog'", "btnExport"], ["cert", "generate", "fn:generateCertificate", "btnGenerateCertificate"], ["faceatt", "copylink", "fn:faCopyScanLink", "faCopyLink"], ["faceatt", "camera", "fn:faStartCamera", "faStartCamera"], ["faceatt", "capture", "fn:faCaptureAngle", "faCapture"], ["faceatt", "clear", "fn:faClearCaptures", "faClearCaptures"], ["faceatt", "saveenroll", "fn:faSaveEnrollment", "faSaveEnroll"], ["faceatt", "delenroll", "fn:faDeleteEnrollment", "mtA_faceatt_delenroll"], ["faceatt", "saverules", "fn:faSaveRules", "faSaveRules"], ["faceatt", "resetrules", "fn:faResetRules", "faResetRules"], ["faceatt", "manualsave", "fn:faSaveManual", "faManualSave"], ["faceatt", "preview", "fn:faPreviewReport", "faPreview"], ["faceatt", "export", "fn:faExportReport", "faExportBtn"], ["export", "preview", "fn:xcPreview", "faPreview"], ["export", "export", "fn:xcExport", "faExportBtn"], ["recdeleted", "restore", "fn:restoreEmployee", "mtA_recdeleted_restore"], ["pending", "approve", "fn:approvePendingEdit", "btnApprove"], ["pending", "reject", "fn:rejectPendingEdit", "btnReject"], ["mgmt", "addaccount", "i:btnAddAccount", "btnAddAccount"], ["mgmt", "disable", "fn:toggleAccountDisabled", "mtA_mgmt_disable"], ["mgmt", "delete", "fn:deleteAccount", "mtA_mgmt_delete"], ["mgmt", "editfield", "fn:updateAccountField", "mtA_mgmt_editfield"], ["mgmt", "pwreset", "fn:pwOpenReset", "pwResetBtn"], ["mgmt", "totp", "fn:toggleAccountTotpEnabled", "mtA_mgmt_totp"], ["mgmt", "resettotp", "fn:resetAccountTotp", "btnResetAuthenticator"], ["mgmt", "backupcodes", "fn:regenerateBackupCodes", "btnRegenerateBackupCodes"], ["lock", "apply", "fn:applySystemLockSettings", "btnApplyLock"], ["lock", "unlock", "fn:unlockAllSystems", "btnUnlockAll"], ["devices", "block", "fn:toggleDeviceBlocked", "mtA_devices_block"], ["devices", "rename", "fn:renameDevice", "mtA_devices_rename"], ["backup", "backupnow", "fn:confirmBackupNow", "btnConfirmBackup"], ["notif", "onetime", "fn:openOneTimeNotifModal", "broadcastSectionTitle"], ["notif", "announce", "fn:openComposeNotification", "btnNewAnnouncement"], ["notif", "shiftready", "fn:openNotifyShiftReadyModal", "btnNotifyShiftReady"], ["notif", "cardready", "fn:openCardReadyNotifModal", "btnNotifyCardReady"], ["notif", "delete", "fn:deleteSentNotif", "mtA_notif_delete"], ["convert", "choose", "fn:handleConvertPhotoFileSelected", "mtA_convert_choose"], ["bell", "respond", "fn:openComposeNotification", "btnRespond"], ["bell", "processed", "fn:markRequestProcessed", "btnMarkProcessed"], ["bell", "delete", "fn:deleteRequest", "btnDeleteRequest"], ["bell", "dismiss", "fn:dismissAdminAlert", "btnDismiss"], ["emp_request", "submit", "i:btnSubmitRequest", "btnSubmitRequest"], ["emp_shift", "check", "fn:checkMyShift", "mtA_emp_shift_check"]];
-const MT_MODAL_SVC = { recentlyDeletedModal: 'recdeleted', pendingApprovalsModal: 'pending', managementModal: 'mgmt', lockSystemModal: 'lock', deviceLogModal: 'devices', backupLangModal: 'backup', manageNotifModal: 'notif', convertPhotoModal: 'convert', globalSearchModal: 'search', notifModal: 'bell' };
+const MT_ACT = [["master", "export", "fn:openExportLangModal|'master'", "btnExport"], ["master", "leavereport", "fn:openLeaveReportModal", "btnExportLeaveReport"], ["master", "settings", "fn:mlOpen", "mlBtnText"], ["master", "alcheck", "fn:mlStOpen", "mlStBtnText"], ["master", "view", "fn:openMasterDetailModal", "mtA_master_view"], ["master", "edit", "fn:openEditModal", "mtA_master_edit"], ["master", "delete", "fn:confirmDelete", "mtA_master_delete"], ["monthly", "applyall", "fn:applyBulkWorkingHours", "btnApplyAll"], ["monthly", "export", "fn:openExportLangModal|'monthly'", "btnExport"], ["monthly", "view", "fn:openMonthlyDetailModal", "mtA_monthly_view"], ["monthly", "edit", "fn:openEditModal", "mtA_monthly_edit"], ["monthly", "delete", "fn:confirmDelete", "mtA_monthly_delete"], ["monthly", "hours", "fn:updateEmpMonthlyField", "mtA_monthly_hours"], ["monthlyal", "renewal", "fn:openRenewalExportModal", "btnExportRenewal"], ["monthlyal", "export", "fn:openExportLangModal|'monthlyal'", "btnExport"], ["employee", "export", "fn:openExportLangModal|'employee'", "btnExport"], ["employee", "view", "fn:openEmployeeDetailModal", "mtA_employee_view"], ["employee", "edit", "fn:openEditModal", "mtA_employee_edit"], ["employee", "delete", "fn:confirmDelete", "mtA_employee_delete"], ["leave", "submit", "i:btnSubmitLeave", "btnSubmitLeave"], ["att", "load", "i:btnLoadDept", "btnLoadDept"], ["att", "submit", "fn:saveAttendanceDeptBatch", "btnSubmitAtt"], ["query", "check", "i:btnCheckDetails", "btnCheckDetails"], ["add", "bulkimport", "fn:openBulkImportModal", "btnBulkImport"], ["add", "bulkupdate", "fn:openBulkUpdateModal", "btnBulkUpdate"], ["add", "save", "i:btnSaveEmp", "btnSaveEmp"], ["shift", "check", "i:btnCheckShift", "btnCheckShift"], ["shift", "export", "fn:openExportLangModal|'shift'", "btnExport"], ["shift", "editcell", "fn:updateShiftCell", "mtA_shift_editcell"], ["makeup", "submit", "i:btnSubmitMakeup", "btnSubmitMakeup"], ["attcal", "pdf", "fn:exportAttCalToPDF", "btnExportPDF"], ["attcal", "editday", "fn:openAttCalEditModal", "mtA_attcal_editday"], ["dept", "add", "i:btnAddDept", "btnAddDept"], ["dept", "edit", "fn:editDepartment", "mtA_dept_edit"], ["dept", "delete", "fn:deleteDepartment", "mtA_dept_delete"], ["audit", "export", "fn:openExportLangModal|'auditlog'", "btnExport"], ["cert", "generate", "fn:generateCertificate", "btnGenerateCertificate"], ["faceatt", "copylink", "fn:faCopyScanLink", "faCopyLink"], ["faceatt", "camera", "fn:faStartCamera", "faStartCamera"], ["faceatt", "capture", "fn:faCaptureAngle", "faCapture"], ["faceatt", "clear", "fn:faClearCaptures", "faClearCaptures"], ["faceatt", "saveenroll", "fn:faSaveEnrollment", "faSaveEnroll"], ["faceatt", "delenroll", "fn:faDeleteEnrollment", "mtA_faceatt_delenroll"], ["faceatt", "saverules", "fn:faSaveRules", "faSaveRules"], ["faceatt", "resetrules", "fn:faResetRules", "faResetRules"], ["faceatt", "manualsave", "fn:faSaveManual", "faManualSave"], ["faceatt", "preview", "fn:faPreviewReport", "faPreview"], ["faceatt", "export", "fn:faExportReport", "faExportBtn"], ["export", "preview", "fn:xcPreview", "faPreview"], ["export", "export", "fn:xcExport", "faExportBtn"], ["recdeleted", "restore", "fn:restoreEmployee", "mtA_recdeleted_restore"], ["pending", "approve", "fn:approvePendingEdit", "btnApprove"], ["pending", "reject", "fn:rejectPendingEdit", "btnReject"], ["mgmt", "addaccount", "i:btnAddAccount", "btnAddAccount"], ["mgmt", "disable", "fn:toggleAccountDisabled", "mtA_mgmt_disable"], ["mgmt", "delete", "fn:deleteAccount", "mtA_mgmt_delete"], ["mgmt", "editfield", "fn:updateAccountField", "mtA_mgmt_editfield"], ["mgmt", "pwreset", "fn:pwOpenReset", "pwResetBtn"], ["mgmt", "totp", "fn:toggleAccountTotpEnabled", "mtA_mgmt_totp"], ["mgmt", "resettotp", "fn:resetAccountTotp", "btnResetAuthenticator"], ["mgmt", "backupcodes", "fn:regenerateBackupCodes", "btnRegenerateBackupCodes"], ["lock", "apply", "fn:applySystemLockSettings", "btnApplyLock"], ["lock", "unlock", "fn:unlockAllSystems", "btnUnlockAll"], ["devices", "block", "fn:toggleDeviceBlocked", "mtA_devices_block"], ["devices", "rename", "fn:renameDevice", "mtA_devices_rename"], ["backup", "backupnow", "fn:confirmBackupNow", "btnConfirmBackup"], ["notif", "onetime", "fn:openOneTimeNotifModal", "broadcastSectionTitle"], ["notif", "announce", "fn:openComposeNotification", "btnNewAnnouncement"], ["notif", "shiftready", "fn:openNotifyShiftReadyModal", "btnNotifyShiftReady"], ["notif", "cardready", "fn:openCardReadyNotifModal", "btnNotifyCardReady"], ["notif", "delete", "fn:deleteSentNotif", "mtA_notif_delete"], ["convert", "choose", "fn:handleConvertPhotoFileSelected", "mtA_convert_choose"], ["bell", "respond", "fn:openComposeNotification", "btnRespond"], ["bell", "processed", "fn:markRequestProcessed", "btnMarkProcessed"], ["bell", "delete", "fn:deleteRequest", "btnDeleteRequest"], ["bell", "dismiss", "fn:dismissAdminAlert", "btnDismiss"], ["emp_request", "submit", "i:btnSubmitRequest", "btnSubmitRequest"], ["emp_shift", "check", "fn:checkMyShift", "mtA_emp_shift_check"], ["master", "settings", "fn:mlSave", "mlBtnText"], ["master", "settings", "fn:mlAddRule", "mlBtnText"], ["master", "settings", "fn:mlRemoveRule", "mlBtnText"], ["master", "settings", "fn:mlMakeFormula", "mlBtnText"], ["notif", "reminders", "fn:addAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:editAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:deleteAnnouncement", "mtA_notif_reminders"]];
+const MT_MODAL_SVC = { recentlyDeletedModal: 'recdeleted', pendingApprovalsModal: 'pending', managementModal: 'mgmt', lockSystemModal: 'lock', deviceLogModal: 'devices', backupLangModal: 'backup', manageNotifModal: 'notif', convertPhotoModal: 'convert', globalSearchModal: 'search', notifModal: 'bell', mlModal: 'master', mlStModal: 'master' };
 const MT_ACT_BY = {};
 MT_ACT.forEach(function (e) {
     const m = e[2], o = { svc: e[0], id: e[1], label: e[3] };
@@ -15658,9 +15671,10 @@ const MT_ACT_SEL = '[onclick],[onchange],[oninput],' + Array.from(new Set(MT_ACT
 function mtCtxOf(n) {
     for (let el = n; el && el.nodeType === 1; el = el.parentElement) {
         if (MT_MODAL_SVC[el.id]) return MT_MODAL_SVC[el.id];
+        if (el.id === 'mlDashBox') return 'master';
         if (el.id === 'empPanelRequest' || el.id === 'empRequestForm') return 'emp_request';
         if (el.id === 'empPanelShift') return 'emp_shift';
-        if (el.classList.contains('tab-panel')) return mtSvcOfTab(el.id);
+        if (el.classList.contains('tab-panel')) return el.id === 'tab-home' ? 'notif' : mtSvcOfTab(el.id);
         if (el.classList.contains('modal')) return null;
     }
     return null;
@@ -15700,9 +15714,10 @@ function mtActScan() {
 }
 setInterval(mtActScan, 500);
 function mtActHit(target) {
-    if (!mtIsOn()) return null;
+    const unk = mtUnknown();
+    if (!unk && !mtIsOn()) return null;
     for (let n = target, i = 0; n && n.nodeType === 1 && i < 6; n = n.parentElement, i++) {
-        const o = mtActOf(n); if (o && mtActClosed(o)) return o;
+        const o = mtActOf(n); if (o && (unk || mtActClosed(o))) return o;
     }
     return null;
 }
@@ -15710,7 +15725,7 @@ function mtActBlock(e) {
     const o = mtActHit(e.target); if (!o) return false;
     e.stopPropagation(); e.preventDefault();
     const s = mtSvc(o.svc);
-    mtPopup(o.svc, t(o.label) + (s ? ' (' + t(s[1]) + ')' : ''));
+    mtPopup(o.svc, t(o.label) + (s ? ' (' + t(s[1]) + ')' : ''), mtUnknown());
     return true;
 }
 document.addEventListener('click', mtActBlock, true);
@@ -15722,6 +15737,7 @@ document.addEventListener('focusin', function (e) { const tg = e.target; if (tg 
     const sw = switchTab;
     switchTab = function (tabId) {
         const id = mtSvcOfTab(tabId);
+        if (id && mtUnknown()) { mtPopup(id, '', true); return; }
         if (id && mtMode(id) === 'closed') { mtPopup(id); return; }
         mtModal = null;
         const r = sw.apply(this, arguments); try { mtActScan(); } catch (e) {} return r;
@@ -15730,6 +15746,7 @@ document.addEventListener('focusin', function (e) { const tg = e.target; if (tg 
         const o = window[s[3]];
         if (typeof o !== 'function') return;
         window[s[3]] = function () {
+            if (mtUnknown()) { mtPopup(s[0], '', true); return; }
             if (mtMode(s[0]) === 'closed') { mtPopup(s[0]); return; }
             mtModal = s[0];
             const r = o.apply(this, arguments); try { setTimeout(mtActScan, 60); } catch (e) {} return r;
@@ -15738,6 +15755,7 @@ document.addEventListener('focusin', function (e) { const tg = e.target; if (tg 
     const ep = showEmpPanel;
     showEmpPanel = function (which) {
         const id = which === 'shift' ? 'emp_shift' : 'emp_request';
+        if (mtUnknown()) { mtPopup(id, '', true); return; }
         if (mtMode(id) === 'closed') { mtPopup(id); return; }
         return ep.apply(this, arguments);
     };
@@ -15751,7 +15769,8 @@ function mtRefresh() {
         if (cur && mtMode(cur) === 'closed') { mtModal = null; mtPopup(cur); const home = document.getElementById('nav-home'); if (document.getElementById('tab-home') && sessionStorage.getItem('isLoggedIn') === 'true') switchTab('tab-home', home); }
     } catch (e) {}
 }
-db.ref('maintenance').on('value', function (s) { mtData = s.val(); mtRefresh(); }, function () {});
+db.ref('maintenance').on('value', function (s) { mtData = s.val(); mtReady = true; mtRefresh(); }, function () { mtReady = true; });
+setTimeout(function () { mtReady = true; }, 60000);
 /* "loading data" hint + timing (shown while the first lists are still arriving) */
 (function () {
     const need = sessionStorage.getItem('isLoggedIn') === 'true' || !!sessionStorage.getItem('empLoggedInId');
