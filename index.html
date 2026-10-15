@@ -630,7 +630,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.33</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.34</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2703,7 +2703,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.33
+     HR & Administration System Version 7.34
  </div>
 </div>
 
@@ -15575,8 +15575,8 @@ function mtMessage() {
 }
 (function () {
     const st = document.createElement('style');
-    st.textContent = 'body{overflow-anchor:none;}#mtBanner.mt-inline{position:relative;z-index:0;margin:8px 0;border-radius:10px;box-shadow:none;}#mtBanner{position:sticky;top:0;z-index:100001;background:#ef4444;color:#fff;text-align:left;font-size:13px;font-weight:600;padding:7px 38px 7px 12px;line-height:1.35;box-shadow:0 2px 6px rgba(0,0,0,.25);}' +
-        '#mtBanner .mt-i{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;border:1.5px solid #fff;border-radius:50%;font-size:12px;line-height:15px;font-style:italic;font-weight:700;}' +
+    st.textContent = 'body{overflow-anchor:none;}#mtBanner.mt-inline{position:relative;z-index:0;margin:8px 0;border-radius:10px;box-shadow:none;}#mtBanner{position:sticky;top:0;z-index:100001;display:flex;align-items:center;gap:12px;background:linear-gradient(100deg,#f97316,#fb9a4b);color:#fff;font-size:13px;font-weight:600;padding:10px 14px;line-height:1.4;border:2px solid rgba(255,255,255,.6);box-shadow:0 2px 8px rgba(0,0,0,.22);}' +
+        '#mtBanner #mtBannerText{flex:1;min-width:0;text-align:left;}#mtBanner .mt-g{flex:none;width:30px;height:30px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25));}' +
         '.mt-closed,.mt-act{opacity:.38!important;cursor:not-allowed!important;}' +
             '#mtPop{position:fixed;inset:0;z-index:100002;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:16px;}' +
         '#mtPop .mt-box{background:#fff;border-radius:14px;max-width:380px;width:100%;padding:22px 20px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.35);}' +
@@ -15590,11 +15590,11 @@ function mtBannerRender() {
     if (!mtIsOn()) { if (b) b.style.display = 'none'; return; }
     if (!b) {
         b = document.createElement('div'); b.id = 'mtBanner';
-        b.innerHTML = '<span id="mtBannerText"></span><span class="mt-i">i</span>';
+        b.innerHTML = '<svg class="mt-g" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span id="mtBannerText"></span>';
         document.body.insertBefore(b, document.body.firstChild);
     }
     b.style.display = 'block';
-    b.style.textAlign = (mtData && mtData.align === 'center') ? 'center' : 'left';
+    document.getElementById('mtBannerText').style.textAlign = (mtData && mtData.align === 'center') ? 'center' : 'left';
     mtPlace();
     document.getElementById('mtBannerText').textContent = mtMessage() || t('mtBannerDefault');
 }
@@ -15630,7 +15630,7 @@ function mtPopup(id, actLabel) {
     d.innerHTML = '<div class="mt-box"><div style="font-size:30px;">🔧</div><h3></h3><p class="mt-p1"></p><p class="mt-p2" style="font-weight:600;color:#b91c1c;"></p><button type="button"></button></div>';
     d.querySelector('h3').textContent = t('mtPopupTitle');
     d.querySelector('.mt-p1').textContent = fillTemplate(t('mtPopupBody'), { name: name });
-    if (msg) d.querySelector('.mt-p2').textContent = msg; else d.querySelector('.mt-p2').remove();
+    d.querySelector('.mt-p2').remove();
     const btn = d.querySelector('button'); btn.textContent = t('mtOk'); btn.onclick = function () { d.remove(); };
     d.addEventListener('click', function (e) { if (e.target === d) d.remove(); });
     document.body.appendChild(d);
