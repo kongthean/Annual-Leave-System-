@@ -110,12 +110,65 @@
             (the login is then already there and every part of the page connects properly) */
          back().then(function () { try { if (!window.__saNoReload && firebase.auth().currentUser && !sessionStorage.getItem('saFirstOpen')) { sessionStorage.setItem('saFirstOpen', '1'); location.reload(); } } catch (e) {} });
        }
-       else if (!u.isAnonymous && sessionStorage.getItem('isLoggedIn') !== 'true') {
-         var alive = 0; try { alive = Number(localStorage.getItem('saAlive')) || 0; } catch (e) {}
-         if (Date.now() - alive > 120000) { firebase.auth().signOut().then(back, back); }
-       }
      });
    }
+   /* v7.24: who is using this page? staff (Administration/HR), an employee, or a visitor (nobody logged in yet).
+      Left-over logins in the browser (a staff tab closed long ago, an employee who did not log out) are dropped here. */
+   window.__actorInfo = null;
+   window.__actor = new Promise(function (resolve) {
+     var fin = function (a) { window.__actorInfo = a; resolve(a); };
+     if (!(typeof firebase.auth === 'function' && typeof firebase.auth().onAuthStateChanged === 'function')) { fin({ type: 'open' }); return; }
+     var handled = false, unsub = null;
+     unsub = firebase.auth().onAuthStateChanged(function (u) {
+       if (!u || handled) return;
+       handled = true; try { if (unsub) unsub(); } catch (e) {}
+       if (u.isAnonymous) { fin({ type: 'visitor', uid: u.uid }); return; }
+       var rd = function (p, n) { return firebase.database().ref(p).once('value').then(function (s) { return s.val(); }, function (e) { if (n > 0) return new Promise(function (r) { setTimeout(r, 300); }).then(function () { return rd(p, n - 1); }); throw e; }); };
+       var toVisitor = function () {
+         return firebase.auth().signOut().then(function () { return firebase.auth().signInAnonymously(); }).then(function () { fin({ type: 'visitor', uid: (firebase.auth().currentUser || {}).uid }); }, function () { fin({ type: 'visitor' }); });
+       };
+       rd('staff/' + u.uid, 2).then(function (st) {
+         if (st) {
+           var alive = 0; try { alive = Number(localStorage.getItem('saAlive')) || 0; } catch (e) {}
+           if (sessionStorage.getItem('isLoggedIn') !== 'true' && Date.now() - alive > 120000) return toVisitor();
+           return fin({ type: 'staff', uid: u.uid, role: st.role, key: st.key });
+         }
+         return rd('empAuth/' + u.uid, 2).then(function (e) {
+           if (e && sessionStorage.getItem('empLoggedInId')) return fin({ type: 'employee', uid: u.uid, key: e.key, id: e.id });
+           return toVisitor();
+         });
+       }).catch(function () { fin({ type: 'visitor', uid: u.uid }); });
+     });
+   });
+   /* each list below starts in the way that fits the person: staff read everything, an employee only their own records,
+      a visitor tries the old way (works only while the old database rules are on) */
+   (function () {
+     var empty = { val: function () { return null; } };
+     var D = function () { return firebase.database(); };
+     var wrap = function (key, v) { var o = {}; if (v) o[key] = v; return { val: function () { return v ? o : null; } }; };
+     window.empListen = function (cb) { window.__actor.then(function (a) {
+       if (a.type === 'staff' || a.type === 'open') D().ref('employees').on('value', cb);
+       else if (a.type === 'employee') D().ref('employees/' + a.key).on('value', function (s) { cb(wrap(a.key, s.val())); });
+       else D().ref('employees').on('value', cb, function () { cb(empty); });
+     }); };
+     window.reqListen = function (cb) { window.__actor.then(function (a) {
+       if (a.type === 'staff' || a.type === 'open') D().ref('requests').on('value', cb);
+       else if (a.type === 'employee') D().ref('requests').orderByChild('empId').equalTo(a.id).on('value', cb);
+       else D().ref('requests').on('value', cb, function () { cb(empty); });
+     }); };
+     window.notifListen = function (cb) { window.__actor.then(function (a) {
+       if (a.type === 'staff' || a.type === 'open') D().ref('notifications').on('value', cb);
+       else if (a.type === 'employee') {
+         var r1 = null, r2 = null, go = function () { cb({ val: function () { var o = Object.assign({}, r1 || {}, r2 || {}); return Object.keys(o).length ? o : null; } }); };
+         D().ref('notifications').orderByChild('targetId').equalTo('ALL').on('value', function (s) { r1 = s.val(); go(); });
+         D().ref('notifications').orderByChild('targetId').equalTo(a.id).on('value', function (s) { r2 = s.val(); go(); });
+       } else D().ref('notifications').on('value', cb, function () { cb(empty); });
+     }); };
+     window.devListen = function (cb) { window.__actor.then(function (a) {
+       if (a.type === 'staff' || a.type === 'open') D().ref('deviceSessions').on('value', cb);
+       else D().ref('deviceSessions/' + CURRENT_DEVICE_ID).on('value', function (s) { cb(wrap(CURRENT_DEVICE_ID, s.val())); });
+     }); };
+   })();
  </script>
 <style>
      * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
@@ -562,7 +615,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.23</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.24</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2632,7 +2685,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.23
+     HR & Administration System Version 7.24
  </div>
 </div>
 
@@ -3828,6 +3881,9 @@
         notifPersonalLeaveMsg: "You have a Personal Leave record of {hours} hour(s). Total Personal Leave this month: {total} hours.",
         notifLeaveDeductedMsg2: "Your Annual Leave entitlement has been deducted {hours} hour(s) use for your leave on {date}. Used for {type}. Remaining Hours: {remaining} hours.",
         notifPersonalLeaveMsg2: "You have a personal leave record of {hours} hour(s) for your leave on {date}. Total personal leave this month: {total} hours.",
+        /* v7.24 */
+        ecStaffActive: "Administration/HR is signed in on this browser. Please log out of it first, then log in as an employee.",
+        ecSummary: "Employee secure login ready: {a} of {b} active employees",
         /* v7.22 */
         saSecureOn: "Secure login active",
         saSecurePending: "Not active yet - starts at the next login",
@@ -4850,6 +4906,9 @@
         notifPersonalLeaveMsg: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
         notifLeaveDeductedMsg2: "សិទ្ធិច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំរបស់អ្នកត្រូវបានកាត់កង {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ ប្រើសម្រាប់៖ {type}។ ម៉ោងនៅសល់៖ {remaining} ម៉ោង។",
         notifPersonalLeaveMsg2: "អ្នកមានកំណត់ត្រាច្បាប់ផ្ទាល់ខ្លួនចំនួន {hours} ម៉ោង សម្រាប់ការឈប់សម្រាករបស់អ្នកនៅថ្ងៃ {date}។ សរុបច្បាប់ផ្ទាល់ខ្លួនប្រចាំខែនេះ៖ {total} ម៉ោង។",
+        /* v7.24 */
+        ecStaffActive: "Administration/HR កំពុងចូលក្នុងកម្មវិធីរុករកនេះ។ សូមចាកចេញជាមុនសិន រួចចូលជាបុគ្គលិក។",
+        ecSummary: "ការចូលសុវត្ថិភាពរបស់បុគ្គលិកត្រៀមរួច៖ {a} ក្នុងចំណោម {b} នាក់ដែលកំពុងធ្វើការ",
         /* v7.22 */
         saSecureOn: "ការចូលសុវត្ថិភាពសកម្ម",
         saSecurePending: "មិនទាន់សកម្ម - ចាប់ផ្ដើមពេលចូលលើកក្រោយ",
@@ -5834,6 +5893,9 @@
         notifPersonalLeaveMsg: "您有一笔{hours}小时的事假记录。本月事假总计：{total}小时。",
         notifLeaveDeductedMsg2: "您的年假额度已扣除{hours}小时，对应您在{date}的休假。用途：{type}。剩余小时数：{remaining}小时。",
         notifPersonalLeaveMsg2: "您有一笔{hours}小时的事假记录，对应您在{date}的休假。本月事假总计：{total}小时。",
+        /* v7.24 */
+        ecStaffActive: "此浏览器已登录管理/HR 系统。请先退出，再以员工身份登录。",
+        ecSummary: "员工安全登录已就绪：{a} / {b} 名在职员工",
         /* v7.22 */
         saSecureOn: "安全登录已启用",
         saSecurePending: "尚未启用 - 下次登录时启用",
@@ -7113,7 +7175,7 @@ function renderEmpShiftCalendar() {
 
  let employees = [];
  
- db.ref('employees').on('value', (snapshot) => {
+ empListen((snapshot) => {
      const data = snapshot.val();
      if (data) {
          employees = Object.keys(data).map(key => ({
@@ -7298,7 +7360,7 @@ function renderEmpShiftCalendar() {
  let deviceSessions = [];
  let deviceHeartbeatTimer = null;
 
- db.ref('deviceSessions').on('value', (snapshot) => {
+ devListen((snapshot) => {
      const data = snapshot.val();
      deviceSessions = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
      renderDeviceLogTable();
@@ -11885,7 +11947,7 @@ function formatNotifReceivedAt(timestamp) {
      try { localStorage.removeItem('loginLockout_' + userKey); } catch (e) {}
  }
 
- document.getElementById('empLoginForm').addEventListener('submit', function(e) {
+ document.getElementById('empLoginForm').addEventListener('submit', async function(e) {
      e.preventDefault();
      const userIn = document.getElementById('empLoginUser').value.trim();
      const passIn = document.getElementById('empLoginPass').value.trim();
@@ -11900,7 +11962,10 @@ function formatNotifReceivedAt(timestamp) {
          return;
      }
 
-     const found = employees.find(emp => {
+     if (ecBlockedByStaff()) { errorDiv.innerText = t('ecStaffActive'); errorDiv.style.display = 'block'; return; }
+     let secure = null;
+     try { secure = await ecLogin(userIn, passIn); } catch (err) { console.error(err); }
+     const found = secure || employees.find(emp => {
          const uname = emp.loginUsername || emp.id;
          const pwd = emp.loginPassword || emp.id;
          return uname === userIn && pwd === passIn && emp.status === 'Active';
@@ -11911,6 +11976,7 @@ function formatNotifReceivedAt(timestamp) {
          sessionStorage.setItem('empLoggedInId', found.id);
          errorDiv.style.display = 'none';
          document.getElementById('empLoginPass').value = '';
+         if (secure && !window.__saNoReload) { sessionStorage.setItem('activeView', 'employee'); saReload(); return; }
          refreshEmployeeGate();
          checkBroadcastForCurrentUser();
          recordDeviceSession('employee', found.name || found.id);
@@ -11978,7 +12044,7 @@ function formatNotifReceivedAt(timestamp) {
  const REQUEST_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
  let requests = [];
 
- db.ref('requests').on('value', (snapshot) => {
+ reqListen((snapshot) => {
      const data = snapshot.val();
      let list = [];
      if (data) {
@@ -12156,7 +12222,7 @@ function formatNotifReceivedAt(timestamp) {
  /* ===== NOTIFICATIONS CHANNEL (admin responses + general announcements, auto-removed after 7 days) ===== */
  let allNotifications = [];
 
- db.ref('notifications').on('value', (snapshot) => {
+ notifListen((snapshot) => {
      const data = snapshot.val();
      let list = [];
      if (data) {
@@ -15230,6 +15296,122 @@ saAccountsStart();
             return;
         }
         st(success, msg);
+    };
+})();
+
+
+/* ================= v7.24: EMPLOYEE PROTECTION (Step C) =================
+   Employees still type their username + password. Behind the scenes every active employee also gets a hidden real
+   Firebase login (made automatically while Administration or HR is logged in). With it Firebase knows WHO the employee is,
+   so an employee can only read their own record, their own requests and their own notifications - never the whole list. */
+const EC_OK = SA_OK;
+const EC_DOMAIN = 'emp.cambodiainsight.net';
+function ecEmail(id) { return id + '@' + EC_DOMAIN; }
+async function ecPw(pass, id) { return (await pwDerive(pass, 'emp-auth:' + id)).split('$')[2].slice(0, 48); }
+function ecNewId() { const a = new Uint8Array(12); crypto.getRandomValues(a); return 'e' + pwHex(a); }
+function ecUser(e) { return String(e.loginUsername || e.id || ''); }
+function ecPass(e) { return String(e.loginPassword || e.id || ''); }
+async function ecSig(u, p) {
+    const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('emp-sig|' + u + '\n' + p));
+    return pwHex(d).slice(0, 24);
+}
+function ecBlockedByStaff() {
+    return !!(EC_OK && ((window.__actorInfo && window.__actorInfo.type === 'staff') || sessionStorage.getItem('isLoggedIn') === 'true'));
+}
+/* employee login: hidden Firebase login first; returns the employee record or null */
+async function ecLogin(user, pass) {
+    if (!EC_OK || !user) return null;
+    const s = await db.ref('empLookup/' + saHexStr(user)).once('value');
+    const v = s.val();
+    const ids = v ? Object.keys(v) : [];
+    for (const id of ids) {
+        try {
+            const cred = await firebase.auth().signInWithEmailAndPassword(ecEmail(id), await ecPw(pass, id));
+            const uid = (cred && cred.user ? cred.user : firebase.auth().currentUser).uid;
+            const link = await saReadRetry('empAuth/' + uid);
+            const rec = (link && link.key) ? await saReadRetry('employees/' + link.key) : null;
+            if (rec && rec.status === 'Active' && link.id === rec.id) return Object.assign({ firebaseKey: link.key }, rec);
+            await saBackToAnon();
+        } catch (e) {
+            try { const cu = firebase.auth().currentUser; if (cu && !cu.isAnonymous) await saBackToAnon(); } catch (e2) {}
+        }
+    }
+    return null;
+}
+(function () {
+    const el = empLogout;
+    empLogout = function () {
+        const wasEmp = EC_OK && window.__actorInfo && window.__actorInfo.type === 'employee';
+        el();
+        if (wasEmp && !window.__saNoReload) saBackToAnon().then(function () { saReload(); });
+    };
+})();
+
+/* ---- automatic creation of the hidden employee logins (Administration or HR logged in) ---- */
+let ecLinks = null, ecBusy = false, ecTimer = null;
+const ecSigCache = {};
+function ecSchedule() { if (ecTimer) clearTimeout(ecTimer); ecTimer = setTimeout(ecSync, 2500); }
+async function ecCreate(e, u, p, sig, old) {
+    if (!saApp2) saApp2 = firebase.initializeApp(firebase.app().options, 'staffSecondary');
+    const a2 = saApp2.auth(), id = ecNewId();
+    const cred = await a2.createUserWithEmailAndPassword(ecEmail(id), await ecPw(p, id));
+    const uid = cred.user.uid;
+    try { await a2.signOut(); } catch (x) {}
+    const up = {};
+    if (old) {
+        if (old.uid) up['empAuth/' + old.uid] = null;
+        if (old.authId && old.uname != null) up['empLookup/' + saHexStr(old.uname) + '/' + old.authId] = null;
+    }
+    up['empAuth/' + uid] = { key: e.firebaseKey, id: e.id, name: e.name || '' };
+    up['empLookup/' + saHexStr(u) + '/' + id] = true;
+    up['empAuthByKey/' + e.firebaseKey] = { authId: id, uid: uid, sig: sig, uname: u };
+    await db.ref().update(up);
+}
+async function ecSync() {
+    if (!EC_OK || ecBusy || ecLinks === null || !employees.length) return;
+    if (!(window.__actorInfo && window.__actorInfo.type === 'staff') || sessionStorage.getItem('isLoggedIn') !== 'true') return;
+    ecBusy = true;
+    try {
+        for (const e of employees.slice()) {
+            if (e.status !== 'Active' || !e.id) continue;
+            const u = ecUser(e), p = ecPass(e), sig = await ecSig(u, p);
+            ecSigCache[e.firebaseKey] = sig;
+            const link = ecLinks[e.firebaseKey];
+            if (link && link.uid && link.authId && link.sig === sig) continue;
+            let c;
+            try { c = await db.ref('empAuthByKey/' + e.firebaseKey + '/claim').transaction(function (cur) { return (cur && cur.sig === sig && Date.now() - cur.t < 90000) ? undefined : { sig: sig, t: Date.now() }; }); } catch (x) { continue; }
+            if (!c.committed) continue;
+            try { await ecCreate(e, u, p, sig, link); }
+            catch (err) { console.error('Employee secure login could not be created now:', e.id, err); try { await db.ref('empAuthByKey/' + e.firebaseKey + '/claim').remove(); } catch (x) {} }
+            await saSleep(250);
+        }
+        const up = {};
+        Object.keys(ecLinks).forEach(function (k) {
+            if (!employees.some(function (e) { return e.firebaseKey === k; })) {
+                const l = ecLinks[k] || {};
+                up['empAuthByKey/' + k] = null;
+                if (l.uid) up['empAuth/' + l.uid] = null;
+                if (l.authId && l.uname != null) up['empLookup/' + saHexStr(l.uname) + '/' + l.authId] = null;
+            }
+        });
+        if (Object.keys(up).length) await db.ref().update(up);
+    } finally { ecBusy = false; saRenderSummary(); }
+}
+(function () {
+    if (!EC_OK) return;
+    window.__actor.then(function (a) {
+        if (a.type !== 'staff') return;
+        db.ref('empAuthByKey').on('value', function (s) { ecLinks = s.val() || {}; saRenderSummary(); ecSchedule(); });
+        db.ref('employees').on('value', ecSchedule);
+    });
+    const o = saRenderSummary;
+    saRenderSummary = function () {
+        o();
+        const box = document.getElementById('saSummary');
+        if (!box || ecLinks === null) return;
+        const act = employees.filter(function (e) { return e.status === 'Active'; });
+        const ok = act.filter(function (e) { const l = ecLinks[e.firebaseKey]; return l && l.uid && (!ecSigCache[e.firebaseKey] || l.sig === ecSigCache[e.firebaseKey]); }).length;
+        box.innerHTML += '<div style="font-size:12px; margin:0 0 8px; ' + (ok === act.length && ok ? 'color:#15803d;' : 'color:#b45309;') + '">🔒 ' + escapeHtmlText(fillTemplate(t('ecSummary'), { a: ok, b: act.length })) + '</div>';
     };
 })();
 
