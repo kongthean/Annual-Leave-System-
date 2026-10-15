@@ -630,7 +630,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.42</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.43</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2724,7 +2724,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.42
+     HR & Administration System Version 7.43
  </div>
 </div>
 
@@ -3976,6 +3976,7 @@
         lxTotals: "{n} employee(s) · working {w} h · OT {o} h · absent {a} h · permission {p} h",
         lxCheckNote: "Please compare with the paper before using. You can correct the hours here.",
         lxExport: "Download Excel",
+        lxProgDone: "Finished",
         lxRecFail: "Could not record. Nothing was changed. Please try again.",
         lxRecMissing: "{m} row(s) skipped because the ID is not in the system.",
         lxRecDone: "Recorded for {n} employee(s) on {d}.",
@@ -5087,6 +5088,7 @@
         lxTotals: "{n} នាក់ · ធ្វើការ {w} ម៉ោង · OT {o} ម៉ោង · អវត្តមាន {a} ម៉ោង · សុំច្បាប់ {p} ម៉ោង",
         lxCheckNote: "សូមប្រៀបធៀបជាមួយក្រដាសមុនប្រើ។ អ្នកអាចកែម៉ោងនៅទីនេះបាន។",
         lxExport: "ទាញយក Excel",
+        lxProgDone: "រួចរាល់",
         lxRecFail: "មិនអាចកត់ត្រាបានទេ។ គ្មានអ្វីត្រូវបានផ្លាស់ប្តូរ។ សូមព្យាយាមម្តងទៀត។",
         lxRecMissing: "រំលង {m} ជួរ ព្រោះអត្តលេខមិនមានក្នុងប្រព័ន្ធ។",
         lxRecDone: "បានកត់ត្រាសម្រាប់បុគ្គលិក {n} នាក់ នៅថ្ងៃ {d}។",
@@ -6160,6 +6162,7 @@
         lxTotals: "{n} 人 · 工作 {w} 小时 · 加班 {o} 小时 · 旷工 {a} 小时 · 请假 {p} 小时",
         lxCheckNote: "使用前请与纸质报表核对，可在此修改时数。",
         lxExport: "下载 Excel",
+        lxProgDone: "完成",
         lxRecFail: "无法记录，未做任何更改。请重试。",
         lxRecMissing: "{m} 行因工号不在系统中而被跳过。",
         lxRecDone: "已为 {n} 名员工记录 {d} 的时数。",
@@ -16102,6 +16105,15 @@ function openAttExtract() {
     lxRenderKey(); window.scrollTo(0, 0);
 }
 function closeAttExtract() { const b = document.getElementById('nav-home'); switchTab('tab-home', b); }
+var lxPT = null, lxPP = 0, lxPMsg = '';
+function lxProg(pct, msg) {
+    let el = document.getElementById('lxProg');
+    if (!el) { const st = document.getElementById('lxStatus'); if (!st) return; el = document.createElement('div'); el.id = 'lxProg'; el.style.cssText = 'margin:8px 0 12px;'; el.innerHTML = '<div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; margin-bottom:4px;"><span id="lxProgMsg"></span><span id="lxProgPct"></span></div><div style="height:12px; background:#e2e8f0; border-radius:8px; overflow:hidden;"><div id="lxProgBar" style="height:100%; width:0; background:linear-gradient(90deg,#16a34a,#22c55e); transition:width .3s;"></div></div>'; st.parentNode.insertBefore(el, st.nextSibling); }
+    el.style.display = pct === null ? 'none' : 'block'; if (pct === null) return;
+    pct = Math.max(0, Math.min(100, Math.round(pct)));
+    document.getElementById('lxProgBar').style.width = pct + '%'; document.getElementById('lxProgPct').textContent = pct + '%'; if (msg !== undefined) document.getElementById('lxProgMsg').textContent = msg;
+}
+function lxProgStop() { if (lxPT) { clearInterval(lxPT); lxPT = null; } }
 function lxNum(v) { const n = Number(v); return isFinite(n) && v !== null && v !== '' ? n : 0; }
 var lxDupOk = '';
 async function lxRead(btn) {
@@ -16109,11 +16121,15 @@ async function lxRead(btn) {
     const files = Array.from((document.getElementById('lxFileInput') || {}).files || []);
     if (!files.length) { lxStatus(t('lxErrNoFile'), true); return; }
     if (btn) btn.disabled = true;
-    const all = []; lxDate = ''; lxDupOk = '';
+    const all = []; lxDate = ''; lxDupOk = ''; lxProg(0, '');
     try {
         for (let i = 0; i < files.length; i++) {
-            lxStatus(fillTemplate(t('lxReading'), { a: i + 1, b: files.length }), false);
-            const r = await lxReadOne(files[i], key);
+            lxStatus('', false); const share = 100 / files.length, base = i * share; let f = 0;
+            const msg = fillTemplate(t('lxReading'), { a: i + 1, b: files.length });
+            lxProg(base, msg); lxProgStop();
+            lxPT = setInterval(function () { f += (0.93 - f) * 0.05; lxProg(base + share * f, msg); }, 300);
+            let r; try { r = await lxReadOne(files[i], key); } finally { lxProgStop(); }
+            lxProg(base + share, msg);
             if (r.reportDate && !lxDate) lxDate = r.reportDate;
             (r.rows || []).forEach(function (x) { all.push(x); });
         }
@@ -16125,9 +16141,10 @@ async function lxRead(btn) {
                 work: lxNum(x.work), ot: lxNum(x.overtime), night: lxNum(x.night), absent: lxNum(x.absent), leave: lxNum(x.leave), early: lxNum(x.late), allow: lxNum(x.allowance) });
         });
         lxRows.sort(function (a, b) { return a.id < b.id ? -1 : 1; });
-        lxRender();
+        lxRender(); lxProg(100, t('lxProgDone')); setTimeout(function () { if (!lxPT) lxProg(null); }, 1500);
         lxStatus(lxRows.length ? fillTemplate(t('lxDone'), { n: lxRows.length }) : t('lxNone'), false);
     } catch (e) {
+        lxProgStop(); lxProg(null);
         lxStatus(e && e.status === 401 ? t('lxErrBadKey') : fillTemplate(t('lxErrFail'), { msg: (e && e.message) || '' }), true);
     }
     if (btn) btn.disabled = false;
