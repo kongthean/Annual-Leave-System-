@@ -105,8 +105,15 @@
        var back = function () { return firebase.auth().signInAnonymously().catch(function (err) {
          console.error('Anonymous sign-in failed (database rules were NOT changed by this alone - see v6.91 notes):', err);
        }); };
-       if (!u) { back(); }
-       else if (!u.isAnonymous && sessionStorage.getItem('isLoggedIn') !== 'true') { firebase.auth().signOut().then(back, back); }
+       if (!u) {
+         /* first ever visit in this tab: the database connected before the visitor login existed, so open the page once more
+            (the login is then already there and every part of the page connects properly) */
+         back().then(function () { try { if (!window.__saNoReload && firebase.auth().currentUser && !sessionStorage.getItem('saFirstOpen')) { sessionStorage.setItem('saFirstOpen', '1'); location.reload(); } } catch (e) {} });
+       }
+       else if (!u.isAnonymous && sessionStorage.getItem('isLoggedIn') !== 'true') {
+         var alive = 0; try { alive = Number(localStorage.getItem('saAlive')) || 0; } catch (e) {}
+         if (Date.now() - alive > 120000) { firebase.auth().signOut().then(back, back); }
+       }
      });
    }
  </script>
@@ -555,7 +562,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.22</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.23</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2625,7 +2632,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.22
+     HR & Administration System Version 7.23
  </div>
 </div>
 
@@ -3258,12 +3265,11 @@
      let found = null;
      window.__staffSecure = false;
      try { found = await saSecureLogin(loginTargetRole, userIn, passIn); if (found) window.__staffSecure = true; } catch (err) { console.error(err); }
-     if (!found) {
+     if (!found && !SA_OK) {
+         /* secure login unavailable in this browser: old check (only works while accounts are readable) */
          for (const cand of accounts.filter(a => a.username === userIn && a.role === loginTargetRole && !a.disabled)) {
              if (await pwVerify(cand, passIn)) { found = cand; break; }
          }
-         if (found && !found.passwordHash) pwUpgrade(found, passIn);
-         if (found) { try { await saMigrate(found, passIn); window.__staffSecure = true; } catch (err) { console.error('Secure login could not be activated now:', err); } }
      }
 
      if (!found) {
@@ -7163,16 +7169,7 @@ function renderEmpShiftCalendar() {
 
  /* v6.00: Accounts (HR System / Administration System logins) */
  let accounts = [];
- db.ref('accounts').on('value', (snapshot) => {
-     const data = snapshot.val();
-     accounts = data ? Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] })) : [];
-     if (accounts.length === 0) {
-         // First run: migrate the old single hardcoded admin login (the default admin) into the new
-         // accounts system so nobody gets locked out of Administration System after this update.
-         if (!window.__pwCreating) { window.__pwCreating = true; pwCreateDefaultAdmin(); }
-     }
-     renderAccountsTable();
- });
+ /* v7.23: the accounts list is read only after a staff login (saAccountsStart) */
 
  /* v6.00: One-time broadcast notifications (seen once per user, tracked in localStorage) */
  let broadcasts = [];
@@ -14911,14 +14908,6 @@ function pwShowOnce(username, password) {
         '<button type="button" class="btn-submit" onclick="document.getElementById(\'pwOnceBox\').style.display=\'none\'">OK</button></div>';
     d.style.display = 'flex';
 }
-async function pwCreateDefaultAdmin() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789', a = new Uint8Array(10);
-    crypto.getRandomValues(a);
-    const pw = Array.from(a).map(function (x) { return chars[x % chars.length]; }).join('');
-    const f = await pwFields(pw);
-    await db.ref('accounts').push(Object.assign({ username: 'admin', name: 'Administrator', role: 'admin', disabled: false }, f));
-    pwShowOnce('admin', pw);
-}
 
 function pwOpenReset(firebaseKey) {
     const acc = accounts.find(function (a) { return a.firebaseKey === firebaseKey; });
@@ -15028,19 +15017,6 @@ async function saCandidates(role, username) {
     const v = s.val();
     return v ? Object.keys(v) : [];
 }
-async function saSecureLogin(role, user, pass) {
-    if (!SA_OK) return null;
-    const ids = await saCandidates(role, user);
-    for (const id of ids) {
-        try {
-            await firebase.auth().signInWithEmailAndPassword(saEmail(id), await saPw(pass, id));
-            const acc = accounts.find(function (a) { return a.authId === id && a.role === role && !a.disabled; });
-            if (acc) return acc;
-            await saBackToAnon();
-        } catch (e) { /* wrong password for this one - try the next one */ }
-    }
-    return null;
-}
 async function saRegister(acc, id, uid) {
     const up = {};
     if (acc.authId && acc.authId !== id) up['staffLookup/' + saLookupKey(acc.role, acc.username) + '/' + acc.authId] = null;
@@ -15076,7 +15052,9 @@ async function saAfterAdd(key, info, plain) {
 async function saAfterReset(acc, plain) {
     if (!acc) return;
     try { await saAdminCreate(acc, plain); } catch (e) { console.error('Secure login could not be replaced now (it will be replaced at the next login):', e); }
-    if (acc.username === sessionStorage.getItem('loggedInAccountUsername') && acc.role === sessionStorage.getItem('loggedInRole')) {
+    let own = false;
+    try { const cu = firebase.auth().currentUser; own = !!(cu && !cu.isAnonymous && acc.uid && acc.uid === cu.uid); } catch (e) {}
+    if (own) {
         showToast(true, t('saReloginMsg'));
         setTimeout(function () { lockSystem(); }, 1200);
     }
@@ -15128,6 +15106,97 @@ function saRenderSummary() {
     box.innerHTML = '<div style="font-size:12px; margin:4px 0 8px; ' + (n === accounts.length && n ? 'color:#15803d;' : 'color:#b45309;') + '">🔒 ' + escapeHtmlText(fillTemplate(t('saSummary'), { a: n, b: accounts.length })) + '</div>';
 }
 (function () { const o = renderAccountsTable; renderAccountsTable = function () { o(); saRenderSummary(); }; })();
+
+
+/* ================= v7.23: DATABASE PROTECTION (Steps B + D) =================
+   The database rules (pasted in Firebase by the owner) now let only logged-in Administration/HR staff touch staff-only data
+   (accounts, settings, activity log, history, documents). Because Firebase decides this when a screen connects, a staff
+   member's page is simply opened again once right after login (and after logout) so that every part of it connects with
+   the right login. Nothing changes on screen. Visitors / employees / the scan page work as before. */
+function saReload() { if (window.__saNoReload) return; try { location.reload(); } catch (e) {} }
+let saHbTimer = null;
+function saHeartbeat() {
+    if (saHbTimer) return;
+    const beat = function () { try { if (sessionStorage.getItem('isLoggedIn') === 'true') localStorage.setItem('saAlive', String(Date.now())); } catch (e) {} };
+    beat();
+    saHbTimer = setInterval(beat, 30000);
+}
+if (sessionStorage.getItem('isLoggedIn') === 'true') saHeartbeat();
+
+function saSleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+/* right after signing in, the very first database request can still carry the old (visitor) login - try again a few times */
+async function saReadRetry(path) {
+    let last = null;
+    for (let i = 0; i < 5; i++) {
+        try { return (await db.ref(path).once('value')).val(); } catch (e) { last = e; await saSleep(350); }
+    }
+    throw last;
+}
+async function saSecureLogin(role, user, pass) {
+    if (!SA_OK) return null;
+    const ids = await saCandidates(role, user);
+    for (const id of ids) {
+        try {
+            const cred = await firebase.auth().signInWithEmailAndPassword(saEmail(id), await saPw(pass, id));
+            const uid = (cred && cred.user ? cred.user : firebase.auth().currentUser).uid;
+            const st = await saReadRetry('staff/' + uid);
+            const acc = (st && st.role === role && st.key) ? await saReadRetry('accounts/' + st.key) : null;
+            if (acc && acc.authId === id && acc.role === role && !acc.disabled) return Object.assign({ firebaseKey: st.key }, acc);
+            await saBackToAnon();
+        } catch (e) {
+            try { const cu = firebase.auth().currentUser; if (cu && !cu.isAnonymous) await saBackToAnon(); } catch (e2) {}
+        }
+    }
+    return null;
+}
+
+/* the accounts list: Administration staff see all accounts, HR sees only their own account */
+function saAccountsSet(list) { accounts = list; renderAccountsTable(); }
+function saAccountsAll(snapshot) { const d = snapshot.val(); saAccountsSet(d ? Object.keys(d).map(function (k) { return Object.assign({ firebaseKey: k }, d[k]); }) : []); }
+function saAccountsStart() {
+    if (!SA_OK) { db.ref('accounts').on('value', saAccountsAll); return; }   /* secure login not available here: old behaviour */
+    if (sessionStorage.getItem('isLoggedIn') !== 'true') return;
+    let done = false;
+    var unsub = firebase.auth().onAuthStateChanged(function (u) {
+        if (done || !u || u.isAnonymous) return;
+        done = true; try { if (unsub) unsub(); } catch (e) {}
+        saReadRetry('staff/' + u.uid).then(function (st) {
+            if (!st) return;
+            if (st.role === 'admin') db.ref('accounts').on('value', saAccountsAll);
+            else db.ref('accounts/' + st.key).on('value', function (s) { const d = s.val(); saAccountsSet(d ? [Object.assign({ firebaseKey: st.key }, d)] : []); });
+        }).catch(function (e) { console.error('Accounts could not be read:', e); });
+    });
+}
+saAccountsStart();
+
+(function () {
+    const cl2 = completeLogin;
+    completeLogin = function (found) {
+        if (SA_OK && window.__staffSecure && !window.__saNoReload) {
+            sessionStorage.setItem('saSecure', '1');
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('loggedInRole', found.role);
+            sessionStorage.setItem('loggedInAccountName', found.name || found.username);
+            sessionStorage.setItem('loggedInAccountUsername', found.username);
+            sessionStorage.setItem('activeView', 'admin');
+            saHeartbeat();
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('loginPass').value = '';
+            saReload();
+            return;
+        }
+        cl2(found);
+        saHeartbeat();
+    };
+    const ls2 = lockSystem;
+    lockSystem = function () {
+        const wasStaff = SA_OK && sessionStorage.getItem('isLoggedIn') === 'true';
+        ls2();
+        try { localStorage.removeItem('saAlive'); } catch (e) {}
+        if (saHbTimer) { clearInterval(saHbTimer); saHbTimer = null; }
+        if (wasStaff && !window.__saNoReload) setTimeout(saReload, 900);
+    };
+})();
 
 
  /* v6.96: leave notifications are stored with a language-neutral kind + params, and turned into
