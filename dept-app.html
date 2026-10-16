@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Department System</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<style>
+     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
+     body { background: #f1f5f9; color: #1e293b; padding: 10px; font-size: 13px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+     .container { max-width: 1550px; margin: 0 auto; }
+   
+     /* LOGIN MODAL OVERLAY */
+     .login-overlay {
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100vw;
+         height: 100vh;
+         background: rgba(15, 23, 42, 0.95);
+         z-index: 9999;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+     }
+     .login-card {
+         background: #ffffff;
+         padding: 32px 26px;
+         border-radius: 14px;
+         width: 100%;
+         max-width: 360px;
+         box-shadow: 0 20px 45px rgba(2, 6, 23, 0.35);
+         text-align: center;
+     }
+     .login-card h2 { font-size: 20px; color: #0f172a; margin-bottom: 4px; }
+     .login-card p { font-size: 12px; color: #64748b; margin-bottom: 20px; }
+     .login-card .form-group { text-align: left; margin-bottom: 12px; }
+     .login-card label { display: block; font-weight: 600; font-size: 11px; color: #334155; margin-bottom: 4px; text-transform: uppercase; }
+     .login-card input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; transition: border-color 0.15s, box-shadow 0.15s; }
+     .login-card input:focus { outline: none; border-color: #123a5c; box-shadow: 0 0 0 3px rgba(18, 58, 92, 0.15); }
+     .login-btn { width: 100%; padding: 11px; background: #123a5c; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 10px; transition: background 0.2s, transform 0.15s; }
+     .login-btn:hover { background: #0a2740; transform: translateY(-1px); }
+     .login-error { color: #dc2626; font-size: 12px; margin-top: 10px; display: none; font-weight: 600; }
+ 
+     /* Header & Navigation */
+     .header { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 14px 18px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+     .header h2 { font-size: 18px; font-weight: 600; }
+     .header-right { display: flex; align-items: center; gap: 12px; }
+     .header-brand { font-size: 12px; color: #94a3b8; font-weight: 500; }
+ 
+     /* Custom Language Switcher Dropdown */
+     .lang-dropdown { position: relative; display: inline-block; }
+     .lang-btn {
+         background: #1e293b; border: 1px solid #334155; padding: 4px 8px; border-radius: 4px; cursor: pointer;
+         display: flex; align-items: center; gap: 6px; color: #f8fafc; font-size: 12px; transition: background 0.2s;
+     }
+     .lang-btn:hover { background: #334155; }
+     .flag-icon { width: 22px; height: 14px; border-radius: 2px; object-fit: cover; display: inline-block; box-shadow: 0 0 1px rgba(0,0,0,0.5); }
+ 
+     .lang-menu {
+         display: none; position: absolute; right: 0; top: 110%; background: #ffffff;
+         border: 1px solid #cbd5e1; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 130px; z-index: 200; overflow: hidden;
+     }
+     .lang-menu.show { display: block; }
+     .lang-option { display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #1e293b; text-decoration: none; font-size: 12px; cursor: pointer; transition: background 0.15s; }
+     .lang-option:hover { background: #f1f5f9; }
+     .lang-option.active { font-weight: bold; background: #e2e8f0; }
+ 
+     /* Notification Bell Badge */
+     .notif-badge {
+         position: absolute; top: -4px; right: -4px; background: #dc2626; color: #fff;
+         border-radius: 999px; font-size: 9px; line-height: 1; padding: 3px 5px; font-weight: bold;
+     }
+
+     /* Global on-page toast (replaces alert() popups) */
+     #globalToast {
+         display: none; position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+         z-index: 5000; color: #fff; font-weight: 700; font-size: 13px; padding: 10px 20px;
+         border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); opacity: 0; transition: opacity 0.25s ease;
+         max-width: 90vw; text-align: center;
+     }
+
+     /* Chooser (system selection) screen */
+     #chooserApp { min-height: 100vh; flex-direction: column; background: #f8fafc; }
+     .chooser-body { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; }
+     .chooser-options { display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; max-width: 720px; }
+     .chooser-card {
+         width: 220px; padding: 32px 20px; border: none; border-radius: 16px; cursor: pointer;
+         display: flex; flex-direction: column; align-items: center; gap: 16px; color: white;
+         transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+     }
+     .chooser-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,0.22); }
+     .chooser-card.employee { background: linear-gradient(150deg, #123a5c, #0a2740); }
+     .chooser-card.hr { background: linear-gradient(150deg, #0d9488, #0f766e); }
+     .chooser-card.admin { background: linear-gradient(150deg, #0f172a, #334155); }
+    .chooser-card.dept { background: linear-gradient(150deg, #b45309, #92400e); }
+     .chooser-card .chooser-icon { width: 64px; height: 64px; }
+     .chooser-card .chooser-icon svg { width: 100%; height: 100%; stroke: currentColor; }
+     .chooser-card .chooser-label { font-size: 16px; font-weight: 700; text-align: center; }
+     .chooser-card .chooser-sub { font-size: 11px; opacity: 0.85; text-align: center; }
+
+     nav { display: flex; background: #1e293b; border-radius: 0 0 10px 10px; margin-bottom: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-wrap: wrap; }
+     nav button { flex: 1; padding: 11px 12px; border: none; background: transparent; color: #94a3b8; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 13px; transition: all 0.2s; min-width: 130px; }
+     nav button.active { background: #123a5c; color: white; }
+     nav button:hover:not(.active) { color: white; background: #334155; }
+
+     /* Tab Panels */
+     .tab-panel { display: none; background: white; padding: 18px; border-radius: 10px; box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.06); border: 1px solid #e2e8f0; }
+     .tab-panel.active { display: block; }
+     .emp-panel { display: block; background: white; padding: 18px; border-radius: 10px; box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.06); border: 1px solid #e2e8f0; }
+
+     /* Dashboard Styles */
+     /* v6.83: was repeat(auto-fit, minmax(180px, 1fr)), which recalculates how many columns fit
+        the screen width and could leave the last row mostly empty (e.g. 7 cards across on a wide
+        monitor, with the 8th card alone on its own row next to a big blank gap). A fixed column
+        count wraps predictably at the same point every time regardless of screen width, so adding
+        the 4 new cards above now fills exactly 3 full rows of 4 with no leftover gap. */
+     /* v6.85: shrunk card padding/gaps/font sizes (and the gap below the top grid) so both
+        8-card rows plus Main Menu all fit on screen together at 100% zoom without scrolling -
+        the business owner reported the previous (v6.84) card size pushed Main Menu out of view. */
+     /* v6.86: shrunk once more (on top of the v6.85 shrink) since the top row grew from 8 to 12
+        cards (5 rows total across both grids now, up from 4) - keeps everything, including Main
+        Menu, fitting on screen together at 90-100% zoom. */
+     /* v6.88: the business owner felt the Dashboard cards and Main Menu (shrunk across v6.85-87
+        to fight for vertical space) ended up looking out of proportion with the rest of the site -
+        too small compared to everything else. Reviewed every other tab/table/button in the file:
+        the rest of the site already uses one consistent scale (12px table text, 11px table
+        headers, 13-14px buttons, 10-11px secondary/meta text like timestamps and the version
+        footer). Only the stat-card label (down at 8px) and Main Menu button label (down at 9px)
+        had dropped BELOW that floor - smaller than anything else on the whole site. Brought both
+        back up to the site's existing "small meta text" tier (10-11px) instead of inventing a new,
+        even-smaller tier, and grew the card/button boxes slightly to comfortably fit that text. */
+     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
+     @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+     @media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr; } }
+     .stat-card { background: #f8fafc; padding: 7px 10px; border-radius: 7px; border-left: 4px solid #123a5c; box-shadow: 0 1px 2px rgba(15,23,42,0.05); transition: transform 0.15s, box-shadow 0.15s; }
+     .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15,23,42,0.1); }
+     .stat-card h4 { color: #64748b; font-size: 10px; font-weight: 600; text-transform: uppercase; margin-bottom: 3px; line-height: 1.2; }
+     .stat-card div { font-size: 13px; font-weight: 700; color: #0f172a; }
+
+     .dash-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
+     .dash-card h4 { font-size: 14px; color: #0f172a; margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
+ 
+     .quick-actions { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; justify-content: center; }
+   
+     /* Modern Feature Buttons Styling */
+     .quick-btn {
+         padding: 10px 16px;
+         background: linear-gradient(135deg, #123a5c, #0a2740);
+         color: white;
+         border: none;
+         border-radius: 10px;
+         font-weight: 600;
+         cursor: pointer;
+         font-size: 13px;
+         display: inline-flex;
+         align-items: center;
+         gap: 8px;
+         box-shadow: 0 3px 10px rgba(18, 58, 92, 0.18);
+         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+         position: relative;
+         overflow: hidden;
+     }
+     .quick-btn::after {
+         content: '';
+         position: absolute;
+         top: 0; left: 0; width: 100%; height: 100%;
+         background: linear-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0));
+         opacity: 0;
+         transition: opacity 0.25s;
+     }
+     .quick-btn:hover {
+         transform: translateY(-2px);
+         box-shadow: 0 6px 16px rgba(18, 58, 92, 0.35);
+     }
+     .quick-btn:hover::after { opacity: 1; }
+     .quick-btn:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(18, 58, 92, 0.2); }
+ 
+     .quick-btn.green { background: linear-gradient(135deg, #16a34a, #15803d); box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2); }
+     .quick-btn.green:hover { box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35); }
+ 
+     .quick-btn.slate { background: linear-gradient(135deg, #475569, #334155); box-shadow: 0 4px 12px rgba(71, 85, 105, 0.2); }
+     .quick-btn.slate:hover { box-shadow: 0 6px 16px rgba(71, 85, 105, 0.35); }
+ 
+     .quick-btn.purple { background: linear-gradient(135deg, #7c3aed, #6d28d9); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2); }
+     .quick-btn.purple:hover { box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35); }
+ 
+     .quick-btn.teal { background: linear-gradient(135deg, #0d9488, #0f766e); box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2); }
+     .quick-btn.teal:hover { box-shadow: 0 6px 16px rgba(13, 148, 136, 0.35); }
+ 
+     .quick-btn.amber { background: linear-gradient(135deg, #d97706, #b45309); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2); }
+     .quick-btn.amber:hover { box-shadow: 0 6px 16px rgba(217, 119, 6, 0.35); }
+ 
+     .quick-btn.indigo { background: linear-gradient(135deg, #4f46e5, #4338ca); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); }
+     .quick-btn.indigo:hover { box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35); }
+
+     .quick-btn.cyan { background: linear-gradient(135deg, #0891b2, #0e7490); box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2); }
+     .quick-btn.cyan:hover { box-shadow: 0 6px 16px rgba(8, 145, 178, 0.35); }
+
+     .quick-btn.rose { background: linear-gradient(135deg, #e11d48, #be123c); box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2); }
+     .quick-btn.rose:hover { box-shadow: 0 6px 16px rgba(225, 29, 72, 0.35); }
+
+     .quick-btn.brown { background: linear-gradient(135deg, #78716c, #57534e); box-shadow: 0 4px 12px rgba(87, 83, 78, 0.2); }
+     .quick-btn.brown:hover { box-shadow: 0 6px 16px rgba(87, 83, 78, 0.35); }
+ 
+ /* Main Menu icon buttons (scoped so other quick-btn buttons, like Export, are unaffected) */
+ /* v6.87: shrunk to match the now-compact overview cards above (the business owner felt these
+    were too big/out of proportion next to the smaller stat cards from v6.85/v6.86).
+    v6.88: nudged back up slightly - see the .stats-grid comment above for why (label text was
+    below the site's own established "small meta text" floor of 10-11px). */
+ .quick-actions { align-items: stretch; }
+ .quick-actions .quick-btn {
+     flex-direction: column;
+     gap: 5px;
+     padding: 8px 7px;
+     width: 84px;
+     min-width: 84px;
+     max-width: 84px;
+     min-height: 70px;
+     justify-content: center;
+ }
+ .quick-actions .quick-btn .quick-btn-icon { display:flex; align-items:center; justify-content:center; flex: 0 0 20px; width: 20px; height: 20px; }
+ .quick-actions .quick-btn .quick-btn-icon svg { display:block; width: 20px; height: 20px; stroke: currentColor; }
+ .quick-actions .quick-btn .quick-btn-label {
+     font-size: 11px;
+     font-weight: 600;
+     line-height: 1.2;
+     white-space: normal;
+     word-break: break-word;
+     overflow-wrap: break-word;
+     text-align: center;
+     max-width: 100%;
+ }
+ @media (max-width: 600px) {
+     .quick-actions { gap: 6px; }
+     .quick-actions .quick-btn {
+         width: calc(33.333% - 6px);
+         min-width: calc(33.333% - 6px);
+         max-width: calc(33.333% - 6px);
+         min-height: 64px;
+         padding: 8px 6px;
+     }
+     .quick-actions .quick-btn .quick-btn-label { font-size: 10px; }
+ }
+ 
+     /* SYSTEM REMINDER BOX */
+     .system-reminder-card {
+         background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 5px solid #123a5c; border-radius: 8px; padding: 16px 20px; margin-top: 16px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+     }
+     .reminder-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: #0f172a; }
+     .reminder-title { font-weight: 700; font-size: 14px; }
+     .reminder-icon { stroke: #123a5c; }
+     .reminder-body ul { list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 8px; }
+     .reminder-body li { font-size: 13px; color: #334155; line-height: 1.5; padding: 6px 10px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 5px; }
+ 
+     /* Forms & Inputs */
+     .form-group { margin-bottom: 10px; }
+     label { display: block; font-weight: 600; margin-bottom: 3px; font-size: 12px; color: #334155; }
+     input, select, textarea { width: 100%; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; background: #fff; transition: border-color 0.15s, box-shadow 0.15s; }
+     input:focus, select:focus { outline: none; border-color: #123a5c; box-shadow: 0 0 0 3px rgba(18, 58, 92, 0.12); }
+     .btn-submit { width: 100%; padding: 9px 12px; background: #123a5c; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 6px; transition: background 0.2s, transform 0.15s; }
+     .btn-submit:hover { background: #0a2740; transform: translateY(-1px); }
+     /* v6.89: every Save/Submit/Delete button across the app is disabled the instant it's clicked
+        (see withBusyButton), but buttons with a custom inline background color barely look any
+        different while disabled - no dimming, cursor still looked clickable on some systems - so
+        a first click during a slow connection could look like nothing happened, inviting a second
+        click. This makes ANY disabled button visibly inactive everywhere on the site. */
+     button:disabled, .btn-submit:disabled, .btn-edit:disabled, .btn-delete:disabled, .btn-add:disabled, .ribbon-btn:disabled {
+         opacity: 0.55 !important; cursor: not-allowed !important; transform: none !important;
+     }
+ 
+     /* Search Box Bar */
+     .search-bar-wrapper {
+         display: flex; align-items: center; gap: 10px; background: #f1f5f9; padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1; margin-bottom: 10px;
+     }
+     .search-bar-wrapper input { max-width: 320px; border: 1px solid #cbd5e1; padding: 6px 10px; font-size: 12px; border-radius: 4px; }
+ 
+     /* Inline Banner Notification */
+     .toast-msg {
+         display: none; background: #dcfce7; color: #15803d; border: 1px solid #86efac; padding: 8px 12px; border-radius: 5px; margin-bottom: 12px; font-weight: 600; font-size: 13px;
+     }
+ 
+     /* Master Table */
+     .table-responsive { overflow-x: auto; margin-top: 10px; }
+     table.master-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+     /* v6.22: only genuinely wide, many-column tables (Master Sheet, Monthly Report, Employee
+        List, Shift Calendar) need a forced minimum width to keep their columns readable - a
+        narrow table (Departments, Accounts, Device Log, etc.) was inheriting this same 1400px
+        floor and ending up stretched out with empty space for no reason. */
+     table.master-tbl.tbl-wide { min-width: 1400px; }
+     table.master-tbl th, table.master-tbl td { border: 1px solid #e2e8f0; padding: 7px 9px; text-align: center; white-space: nowrap; }
+     table.master-tbl th { background: #f1f5f9; color: #334155; font-weight: 700; font-size: 11px; text-transform: uppercase; }
+     tr:hover { background-color: #f1f5f9; }
+     .btn-view { background: none; border: none; cursor: pointer; font-size: 14px; color: #0d9488; padding: 2px 4px; }
+     .btn-edit { background: none; border: none; cursor: pointer; font-size: 14px; color: #123a5c; padding: 2px 4px; }
+     .btn-delete { background: none; border: none; cursor: pointer; font-size: 14px; color: #dc2626; padding: 2px 4px; }
+ 
+     /* CHECK ELIGIBILITY */
+     .eligibility-container { display: flex; gap: 16px; align-items: flex-start; justify-content: center; }
+     .query-box-small { width: 260px; flex-shrink: 0; background: #f8fafc; padding: 14px; border-radius: 6px; border: 1px solid #e2e8f0; text-align: center; }
+     .query-box-small h4 { font-size: 14px; margin-bottom: 10px; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; text-align: center; }
+     .query-box-small .form-group label { display: block; text-align: center; }
+     .query-box-small .form-group input { text-align: center; }
+   
+     .query-results-wrapper { flex-grow: 1; display: flex; flex-direction: column; gap: 12px; }
+     .results-grid-2col { display: flex; gap: 12px; width: 100%; }
+     .result-col { flex: 1; border-collapse: collapse; width: 50%; }
+     .result-col table { width: 100%; border-collapse: collapse; font-size: 12px; }
+     .result-col td { border: 1px solid #cbd5e1; padding: 6px 10px; }
+     .result-col td.label { background: #f1f5f9; font-weight: 600; width: 55%; color: #334155; }
+     .result-col td.value { background: #ffffff; text-align: right; font-weight: 500; }
+
+     /* On PC/tablet-width screens, keep each result row on one line (no text wrapping).
+        On phones there isn't enough width for that, so text still wraps there, same as before. */
+     @media (min-width: 700px) {
+         .result-col td.label, .result-col td.value { white-space: nowrap; }
+         .result-col td.label { width: 1%; }
+     }
+   
+     .query-remark-box {
+         background: #fef3c7; border: 1px solid #fde68a; border-left: 5px solid #d97706; padding: 10px 14px; border-radius: 6px; font-size: 13px; color: #78350f; display: flex; align-items: center; gap: 8px;
+     }
+     .query-remark-box.empty {
+         background: #f8fafc; border: 1px solid #e2e8f0; border-left: 5px solid #94a3b8; color: #64748b;
+     }
+ 
+     .highlight-blue { background: #e0f2fe !important; color: #0369a1 !important; font-weight: bold !important; }
+     .bg-green { background: #dcfce7 !important; color: #15803d !important; font-weight: bold !important; }
+     .bg-red { background: #fee2e2 !important; color: #b91c1c !important; font-weight: bold !important; }
+ 
+     /* Large Edit / View Modal Popup */
+     .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); align-items: center; justify-content: center; }
+     /* v6.48: composeModal ("New Announcement" / "Respond") can be opened WHILE another modal
+        (Manage Notifications, or the Requests bell) is still open behind it. All .modal elements
+        share the same z-index, so two open at once stack purely by HTML order on the page -
+        and composeModal's markup sits earlier in the file than Manage Notifications', so it was
+        rendering UNDERNEATH it (looked like nothing happened until Manage Notifications was
+        closed). Giving it a higher z-index makes it always appear on top, regardless of where
+        either modal's HTML happens to sit. */
+     #composeModal { z-index: 110; }
+     /* v6.81: customConfirmModal replaces native confirm() everywhere in the app (the owner does
+        not want the native "cambodiainsight.net says" browser dialog). It can be triggered from
+        INSIDE another already-open modal (e.g. a delete button inside the Document Library
+        modal), so it needs a z-index higher than every other modal, including composeModal
+        above, to always render on top. */
+     #customConfirmModal { z-index: 500; }
+     #customConfirmMessage { white-space: pre-wrap; }
+     .modal-content { background: white; padding: 26px; border-radius: 12px; width: 100%; max-width: 900px; max-height: 95vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(2,6,23,0.3); }
+     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+     .modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; transition: color 0.15s; }
+     .modal-close:hover { color: #dc2626; }
+     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+     .detail-view-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px; font-size: 13px; }
+    .detail-view-grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 16px; font-size: 13px; }
+    @media (max-width: 700px) { .detail-view-grid-3col { grid-template-columns: 1fr; } }
+     .detail-item { background: #f8fafc; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+     .detail-item span.lbl { font-weight: 600; color: #475569; }
+     .detail-item span.val { font-weight: 700; color: #0f172a; }
+
+    /* ============ v6.70: OFFICE-RIBBON SKIN for the Document Library grid/word editors =========
+       Scoped strictly to #docGridEditorModal / #docWordEditorModal so the app's own blue-grey
+       theme everywhere else is completely unaffected. This purely re-skins the toolbar chrome of
+       the SAME jspreadsheet/CKEditor instances already wired up in openDocGridEditor /
+       openDocWordEditor - it does not touch the editing engines themselves. The libraries' own
+       default toolbars are hidden (not removed) so the same DOM/commands stay available; the
+       ribbon below drives the real instance methods/commands directly. */
+    .office-ribbon { background:#f3f2f1; border:1px solid #d4d2d0; border-radius:4px; font-family: "Segoe UI", Arial, sans-serif; color:#1f2937; margin-bottom:10px; overflow:hidden; user-select:none; }
+    .office-ribbon .ribbon-tabs { display:flex; background:#e9e8e7; border-bottom:1px solid #d4d2d0; overflow-x:auto; }
+    .office-ribbon .ribbon-tab { padding:7px 16px; font-size:12.5px; cursor:pointer; border-bottom:3px solid transparent; white-space:nowrap; color:#374151; }
+    .office-ribbon .ribbon-tab:hover { background:#f6f5f4; }
+    .office-ribbon .ribbon-tab.active { background:#ffffff; font-weight:700; color:#111827; }
+    .excel-ribbon .ribbon-tab.active { border-bottom-color:#217346; }
+    .word-ribbon .ribbon-tab.active { border-bottom-color:#2b579a; }
+    .office-ribbon .ribbon-band { display:none; padding:6px 8px; align-items:stretch; gap:0; overflow-x:auto; }
+    .office-ribbon .ribbon-band.active { display:flex; }
+    .office-ribbon .ribbon-group { display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:3px 10px; border-right:1px solid #d9d7d5; flex-shrink:0; }
+    .office-ribbon .ribbon-group:last-child { border-right:none; }
+    .office-ribbon .ribbon-group-buttons { display:flex; align-items:flex-start; gap:2px; flex-wrap:wrap; max-width:220px; }
+    .office-ribbon .ribbon-group-label { font-size:10px; color:#57606f; margin-top:3px; text-align:center; }
+    .office-ribbon .ribbon-btn { background:#ffffff; border:1px solid transparent; border-radius:3px; padding:4px 7px; cursor:pointer; font-size:14px; min-width:26px; min-height:24px; display:inline-flex; align-items:center; justify-content:center; line-height:1; }
+    .office-ribbon .ribbon-btn:hover:not([disabled]) { background:#e3f0fc; border-color:#a6d0f5; }
+    .office-ribbon .ribbon-btn.on { background:#cbe4fb; border-color:#8fc1ee; }
+    .office-ribbon .ribbon-btn[disabled] { opacity:.42; cursor:not-allowed; }
+    .office-ribbon select.ribbon-select { font-size:11px; padding:3px 2px; border:1px solid #cbd5e1; border-radius:2px; max-width:96px; background:#fff; }
+    .office-ribbon select.ribbon-select[disabled] { opacity:.5; }
+    .office-ribbon .ribbon-swatchwrap { position:relative; display:inline-block; }
+    .office-ribbon .ribbon-swatch-panel { display:none; position:absolute; top:28px; left:0; z-index:50; background:#fff; border:1px solid #b8b6b4; border-radius:4px; padding:6px; box-shadow:0 3px 10px rgba(0,0,0,.18); width:150px; }
+    .office-ribbon .ribbon-swatch-panel.open { display:grid; grid-template-columns:repeat(6,1fr); gap:3px; }
+    .office-ribbon .ribbon-swatch { width:18px; height:18px; border:1px solid #94a3b8; border-radius:2px; cursor:pointer; display:inline-block; }
+    .office-ribbon .ribbon-swatch:hover { outline:2px solid #2563eb; }
+    .office-ribbon .ribbon-styles-gallery { display:flex; gap:4px; }
+    .office-ribbon .ribbon-style-box { border:1px solid #cbd5e1; border-radius:3px; padding:4px 8px; font-size:11px; cursor:pointer; background:#fff; text-align:center; min-width:54px; }
+    .office-ribbon .ribbon-style-box:hover { border-color:#2563eb; background:#eff6ff; }
+    .office-ribbon .ribbon-placeholder-note { font-size:11px; color:#6b7280; padding:8px 10px; font-style:italic; }
+    #docGridEditorContainer .jexcel_toolbar, #docWordEditorContent .ck-toolbar { display:none !important; }
+ 
+/* ---- Department System extras ---- */
+.dp-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 12px; }
+.dp-tab { border: 1px solid #cbd5e1; background: #fff; color: #334155; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.dp-tab:hover { background: #f1f5f9; }
+.dp-tab.active { background: #92400e; border-color: #92400e; color: #fff; }
+.dp-banner { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; border-radius: 10px; padding: 10px 14px; margin: 10px 0; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.dp-banner button { background: none; border: none; font-size: 18px; cursor: pointer; color: #92400e; line-height: 1; }
+.dp-note { font-size: 11px; color: #64748b; margin-bottom: 8px; }
+.dp-filter { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+.dp-filter select, .dp-filter input { padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; }
+.dp-login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(150deg, #b45309, #78350f); }
+.dp-login-card { background: #fff; padding: 30px 28px; border-radius: 14px; width: 100%; max-width: 380px; box-shadow: 0 14px 40px rgba(0,0,0,.3); text-align: center; }
+.dp-login-card h2 { font-size: 20px; color: #0f172a; margin-bottom: 4px; }
+.dp-login-card p.sub { font-size: 12px; color: #64748b; margin-bottom: 18px; }
+.dp-login-card .form-group { text-align: left; margin-bottom: 12px; }
+.dp-login-card label { display: block; font-weight: 600; font-size: 11px; color: #334155; margin-bottom: 4px; text-transform: uppercase; }
+.dp-login-card input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; }
+.dp-err { color: #dc2626; font-size: 12px; margin-top: 10px; min-height: 16px; }
+.dp-link { display: inline-block; margin-top: 14px; font-size: 12px; color: #92400e; cursor: pointer; text-decoration: underline; background: none; border: none; }
+.dp-hero { background: linear-gradient(135deg, #92400e, #b45309); }
+td.num-edit input { width: 80px; }
+.dp-busy { position: fixed; inset: 0; background: rgba(255,255,255,.7); z-index: 4000; display: none; align-items: center; justify-content: center; font-weight: 700; color: #92400e; font-size: 15px; }
+.dp-rec td, .dp-rec th { font-size: 12px; }
+</style>
+</head>
+<body>
+<div id="globalToast"></div>
+<div class="dp-busy" id="dpBusy"><span id="dpBusyMsg"></span></div>
+
+<!-- LOGIN -->
+<div id="dpLogin" class="dp-login-wrap">
+  <div class="dp-login-card">
+    <div style="display:flex; justify-content:flex-end; margin-bottom:6px;">
+      <div class="lang-dropdown">
+        <button class="lang-btn" type="button" style="background:#f1f5f9; color:#0f172a;" onclick="toggleLangMenu(event,'langMenuLogin')"><img class="flag-icon dp-flag" src="https://flagcdn.com/w40/us.png" alt=""> <span class="dp-lang-name">EN</span> ▼</button>
+        <div class="lang-menu" id="langMenuLogin" style="right:0; left:auto;"></div>
+      </div>
+    </div>
+    <h2 data-i18n="dpTitle">Department System</h2>
+    <p class="sub" data-i18n="dpLoginSub">Log in with your department account</p>
+    <form id="dpLoginForm" autocomplete="off">
+      <div class="form-group"><label data-i18n="dpUsername">Username</label><input type="text" id="dpUser" required autocomplete="off"></div>
+      <div class="form-group"><label data-i18n="dpPassword">Password</label><input type="password" id="dpPass" required autocomplete="off"></div>
+      <button type="submit" class="btn-submit" style="background:#92400e;" data-i18n="dpLogin">Log In</button>
+      <div class="dp-err" id="dpLoginErr"></div>
+    </form>
+    <button type="button" class="dp-link" onclick="dpGoBack()" data-i18n="dpBack">Back to main page</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="dpApp" class="container" style="display:none;">
+  <div class="header dp-hero">
+    <div>
+      <h2 data-i18n="dpTitle">Department System</h2>
+      <div style="font-size:12px; opacity:.9;"><b id="dpDeptName"></b> &middot; <span id="dpAccName"></span></div>
+    </div>
+    <div class="header-right">
+      <div class="lang-dropdown">
+        <button class="lang-btn" type="button" onclick="toggleLangMenu(event,'langMenuApp')"><img class="flag-icon dp-flag" src="https://flagcdn.com/w40/us.png" alt=""> <span class="dp-lang-name">EN</span> ▼</button>
+        <div class="lang-menu" id="langMenuApp"></div>
+      </div>
+      <button type="button" class="lang-btn" onclick="dpLogout()" data-i18n="dpLogout">Log out</button>
+    </div>
+  </div>
+  <div id="dpBanner"></div>
+  <div class="dp-tabs" id="dpTabs">
+    <button type="button" class="dp-tab active" data-tab="dash" onclick="dpTab('dash')" data-i18n="dpTabDash">Dashboard</button>
+    <button type="button" class="dp-tab" data-tab="master" onclick="dpTab('master')" data-i18n="dpTabMaster">Master Sheet</button>
+    <button type="button" class="dp-tab" data-tab="leave" onclick="dpTab('leave')" data-i18n="dpTabLeave">Leave Record</button>
+    <button type="button" class="dp-tab" data-tab="att" onclick="dpTab('att')" data-i18n="dpTabAtt">Attendance Record</button>
+    <button type="button" class="dp-tab" data-tab="check" onclick="dpTab('check')" data-i18n="dpTabCheck">Check Record</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="tab-dash" class="tab-panel active">
+    <h3 data-i18n="dpDashTitle">Welcome</h3>
+    <p class="dp-note" data-i18n="dpDashSub">Your department keeps its own book. Nothing you type here changes the HR or Administration master sheet.</p>
+    <div class="stats-grid" id="dpStats"></div>
+    <div id="dpDashMsg"></div>
+  </div>
+
+  <!-- MASTER SHEET -->
+  <div id="tab-master" class="tab-panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+      <div><h3 data-i18n="dpTabMaster">Master Sheet</h3><p class="dp-note" data-i18n="dpMasterSub"></p></div>
+      <button type="button" class="quick-btn green" onclick="dpExportMaster()" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+    </div>
+    <div class="dp-filter">
+      <label style="font-weight:bold;" data-i18n="lblSearch">Search Employee:</label>
+      <input type="text" id="dpMasterSearch" oninput="dpRenderMaster()" placeholder="ID / Name">
+      <label style="font-weight:bold;" data-i18n="tblDepartment">Group</label>
+      <select id="dpMasterGroup" onchange="dpRenderMaster()"></select>
+    </div>
+    <div class="table-responsive">
+      <table class="master-tbl tbl-wide" id="dpMasterTable">
+        <thead><tr>
+          <th data-i18n="tblActions">Actions</th><th data-i18n="tblId">ID</th><th data-i18n="tblName">Name</th><th data-i18n="tblDepartment">Group</th>
+          <th data-i18n="tblJoin">Join Date</th><th data-i18n="tblYears">Years of Work</th><th data-i18n="tblEntitled">Entitled Hours</th>
+          <th data-i18n="tblStart">AL Start Date</th><th data-i18n="tblEnd">AL End Date</th><th data-i18n="tblYearRange">Year Range</th>
+          <th data-i18n="tblRenewed">AL Renewed At</th><th data-i18n="tblTotalAL">Total AL</th><th data-i18n="tblCarried">Carried Forward</th>
+          <th data-i18n="tblPrevUsed">Prev Month Used</th><th data-i18n="tblMonthUsed">Current Month Used</th><th data-i18n="tblTotalUsed">Total Used Hours</th>
+          <th data-i18n="tblExceeded">Exceeded Hours</th><th data-i18n="tblRemaining">Remaining Hours</th><th data-i18n="thMasterWorkingHours">Working Hours</th>
+          <th data-i18n="thMasterMonthlyOT">Monthly Overtime</th><th data-i18n="thMasterAnnualLeave">Annual Leave</th><th data-i18n="thMasterSpecialLeave">Special Leave</th>
+          <th data-i18n="thMasterMaternityLeave">Maternity Leave</th><th data-i18n="thMasterTravelLeave">Travel Leave</th><th data-i18n="thMasterPersonalLeave">Personal Leave</th>
+          <th data-i18n="thMasterSickLeave">Sick Leave</th><th data-i18n="thMasterOtherLeave">Other Leave</th><th data-i18n="tblRemarks">Remarks</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LEAVE RECORD -->
+  <div id="tab-leave" class="tab-panel">
+    <h3 data-i18n="leaveRecordsTitle">Leave Records</h3>
+    <p class="dp-note" data-i18n="dpLeaveSub"></p>
+    <form id="dpLeaveForm" style="max-width:900px; margin:10px auto 0;">
+      <div style="display:flex; gap:20px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:300px;">
+          <div class="form-group"><label data-i18n="lblLeaveDate">Leave Date</label><input type="date" id="dpLeaveDate" required></div>
+          <div class="form-group"><label data-i18n="lblEmpId">Employee ID</label><input type="text" id="dpLeaveEmpId" oninput="dpLeaveIdInput()" required></div>
+          <div class="form-group"><label data-i18n="lblEmpName">Employee Name</label><input type="text" id="dpLeaveEmpName" oninput="dpLeaveNameInput()"></div>
+          <div class="form-group"><label data-i18n="leaveTypeAL">Annual Leave</label><input type="number" id="dpL_AL" step="0.5" min="0" placeholder="0.00"></div>
+          <div class="form-group"><label data-i18n="leaveTypeSpecial">Special Leave</label><input type="number" id="dpL_Special" step="0.5" min="0" placeholder="0.00"></div>
+        </div>
+        <div style="flex:1; min-width:300px;">
+          <div class="form-group"><label data-i18n="leaveTypeMaternity">Maternity Leave</label><input type="number" id="dpL_Maternity" step="0.5" min="0" placeholder="0.00"></div>
+          <div class="form-group"><label data-i18n="leaveTypeTravel">Travel Leave</label><input type="number" id="dpL_Travel" step="0.5" min="0" placeholder="0.00"></div>
+          <div class="form-group"><label data-i18n="leaveTypePersonal">Personal Leave</label><input type="number" id="dpL_Personal" step="0.5" min="0" placeholder="0.00"></div>
+          <div class="form-group"><label data-i18n="leaveTypeSick">Sick Leave</label><input type="number" id="dpL_Sick" step="0.5" min="0" placeholder="0.00"></div>
+          <div class="form-group"><label data-i18n="leaveTypeOther">Other Leave</label><input type="number" id="dpL_Other" step="0.5" min="0" placeholder="0.00"></div>
+        </div>
+      </div>
+      <button type="submit" class="btn-submit" style="background:#16a34a; margin-top:14px;" data-i18n="btnSubmitLeave">Submit Leave Record</button>
+    </form>
+    <h4 style="margin-top:22px;" data-i18n="dpRecent">Recent records</h4>
+    <div class="table-responsive"><table class="master-tbl dp-rec" id="dpLeaveRec"><thead><tr>
+      <th data-i18n="lblLeaveDate">Date</th><th data-i18n="tblId">ID</th><th data-i18n="tblName">Name</th><th data-i18n="dpColType">Type</th><th data-i18n="dpColHours">Hours</th><th data-i18n="dpColBy">Recorded by</th>
+    </tr></thead><tbody></tbody></table></div>
+  </div>
+
+  <!-- ATTENDANCE RECORD -->
+  <div id="tab-att" class="tab-panel" style="text-align:center;">
+    <h3 data-i18n="attTitle">Attendance</h3>
+    <p class="dp-note" data-i18n="dpAttSub"></p>
+    <form style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; align-items:flex-end; max-width:600px; margin:10px auto;" onsubmit="event.preventDefault(); dpLoadAtt();">
+      <div class="form-group" style="min-width:180px; margin-bottom:0; text-align:left;"><label data-i18n="tblDepartment">Group</label><select id="dpAttGroup"></select></div>
+      <div class="form-group" style="min-width:160px; margin-bottom:0; text-align:left;"><label data-i18n="lblAttDate">Date</label><input type="date" id="dpAttDate" required></div>
+      <button type="submit" class="btn-submit" style="width:auto; padding:8px 20px; margin-top:0;" data-i18n="btnLoadDept">Show Employees</button>
+    </form>
+    <div id="dpAttWrap" style="display:none; margin-top:16px; max-width:700px; margin-left:auto; margin-right:auto;">
+      <div class="table-responsive"><table class="master-tbl" id="dpAttTable" style="width:auto; margin:0 auto;"><thead><tr>
+        <th data-i18n="tblId">ID</th><th data-i18n="tblName">Name</th><th data-i18n="workHoursLabel">Working Hours</th><th data-i18n="otHoursLabel">Monthly Overtime</th>
+      </tr></thead><tbody></tbody></table></div>
+      <button type="button" class="btn-submit" style="background:#7c3aed; margin-top:14px;" onclick="dpSaveAtt(this)" data-i18n="btnSubmitAtt">Submit Attendance Record</button>
+    </div>
+    <h4 style="margin-top:22px; text-align:left;" data-i18n="dpRecent">Recent records</h4>
+    <div class="table-responsive"><table class="master-tbl dp-rec" id="dpAttRec"><thead><tr>
+      <th data-i18n="lblAttDate">Date</th><th data-i18n="tblId">ID</th><th data-i18n="tblName">Name</th><th data-i18n="workHoursLabel">Working Hours</th><th data-i18n="otHoursLabel">Monthly Overtime</th><th data-i18n="dpColBy">Recorded by</th>
+    </tr></thead><tbody></tbody></table></div>
+  </div>
+
+  <!-- CHECK RECORD -->
+  <div id="tab-check" class="tab-panel">
+    <div class="eligibility-container">
+      <form class="query-box-small" onsubmit="event.preventDefault(); dpRunCheck();">
+        <h4 data-i18n="queryParams">Query Parameters</h4>
+        <div class="form-group"><label data-i18n="lblQueryDate">Query Date</label><input type="date" id="dpChkDate"></div>
+        <div class="form-group"><label data-i18n="lblEmpId">Employee ID</label><input type="text" id="dpChkEmpId"></div>
+        <div class="form-group"><label data-i18n="lblTodayHours">Today's Hours (Optional)</label><input type="number" id="dpChkHours" placeholder="0.00"></div>
+        <button type="submit" class="btn-submit" style="background:#0e7490;" data-i18n="btnCheckDetails">Check Details</button>
+      </form>
+    </div>
+  </div>
+
+  <div style="text-align:center; font-size:10px; color:#94a3b8; padding:14px;">Department System 1.00</div>
+</div>
+
+<!-- EDIT NUMBERS MODAL -->
+<div class="modal" id="dpEditModal">
+  <div class="modal-content" style="max-width:860px;">
+    <div class="modal-header"><h4><span data-i18n="dpEditTitle">Edit numbers</span> <span id="dpEditInfo"></span></h4><button class="modal-close" onclick="dpCloseEdit()">&times;</button></div>
+    <p class="dp-note" data-i18n="dpEditNote"></p>
+    <form id="dpEditForm">
+      <input type="hidden" id="dpEditKey">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px;" id="dpEditGrid"></div>
+      <button type="submit" class="btn-submit" style="margin-top:14px;" data-i18n="dpSave">Save</button>
+    </form>
+  </div>
+</div>
+
+<!-- CHECK DETAILS MODAL -->
+<div class="modal" id="checkDetailsModal">
+  <div class="modal-content" style="max-width:96vw; width:1180px; padding:0; max-height:95vh; display:flex; flex-direction:column; overflow:hidden;">
+    <div class="modal-header" style="flex-shrink:0; padding:24px 24px 8px;margin-bottom:0;">
+      <h4><span data-i18n="checkDetailsModalTitle">Check Details</span><span id="cdTitleInfo"></span></h4>
+      <button class="modal-close" onclick="dpCloseCheck()">&times;</button>
+    </div>
+    <div style="overflow-y:auto; padding:16px 24px 24px;">
+      <div class="detail-view-grid-3col">
+        <div class="detail-item"><span class="lbl" data-i18n="tblId">ID</span><span class="val" id="cdId">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="tblName">Name</span><span class="val" id="cdName">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="tblDepartment">Group</span><span class="val" id="cdDept">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="tblJoin">Join Date</span><span class="val" id="cdJoin">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="tblYears">Years of Work</span><span class="val" id="cdYears">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="tblEntitled">Entitled Hours</span><span class="val" id="cdEntitled">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="tblStart">AL Start Date</span><span class="val" id="cdStart">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="tblEnd">AL End Date</span><span class="val" id="cdEnd">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="tblRenewed">AL Renewed At</span><span class="val" id="cdRenewal">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="tblYearRange">Year Range</span><span class="val" id="cdYearRange">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="lblMonthsService">Months of Service</span><span class="val" id="cdMonths">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="tblTotalAL">Total Annual Leave</span><span class="val" id="cdTotalAL">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="tblTotalUsed">Total Hours Used</span><span class="val" id="cdTotalUsed">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="tblMonthUsed">Current Month Used</span><span class="val" id="cdCurrentMonthUsed">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="tblRemaining">Total Remaining Hours</span><span class="val" id="cdRemainingTotal">-</span></div>
+        <div class="detail-item" id="cdCarriedLabel"><span class="lbl" data-i18n="tblCarried">Carried Forward Balance</span><span class="val" id="cdCarried">-</span></div>
+        <div class="detail-item" id="cdAllowedLabel"><span class="lbl" data-i18n="lblAllowedThisMonth">Available This Month</span><span class="val" id="cdAllowedThisMonth">-</span></div>
+        <div class="detail-item" id="cdRemAfterLabel"><span class="lbl" data-i18n="lblRemAfterToday">Remaining Balance After Today</span><span class="val" id="cdRemAfterToday">-</span></div>
+        <div class="detail-item" id="cdAvailCarriedLabel"><span class="lbl" data-i18n="lblAvailableCarriedBalance">Available Carried Balance</span><span class="val" id="cdAvailCarried">-</span></div>
+        <div class="detail-item" id="cdIsStartedLabel"><span class="lbl" data-i18n="lblIsStarted">Entitle Start Date</span><span class="val" id="cdIsStarted">-</span></div>
+        <div class="detail-item" id="cdIsExceededLabel"><span class="lbl" data-i18n="lblIsExceeded">Exceed Monthly Limit</span><span class="val" id="cdIsExceeded">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="thMasterWorkingHours">Working Hours</span><span class="val" id="cdWorkHours">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="thMasterMonthlyOT">Monthly Overtime</span><span class="val" id="cdOTHours">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="thMasterAnnualLeave">Annual Leave</span><span class="val" id="cdLeaveAL">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="thMasterPersonalLeave">Personal Leave</span><span class="val" id="cdLeavePersonal">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="thMasterSpecialLeave">Special Leave</span><span class="val" id="cdLeaveSpecial">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="thMasterMaternityLeave">Maternity Leave</span><span class="val" id="cdLeaveMaternity">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="thMasterTravelLeave">Travel Leave</span><span class="val" id="cdLeaveTravel">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="thMasterSickLeave">Sick Leave</span><span class="val" id="cdLeaveSick">-</span></div>
+        <div class="detail-item"><span class="lbl" data-i18n="thMasterOtherLeave">Other Leave</span><span class="val" id="cdLeaveOther">-</span></div>
+        <div class="detail-item" style="grid-column:1 / -1;"><span class="lbl" data-i18n="lblRemarksHeading">Master Remarks / Notes:</span><span class="val" id="cdRemarks">-</span></div>
+      </div>
+      <div style="text-align:center; margin-top:16px;"><button type="button" class="btn-submit" style="width:auto; padding:8px 30px;" onclick="dpCloseCheck()" data-i18n="btnClose">Close</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="modal" id="dpConfirm" style="z-index:4500;">
+  <div class="modal-content" style="max-width:420px; text-align:center;">
+    <p id="dpConfirmMsg" style="font-size:14px; margin-bottom:16px; white-space:pre-line;"></p>
+    <div style="display:flex; gap:10px; justify-content:center;">
+      <button type="button" class="btn-submit" style="width:auto; padding:8px 24px; background:#16a34a;" id="dpConfirmYes" data-i18n="dpYes">Yes</button>
+      <button type="button" class="btn-submit" style="width:auto; padding:8px 24px; background:#64748b;" id="dpConfirmNo" data-i18n="dpNo">No</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const I18N = {"en": {"attDateRequiredMsg": "Please choose a date first.", "attNoValuesEnteredMsg": "No working hours or overtime were entered.", "attTitle": "Attendance", "btnCheckDetails": "Check Details", "btnClose": "Close", "btnExport": "Export to Excel (.xlsx)", "btnLoadDept": "Show Employees", "btnSubmitAtt": "Submit Attendance Record", "btnSubmitLeave": "Submit Leave Record", "checkDetailsModalTitle": "Check Details", "dpAllGroups": "All groups", "dpAttDup": "Attendance for this date was already recorded for: {names}.\nRecord again and add these hours?", "dpAttSub": "Choose a group and date, then enter working hours and overtime for everyone at once. Saved only in your department's own book.", "dpBack": "Back to main page", "dpBookWait": "The department book for this employee is still being prepared. Please try again in a moment.", "dpColBy": "Recorded by", "dpColHours": "Hours", "dpColType": "Type", "dpDashSub": "Your department keeps its own book. Nothing you type here changes the HR or Administration master sheet.", "dpDashTitle": "Welcome", "dpEditNote": "These numbers are kept only in your department's book.", "dpEditTitle": "Edit numbers", "dpLeaveNone": "Please enter at least one leave amount.", "dpLeaveSub": "Leave typed here is saved only in your department's own book.", "dpLocked": "Too many wrong attempts. Try again in {m} minute(s).", "dpLogin": "Log In", "dpLoginErr": "Wrong username or password.", "dpLoginSub": "Log in with your department account", "dpLogout": "Log out", "dpMasterSub": "This is your department's own book. Numbers changed here stay in your department only. ID, name, group and join date come from HR.", "dpNo": "No", "dpNoAccess": "This account cannot open the department data. Please log in again or contact Administration.", "dpNoGroups": "No groups are assigned to this department yet. Please ask Administration or HR to assign groups.", "dpNoStaff": "No employees found for this department.", "dpNoXlsx": "The Excel tool did not load. Please check the internet connection and try again.", "dpPassword": "Password", "dpPermErr": "Permission denied. Please ask Administration to check your account and the database rules.", "dpRecent": "Recent records", "dpRemainingMsg": "Remaining Hours: {r}", "dpSave": "Save", "dpTabAtt": "Attendance Record", "dpTabCheck": "Check Record", "dpTabDash": "Dashboard", "dpTabLeave": "Leave Record", "dpTabMaster": "Master Sheet", "dpTitle": "Department System", "dpUsername": "Username", "dpYes": "Yes", "empIdNotFound": "Employee ID not found", "lblAllowedThisMonth": "Available This Month", "lblAttDate": "Date", "lblAvailableCarriedBalance": "Available Carried Balance", "lblEmpId": "Employee ID", "lblEmpName": "Employee Name", "lblIsExceeded": "Exceed Monthly Limit", "lblIsStarted": "Entitle Start Date", "lblLeaveDate": "Leave Date", "lblMonthsService": "Months of Service", "lblQueryDate": "Query Date", "lblRemAfterToday": "Remaining Balance After Today", "lblRemarksHeading": "Master Remarks / Notes:", "lblSearch": "Search Employee:", "lblTodayHours": "Today's Hours (Optional)", "leaveRecordsTitle": "Leave Records", "leaveTypeAL": "Annual Leave", "leaveTypeMaternity": "Maternity Leave", "leaveTypeOther": "Other Leave", "leaveTypePersonal": "Personal Leave", "leaveTypeSick": "Sick Leave", "leaveTypeSpecial": "Special Leave", "leaveTypeTravel": "Travel Leave", "masterRowErrorMsg": "Could not display this record - data may be corrupted. Please check this employee in Edit Record.", "noRemarksText": "No specific remarks or notes logged for this employee.", "otHoursLabel": "Monthly Overtime", "queryParams": "Query Parameters", "tblActions": "Actions", "tblCarried": "Carried Forward", "tblDepartment": "Group", "tblEnd": "AL End Date", "tblEntitled": "Entitled Hours", "tblExceeded": "Exceeded Hours", "tblId": "ID", "tblJoin": "Join Date", "tblMonthUsed": "Current Month Used", "tblName": "Name", "tblPrevUsed": "Prev Month Used", "tblRemaining": "Remaining Hours", "tblRemarks": "Remarks", "tblRenewed": "Months Until AL Renewal", "tblStart": "AL Start Date", "tblTotalAL": "Total AL", "tblTotalUsed": "Total Used Hours", "tblYearRange": "Year Range", "tblYears": "Years of Work", "thMasterAnnualLeave": "Annual Leave", "thMasterMaternityLeave": "Maternity Leave", "thMasterMonthlyOT": "Monthly Overtime", "thMasterOtherLeave": "Other Leave", "thMasterPersonalLeave": "Personal Leave", "thMasterSickLeave": "Sick Leave", "thMasterSpecialLeave": "Special Leave", "thMasterTravelLeave": "Travel Leave", "thMasterWorkingHours": "Working Hours", "toastFail": "Failed", "toastSuccess": "Success", "txtAvailable": "Available", "txtExceed": "Exceed", "txtInLimit": "In Limit", "txtStartNo": "No", "txtStartYes": "Yes", "txtUnavailable": "Unavailable", "workHoursLabel": "Working Hours", "dpStatEmp": "Employees", "dpStatGroups": "Groups", "dpStatMonthUsed": "Leave used this month (h)", "dpStatWork": "Total working hours", "dpStatOT": "Total overtime (h)", "dpStatLeaveAL": "Annual leave taken (h)"}, "km": {"attDateRequiredMsg": "សូមជ្រើសរើសកាលបរិច្ឆេទជាមុនសិន។", "attNoValuesEnteredMsg": "មិនមានការបញ្ចូលម៉ោងធ្វើការ ឬម៉ោងបន្ថែមទេ។", "attTitle": "វត្តមានប្រចាំថ្ងៃ", "btnCheckDetails": "ពិនិត្យព័ត៌មានលម្អិត", "btnClose": "បិទ", "btnExport": "នាំចេញជា Excel (.xlsx)", "btnLoadDept": "បង្ហាញបុគ្គលិក", "btnSubmitAtt": "រក្សាទុកវត្តមាន", "btnSubmitLeave": "រក្សាទុកកំណត់ត្រាច្បាប់", "checkDetailsModalTitle": "ពិនិត្យព័ត៌មានលម្អិត", "dpAllGroups": "គ្រប់ក្រុម", "dpAttDup": "វត្តមានសម្រាប់ថ្ងៃនេះត្រូវបានកត់ត្រារួចហើយសម្រាប់៖ {names}។\nកត់ត្រាម្តងទៀត ហើយបូកម៉ោងទាំងនេះបន្ថែម?", "dpAttSub": "ជ្រើសរើសក្រុម និងកាលបរិច្ឆេទ បន្ទាប់មកបញ្ចូលម៉ោងធ្វើការ និងម៉ោងបន្ថែមសម្រាប់មនុស្សទាំងអស់ក្នុងពេលតែមួយ។ រក្សាទុកតែក្នុងសៀវភៅផ្ទាល់ខ្លួនរបស់នាយកដ្ឋានអ្នក។", "dpBack": "ត្រឡប់ទៅទំព័រដើម", "dpBookWait": "សៀវភៅនាយកដ្ឋានរបស់បុគ្គលិកនេះកំពុងត្រូវបានរៀបចំ។ សូមព្យាយាមម្តងទៀតបន្តិចក្រោយ។", "dpColBy": "កត់ត្រាដោយ", "dpColHours": "ម៉ោង", "dpColType": "ប្រភេទ", "dpDashSub": "នាយកដ្ឋានរបស់អ្នកមានសៀវភៅផ្ទាល់ខ្លួន។ អ្វីដែលអ្នកវាយនៅទីនេះមិនប្តូរបញ្ជីចម្បងរបស់ HR ឬរដ្ឋបាលទេ។", "dpDashTitle": "សូមស្វាគមន៍", "dpEditNote": "លេខទាំងនេះរក្សាទុកតែក្នុងសៀវភៅរបស់នាយកដ្ឋានអ្នកប៉ុណ្ណោះ។", "dpEditTitle": "កែលេខ", "dpLeaveNone": "សូមបញ្ចូលចំនួនម៉ោងច្បាប់យ៉ាងតិចមួយ។", "dpLeaveSub": "ច្បាប់ដែលវាយនៅទីនេះរក្សាទុកតែក្នុងសៀវភៅផ្ទាល់ខ្លួនរបស់នាយកដ្ឋានអ្នកប៉ុណ្ណោះ។", "dpLocked": "ព្យាយាមខុសច្រើនពេក។ សូមព្យាយាមម្តងទៀតក្នុងរយៈពេល {m} នាទី។", "dpLogin": "ចូល", "dpLoginErr": "ឈ្មោះអ្នកប្រើ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។", "dpLoginSub": "ចូលដោយប្រើគណនីនាយកដ្ឋានរបស់អ្នក", "dpLogout": "ចាកចេញ", "dpMasterSub": "នេះគឺជាសៀវភៅផ្ទាល់ខ្លួនរបស់នាយកដ្ឋានអ្នក។ លេខដែលកែនៅទីនេះរក្សាទុកក្នុងនាយកដ្ឋានអ្នកតែប៉ុណ្ណោះ។ អត្តលេខ ឈ្មោះ ក្រុម និងថ្ងៃចូលធ្វើការមកពី HR។", "dpNo": "ទេ", "dpNoAccess": "គណនីនេះមិនអាចបើកទិន្នន័យនាយកដ្ឋានបានទេ។ សូមចូលម្តងទៀត ឬទាក់ទងរដ្ឋបាល។", "dpNoGroups": "មិនទាន់មានក្រុមកំណត់ឱ្យនាយកដ្ឋាននេះទេ។ សូមស្នើឱ្យរដ្ឋបាល ឬ HR កំណត់ក្រុម។", "dpNoStaff": "រកមិនឃើញបុគ្គលិកសម្រាប់នាយកដ្ឋាននេះទេ។", "dpNoXlsx": "ឧបករណ៍ Excel មិនបានផ្ទុកទេ។ សូមពិនិត្យអ៊ីនធឺណិត ហើយព្យាយាមម្តងទៀត។", "dpPassword": "ពាក្យសម្ងាត់", "dpPermErr": "គ្មានសិទ្ធិ។ សូមស្នើឱ្យរដ្ឋបាលពិនិត្យគណនី និងច្បាប់មូលដ្ឋានទិន្នន័យ។", "dpRecent": "កំណត់ត្រាថ្មីៗ", "dpRemainingMsg": "ម៉ោងនៅសល់៖ {r}", "dpSave": "រក្សាទុក", "dpTabAtt": "កំណត់ត្រាវត្តមាន", "dpTabCheck": "ពិនិត្យកំណត់ត្រា", "dpTabDash": "ផ្ទាំងគ្រប់គ្រង", "dpTabLeave": "កំណត់ត្រាច្បាប់", "dpTabMaster": "បញ្ជីចម្បង", "dpTitle": "ប្រព័ន្ធនាយកដ្ឋាន", "dpUsername": "ឈ្មោះអ្នកប្រើ", "dpYes": "បាទ/ចាស", "empIdNotFound": "រកមិនឃើញអត្តលេខបុគ្គលិកទេ", "lblAllowedThisMonth": "សិទ្ធិអាចប្រើក្នុងខែនេះ", "lblAttDate": "កាលបរិច្ឆេទ", "lblAvailableCarriedBalance": "សមតុល្យលើកមកបន្តដែលអាចប្រើបាន", "lblEmpId": "អត្តលេខបុគ្គលិក", "lblEmpName": "ឈ្មោះបុគ្គលិក", "lblIsExceeded": "លើសកំណត់ប្រចាំខែ", "lblIsStarted": "កាលបរិច្ឆេទចាប់ផ្តើមសិទ្ធិ", "lblLeaveDate": "កាលបរិច្ឆេទឈប់សម្រាក", "lblMonthsService": "ចំនួនខែធ្វើការ", "lblQueryDate": "កាលបរិច្ឆេទសួរ", "lblRemAfterToday": "សមតុល្យនៅសល់ក្រោយថ្ងៃនេះ", "lblRemarksHeading": "កំណត់សម្គាល់ចម្បង:", "lblSearch": "ស្វែងរកបុគ្គលិក:", "lblTodayHours": "ម៉ោងថ្ងៃនេះ (ជម្រើស)", "leaveRecordsTitle": "កំណត់ត្រាច្បាប់ឈប់សម្រាក", "leaveTypeAL": "ច្បាប់បំណាច់ឆ្នាំ", "leaveTypeMaternity": "ច្បាប់មាតុភាព", "leaveTypeOther": "ច្បាប់ផ្សេងៗ", "leaveTypePersonal": "ច្បាប់ផ្ទាល់ខ្លួន", "leaveTypeSick": "ច្បាប់ឈឺ", "leaveTypeSpecial": "ច្បាប់ពិសេស", "leaveTypeTravel": "ច្បាប់ធ្វើដំណើរ", "masterRowErrorMsg": "មិនអាចបង្ហាញទិន្នន័យនេះបានទេ - ទិន្នន័យអាចខូច។ សូមពិនិត្យបុគ្គលិកនេះនៅក្នុងកែសម្រួលទិន្នន័យ។", "noRemarksText": "គ្មានកំណត់សម្គាល់សម្រាប់បុគ្គលិកនេះទេ។", "otHoursLabel": "ម៉ោងថែម", "queryParams": "ប៉ារ៉ាម៉ែត្រសួរព័ត៌មាន", "tblActions": "សកម្មភាព", "tblCarried": "បង្វិលឆ្នាំមុន", "tblDepartment": "ក្រុម", "tblEnd": "ថ្ងៃបញ្ចប់", "tblEntitled": "ម៉ោងទទួលបាន", "tblExceeded": "ម៉ោងប្រើលើស", "tblId": "អត្តលេខ", "tblJoin": "ថ្ងៃចូលធ្វើការ", "tblMonthUsed": "ខែនេះប្រើ", "tblName": "ឈ្មោះ", "tblPrevUsed": "ខែមុនប្រើ", "tblRemaining": "ម៉ោងនៅសល់", "tblRemarks": "កំណត់សម្គាល់", "tblRenewed": "ខែនៅសល់", "tblStart": "ថ្ងៃចាប់ផ្តើម", "tblTotalAL": "បំណាច់ឆ្នាំសរុប", "tblTotalUsed": "ម៉ោងប្រើសរុប", "tblYearRange": "រង្វង់ឆ្នាំ", "tblYears": "អតីតភាព", "thMasterAnnualLeave": "ច្បាប់បំណាច់ឆ្នាំ", "thMasterMaternityLeave": "ច្បាប់មាតុភាព", "thMasterMonthlyOT": "ម៉ោងថែម", "thMasterOtherLeave": "ច្បាប់ផ្សេងៗ", "thMasterPersonalLeave": "ច្បាប់ផ្ទាល់ខ្លួន", "thMasterSickLeave": "ច្បាប់ឈឺ", "thMasterSpecialLeave": "ច្បាប់ពិសេស", "thMasterTravelLeave": "ច្បាប់ធ្វើដំណើរ", "thMasterWorkingHours": "ម៉ោងធ្វើការ", "toastFail": "មិនជោគជ័យ", "toastSuccess": "ជោគជ័យ", "txtAvailable": "អាចប្រើបាន", "txtExceed": "លើសកំណត់", "txtInLimit": "នៅក្នុងដែនកំណត់", "txtStartNo": "មិនទាន់ដល់", "txtStartYes": "បានចាប់ផ្តើម", "txtUnavailable": "មិនអាចប្រើបាន", "workHoursLabel": "ម៉ោងធ្វើការ", "dpStatEmp": "បុគ្គលិក", "dpStatGroups": "ក្រុម", "dpStatMonthUsed": "ច្បាប់ប្រើក្នុងខែនេះ (ម៉ោង)", "dpStatWork": "ម៉ោងធ្វើការសរុប", "dpStatOT": "ម៉ោងបន្ថែមសរុប", "dpStatLeaveAL": "ច្បាប់ប្រចាំឆ្នាំបានប្រើ (ម៉ោង)"}, "zh": {"attDateRequiredMsg": "请先选择日期。", "attNoValuesEnteredMsg": "未输入任何工作时间或加班时间。", "attTitle": "考勤记录", "btnCheckDetails": "查看详情", "btnClose": "关闭", "btnExport": "导出为 Excel (.xlsx)", "btnLoadDept": "显示员工", "btnSubmitAtt": "提交考勤记录", "btnSubmitLeave": "提交请假记录", "checkDetailsModalTitle": "查看详情", "dpAllGroups": "所有小组", "dpAttDup": "该日期已为以下员工记录过考勤：{names}。\n是否再次记录并累加这些小时？", "dpAttSub": "选择小组和日期，然后一次性输入所有人的工作小时和加班小时。只保存在您部门自己的账本中。", "dpBack": "返回主页", "dpBookWait": "该员工的部门账本仍在准备中，请稍后重试。", "dpColBy": "记录人", "dpColHours": "小时", "dpColType": "类型", "dpDashSub": "您的部门有自己独立的账本。在此输入的内容不会更改人事或管理部门的主控表。", "dpDashTitle": "欢迎", "dpEditNote": "这些数字只保存在您部门的账本中。", "dpEditTitle": "修改数字", "dpLeaveNone": "请至少输入一项假期小时数。", "dpLeaveSub": "在此输入的假期只保存在您部门自己的账本中。", "dpLocked": "错误次数过多，请在 {m} 分钟后重试。", "dpLogin": "登录", "dpLoginErr": "用户名或密码错误。", "dpLoginSub": "请使用部门账户登录", "dpLogout": "退出登录", "dpMasterSub": "这是您部门自己的账本。在此修改的数字只保存在本部门。工号、姓名、小组和入职日期来自人事部门。", "dpNo": "否", "dpNoAccess": "此账户无法打开部门数据。请重新登录或联系管理部门。", "dpNoGroups": "此部门尚未分配小组。请联系管理部门或人事分配小组。", "dpNoStaff": "未找到此部门的员工。", "dpNoXlsx": "Excel 工具未加载。请检查网络后重试。", "dpPassword": "密码", "dpPermErr": "权限不足。请联系管理部门检查您的账户和数据库规则。", "dpRecent": "最近记录", "dpRemainingMsg": "剩余小时：{r}", "dpSave": "保存", "dpTabAtt": "考勤记录", "dpTabCheck": "查询记录", "dpTabDash": "仪表板", "dpTabLeave": "请假记录", "dpTabMaster": "主控表", "dpTitle": "部门系统", "dpUsername": "用户名", "dpYes": "是", "empIdNotFound": "找不到该员工编号", "lblAllowedThisMonth": "本月可用额度", "lblAttDate": "日期", "lblAvailableCarriedBalance": "可用结转余额", "lblEmpId": "员工编号", "lblEmpName": "员工姓名", "lblIsExceeded": "超出本月限额", "lblIsStarted": "享受开始日期", "lblLeaveDate": "请假日期", "lblMonthsService": "服务月数", "lblQueryDate": "查询日期", "lblRemAfterToday": "今日后剩余余额", "lblRemarksHeading": "主控表备注/说明:", "lblSearch": "搜索员工:", "lblTodayHours": "今日请假 (可选)", "leaveRecordsTitle": "请假记录", "leaveTypeAL": "年假", "leaveTypeMaternity": "产假", "leaveTypeOther": "其他假", "leaveTypePersonal": "个人假", "leaveTypeSick": "病假", "leaveTypeSpecial": "特殊假", "leaveTypeTravel": "差旅假", "masterRowErrorMsg": "无法显示此记录 - 数据可能已损坏。请在编辑记录中检查该员工。", "noRemarksText": "该员工无特定备注或说明。", "otHoursLabel": "加班时间", "queryParams": "查询参数", "tblActions": "操作", "tblCarried": "上年结转", "tblDepartment": "小组", "tblEnd": "结束日期", "tblEntitled": "应享小时数", "tblExceeded": "超出小时数", "tblId": "工号", "tblJoin": "入职日期", "tblMonthUsed": "本月已用", "tblName": "姓名", "tblPrevUsed": "上月已用", "tblRemaining": "剩余小时数", "tblRemarks": "备注", "tblRenewed": "到期剩余月数", "tblStart": "开始日期", "tblTotalAL": "年假总数", "tblTotalUsed": "已用总小时数", "tblYearRange": "年份范围", "tblYears": "工龄", "thMasterAnnualLeave": "年假", "thMasterMaternityLeave": "产假", "thMasterMonthlyOT": "加班时间", "thMasterOtherLeave": "其他假", "thMasterPersonalLeave": "个人假", "thMasterSickLeave": "病假", "thMasterSpecialLeave": "特殊假", "thMasterTravelLeave": "差旅假", "thMasterWorkingHours": "工作时间", "toastFail": "失败", "toastSuccess": "成功", "txtAvailable": "可用", "txtExceed": "超出", "txtInLimit": "在限额内", "txtStartNo": "未到", "txtStartYes": "已到", "txtUnavailable": "不可用", "workHoursLabel": "工作时间", "dpStatEmp": "员工", "dpStatGroups": "小组", "dpStatMonthUsed": "本月已用假期(小时)", "dpStatWork": "总工作小时", "dpStatOT": "总加班小时", "dpStatLeaveAL": "已休年假(小时)"}};
+const firebaseConfig = {
+  apiKey: "AIzaSyAFHtPZsYq8iAYZtKBYWDt7hVitMmHKt_s",
+  authDomain: "annual-leave-1feda.firebaseapp.com",
+  databaseURL: "https://annual-leave-1feda-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "annual-leave-1feda",
+  storageBucket: "annual-leave-1feda.firebasestorage.app",
+  messagingSenderId: "989242956584",
+  appId: "1:989242956584:web:8ebe1333e38705600dce1d",
+  measurementId: "G-1V8G7SCEHK"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const fbAuth = firebase.auth();
+/* ================= DEPARTMENT SYSTEM (separate page) =================
+   Every department account sees only its own department: the staff list and basic information come from the HR master
+   (read only), while all numbers (entitled hours, leave, working hours, overtime ...) live in the department's OWN book
+   at deptData/<departmentKey>/book/<employeeKey>. Nothing typed here is ever written to the HR / Administration master. */
+const $ = function (id) { return document.getElementById(id); };
+let currentLang = 'en';
+try { const l = localStorage.getItem('appLang'); if (l && I18N[l]) currentLang = l; } catch (e) {}
+const FLAGS = { en: 'https://flagcdn.com/w40/us.png', km: 'https://flagcdn.com/w40/kh.png', zh: 'https://flagcdn.com/w40/cn.png' };
+const LNAMES = { en: 'EN', km: 'ខ្មែរ', zh: '中文' };
+function t(k) { return (I18N[currentLang] && I18N[currentLang][k]) || I18N.en[k] || k; }
+function fill(s, o) { return String(s).replace(/\{(\w+)\}/g, function (m, k) { return o && o[k] !== undefined ? o[k] : m; }); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function num(v) { return parseFloat(v) || 0; }
+function fmt(v) { return num(v).toFixed(2); }
+function pad2(n) { return String(n).padStart(2, '0'); }
+function localDate(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+function yesterday() { const d = new Date(); d.setDate(d.getDate() - 1); return localDate(d); }
+
+/* ---------- language ---------- */
+function buildLangMenus() {
+    const html = Object.keys(FLAGS).map(function (l) {
+        return '<div class="lang-option" data-lang="' + l + '" onclick="setLang(\'' + l + '\')"><img class="flag-icon" src="' + FLAGS[l] + '" alt=""> ' + ({ en: 'English', km: 'ភាសាខ្មែរ', zh: '中文' })[l] + '</div>';
+    }).join('');
+    ['langMenuLogin', 'langMenuApp'].forEach(function (id) { $(id).innerHTML = html; });
+}
+function toggleLangMenu(ev, id) {
+    ev.stopPropagation();
+    document.querySelectorAll('.lang-menu').forEach(function (m) { if (m.id !== id) m.classList.remove('show'); });
+    $(id).classList.toggle('show');
+}
+document.addEventListener('click', function () { document.querySelectorAll('.lang-menu').forEach(function (m) { m.classList.remove('show'); }); });
+function setLang(l) {
+    if (!I18N[l]) return;
+    currentLang = l;
+    try { localStorage.setItem('appLang', l); } catch (e) {}
+    document.documentElement.lang = l;
+    document.querySelectorAll('.dp-flag').forEach(function (i) { i.src = FLAGS[l]; });
+    document.querySelectorAll('.dp-lang-name').forEach(function (s) { s.textContent = LNAMES[l]; });
+    document.querySelectorAll('.lang-option').forEach(function (o) { o.classList.toggle('active', o.getAttribute('data-lang') === l); });
+    document.querySelectorAll('[data-i18n]').forEach(function (el) { const k = el.getAttribute('data-i18n'); const v = (I18N[l] && I18N[l][k]) || I18N.en[k]; if (v) el.innerHTML = v; });
+    if (ctx) { renderAll(true); }
+}
+
+/* ---------- small UI helpers ---------- */
+let _tt = null;
+function showToast(ok, msg) {
+    const el = $('globalToast');
+    el.innerText = msg || (ok ? t('toastSuccess') : t('toastFail'));
+    el.style.background = ok === 'pending' ? '#d97706' : (ok ? '#16a34a' : '#dc2626');
+    el.style.display = 'block';
+    requestAnimationFrame(function () { el.style.opacity = '1'; });
+    if (_tt) clearTimeout(_tt);
+    _tt = setTimeout(function () { el.style.opacity = '0'; setTimeout(function () { el.style.display = 'none'; }, 250); }, ok ? 2000 : 6000);
+}
+function busy(on, msg) { $('dpBusy').style.display = on ? 'flex' : 'none'; $('dpBusyMsg').textContent = msg || ''; }
+async function withBusyButton(btn, fn) {
+    if (btn) { if (btn.disabled) return; btn.disabled = true; }
+    try { return await fn(); } finally { if (btn) btn.disabled = false; }
+}
+function confirmBox(msg) {
+    return new Promise(function (res) {
+        $('dpConfirmMsg').innerText = msg;
+        const m = $('dpConfirm'); m.style.display = 'flex';
+        const done = function (v) { m.style.display = 'none'; res(v); };
+        $('dpConfirmYes').onclick = function () { done(true); };
+        $('dpConfirmNo').onclick = function () { done(false); };
+    });
+}
+
+/* ---------- secure login (same safe method as HR / Administration) ---------- */
+const PW_OK = !!(window.crypto && window.crypto.subtle && window.TextEncoder);
+function hx(buf) { return Array.from(new Uint8Array(buf)).map(function (b) { return (b < 16 ? '0' : '') + b.toString(16); }).join(''); }
+async function pwDerive(password, salt) {
+    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: new TextEncoder().encode(salt), iterations: 100000 }, key, 256);
+    return 'pbkdf2$' + salt + '$' + hx(bits);
+}
+function hexStr(s) { return Array.from(new TextEncoder().encode(String(s))).map(function (b) { return (b < 16 ? '0' : '') + b.toString(16); }).join(''); }
+async function authPw(pass, id) { return (await pwDerive(pass, 'staff-auth:dept:' + id)).split('$')[2].slice(0, 48); }
+function emailOf(id) { return id + '@dept.cambodiainsight.net'; }
+function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+async function readRetry(path) {
+    let last = null;
+    for (let i = 0; i < 40; i++) { try { return (await db.ref(path).once('value')).val(); } catch (e) { last = e; await sleep(250); } }
+    throw last;
+}
+async function toAnon() {
+    try { await fbAuth.signOut(); } catch (e) {}
+    try { await fbAuth.signInAnonymously(); } catch (e) {}
+}
+const LOCK_MAX = 5, LOCK_MS = 15 * 60 * 1000;
+function lockState(u) { try { return JSON.parse(localStorage.getItem('dpLock_' + u) || 'null') || { n: 0, until: 0 }; } catch (e) { return { n: 0, until: 0 }; } }
+function setLock(u, s) { try { localStorage.setItem('dpLock_' + u, JSON.stringify(s)); } catch (e) {} }
+
+let ctx = null, loggingIn = false;
+function showLoginUI(msg) {
+    $('dpApp').style.display = 'none'; $('dpLogin').style.display = 'flex';
+    $('dpLoginErr').textContent = msg || '';
+}
+function showApp() {
+    $('dpLogin').style.display = 'none'; $('dpApp').style.display = 'block';
+    $('dpDeptName').textContent = ctx.deptName; $('dpAccName').textContent = ctx.accName;
+}
+$('dpLoginForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const user = $('dpUser').value.trim(), pass = $('dpPass').value;
+    const err = $('dpLoginErr'); err.textContent = '';
+    if (!user || !pass) return;
+    const lk = lockState(user.toLowerCase());
+    if (lk.until && Date.now() < lk.until) { err.textContent = fill(t('dpLocked'), { m: Math.ceil((lk.until - Date.now()) / 60000) }); return; }
+    const btn = this.querySelector('[type=submit]'); btn.disabled = true; loggingIn = true;
+    let ok = false;
+    try {
+        if (!PW_OK) throw new Error('no crypto');
+        const ids = Object.keys((await readRetry('deptLookup/' + hexStr('dept|' + user.toLowerCase()))) || {});
+        for (const id of ids) {
+            try {
+                const cred = await fbAuth.signInWithEmailAndPassword(emailOf(id), await authPw(pass, id));
+                const uid = (cred && cred.user ? cred.user : fbAuth.currentUser).uid;
+                const da = await readRetry('deptAuth/' + uid);
+                const acc = da ? await readRetry('deptAcc/' + da.acc) : null;
+                if (acc && acc.authId === id && !acc.disabled) { ok = true; sessionStorage.setItem('dpOk', '1'); await enter(fbAuth.currentUser); break; }
+                await toAnon();
+            } catch (e2) { try { const cu = fbAuth.currentUser; if (cu && !cu.isAnonymous) await toAnon(); } catch (e3) {} }
+        }
+    } catch (e1) { console.error(e1); }
+    loggingIn = false; btn.disabled = false;
+    if (ok) { clearLockLS(user.toLowerCase()); $('dpPass').value = ''; return; }
+    lk.n = (lk.n || 0) + 1;
+    if (lk.n >= LOCK_MAX) { lk.until = Date.now() + LOCK_MS; lk.n = 0; }
+    setLock(user.toLowerCase(), lk);
+    err.textContent = t('dpLoginErr');
+});
+function clearLockLS(u) { try { localStorage.removeItem('dpLock_' + u); } catch (e) {} }
+fbAuth.onAuthStateChanged(async function (u) {
+    if (loggingIn) return;
+    if (!u) { try { await fbAuth.signInAnonymously(); } catch (e) {} showLoginUI(); return; }
+    if (u.isAnonymous) { showLoginUI(); return; }
+    if (ctx && ctx.uid === u.uid) return;
+    if (sessionStorage.getItem('dpOk') !== '1') { await toAnon(); return; }
+    await enter(u);
+});
+async function enter(u) {
+    try {
+        const da = await readRetry('deptAuth/' + u.uid); if (!da) throw new Error('no access');
+        const acc = await readRetry('deptAcc/' + da.acc); if (!acc || acc.disabled || acc.uid !== u.uid) throw new Error('disabled');
+        const org = await readRetry('departments/_org/' + da.dept);
+        ctx = { uid: u.uid, acc: da.acc, dept: da.dept, deptName: (org && org.name) || '', accName: acc.name || acc.username || '' };
+    } catch (e) { sessionStorage.removeItem('dpOk'); await toAnon(); showLoginUI(t('dpNoAccess')); return; }
+    showApp(); startData(); dpTab('dash'); initDefaults(); dpReminder();
+}
+async function dpLogout() {
+    stopData(); ctx = null; sessionStorage.removeItem('dpOk');
+    await toAnon(); showLoginUI();
+}
+
+/* ---------- data ---------- */
+let groups = [], groupsSig = null, empByGroup = {}, emps = [], book = {}, leaveHist = [], attHist = [], subs = [], empSubs = [], loadedG = {}, state = { book: false, emp: false, groups: false }, creating = {};
+const NUM = ['entitled', 'carried', 'prevUsed', 'monthUsed', 'exceeded', 'workHours', 'otHours', 'leaveAL', 'leaveSpecial', 'leaveMaternity', 'leaveTravel', 'leavePersonal', 'leaveSick', 'leaveOther'];
+const TXT = ['startDate', 'endDate', 'yearRange', 'remarks'];
+function base() { return 'deptData/' + ctx.dept; }
+function sub(ref, ev, cb) { ref.on(ev, cb, onErr); subs.push({ ref: ref, ev: ev, cb: cb }); }
+function onErr(e) {
+    console.error(e);
+    if (e && (e.code === 'PERMISSION_DENIED' || /permission/i.test(String(e.message)))) showToast(false, t('dpPermErr'));
+}
+function stopData() {
+    subs.forEach(function (s) { try { s.ref.off(s.ev, s.cb); } catch (e) {} }); subs = [];
+    empSubs.forEach(function (x) { try { x.q.off('value', x.cb); } catch (e) {} }); empSubs = [];
+    groups = []; groupsSig = null; empByGroup = {}; emps = []; book = {}; leaveHist = []; attHist = []; loadedG = {}; state = { book: false, emp: false, groups: false }; creating = {};
+}
+function startData() {
+    stopData();
+    sub(db.ref('deptGroups/' + ctx.dept), 'value', function (s) {
+        const g = Object.keys(s.val() || {}).sort(); const sig = g.join('\u0001');
+        state.groups = true;
+        if (sig !== groupsSig) { groupsSig = sig; groups = g; attachEmployees(); }
+        queueRender();
+    });
+    sub(db.ref(base() + '/book'), 'value', function (s) { book = s.val() || {}; state.book = true; ensureBook(); queueRender(); });
+    sub(db.ref(base() + '/leaveHistory'), 'value', function (s) { const v = s.val() || {}; leaveHist = Object.keys(v).map(function (k) { return Object.assign({ key: k }, v[k]); }); queueRender(); });
+    sub(db.ref(base() + '/attendanceHistory'), 'value', function (s) { const v = s.val() || {}; attHist = Object.keys(v).map(function (k) { return Object.assign({ key: k }, v[k]); }); queueRender(); });
+}
+function attachEmployees() {
+    empSubs.forEach(function (x) { try { x.q.off('value', x.cb); } catch (e) {} }); empSubs = []; empByGroup = {}; loadedG = {};
+    if (!groups.length) { state.emp = true; rebuildEmps(); return; }
+    state.emp = false;
+    groups.forEach(function (g) {
+        const q = db.ref('employees').orderByChild('department').equalTo(g);
+        const cb = function (s) { empByGroup[g] = s.val() || {}; loadedG[g] = true; state.emp = groups.every(function (x) { return loadedG[x]; }); rebuildEmps(); ensureBook(); queueRender(); };
+        q.on('value', cb, onErr); empSubs.push({ q: q, cb: cb });
+    });
+}
+function idCmp(a, b) {
+    const x = String(a.id || ''), y = String(b.id || '');
+    const nx = Number(x), ny = Number(y);
+    if (x !== '' && y !== '' && !isNaN(nx) && !isNaN(ny) && nx !== ny) return nx - ny;
+    return x.localeCompare(y);
+}
+function rebuildEmps() {
+    const out = [];
+    Object.keys(empByGroup).forEach(function (g) { const o = empByGroup[g]; Object.keys(o).forEach(function (k) { out.push(Object.assign({ firebaseKey: k }, o[k])); }); });
+    out.sort(idCmp); emps = out;
+}
+/* the first time an employee shows up in this department, the entitled hours (and the other numbers) are COPIED once from the HR master */
+function bookInit(e) {
+    const o = { empId: e.id || '', createdAt: Date.now() };
+    NUM.forEach(function (k) { o[k] = num(e[k]); });
+    TXT.forEach(function (k) { o[k] = e[k] == null ? '' : String(e[k]); });
+    return o;
+}
+function ensureBook() {
+    if (!ctx || !state.book || !state.emp) return;
+    emps.filter(function (e) { return !book[e.firebaseKey] && !creating[e.firebaseKey]; }).forEach(function (e) {
+        const k = e.firebaseKey; creating[k] = 1;
+        db.ref(base() + '/book/' + k).transaction(function (cur) { return cur === null ? bookInit(e) : undefined; })
+            .then(function () { delete creating[k]; }).catch(function (err) { delete creating[k]; onErr(err); });
+    });
+}
+function view(e) {
+    const b = book[e.firebaseKey], v = Object.assign({}, e);
+    if (b) { NUM.forEach(function (k) { v[k] = num(b[k]); }); TXT.forEach(function (k) { v[k] = b[k] === undefined ? undefined : b[k]; }); }
+    return v;
+}
+function findEmp(id) { return emps.find(function (e) { return String(e.id) === String(id); }); }
+
+/* ---------- date maths (same as HR) ---------- */
+function getRemainingCycleMonths(startDateStr, endDateStr, refDate) {
+    refDate = refDate || new Date();
+    const sp = startDateStr.split('.'), ep = endDateStr.split('.');
+    const startDay = parseInt(sp[2], 10), endYear = parseInt(ep[0], 10), endMonth = parseInt(ep[1], 10) - 1;
+    let months = (endYear - refDate.getFullYear()) * 12 + (endMonth - refDate.getMonth());
+    if (refDate.getDate() < startDay) months += 1;
+    return Math.max(0, months);
+}
+function computeMonthsOfService(startDateStr, refDate) {
+    refDate = refDate || new Date();
+    const parts = (startDateStr || '').split('.'); if (parts.length !== 3) return 0;
+    const am = parseInt(parts[1], 10) - 1, ad = parseInt(parts[2], 10);
+    const ry = refDate.getFullYear(), rm = refDate.getMonth(), rd = refDate.getDate();
+    let cy = ry; if (rm < am || (rm === am && rd < ad)) cy = ry - 1;
+    return Math.min(12, Math.max(1, (ry - cy) * 12 + (rm - am) + 1));
+}
+function computeLeaveCycle(joinDateStr, refDate) {
+    refDate = refDate || new Date();
+    const parts = (joinDateStr || '').split('.');
+    if (parts.length !== 3) return { startStr: '', endStr: '', yearRangeStr: '' };
+    const jm = parseInt(parts[1], 10) - 1, jd = parseInt(parts[2], 10);
+    const ry = refDate.getFullYear(), rm = refDate.getMonth(), rd = refDate.getDate();
+    let sy = ry; if (rm < jm || (rm === jm && rd < jd)) sy = ry - 1;
+    const startStr = sy + '.' + pad2(jm + 1) + '.' + pad2(jd);
+    const endObj = new Date(sy + 1, jm, jd - 1);
+    const endStr = endObj.getFullYear() + '.' + pad2(endObj.getMonth() + 1) + '.' + pad2(endObj.getDate());
+    return { startStr: startStr, endStr: endStr, yearRangeStr: sy + '-' + endObj.getFullYear() };
+}
+function computeQueryData(emp, queryDate, todayHours) {
+    const jp = (emp.joinDate || '').split('.');
+    const join = jp.length === 3 ? new Date(jp[0], jp[1] - 1, jp[2]) : null;
+    const twm = join ? Math.max(0, (queryDate.getFullYear() - join.getFullYear()) * 12 + (queryDate.getMonth() - join.getMonth())) : 0;
+    const workYears = Math.floor(twm / 12);
+    const cyc = computeLeaveCycle(emp.joinDate, queryDate);
+    const startStr = emp.startDate || cyc.startStr, endStr = emp.endDate || cyc.endStr, yearRangeStr = emp.yearRange || cyc.yearRangeStr;
+    const renewalMonths = (startStr && endStr) ? getRemainingCycleMonths(startStr, endStr, queryDate) : 0;
+    const totalUsed = num(emp.prevUsed) + num(emp.monthUsed) - num(emp.exceeded);
+    const remainingTotal = num(emp.entitled) - totalUsed + num(emp.carried);
+    const monthsOfService = computeMonthsOfService(startStr, queryDate);
+    const allowedThisMonth = (1.5 * monthsOfService * 8) + num(emp.carried) - totalUsed;
+    const remAfterToday = allowedThisMonth - todayHours;
+    const sp2 = startStr ? startStr.split('.') : null;
+    const sd = (sp2 && sp2.length === 3) ? new Date(sp2[0], sp2[1] - 1, sp2[2]) : null;
+    return { workYears: workYears, startStr: startStr, endStr: endStr, yearRangeStr: yearRangeStr, renewalMonths: renewalMonths, totalUsed: totalUsed, remainingTotal: remainingTotal, monthsOfService: monthsOfService, allowedThisMonth: allowedThisMonth, remAfterToday: remAfterToday, isStarted: sd ? queryDate >= sd : false };
+}
+
+/* ---------- rendering ---------- */
+let rtimer = null;
+function queueRender() { if (rtimer) return; rtimer = setTimeout(function () { rtimer = null; renderAll(); }, 30); }
+let curTab = 'dash';
+function renderAll(force) {
+    if (!ctx) return;
+    renderGroupSelects(force);
+    renderDash();
+    if (curTab === 'master' || force) dpRenderMaster();
+    renderRecent();
+}
+function dpTab(id) {
+    curTab = id;
+    document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.toggle('active', p.id === 'tab-' + id); });
+    document.querySelectorAll('.dp-tab').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-tab') === id); });
+    if (id === 'master') dpRenderMaster();
+    if (id === 'dash') renderDash();
+}
+function initDefaults() {
+    if (!$('dpLeaveDate').value) $('dpLeaveDate').value = yesterday();
+    if (!$('dpAttDate').value) $('dpAttDate').value = yesterday();
+    if (!$('dpChkDate').value) $('dpChkDate').value = localDate(new Date());
+}
+function renderGroupSelects(force) {
+    const keep = function (id, html) { const s = $(id); const cur = s.value; if (s.dataset.sig === html && !force) return; s.innerHTML = html; s.dataset.sig = html; if (cur && Array.prototype.some.call(s.options, function (o) { return o.value === cur; })) s.value = cur; };
+    const opts = groups.map(function (g) { return '<option value="' + esc(g) + '">' + esc(g) + '</option>'; }).join('');
+    keep('dpMasterGroup', '<option value="">' + esc(t('dpAllGroups')) + '</option>' + opts);
+    keep('dpAttGroup', opts);
+}
+function renderDash() {
+    const rows = emps.map(view);
+    const sum = function (k) { return rows.reduce(function (a, r) { return a + num(r[k]); }, 0); };
+    const card = function (l, v) { return '<div class="stat-card"><h4>' + esc(t(l)) + '</h4><div>' + esc(v) + '</div></div>'; };
+    $('dpStats').innerHTML = card('dpStatEmp', String(emps.length)) + card('dpStatGroups', String(groups.length)) + card('dpStatMonthUsed', fmt(sum('monthUsed'))) +
+        card('dpStatWork', fmt(sum('workHours'))) + card('dpStatOT', fmt(sum('otHours'))) + card('dpStatLeaveAL', fmt(sum('leaveAL')));
+    let msg = '';
+    if (state.groups && !groups.length) msg = '<div class="dp-banner">' + esc(t('dpNoGroups')) + '</div>';
+    else if (state.groups && state.emp && !emps.length) msg = '<div class="dp-banner">' + esc(t('dpNoStaff')) + '</div>';
+    $('dpDashMsg').innerHTML = msg;
+}
+function dpRenderMaster() {
+    const tb = document.querySelector('#dpMasterTable tbody'); if (!tb) return;
+    const q = ($('dpMasterSearch').value || '').toLowerCase(), g = $('dpMasterGroup').value;
+    const now = new Date(); let html = '';
+    emps.forEach(function (e0) {
+        if (g && e0.department !== g) return;
+        if (q && String(e0.id || '').toLowerCase().indexOf(q) < 0 && String(e0.name || '').toLowerCase().indexOf(q) < 0) return;
+        const e = view(e0), k = esc(e0.firebaseKey);
+        try {
+            const jp = (e.joinDate || '').split('.');
+            const join = jp.length === 3 ? new Date(jp[0], jp[1] - 1, jp[2]) : null;
+            const twm = join ? (now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth()) : 0;
+            const cyc = computeLeaveCycle(e.joinDate, now);
+            const st = e.startDate || cyc.startStr, en = e.endDate || cyc.endStr, yr = e.yearRange || cyc.yearRangeStr;
+            const rem = (st && en) ? getRemainingCycleMonths(st, en, now) : 0;
+            const used = num(e.prevUsed) + num(e.monthUsed) - num(e.exceeded);
+            const remaining = num(e.entitled) - used + num(e.carried);
+            const ready = !!book[e0.firebaseKey];
+            html += '<tr><td style="white-space:nowrap;"><button class="btn-view" onclick="dpOpenCheck(\'' + k + '\')" title="' + esc(t('btnCheckDetails')) + '">🔍</button>' +
+                (ready ? '<button class="btn-edit" onclick="dpEdit(\'' + k + '\')" title="' + esc(t('dpEditTitle')) + '">✏️</button>' : '') + '</td>' +
+                '<td><b>' + esc(e.id) + '</b></td><td>' + esc(e.name) + '</td><td>' + esc(e.department || '-') + '</td><td>' + esc(e.joinDate) + '</td><td>' + Math.floor(Math.max(0, twm) / 12) + '</td>' +
+                '<td>' + fmt(e.entitled) + '</td><td>' + esc(st) + '</td><td>' + esc(en) + '</td><td>' + esc(yr) + '</td><td><b>' + rem + '</b></td><td>' + fmt(e.entitled) + '</td>' +
+                '<td>' + fmt(e.carried) + '</td><td>' + fmt(e.prevUsed) + '</td><td>' + fmt(e.monthUsed) + '</td><td><b>' + used.toFixed(2) + '</b></td>' +
+                '<td style="color:' + (num(e.exceeded) > 0 ? '#dc2626' : '#64748b') + '; font-weight:bold;">' + fmt(e.exceeded) + '</td>' +
+                '<td style="color:' + (remaining < 0 ? '#dc2626' : '#15803d') + '; font-weight:bold;">' + remaining.toFixed(2) + '</td>' +
+                '<td>' + fmt(e.workHours) + '</td><td>' + fmt(e.otHours) + '</td><td>' + fmt(e.leaveAL) + '</td><td>' + fmt(e.leaveSpecial) + '</td><td>' + fmt(e.leaveMaternity) + '</td>' +
+                '<td>' + fmt(e.leaveTravel) + '</td><td>' + fmt(e.leavePersonal) + '</td><td>' + fmt(e.leaveSick) + '</td><td>' + fmt(e.leaveOther) + '</td><td>' + esc(e.remarks || '-') + '</td></tr>';
+        } catch (err) {
+            html += '<tr><td colspan="28" style="text-align:center; color:#dc2626;">' + esc(t('masterRowErrorMsg')) + ' (' + esc(e.id) + ' - ' + esc(e.name) + ')</td></tr>';
+        }
+    });
+    tb.innerHTML = html || '<tr><td colspan="28" style="text-align:center; color:#94a3b8;">-</td></tr>';
+}
+function renderRecent() {
+    const typeName = function (k) { return t(k); };
+    const L = leaveHist.slice().sort(function (a, b) { return (b.timestamp || 0) - (a.timestamp || 0); }).slice(0, 30);
+    document.querySelector('#dpLeaveRec tbody').innerHTML = L.map(function (h) {
+        return '<tr><td>' + esc(h.date) + '</td><td>' + esc(h.empId) + '</td><td>' + esc(h.empName) + '</td><td>' + esc(typeName(h.leaveType)) + '</td><td>' + fmt(h.hours) + '</td><td>' + esc(h.by || '') + '</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">-</td></tr>';
+    const A = attHist.slice().sort(function (a, b) { return (b.timestamp || 0) - (a.timestamp || 0); }).slice(0, 30);
+    document.querySelector('#dpAttRec tbody').innerHTML = A.map(function (h) {
+        return '<tr><td>' + esc(h.date) + '</td><td>' + esc(h.empId) + '</td><td>' + esc(h.empName) + '</td><td>' + fmt(h.workHours) + '</td><td>' + fmt(h.otHours) + '</td><td>' + esc(h.by || '') + '</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">-</td></tr>';
+}
+
+/* ---------- edit numbers (no approval needed - these live only in the department book) ---------- */
+const EDIT_FIELDS = [['entitled', 'tblEntitled', 'n'], ['carried', 'tblCarried', 'n'], ['prevUsed', 'tblPrevUsed', 'n'], ['monthUsed', 'tblMonthUsed', 'n'], ['exceeded', 'tblExceeded', 'n'],
+    ['workHours', 'thMasterWorkingHours', 'n'], ['otHours', 'thMasterMonthlyOT', 'n'], ['leaveAL', 'thMasterAnnualLeave', 'n'], ['leaveSpecial', 'thMasterSpecialLeave', 'n'],
+    ['leaveMaternity', 'thMasterMaternityLeave', 'n'], ['leaveTravel', 'thMasterTravelLeave', 'n'], ['leavePersonal', 'thMasterPersonalLeave', 'n'], ['leaveSick', 'thMasterSickLeave', 'n'],
+    ['leaveOther', 'thMasterOtherLeave', 'n'], ['startDate', 'tblStart', 't'], ['endDate', 'tblEnd', 't'], ['yearRange', 'tblYearRange', 't'], ['remarks', 'tblRemarks', 't']];
+function dpEdit(key) {
+    const e0 = emps.find(function (x) { return x.firebaseKey === key; }); if (!e0 || !book[key]) return;
+    const e = view(e0), cyc = computeLeaveCycle(e.joinDate, new Date());
+    $('dpEditKey').value = key;
+    $('dpEditInfo').textContent = ': ' + (e.name || '') + ' (' + (e.id || '') + ')';
+    $('dpEditGrid').innerHTML = EDIT_FIELDS.map(function (f) {
+        const v = f[2] === 'n' ? num(e[f[0]]) : (e[f[0]] || '');
+        return '<div class="form-group"><label>' + esc(t(f[1])) + '</label><input ' + (f[2] === 'n' ? 'type="number" step="0.5"' : 'type="text"') + ' id="dpE_' + f[0] + '" value="' + esc(v) + '"></div>';
+    }).join('');
+    $('dpEditModal').style.display = 'flex';
+}
+function dpCloseEdit() { $('dpEditModal').style.display = 'none'; }
+$('dpEditForm').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    const key = $('dpEditKey').value, e0 = emps.find(function (x) { return x.firebaseKey === key; }); if (!e0 || !book[key]) return;
+    const old = view(e0), payload = {}, changes = {};
+    EDIT_FIELDS.forEach(function (f) {
+        const raw = $('dpE_' + f[0]).value;
+        const nv = f[2] === 'n' ? num(raw) : String(raw).trim();
+        payload[f[0]] = nv;
+        const ov = f[2] === 'n' ? num(old[f[0]]) : (old[f[0]] || '');
+        if (ov !== nv) changes[f[0]] = [ov, nv];
+    });
+    withBusyButton(this.querySelector('[type=submit]'), function () {
+        const up = {};
+        Object.keys(payload).forEach(function (k) { up[base() + '/book/' + key + '/' + k] = payload[k]; });
+        if (Object.keys(changes).length) up[base() + '/log/' + db.ref().push().key] = { at: Date.now(), by: ctx.accName, action: 'edit', empId: e0.id || '', empName: e0.name || '', changes: changes };
+        return db.ref().update(up).then(function () { dpCloseEdit(); showToast(true); }).catch(function (er) { onErr(er); showToast(false); });
+    });
+});
+
+/* ---------- leave record ---------- */
+function dpLeaveIdInput() { const e = findEmp($('dpLeaveEmpId').value.trim()); $('dpLeaveEmpName').value = e ? (e.name || '') : ''; }
+function dpLeaveNameInput() {
+    const n = $('dpLeaveEmpName').value.trim().toLowerCase(); if (!n) return;
+    const m = emps.filter(function (e) { return String(e.name || '').toLowerCase() === n; });
+    if (m.length === 1) $('dpLeaveEmpId').value = m[0].id;
+}
+const LEAVE_MAP = [['dpL_AL', 'leaveAL', 'thMasterAnnualLeave'], ['dpL_Special', 'leaveSpecial', 'thMasterSpecialLeave'], ['dpL_Maternity', 'leaveMaternity', 'thMasterMaternityLeave'],
+    ['dpL_Travel', 'leaveTravel', 'thMasterTravelLeave'], ['dpL_Personal', 'leavePersonal', 'thMasterPersonalLeave'], ['dpL_Sick', 'leaveSick', 'thMasterSickLeave'], ['dpL_Other', 'leaveOther', 'thMasterOtherLeave']];
+$('dpLeaveForm').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    const form = this, id = $('dpLeaveEmpId').value.trim(), date = $('dpLeaveDate').value;
+    const e0 = findEmp(id);
+    if (!e0) { showToast(false, t('empIdNotFound')); return; }
+    const b = book[e0.firebaseKey];
+    if (!b) { showToast(false, t('dpBookWait')); return; }
+    const add = {}; let any = false;
+    LEAVE_MAP.forEach(function (m) { add[m[1]] = num($(m[0]).value); if (add[m[1]] > 0) any = true; });
+    if (!any) { showToast(false, t('dpLeaveNone')); return; }
+    withBusyButton(form.querySelector('[type=submit]'), function () {
+        const nv = {};
+        LEAVE_MAP.forEach(function (m) { nv[m[1]] = num(b[m[1]]) + add[m[1]]; });
+        /* Personal Leave is unpaid and is NOT drawn from the Annual Leave entitlement - exactly like the HR rule */
+        const monthUsed = nv.leaveAL + nv.leaveSpecial + nv.leaveMaternity + nv.leaveTravel + nv.leaveSick + nv.leaveOther;
+        const up = {}, bp = base() + '/book/' + e0.firebaseKey + '/';
+        LEAVE_MAP.forEach(function (m) { up[bp + m[1]] = nv[m[1]]; });
+        up[bp + 'monthUsed'] = monthUsed;
+        const ts = Date.now();
+        LEAVE_MAP.forEach(function (m) {
+            if (add[m[1]] > 0) up[base() + '/leaveHistory/' + db.ref().push().key] = { empId: e0.id, empName: e0.name || '', leaveType: m[2], hours: add[m[1]], date: date, timestamp: ts, by: ctx.accName };
+        });
+        return db.ref().update(up).then(function () {
+            const remaining = num(b.entitled) - (num(b.prevUsed) + monthUsed - num(b.exceeded)) + num(b.carried);
+            showToast(true, t('toastSuccess') + ' - ' + fill(t('dpRemainingMsg'), { r: remaining.toFixed(2) }));
+            form.reset(); $('dpLeaveDate').value = yesterday();
+        }).catch(function (er) { onErr(er); showToast(false); });
+    });
+});
+
+/* ---------- attendance record ---------- */
+function dpLoadAtt() {
+    const g = $('dpAttGroup').value;
+    const rows = emps.filter(function (e) { return e.department === g; });
+    document.querySelector('#dpAttTable tbody').innerHTML = rows.map(function (e) {
+        const k = esc(e.firebaseKey);
+        return '<tr><td><b>' + esc(e.id) + '</b></td><td>' + esc(e.name) + '</td>' +
+            '<td><input type="number" step="0.5" min="0" class="dp-att" data-key="' + k + '" data-field="work" style="width:90px;"></td>' +
+            '<td><input type="number" step="0.5" min="0" class="dp-att" data-key="' + k + '" data-field="ot" style="width:90px;"></td></tr>';
+    }).join('');
+    $('dpAttWrap').style.display = rows.length ? 'block' : 'none';
+    if (!rows.length) showToast(false, t('dpNoStaff'));
+}
+async function dpSaveAtt(btn) {
+    const date = $('dpAttDate').value;
+    if (!date) { showToast(false, t('attDateRequiredMsg')); return; }
+    const byEmp = {};
+    document.querySelectorAll('#dpAttTable .dp-att').forEach(function (i) {
+        const k = i.getAttribute('data-key'), f = i.getAttribute('data-field');
+        (byEmp[k] = byEmp[k] || { work: 0, ot: 0 })[f] = num(i.value);
+    });
+    const entries = [];
+    Object.keys(byEmp).forEach(function (k) {
+        const en = byEmp[k]; if (en.work === 0 && en.ot === 0) return;
+        const e = emps.find(function (x) { return x.firebaseKey === k; }); if (!e || !book[k]) return;
+        entries.push({ key: k, emp: e, work: en.work, ot: en.ot });
+    });
+    if (!entries.length) { showToast(false, t('attNoValuesEnteredMsg')); return; }
+    const dup = entries.filter(function (x) { return attHist.some(function (h) { return h.date === date && String(h.empId) === String(x.emp.id); }); });
+    if (dup.length && !(await confirmBox(fill(t('dpAttDup'), { names: dup.map(function (x) { return x.emp.name; }).join(', ') })))) return;
+    withBusyButton(btn, function () {
+        const up = {}, ts = Date.now();
+        entries.forEach(function (x) {
+            const b = book[x.key];
+            up[base() + '/book/' + x.key + '/workHours'] = num(b.workHours) + x.work;
+            up[base() + '/book/' + x.key + '/otHours'] = num(b.otHours) + x.ot;
+            up[base() + '/attendanceHistory/' + db.ref().push().key] = { empId: x.emp.id, empName: x.emp.name || '', workHours: x.work, otHours: x.ot, date: date, timestamp: ts, by: ctx.accName };
+        });
+        return db.ref().update(up).then(function () { showToast(true); dpLoadAtt(); }).catch(function (er) { onErr(er); showToast(false); });
+    });
+}
+
+/* ---------- check record ---------- */
+function setAmountColor(labelId, valueId, pos) {
+    const l = $(labelId), v = $(valueId), bg = pos ? '#dcfce7' : '#fee2e2', fg = pos ? '#15803d' : '#dc2626';
+    [l, v].forEach(function (el) { if (el) { el.style.background = bg; el.style.color = fg; el.style.fontWeight = '600'; } });
+}
+function dpRunCheck() {
+    const e0 = findEmp($('dpChkEmpId').value.trim());
+    if (!e0) { showToast(false, t('empIdNotFound')); return; }
+    openCheck(e0, $('dpChkDate').value, num($('dpChkHours').value));
+}
+function dpOpenCheck(key) { const e0 = emps.find(function (x) { return x.firebaseKey === key; }); if (e0) openCheck(e0, localDate(new Date()), 0); }
+function openCheck(e0, dateStr, todayHours) {
+    const emp = view(e0), qd = dateStr ? new Date(dateStr + 'T00:00:00') : new Date();
+    const r = computeQueryData(emp, qd, todayHours), carried = num(emp.carried), hasCarried = carried > 0, exceedsLimit = r.allowedThisMonth < 0;
+    const S = function (id, v) { $(id).innerText = v; };
+    S('cdTitleInfo', ': ' + (emp.name || '-') + ' (' + (emp.id || '-') + ')');
+    S('cdId', emp.id || '-'); S('cdName', emp.name || '-'); S('cdDept', emp.department || '-'); S('cdJoin', emp.joinDate || '-'); S('cdYears', r.workYears);
+    S('cdEntitled', fmt(emp.entitled)); S('cdStart', r.startStr || '-'); S('cdEnd', r.endStr || '-'); S('cdRenewal', r.renewalMonths); S('cdYearRange', r.yearRangeStr || '-');
+    S('cdMonths', r.monthsOfService); S('cdTotalAL', fmt(emp.entitled)); S('cdTotalUsed', r.totalUsed.toFixed(2)); S('cdCurrentMonthUsed', fmt(emp.monthUsed));
+    S('cdRemainingTotal', r.remainingTotal.toFixed(2)); S('cdCarried', carried.toFixed(2)); S('cdAllowedThisMonth', r.allowedThisMonth.toFixed(2)); S('cdRemAfterToday', r.remAfterToday.toFixed(2));
+    S('cdAvailCarried', hasCarried ? t('txtAvailable') : t('txtUnavailable')); S('cdIsStarted', r.isStarted ? t('txtStartYes') : t('txtStartNo')); S('cdIsExceeded', exceedsLimit ? t('txtExceed') : t('txtInLimit'));
+    S('cdWorkHours', fmt(emp.workHours)); S('cdOTHours', fmt(emp.otHours)); S('cdLeaveAL', fmt(emp.leaveAL)); S('cdLeavePersonal', fmt(emp.leavePersonal)); S('cdLeaveSpecial', fmt(emp.leaveSpecial));
+    S('cdLeaveMaternity', fmt(emp.leaveMaternity)); S('cdLeaveTravel', fmt(emp.leaveTravel)); S('cdLeaveSick', fmt(emp.leaveSick)); S('cdLeaveOther', fmt(emp.leaveOther));
+    S('cdRemarks', emp.remarks ? emp.remarks : t('noRemarksText'));
+    setAmountColor('cdCarriedLabel', 'cdCarried', hasCarried); setAmountColor('cdAllowedLabel', 'cdAllowedThisMonth', r.allowedThisMonth > 0);
+    setAmountColor('cdRemAfterLabel', 'cdRemAfterToday', r.remAfterToday > 0); setAmountColor('cdAvailCarriedLabel', 'cdAvailCarried', hasCarried);
+    setAmountColor('cdIsStartedLabel', 'cdIsStarted', r.isStarted); setAmountColor('cdIsExceededLabel', 'cdIsExceeded', !exceedsLimit);
+    $('checkDetailsModal').style.display = 'flex';
+}
+function dpCloseCheck() { $('checkDetailsModal').style.display = 'none'; }
+
+/* ---------- export ---------- */
+function dpExportMaster() {
+    if (typeof XLSX === 'undefined') { showToast(false, t('dpNoXlsx')); return; }
+    const cols = [['tblId', 'id'], ['tblName', 'name'], ['tblDepartment', 'department'], ['tblJoin', 'joinDate'], ['tblEntitled', 'entitled'], ['tblStart', 'startDate'], ['tblEnd', 'endDate'], ['tblYearRange', 'yearRange'],
+        ['tblCarried', 'carried'], ['tblPrevUsed', 'prevUsed'], ['tblMonthUsed', 'monthUsed'], ['tblTotalUsed', '_used'], ['tblExceeded', 'exceeded'], ['tblRemaining', '_rem'], ['thMasterWorkingHours', 'workHours'],
+        ['thMasterMonthlyOT', 'otHours'], ['thMasterAnnualLeave', 'leaveAL'], ['thMasterSpecialLeave', 'leaveSpecial'], ['thMasterMaternityLeave', 'leaveMaternity'], ['thMasterTravelLeave', 'leaveTravel'],
+        ['thMasterPersonalLeave', 'leavePersonal'], ['thMasterSickLeave', 'leaveSick'], ['thMasterOtherLeave', 'leaveOther'], ['tblRemarks', 'remarks']];
+    const g = $('dpMasterGroup').value;
+    const aoa = [cols.map(function (c) { return t(c[0]); })];
+    emps.forEach(function (e0) {
+        if (g && e0.department !== g) return;
+        const e = view(e0), cyc = computeLeaveCycle(e.joinDate, new Date());
+        const used = num(e.prevUsed) + num(e.monthUsed) - num(e.exceeded), rem = num(e.entitled) - used + num(e.carried);
+        aoa.push(cols.map(function (c) {
+            const k = c[1];
+            if (k === '_used') return Number(used.toFixed(2));
+            if (k === '_rem') return Number(rem.toFixed(2));
+            if (k === 'startDate') return e.startDate || cyc.startStr;
+            if (k === 'endDate') return e.endDate || cyc.endStr;
+            if (k === 'yearRange') return e.yearRange || cyc.yearRangeStr;
+            if (NUM.indexOf(k) >= 0) return num(e[k]);
+            return e[k] == null ? '' : e[k];
+        }));
+    });
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), 'Master Sheet');
+    XLSX.writeFile(wb, 'Department_' + String(ctx.deptName).replace(/[^\wក-៿一-龥-]+/g, '_') + '_MasterSheet_' + localDate(new Date()) + '.xlsx');
+}
+
+function dpGoBack() {
+    if (window.parent !== window) { window.parent.postMessage('dept-close', '*'); return; }
+    location.href = 'department.html';
+}
+/* month-end reminder hook (filled in a later step) */
+function dpReminder() {}
+
+buildLangMenus();
+setLang(currentLang);
+
+</script>
+</body>
+</html>
