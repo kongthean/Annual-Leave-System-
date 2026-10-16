@@ -470,6 +470,8 @@ td.num-edit input { width: 80px; }
     <button type="button" class="dp-tab" data-tab="leave" onclick="dpTab('leave')" data-i18n="dpTabLeave">Leave Record</button>
     <button type="button" class="dp-tab" data-tab="att" onclick="dpTab('att')" data-i18n="dpTabAtt">Attendance Record</button>
     <button type="button" class="dp-tab" data-tab="check" onclick="dpTab('check')" data-i18n="dpTabCheck">Check Record</button>
+    <button type="button" class="dp-tab" data-tab="cmp" onclick="dpTab('cmp')" data-i18n="dpTabCmp">Compare with HR</button>
+    <button type="button" class="dp-tab" data-tab="req" onclick="dpTab('req')"><span data-i18n="dpTabReq">Requests</span> <span id="dpReqBadge" style="display:none; background:#dc2626; color:#fff; border-radius:999px; font-size:10px; padding:2px 6px;"></span></button>
   </div>
 
   <!-- DASHBOARD -->
@@ -573,6 +575,42 @@ td.num-edit input { width: 80px; }
     </div>
   </div>
 
+  <!-- COMPARE -->
+  <div id="tab-cmp" class="tab-panel">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+      <div><h3 data-i18n="dpTabCmp">Compare with HR</h3><p class="dp-note" data-i18n="dpCmpSub"></p></div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button type="button" class="quick-btn green" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; font-size:12px;" onclick="dpCmpExport()" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+        <button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; font-size:12px;" onclick="dpCmpPrint()" data-i18n="rqPrint">Print / Save as PDF</button>
+      </div>
+    </div>
+    <div class="dp-filter">
+      <label style="font-weight:bold;" data-i18n="tblDepartment">Group</label><select id="dpCmpGroup" onchange="renderCmp()"></select>
+      <label style="display:flex; gap:6px; align-items:center;"><input type="checkbox" id="dpCmpAll" onchange="renderCmp()"> <span data-i18n="dpCmpShowAll">Show all numbers (not only differences)</span></label>
+      <span id="dpCmpInfo" class="dp-note" style="margin:0;"></span>
+    </div>
+    <div class="table-responsive"><table class="master-tbl dp-rec" id="dpCmpTable"><thead><tr>
+      <th data-i18n="tblId">ID</th><th data-i18n="tblName">Name</th><th data-i18n="dpColField">Field</th><th data-i18n="dpColDeptVal">Department</th><th data-i18n="dpColHRVal">HR</th><th data-i18n="dpColDiff">Difference</th><th></th>
+    </tr></thead><tbody></tbody></table></div>
+    <h4 style="margin-top:22px;" data-i18n="dpInvListTitle">Investigations</h4>
+    <div class="table-responsive"><table class="master-tbl dp-rec" id="dpInvTable"><thead><tr>
+      <th data-i18n="rqDate">Date</th><th data-i18n="rqEmployee">Employee</th><th data-i18n="dpColField">Field</th><th data-i18n="dpColDeptVal">Department</th><th data-i18n="dpColHRVal">HR</th><th data-i18n="rqStatus">Status</th><th data-i18n="rqNote">Note</th><th></th>
+    </tr></thead><tbody></tbody></table></div>
+  </div>
+
+  <!-- REQUESTS -->
+  <div id="tab-req" class="tab-panel">
+    <h3 data-i18n="dpTabReq">Requests</h3>
+    <p class="dp-note" data-i18n="dpReqSub"></p>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+      <button type="button" class="quick-btn indigo" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; font-size:12px;" onclick="dpReqOpen('edit')" data-i18n="dpReqNewEdit">Edit employee info</button>
+      <button type="button" class="quick-btn rose" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; font-size:12px;" onclick="dpReqOpen('remove')" data-i18n="dpReqNewRemove">Remove employee</button>
+      <button type="button" class="quick-btn teal" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; font-size:12px;" onclick="dpReqOpen('group')" data-i18n="dpReqNewGroup">New group</button>
+    </div>
+    <div class="dp-filter"><select id="dpReqFStatus" onchange="renderReqs()"></select><select id="dpReqFType" onchange="renderReqs()"></select></div>
+    <div class="table-responsive"><table class="master-tbl dp-rec" id="dpReqTable"><thead><tr><th></th><th data-i18n="rqDate">Date</th><th data-i18n="rqType">Type</th><th data-i18n="rqEmployee">Employee</th><th data-i18n="rqSigHR">HR</th><th data-i18n="rqSigAdmin">Administration</th><th data-i18n="rqStatus">Status</th></tr></thead><tbody></tbody></table></div>
+  </div>
+
   <div style="text-align:center; font-size:10px; color:#94a3b8; padding:14px;">Department System 1.00</div>
 </div>
 
@@ -635,6 +673,51 @@ td.num-edit input { width: 80px; }
   </div>
 </div>
 
+<!-- INVESTIGATION -->
+<div class="modal" id="dpInvModal">
+  <div class="modal-content" style="max-width:520px;">
+    <div class="modal-header"><h4 data-i18n="dpInvTitle">Ask HR to investigate</h4><button class="modal-close" onclick="$('dpInvModal').style.display='none'">&times;</button></div>
+    <div id="dpInvInfo" style="font-size:13px; line-height:1.7; margin-bottom:10px;"></div>
+    <div class="form-group"><label data-i18n="dpInvNote">Note (optional)</label><textarea id="dpInvText" rows="3" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:8px;"></textarea></div>
+    <button type="button" class="btn-submit" style="background:#92400e;" onclick="dpInvSend(this)" data-i18n="dpReqSend">Send request</button>
+  </div>
+</div>
+<!-- MONTH-END REMINDER -->
+<div class="modal" id="dpRemindModal" style="z-index:4400;">
+  <div class="modal-content" style="max-width:480px; text-align:center;">
+    <div style="font-size:42px;">&#9888;&#65039;</div>
+    <p id="dpRemindMsg" style="font-size:14px; line-height:1.6; margin:10px 0 16px;"></p>
+    <div style="display:flex; gap:10px; justify-content:center;">
+      <button type="button" class="btn-submit" style="width:auto; padding:8px 22px; background:#16a34a;" onclick="$('dpRemindModal').style.display='none'; dpTab('master'); dpExportMaster();" data-i18n="dpExportNow">Export now</button>
+      <button type="button" class="btn-submit" style="width:auto; padding:8px 22px; background:#64748b;" onclick="$('dpRemindModal').style.display='none'" data-i18n="rqOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW REQUEST -->
+<div class="modal" id="dpReqModal">
+  <div class="modal-content" style="max-width:760px;">
+    <div class="modal-header"><h4 id="dpReqModalTitle"></h4><button class="modal-close" onclick="dpReqClose()">&times;</button></div>
+    <form id="dpReqForm">
+      <div id="dpReqEmpBox">
+        <div class="form-group"><label data-i18n="lblEmpId">Employee ID</label><input type="text" id="dpReqEmpId" list="dpReqEmpList" oninput="dpReqEmpInput()" autocomplete="off"><datalist id="dpReqEmpList"></datalist></div>
+        <div class="dp-note" id="dpReqEmpName" style="font-weight:bold; font-size:13px; color:#0f172a;"></div>
+        <div id="dpReqFields" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; margin-top:8px;"></div>
+      </div>
+      <div id="dpReqGroupBox" style="display:none;"><div class="form-group"><label data-i18n="rqGroupName">New group name</label><input type="text" id="dpReqGroupName" autocomplete="off"></div></div>
+      <div class="form-group" style="margin-top:10px;"><label data-i18n="rqDetail">Description / Reason</label><textarea id="dpReqDetail" rows="4" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:8px;"></textarea></div>
+      <button type="submit" class="btn-submit" style="background:#92400e;" data-i18n="dpReqSend">Send request</button>
+    </form>
+  </div>
+</div>
+<div class="modal" id="dpReqView" style="z-index:3000;">
+  <div class="modal-content" style="max-width:860px; max-height:92vh; overflow-y:auto;">
+    <div class="modal-header"><h4 data-i18n="rqTitle">Request Form</h4><button class="modal-close" onclick="$('dpReqView').style.display='none'">&times;</button></div>
+    <div id="dpReqDoc"></div>
+    <div style="display:flex; gap:10px; justify-content:center; margin-top:12px;"><button type="button" class="btn-submit" style="width:auto; padding:8px 22px; background:#475569;" onclick="dpReqPrint()" data-i18n="rqPrint">Print / Save as PDF</button></div>
+  </div>
+</div>
+
 <!-- CONFIRM -->
 <div class="modal" id="dpConfirm" style="z-index:4500;">
   <div class="modal-content" style="max-width:420px; text-align:center;">
@@ -647,7 +730,7 @@ td.num-edit input { width: 80px; }
 </div>
 
 <script>
-const I18N = {"en": {"attDateRequiredMsg": "Please choose a date first.", "attNoValuesEnteredMsg": "No working hours or overtime were entered.", "attTitle": "Attendance", "btnCheckDetails": "Check Details", "btnClose": "Close", "btnExport": "Export to Excel (.xlsx)", "btnLoadDept": "Show Employees", "btnSubmitAtt": "Submit Attendance Record", "btnSubmitLeave": "Submit Leave Record", "checkDetailsModalTitle": "Check Details", "dpAllGroups": "All groups", "dpAttDup": "Attendance for this date was already recorded for: {names}.\nRecord again and add these hours?", "dpAttSub": "Choose a group and date, then enter working hours and overtime for everyone at once. Saved only in your department's own book.", "dpBack": "Back to main page", "dpBookWait": "The department book for this employee is still being prepared. Please try again in a moment.", "dpColBy": "Recorded by", "dpColHours": "Hours", "dpColType": "Type", "dpDashSub": "Your department keeps its own book. Nothing you type here changes the HR or Administration master sheet.", "dpDashTitle": "Welcome", "dpEditNote": "These numbers are kept only in your department's book.", "dpEditTitle": "Edit numbers", "dpLeaveNone": "Please enter at least one leave amount.", "dpLeaveSub": "Leave typed here is saved only in your department's own book.", "dpLocked": "Too many wrong attempts. Try again in {m} minute(s).", "dpLogin": "Log In", "dpLoginErr": "Wrong username or password.", "dpLoginSub": "Log in with your department account", "dpLogout": "Log out", "dpMasterSub": "This is your department's own book. Numbers changed here stay in your department only. ID, name, group and join date come from HR.", "dpNo": "No", "dpNoAccess": "This account cannot open the department data. Please log in again or contact Administration.", "dpNoGroups": "No groups are assigned to this department yet. Please ask Administration or HR to assign groups.", "dpNoStaff": "No employees found for this department.", "dpNoXlsx": "The Excel tool did not load. Please check the internet connection and try again.", "dpPassword": "Password", "dpPermErr": "Permission denied. Please ask Administration to check your account and the database rules.", "dpRecent": "Recent records", "dpRemainingMsg": "Remaining Hours: {r}", "dpSave": "Save", "dpTabAtt": "Attendance Record", "dpTabCheck": "Check Record", "dpTabDash": "Dashboard", "dpTabLeave": "Leave Record", "dpTabMaster": "Master Sheet", "dpTitle": "Department System", "dpUsername": "Username", "dpYes": "Yes", "empIdNotFound": "Employee ID not found", "lblAllowedThisMonth": "Available This Month", "lblAttDate": "Date", "lblAvailableCarriedBalance": "Available Carried Balance", "lblEmpId": "Employee ID", "lblEmpName": "Employee Name", "lblIsExceeded": "Exceed Monthly Limit", "lblIsStarted": "Entitle Start Date", "lblLeaveDate": "Leave Date", "lblMonthsService": "Months of Service", "lblQueryDate": "Query Date", "lblRemAfterToday": "Remaining Balance After Today", "lblRemarksHeading": "Master Remarks / Notes:", "lblSearch": "Search Employee:", "lblTodayHours": "Today's Hours (Optional)", "leaveRecordsTitle": "Leave Records", "leaveTypeAL": "Annual Leave", "leaveTypeMaternity": "Maternity Leave", "leaveTypeOther": "Other Leave", "leaveTypePersonal": "Personal Leave", "leaveTypeSick": "Sick Leave", "leaveTypeSpecial": "Special Leave", "leaveTypeTravel": "Travel Leave", "masterRowErrorMsg": "Could not display this record - data may be corrupted. Please check this employee in Edit Record.", "noRemarksText": "No specific remarks or notes logged for this employee.", "otHoursLabel": "Monthly Overtime", "queryParams": "Query Parameters", "tblActions": "Actions", "tblCarried": "Carried Forward", "tblDepartment": "Group", "tblEnd": "AL End Date", "tblEntitled": "Entitled Hours", "tblExceeded": "Exceeded Hours", "tblId": "ID", "tblJoin": "Join Date", "tblMonthUsed": "Current Month Used", "tblName": "Name", "tblPrevUsed": "Prev Month Used", "tblRemaining": "Remaining Hours", "tblRemarks": "Remarks", "tblRenewed": "Months Until AL Renewal", "tblStart": "AL Start Date", "tblTotalAL": "Total AL", "tblTotalUsed": "Total Used Hours", "tblYearRange": "Year Range", "tblYears": "Years of Work", "thMasterAnnualLeave": "Annual Leave", "thMasterMaternityLeave": "Maternity Leave", "thMasterMonthlyOT": "Monthly Overtime", "thMasterOtherLeave": "Other Leave", "thMasterPersonalLeave": "Personal Leave", "thMasterSickLeave": "Sick Leave", "thMasterSpecialLeave": "Special Leave", "thMasterTravelLeave": "Travel Leave", "thMasterWorkingHours": "Working Hours", "toastFail": "Failed", "toastSuccess": "Success", "txtAvailable": "Available", "txtExceed": "Exceed", "txtInLimit": "In Limit", "txtStartNo": "No", "txtStartYes": "Yes", "txtUnavailable": "Unavailable", "workHoursLabel": "Working Hours", "dpStatEmp": "Employees", "dpStatGroups": "Groups", "dpStatMonthUsed": "Leave used this month (h)", "dpStatWork": "Total working hours", "dpStatOT": "Total overtime (h)", "dpStatLeaveAL": "Annual leave taken (h)"}, "km": {"attDateRequiredMsg": "សូមជ្រើសរើសកាលបរិច្ឆេទជាមុនសិន។", "attNoValuesEnteredMsg": "មិនមានការបញ្ចូលម៉ោងធ្វើការ ឬម៉ោងបន្ថែមទេ។", "attTitle": "វត្តមានប្រចាំថ្ងៃ", "btnCheckDetails": "ពិនិត្យព័ត៌មានលម្អិត", "btnClose": "បិទ", "btnExport": "នាំចេញជា Excel (.xlsx)", "btnLoadDept": "បង្ហាញបុគ្គលិក", "btnSubmitAtt": "រក្សាទុកវត្តមាន", "btnSubmitLeave": "រក្សាទុកកំណត់ត្រាច្បាប់", "checkDetailsModalTitle": "ពិនិត្យព័ត៌មានលម្អិត", "dpAllGroups": "គ្រប់ក្រុម", "dpAttDup": "វត្តមានសម្រាប់ថ្ងៃនេះត្រូវបានកត់ត្រារួចហើយសម្រាប់៖ {names}។\nកត់ត្រាម្តងទៀត ហើយបូកម៉ោងទាំងនេះបន្ថែម?", "dpAttSub": "ជ្រើសរើសក្រុម និងកាលបរិច្ឆេទ បន្ទាប់មកបញ្ចូលម៉ោងធ្វើការ និងម៉ោងបន្ថែមសម្រាប់មនុស្សទាំងអស់ក្នុងពេលតែមួយ។ រក្សាទុកតែក្នុងសៀវភៅផ្ទាល់ខ្លួនរបស់នាយកដ្ឋានអ្នក។", "dpBack": "ត្រឡប់ទៅទំព័រដើម", "dpBookWait": "សៀវភៅនាយកដ្ឋានរបស់បុគ្គលិកនេះកំពុងត្រូវបានរៀបចំ។ សូមព្យាយាមម្តងទៀតបន្តិចក្រោយ។", "dpColBy": "កត់ត្រាដោយ", "dpColHours": "ម៉ោង", "dpColType": "ប្រភេទ", "dpDashSub": "នាយកដ្ឋានរបស់អ្នកមានសៀវភៅផ្ទាល់ខ្លួន។ អ្វីដែលអ្នកវាយនៅទីនេះមិនប្តូរបញ្ជីចម្បងរបស់ HR ឬរដ្ឋបាលទេ។", "dpDashTitle": "សូមស្វាគមន៍", "dpEditNote": "លេខទាំងនេះរក្សាទុកតែក្នុងសៀវភៅរបស់នាយកដ្ឋានអ្នកប៉ុណ្ណោះ។", "dpEditTitle": "កែលេខ", "dpLeaveNone": "សូមបញ្ចូលចំនួនម៉ោងច្បាប់យ៉ាងតិចមួយ។", "dpLeaveSub": "ច្បាប់ដែលវាយនៅទីនេះរក្សាទុកតែក្នុងសៀវភៅផ្ទាល់ខ្លួនរបស់នាយកដ្ឋានអ្នកប៉ុណ្ណោះ។", "dpLocked": "ព្យាយាមខុសច្រើនពេក។ សូមព្យាយាមម្តងទៀតក្នុងរយៈពេល {m} នាទី។", "dpLogin": "ចូល", "dpLoginErr": "ឈ្មោះអ្នកប្រើ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។", "dpLoginSub": "ចូលដោយប្រើគណនីនាយកដ្ឋានរបស់អ្នក", "dpLogout": "ចាកចេញ", "dpMasterSub": "នេះគឺជាសៀវភៅផ្ទាល់ខ្លួនរបស់នាយកដ្ឋានអ្នក។ លេខដែលកែនៅទីនេះរក្សាទុកក្នុងនាយកដ្ឋានអ្នកតែប៉ុណ្ណោះ។ អត្តលេខ ឈ្មោះ ក្រុម និងថ្ងៃចូលធ្វើការមកពី HR។", "dpNo": "ទេ", "dpNoAccess": "គណនីនេះមិនអាចបើកទិន្នន័យនាយកដ្ឋានបានទេ។ សូមចូលម្តងទៀត ឬទាក់ទងរដ្ឋបាល។", "dpNoGroups": "មិនទាន់មានក្រុមកំណត់ឱ្យនាយកដ្ឋាននេះទេ។ សូមស្នើឱ្យរដ្ឋបាល ឬ HR កំណត់ក្រុម។", "dpNoStaff": "រកមិនឃើញបុគ្គលិកសម្រាប់នាយកដ្ឋាននេះទេ។", "dpNoXlsx": "ឧបករណ៍ Excel មិនបានផ្ទុកទេ។ សូមពិនិត្យអ៊ីនធឺណិត ហើយព្យាយាមម្តងទៀត។", "dpPassword": "ពាក្យសម្ងាត់", "dpPermErr": "គ្មានសិទ្ធិ។ សូមស្នើឱ្យរដ្ឋបាលពិនិត្យគណនី និងច្បាប់មូលដ្ឋានទិន្នន័យ។", "dpRecent": "កំណត់ត្រាថ្មីៗ", "dpRemainingMsg": "ម៉ោងនៅសល់៖ {r}", "dpSave": "រក្សាទុក", "dpTabAtt": "កំណត់ត្រាវត្តមាន", "dpTabCheck": "ពិនិត្យកំណត់ត្រា", "dpTabDash": "ផ្ទាំងគ្រប់គ្រង", "dpTabLeave": "កំណត់ត្រាច្បាប់", "dpTabMaster": "បញ្ជីចម្បង", "dpTitle": "ប្រព័ន្ធនាយកដ្ឋាន", "dpUsername": "ឈ្មោះអ្នកប្រើ", "dpYes": "បាទ/ចាស", "empIdNotFound": "រកមិនឃើញអត្តលេខបុគ្គលិកទេ", "lblAllowedThisMonth": "សិទ្ធិអាចប្រើក្នុងខែនេះ", "lblAttDate": "កាលបរិច្ឆេទ", "lblAvailableCarriedBalance": "សមតុល្យលើកមកបន្តដែលអាចប្រើបាន", "lblEmpId": "អត្តលេខបុគ្គលិក", "lblEmpName": "ឈ្មោះបុគ្គលិក", "lblIsExceeded": "លើសកំណត់ប្រចាំខែ", "lblIsStarted": "កាលបរិច្ឆេទចាប់ផ្តើមសិទ្ធិ", "lblLeaveDate": "កាលបរិច្ឆេទឈប់សម្រាក", "lblMonthsService": "ចំនួនខែធ្វើការ", "lblQueryDate": "កាលបរិច្ឆេទសួរ", "lblRemAfterToday": "សមតុល្យនៅសល់ក្រោយថ្ងៃនេះ", "lblRemarksHeading": "កំណត់សម្គាល់ចម្បង:", "lblSearch": "ស្វែងរកបុគ្គលិក:", "lblTodayHours": "ម៉ោងថ្ងៃនេះ (ជម្រើស)", "leaveRecordsTitle": "កំណត់ត្រាច្បាប់ឈប់សម្រាក", "leaveTypeAL": "ច្បាប់បំណាច់ឆ្នាំ", "leaveTypeMaternity": "ច្បាប់មាតុភាព", "leaveTypeOther": "ច្បាប់ផ្សេងៗ", "leaveTypePersonal": "ច្បាប់ផ្ទាល់ខ្លួន", "leaveTypeSick": "ច្បាប់ឈឺ", "leaveTypeSpecial": "ច្បាប់ពិសេស", "leaveTypeTravel": "ច្បាប់ធ្វើដំណើរ", "masterRowErrorMsg": "មិនអាចបង្ហាញទិន្នន័យនេះបានទេ - ទិន្នន័យអាចខូច។ សូមពិនិត្យបុគ្គលិកនេះនៅក្នុងកែសម្រួលទិន្នន័យ។", "noRemarksText": "គ្មានកំណត់សម្គាល់សម្រាប់បុគ្គលិកនេះទេ។", "otHoursLabel": "ម៉ោងថែម", "queryParams": "ប៉ារ៉ាម៉ែត្រសួរព័ត៌មាន", "tblActions": "សកម្មភាព", "tblCarried": "បង្វិលឆ្នាំមុន", "tblDepartment": "ក្រុម", "tblEnd": "ថ្ងៃបញ្ចប់", "tblEntitled": "ម៉ោងទទួលបាន", "tblExceeded": "ម៉ោងប្រើលើស", "tblId": "អត្តលេខ", "tblJoin": "ថ្ងៃចូលធ្វើការ", "tblMonthUsed": "ខែនេះប្រើ", "tblName": "ឈ្មោះ", "tblPrevUsed": "ខែមុនប្រើ", "tblRemaining": "ម៉ោងនៅសល់", "tblRemarks": "កំណត់សម្គាល់", "tblRenewed": "ខែនៅសល់", "tblStart": "ថ្ងៃចាប់ផ្តើម", "tblTotalAL": "បំណាច់ឆ្នាំសរុប", "tblTotalUsed": "ម៉ោងប្រើសរុប", "tblYearRange": "រង្វង់ឆ្នាំ", "tblYears": "អតីតភាព", "thMasterAnnualLeave": "ច្បាប់បំណាច់ឆ្នាំ", "thMasterMaternityLeave": "ច្បាប់មាតុភាព", "thMasterMonthlyOT": "ម៉ោងថែម", "thMasterOtherLeave": "ច្បាប់ផ្សេងៗ", "thMasterPersonalLeave": "ច្បាប់ផ្ទាល់ខ្លួន", "thMasterSickLeave": "ច្បាប់ឈឺ", "thMasterSpecialLeave": "ច្បាប់ពិសេស", "thMasterTravelLeave": "ច្បាប់ធ្វើដំណើរ", "thMasterWorkingHours": "ម៉ោងធ្វើការ", "toastFail": "មិនជោគជ័យ", "toastSuccess": "ជោគជ័យ", "txtAvailable": "អាចប្រើបាន", "txtExceed": "លើសកំណត់", "txtInLimit": "នៅក្នុងដែនកំណត់", "txtStartNo": "មិនទាន់ដល់", "txtStartYes": "បានចាប់ផ្តើម", "txtUnavailable": "មិនអាចប្រើបាន", "workHoursLabel": "ម៉ោងធ្វើការ", "dpStatEmp": "បុគ្គលិក", "dpStatGroups": "ក្រុម", "dpStatMonthUsed": "ច្បាប់ប្រើក្នុងខែនេះ (ម៉ោង)", "dpStatWork": "ម៉ោងធ្វើការសរុប", "dpStatOT": "ម៉ោងបន្ថែមសរុប", "dpStatLeaveAL": "ច្បាប់ប្រចាំឆ្នាំបានប្រើ (ម៉ោង)"}, "zh": {"attDateRequiredMsg": "请先选择日期。", "attNoValuesEnteredMsg": "未输入任何工作时间或加班时间。", "attTitle": "考勤记录", "btnCheckDetails": "查看详情", "btnClose": "关闭", "btnExport": "导出为 Excel (.xlsx)", "btnLoadDept": "显示员工", "btnSubmitAtt": "提交考勤记录", "btnSubmitLeave": "提交请假记录", "checkDetailsModalTitle": "查看详情", "dpAllGroups": "所有小组", "dpAttDup": "该日期已为以下员工记录过考勤：{names}。\n是否再次记录并累加这些小时？", "dpAttSub": "选择小组和日期，然后一次性输入所有人的工作小时和加班小时。只保存在您部门自己的账本中。", "dpBack": "返回主页", "dpBookWait": "该员工的部门账本仍在准备中，请稍后重试。", "dpColBy": "记录人", "dpColHours": "小时", "dpColType": "类型", "dpDashSub": "您的部门有自己独立的账本。在此输入的内容不会更改人事或管理部门的主控表。", "dpDashTitle": "欢迎", "dpEditNote": "这些数字只保存在您部门的账本中。", "dpEditTitle": "修改数字", "dpLeaveNone": "请至少输入一项假期小时数。", "dpLeaveSub": "在此输入的假期只保存在您部门自己的账本中。", "dpLocked": "错误次数过多，请在 {m} 分钟后重试。", "dpLogin": "登录", "dpLoginErr": "用户名或密码错误。", "dpLoginSub": "请使用部门账户登录", "dpLogout": "退出登录", "dpMasterSub": "这是您部门自己的账本。在此修改的数字只保存在本部门。工号、姓名、小组和入职日期来自人事部门。", "dpNo": "否", "dpNoAccess": "此账户无法打开部门数据。请重新登录或联系管理部门。", "dpNoGroups": "此部门尚未分配小组。请联系管理部门或人事分配小组。", "dpNoStaff": "未找到此部门的员工。", "dpNoXlsx": "Excel 工具未加载。请检查网络后重试。", "dpPassword": "密码", "dpPermErr": "权限不足。请联系管理部门检查您的账户和数据库规则。", "dpRecent": "最近记录", "dpRemainingMsg": "剩余小时：{r}", "dpSave": "保存", "dpTabAtt": "考勤记录", "dpTabCheck": "查询记录", "dpTabDash": "仪表板", "dpTabLeave": "请假记录", "dpTabMaster": "主控表", "dpTitle": "部门系统", "dpUsername": "用户名", "dpYes": "是", "empIdNotFound": "找不到该员工编号", "lblAllowedThisMonth": "本月可用额度", "lblAttDate": "日期", "lblAvailableCarriedBalance": "可用结转余额", "lblEmpId": "员工编号", "lblEmpName": "员工姓名", "lblIsExceeded": "超出本月限额", "lblIsStarted": "享受开始日期", "lblLeaveDate": "请假日期", "lblMonthsService": "服务月数", "lblQueryDate": "查询日期", "lblRemAfterToday": "今日后剩余余额", "lblRemarksHeading": "主控表备注/说明:", "lblSearch": "搜索员工:", "lblTodayHours": "今日请假 (可选)", "leaveRecordsTitle": "请假记录", "leaveTypeAL": "年假", "leaveTypeMaternity": "产假", "leaveTypeOther": "其他假", "leaveTypePersonal": "个人假", "leaveTypeSick": "病假", "leaveTypeSpecial": "特殊假", "leaveTypeTravel": "差旅假", "masterRowErrorMsg": "无法显示此记录 - 数据可能已损坏。请在编辑记录中检查该员工。", "noRemarksText": "该员工无特定备注或说明。", "otHoursLabel": "加班时间", "queryParams": "查询参数", "tblActions": "操作", "tblCarried": "上年结转", "tblDepartment": "小组", "tblEnd": "结束日期", "tblEntitled": "应享小时数", "tblExceeded": "超出小时数", "tblId": "工号", "tblJoin": "入职日期", "tblMonthUsed": "本月已用", "tblName": "姓名", "tblPrevUsed": "上月已用", "tblRemaining": "剩余小时数", "tblRemarks": "备注", "tblRenewed": "到期剩余月数", "tblStart": "开始日期", "tblTotalAL": "年假总数", "tblTotalUsed": "已用总小时数", "tblYearRange": "年份范围", "tblYears": "工龄", "thMasterAnnualLeave": "年假", "thMasterMaternityLeave": "产假", "thMasterMonthlyOT": "加班时间", "thMasterOtherLeave": "其他假", "thMasterPersonalLeave": "个人假", "thMasterSickLeave": "病假", "thMasterSpecialLeave": "特殊假", "thMasterTravelLeave": "差旅假", "thMasterWorkingHours": "工作时间", "toastFail": "失败", "toastSuccess": "成功", "txtAvailable": "可用", "txtExceed": "超出", "txtInLimit": "在限额内", "txtStartNo": "未到", "txtStartYes": "已到", "txtUnavailable": "不可用", "workHoursLabel": "工作时间", "dpStatEmp": "员工", "dpStatGroups": "小组", "dpStatMonthUsed": "本月已用假期(小时)", "dpStatWork": "总工作小时", "dpStatOT": "总加班小时", "dpStatLeaveAL": "已休年假(小时)"}};
+const I18N = {"en": {"attDateRequiredMsg": "Please choose a date first.", "attNoValuesEnteredMsg": "No working hours or overtime were entered.", "attTitle": "Attendance", "btnCheckDetails": "Check Details", "btnClose": "Close", "btnExport": "Export to Excel (.xlsx)", "btnLoadDept": "Show Employees", "btnSubmitAtt": "Submit Attendance Record", "btnSubmitLeave": "Submit Leave Record", "checkDetailsModalTitle": "Check Details", "dgAll": "All", "dgDept": "Department", "dpAllGroups": "All groups", "dpAttDup": "Attendance for this date was already recorded for: {names}.\nRecord again and add these hours?", "dpAttSub": "Choose a group and date, then enter working hours and overtime for everyone at once. Saved only in your department's own book.", "dpBack": "Back to main page", "dpBookWait": "The department book for this employee is still being prepared. Please try again in a moment.", "dpCmpInfo": "{n} difference(s) in {e} employee(s)", "dpCmpNone": "No differences. Your numbers match HR.", "dpCmpShowAll": "Show all numbers (not only differences)", "dpCmpSub": "Compares your department's numbers with the HR master sheet. Use it at month end. If a number is different, press Investigate and HR / Administration will check which side is wrong.", "dpColBy": "Recorded by", "dpColDeptVal": "Department", "dpColDiff": "Difference", "dpColField": "Field", "dpColHRVal": "HR", "dpColHours": "Hours", "dpColType": "Type", "dpDashSub": "Your department keeps its own book. Nothing you type here changes the HR or Administration master sheet.", "dpDashTitle": "Welcome", "dpEditNote": "These numbers are kept only in your department's book.", "dpEditTitle": "Edit numbers", "dpExportNow": "Export now", "dpInvBtn": "Investigate", "dpInvListTitle": "Investigations", "dpInvNote": "Note (optional)", "dpInvSent": "Sent. HR / Administration will check it.", "dpInvTitle": "Ask HR to investigate", "dpLeaveNone": "Please enter at least one leave amount.", "dpLeaveSub": "Leave typed here is saved only in your department's own book.", "dpLocked": "Too many wrong attempts. Try again in {m} minute(s).", "dpLogin": "Log In", "dpLoginErr": "Wrong username or password.", "dpLoginSub": "Log in with your department account", "dpLogout": "Log out", "dpMarkFixed": "I corrected it", "dpMasterSub": "This is your department's own book. Numbers changed here stay in your department only. ID, name, group and join date come from HR.", "dpNo": "No", "dpNoAccess": "This account cannot open the department data. Please log in again or contact Administration.", "dpNoGroups": "No groups are assigned to this department yet. Please ask Administration or HR to assign groups.", "dpNoStaff": "No employees found for this department.", "dpNoXlsx": "The Excel tool did not load. Please check the internet connection and try again.", "dpPassword": "Password", "dpPermErr": "Permission denied. Please ask Administration to check your account and the database rules.", "dpRecent": "Recent records", "dpRemainingMsg": "Remaining Hours: {r}", "dpRemindMsg": "Your department master sheet will be reset on the 1st before 5:00 PM by HR or Administration. Please export or download important information now.", "dpReqCancel": "Cancel request", "dpReqCancelConfirm": "Cancel this request?", "dpReqGroupBad": "Group name is empty or contains a character that is not allowed ( . # $ [ ] / ).", "dpReqGroupDup": "This group name already exists or is already requested.", "dpReqNeedDetail": "Please write a description / reason.", "dpReqNewEdit": "Edit employee info", "dpReqNewGroup": "New group", "dpReqNewRemove": "Remove employee", "dpReqNoChange": "Please change at least one field.", "dpReqNoEmp": "Employee ID not found in this department.", "dpReqSend": "Send request", "dpReqSent": "Request sent. It now waits for HR and Administration.", "dpReqSub": "Changes to an employee's ID, name or personal information, removing an employee, or adding a new group need approval from HR and then Administration. Numbers (hours, leave, entitled hours) do not need approval.", "dpReqView": "View form", "dpSave": "Save", "dpTabAtt": "Attendance Record", "dpTabCheck": "Check Record", "dpTabCmp": "Compare with HR", "dpTabDash": "Dashboard", "dpTabLeave": "Leave Record", "dpTabMaster": "Master Sheet", "dpTabReq": "Requests", "dpTitle": "Department System", "dpUsername": "Username", "dpYes": "Yes", "empIdNotFound": "Employee ID not found", "ivClosed": "Closed", "ivDeptFix": "Department must correct its number", "ivFixed": "Department says it is corrected", "ivHrFixed": "HR corrected its number", "ivOpen": "Under investigation", "lblAllowedThisMonth": "Available This Month", "lblAttDate": "Date", "lblAvailableCarriedBalance": "Available Carried Balance", "lblEmpId": "Employee ID", "lblEmpName": "Employee Name", "lblIsExceeded": "Exceed Monthly Limit", "lblIsStarted": "Entitle Start Date", "lblLeaveDate": "Leave Date", "lblMonthsService": "Months of Service", "lblQueryDate": "Query Date", "lblRemAfterToday": "Remaining Balance After Today", "lblRemarksHeading": "Master Remarks / Notes:", "lblSearch": "Search Employee:", "lblTodayHours": "Today's Hours (Optional)", "leaveRecordsTitle": "Leave Records", "leaveTypeAL": "Annual Leave", "leaveTypeMaternity": "Maternity Leave", "leaveTypeOther": "Other Leave", "leaveTypePersonal": "Personal Leave", "leaveTypeSick": "Sick Leave", "leaveTypeSpecial": "Special Leave", "leaveTypeTravel": "Travel Leave", "masterRowErrorMsg": "Could not display this record - data may be corrupted. Please check this employee in Edit Record.", "noRemarksText": "No specific remarks or notes logged for this employee.", "otHoursLabel": "Monthly Overtime", "queryParams": "Query Parameters", "rqApproved": "Approved", "rqChange": "What to change", "rqCurrent": "Current", "rqDate": "Date", "rqDetail": "Description / Reason", "rqEmployee": "Employee", "rqField": "Field", "rqGroupName": "New group name", "rqNew": "Requested", "rqNone": "No requests.", "rqNote": "Note", "rqOk": "OK", "rqPending": "Waiting", "rqPrint": "Print / Save as PDF", "rqRef": "Ref", "rqRejected": "Rejected", "rqRemoveText": "Please remove this employee from the system.", "rqSigAdmin": "Administration", "rqSigHR": "HR", "rqSigRequested": "Requested by (Department)", "rqSignedInstead": "Signed by Administration instead of HR", "rqStatus": "Status", "rqStatusApproved": "Approved - master updated", "rqStatusRejected": "Rejected", "rqStatusWaitAdmin": "Waiting for Administration", "rqStatusWaitHR": "Waiting for HR", "rqTitle": "Request Form", "rqType": "Type", "rqTypeEdit": "Edit employee information", "rqTypeGroup": "New group", "rqTypeRemove": "Remove employee", "tblActions": "Actions", "tblCarried": "Carried Forward", "tblContact": "Contact Number", "tblDepartment": "Group", "tblDob": "Date of Birth", "tblEmergencyContact": "Emergency Contact", "tblEnd": "AL End Date", "tblEntitled": "Entitled Hours", "tblExceeded": "Exceeded Hours", "tblId": "ID", "tblJoin": "Join Date", "tblMonthUsed": "Current Month Used", "tblName": "Name", "tblPob": "Place of Birth", "tblPrevUsed": "Prev Month Used", "tblRemaining": "Remaining Hours", "tblRemarks": "Remarks", "tblRenewed": "Months Until AL Renewal", "tblResidence": "Current Residence", "tblSex": "Sex", "tblStart": "AL Start Date", "tblTotalAL": "Total AL", "tblTotalUsed": "Total Used Hours", "tblYearRange": "Year Range", "tblYears": "Years of Work", "thMasterAnnualLeave": "Annual Leave", "thMasterMaternityLeave": "Maternity Leave", "thMasterMonthlyOT": "Monthly Overtime", "thMasterOtherLeave": "Other Leave", "thMasterPersonalLeave": "Personal Leave", "thMasterSickLeave": "Sick Leave", "thMasterSpecialLeave": "Special Leave", "thMasterTravelLeave": "Travel Leave", "thMasterWorkingHours": "Working Hours", "toastFail": "Failed", "toastSuccess": "Success", "txtAvailable": "Available", "txtExceed": "Exceed", "txtInLimit": "In Limit", "txtStartNo": "No", "txtStartYes": "Yes", "txtUnavailable": "Unavailable", "workHoursLabel": "Working Hours", "dpStatEmp": "Employees", "dpStatGroups": "Groups", "dpStatMonthUsed": "Leave used this month (h)", "dpStatWork": "Total working hours", "dpStatOT": "Total overtime (h)", "dpStatLeaveAL": "Annual leave taken (h)", "dpLastReset": "Last reset: {m}"}, "km": {"attDateRequiredMsg": "សូមជ្រើសរើសកាលបរិច្ឆេទជាមុនសិន។", "attNoValuesEnteredMsg": "មិនមានការបញ្ចូលម៉ោងធ្វើការ ឬម៉ោងបន្ថែមទេ។", "attTitle": "វត្តមានប្រចាំថ្ងៃ", "btnCheckDetails": "ពិនិត្យព័ត៌មានលម្អិត", "btnClose": "បិទ", "btnExport": "នាំចេញជា Excel (.xlsx)", "btnLoadDept": "បង្ហាញបុគ្គលិក", "btnSubmitAtt": "រក្សាទុកវត្តមាន", "btnSubmitLeave": "រក្សាទុកកំណត់ត្រាច្បាប់", "checkDetailsModalTitle": "ពិនិត្យព័ត៌មានលម្អិត", "dgAll": "ទាំងអស់", "dgDept": "នាយកដ្ឋាន", "dpAllGroups": "គ្រប់ក្រុម", "dpAttDup": "វត្តមានសម្រាប់ថ្ងៃនេះត្រូវបានកត់ត្រារួចហើយសម្រាប់៖ {names}។\nកត់ត្រាម្តងទៀត ហើយបូកម៉ោងទាំងនេះបន្ថែម?", "dpAttSub": "ជ្រើសរើសក្រុម និងកាលបរិច្ឆេទ បន្ទាប់មកបញ្ចូលម៉ោងធ្វើការ និងម៉ោងបន្ថែមសម្រាប់មនុស្សទាំងអស់ក្នុងពេលតែមួយ។ រក្សាទុកតែក្នុងសៀវភៅផ្ទាល់ខ្លួនរបស់នាយកដ្ឋានអ្នក។", "dpBack": "ត្រឡប់ទៅទំព័រដើម", "dpBookWait": "សៀវភៅនាយកដ្ឋានរបស់បុគ្គលិកនេះកំពុងត្រូវបានរៀបចំ។ សូមព្យាយាមម្តងទៀតបន្តិចក្រោយ។", "dpCmpInfo": "ភាពខុសគ្នា {n} ក្នុងបុគ្គលិក {e} នាក់", "dpCmpNone": "គ្មានភាពខុសគ្នា។ លេខរបស់អ្នកត្រូវនឹង HR។", "dpCmpShowAll": "បង្ហាញលេខទាំងអស់ (មិនមែនតែភាពខុសគ្នាទេ)", "dpCmpSub": "ប្រៀបធៀបលេខរបស់នាយកដ្ឋានអ្នកជាមួយបញ្ជីចម្បងរបស់ HR។ ប្រើវានៅចុងខែ។ ប្រសិនបើលេខខុសគ្នា សូមចុច «ស៊ើបអង្កេត» ហើយ HR / រដ្ឋបាលនឹងពិនិត្យថាខាងណាខុស។", "dpColBy": "កត់ត្រាដោយ", "dpColDeptVal": "នាយកដ្ឋាន", "dpColDiff": "ភាពខុសគ្នា", "dpColField": "ប្រភេទ", "dpColHRVal": "HR", "dpColHours": "ម៉ោង", "dpColType": "ប្រភេទ", "dpDashSub": "នាយកដ្ឋានរបស់អ្នកមានសៀវភៅផ្ទាល់ខ្លួន។ អ្វីដែលអ្នកវាយនៅទីនេះមិនប្តូរបញ្ជីចម្បងរបស់ HR ឬរដ្ឋបាលទេ។", "dpDashTitle": "សូមស្វាគមន៍", "dpEditNote": "លេខទាំងនេះរក្សាទុកតែក្នុងសៀវភៅរបស់នាយកដ្ឋានអ្នកប៉ុណ្ណោះ។", "dpEditTitle": "កែលេខ", "dpExportNow": "នាំចេញឥឡូវនេះ", "dpInvBtn": "ស៊ើបអង្កេត", "dpInvListTitle": "ការស៊ើបអង្កេត", "dpInvNote": "កំណត់ចំណាំ (មិនបង្ខំ)", "dpInvSent": "បានផ្ញើ។ HR / រដ្ឋបាលនឹងពិនិត្យ។", "dpInvTitle": "ស្នើ HR ស៊ើបអង្កេត", "dpLeaveNone": "សូមបញ្ចូលចំនួនម៉ោងច្បាប់យ៉ាងតិចមួយ។", "dpLeaveSub": "ច្បាប់ដែលវាយនៅទីនេះរក្សាទុកតែក្នុងសៀវភៅផ្ទាល់ខ្លួនរបស់នាយកដ្ឋានអ្នកប៉ុណ្ណោះ។", "dpLocked": "ព្យាយាមខុសច្រើនពេក។ សូមព្យាយាមម្តងទៀតក្នុងរយៈពេល {m} នាទី។", "dpLogin": "ចូល", "dpLoginErr": "ឈ្មោះអ្នកប្រើ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។", "dpLoginSub": "ចូលដោយប្រើគណនីនាយកដ្ឋានរបស់អ្នក", "dpLogout": "ចាកចេញ", "dpMarkFixed": "ខ្ញុំបានកែហើយ", "dpMasterSub": "នេះគឺជាសៀវភៅផ្ទាល់ខ្លួនរបស់នាយកដ្ឋានអ្នក។ លេខដែលកែនៅទីនេះរក្សាទុកក្នុងនាយកដ្ឋានអ្នកតែប៉ុណ្ណោះ។ អត្តលេខ ឈ្មោះ ក្រុម និងថ្ងៃចូលធ្វើការមកពី HR។", "dpNo": "ទេ", "dpNoAccess": "គណនីនេះមិនអាចបើកទិន្នន័យនាយកដ្ឋានបានទេ។ សូមចូលម្តងទៀត ឬទាក់ទងរដ្ឋបាល។", "dpNoGroups": "មិនទាន់មានក្រុមកំណត់ឱ្យនាយកដ្ឋាននេះទេ។ សូមស្នើឱ្យរដ្ឋបាល ឬ HR កំណត់ក្រុម។", "dpNoStaff": "រកមិនឃើញបុគ្គលិកសម្រាប់នាយកដ្ឋាននេះទេ។", "dpNoXlsx": "ឧបករណ៍ Excel មិនបានផ្ទុកទេ។ សូមពិនិត្យអ៊ីនធឺណិត ហើយព្យាយាមម្តងទៀត។", "dpPassword": "ពាក្យសម្ងាត់", "dpPermErr": "គ្មានសិទ្ធិ។ សូមស្នើឱ្យរដ្ឋបាលពិនិត្យគណនី និងច្បាប់មូលដ្ឋានទិន្នន័យ។", "dpRecent": "កំណត់ត្រាថ្មីៗ", "dpRemainingMsg": "ម៉ោងនៅសល់៖ {r}", "dpRemindMsg": "បញ្ជីចម្បងរបស់នាយកដ្ឋានអ្នកនឹងត្រូវកំណត់ឡើងវិញនៅថ្ងៃទី១ មុនម៉ោង ៥:០០ ល្ងាច ដោយ HR ឬរដ្ឋបាល។ សូមនាំចេញ ឬទាញយកព័ត៌មានសំខាន់ៗឥឡូវនេះ។", "dpReqCancel": "លុបចោលសំណើ", "dpReqCancelConfirm": "លុបចោលសំណើនេះ?", "dpReqGroupBad": "ឈ្មោះក្រុមទទេ ឬមានតួអក្សរមិនអនុញ្ញាត ( . # $ [ ] / )។", "dpReqGroupDup": "ឈ្មោះក្រុមនេះមានរួចហើយ ឬបានស្នើរួចហើយ។", "dpReqNeedDetail": "សូមសរសេរការពិពណ៌នា / មូលហេតុ។", "dpReqNewEdit": "កែព័ត៌មានបុគ្គលិក", "dpReqNewGroup": "ក្រុមថ្មី", "dpReqNewRemove": "ដកបុគ្គលិកចេញ", "dpReqNoChange": "សូមកែយ៉ាងតិចមួយប្រភេទព័ត៌មាន។", "dpReqNoEmp": "រកមិនឃើញអត្តលេខបុគ្គលិកនេះក្នុងនាយកដ្ឋាននេះទេ។", "dpReqSend": "ផ្ញើសំណើ", "dpReqSent": "បានផ្ញើសំណើ។ កំពុងរង់ចាំ HR និងរដ្ឋបាល។", "dpReqSub": "ការកែអត្តលេខ ឈ្មោះ ឬព័ត៌មានផ្ទាល់ខ្លួនរបស់បុគ្គលិក ការដកបុគ្គលិកចេញ ឬការបន្ថែមក្រុមថ្មី ត្រូវការការអនុម័តពី HR ហើយបន្ទាប់មករដ្ឋបាល។ លេខ (ម៉ោង ច្បាប់ ម៉ោងសិទ្ធិ) មិនត្រូវការការអនុម័តទេ។", "dpReqView": "មើលទម្រង់", "dpSave": "រក្សាទុក", "dpTabAtt": "កំណត់ត្រាវត្តមាន", "dpTabCheck": "ពិនិត្យកំណត់ត្រា", "dpTabCmp": "ប្រៀបធៀបជាមួយ HR", "dpTabDash": "ផ្ទាំងគ្រប់គ្រង", "dpTabLeave": "កំណត់ត្រាច្បាប់", "dpTabMaster": "បញ្ជីចម្បង", "dpTabReq": "សំណើ", "dpTitle": "ប្រព័ន្ធនាយកដ្ឋាន", "dpUsername": "ឈ្មោះអ្នកប្រើ", "dpYes": "បាទ/ចាស", "empIdNotFound": "រកមិនឃើញអត្តលេខបុគ្គលិកទេ", "ivClosed": "បានបិទ", "ivDeptFix": "នាយកដ្ឋានត្រូវកែលេខរបស់ខ្លួន", "ivFixed": "នាយកដ្ឋានថាបានកែហើយ", "ivHrFixed": "HR បានកែលេខរបស់ខ្លួន", "ivOpen": "កំពុងស៊ើបអង្កេត", "lblAllowedThisMonth": "សិទ្ធិអាចប្រើក្នុងខែនេះ", "lblAttDate": "កាលបរិច្ឆេទ", "lblAvailableCarriedBalance": "សមតុល្យលើកមកបន្តដែលអាចប្រើបាន", "lblEmpId": "អត្តលេខបុគ្គលិក", "lblEmpName": "ឈ្មោះបុគ្គលិក", "lblIsExceeded": "លើសកំណត់ប្រចាំខែ", "lblIsStarted": "កាលបរិច្ឆេទចាប់ផ្តើមសិទ្ធិ", "lblLeaveDate": "កាលបរិច្ឆេទឈប់សម្រាក", "lblMonthsService": "ចំនួនខែធ្វើការ", "lblQueryDate": "កាលបរិច្ឆេទសួរ", "lblRemAfterToday": "សមតុល្យនៅសល់ក្រោយថ្ងៃនេះ", "lblRemarksHeading": "កំណត់សម្គាល់ចម្បង:", "lblSearch": "ស្វែងរកបុគ្គលិក:", "lblTodayHours": "ម៉ោងថ្ងៃនេះ (ជម្រើស)", "leaveRecordsTitle": "កំណត់ត្រាច្បាប់ឈប់សម្រាក", "leaveTypeAL": "ច្បាប់បំណាច់ឆ្នាំ", "leaveTypeMaternity": "ច្បាប់មាតុភាព", "leaveTypeOther": "ច្បាប់ផ្សេងៗ", "leaveTypePersonal": "ច្បាប់ផ្ទាល់ខ្លួន", "leaveTypeSick": "ច្បាប់ឈឺ", "leaveTypeSpecial": "ច្បាប់ពិសេស", "leaveTypeTravel": "ច្បាប់ធ្វើដំណើរ", "masterRowErrorMsg": "មិនអាចបង្ហាញទិន្នន័យនេះបានទេ - ទិន្នន័យអាចខូច។ សូមពិនិត្យបុគ្គលិកនេះនៅក្នុងកែសម្រួលទិន្នន័យ។", "noRemarksText": "គ្មានកំណត់សម្គាល់សម្រាប់បុគ្គលិកនេះទេ។", "otHoursLabel": "ម៉ោងថែម", "queryParams": "ប៉ារ៉ាម៉ែត្រសួរព័ត៌មាន", "rqApproved": "បានអនុម័ត", "rqChange": "អ្វីដែលត្រូវកែប្រែ", "rqCurrent": "បច្ចុប្បន្ន", "rqDate": "កាលបរិច្ឆេទ", "rqDetail": "ការពិពណ៌នា / មូលហេតុ", "rqEmployee": "បុគ្គលិក", "rqField": "ប្រភេទព័ត៌មាន", "rqGroupName": "ឈ្មោះក្រុមថ្មី", "rqNew": "ស្នើសុំ", "rqNone": "គ្មានសំណើទេ។", "rqNote": "កំណត់ចំណាំ", "rqOk": "យល់ព្រម", "rqPending": "កំពុងរង់ចាំ", "rqPrint": "បោះពុម្ព / រក្សាទុកជា PDF", "rqRef": "លេខយោង", "rqRejected": "បានបដិសេធ", "rqRemoveText": "សូមដកបុគ្គលិកនេះចេញពីប្រព័ន្ធ។", "rqSigAdmin": "រដ្ឋបាល", "rqSigHR": "ធនធានមនុស្ស (HR)", "rqSigRequested": "ស្នើសុំដោយ (នាយកដ្ឋាន)", "rqSignedInstead": "ចុះហត្ថលេខាដោយរដ្ឋបាលជំនួស HR", "rqStatus": "ស្ថានភាព", "rqStatusApproved": "បានអនុម័ត - បានកែបញ្ជីចម្បង", "rqStatusRejected": "បានបដិសេធ", "rqStatusWaitAdmin": "រង់ចាំរដ្ឋបាល", "rqStatusWaitHR": "រង់ចាំ HR", "rqTitle": "ទម្រង់សំណើ", "rqType": "ប្រភេទ", "rqTypeEdit": "កែព័ត៌មានបុគ្គលិក", "rqTypeGroup": "ក្រុមថ្មី", "rqTypeRemove": "ដកបុគ្គលិកចេញ", "tblActions": "សកម្មភាព", "tblCarried": "បង្វិលឆ្នាំមុន", "tblContact": "លេខទូរស័ព្ទ", "tblDepartment": "ក្រុម", "tblDob": "ថ្ងៃខែឆ្នាំកំណើត", "tblEmergencyContact": "ទំនាក់ទំនងបន្ទាន់", "tblEnd": "ថ្ងៃបញ្ចប់", "tblEntitled": "ម៉ោងទទួលបាន", "tblExceeded": "ម៉ោងប្រើលើស", "tblId": "អត្តលេខ", "tblJoin": "ថ្ងៃចូលធ្វើការ", "tblMonthUsed": "ខែនេះប្រើ", "tblName": "ឈ្មោះ", "tblPob": "ទីកន្លែងកំណើត", "tblPrevUsed": "ខែមុនប្រើ", "tblRemaining": "ម៉ោងនៅសល់", "tblRemarks": "កំណត់សម្គាល់", "tblRenewed": "ខែនៅសល់", "tblResidence": "ទីលំនៅបច្ចុប្បន្ន", "tblSex": "ភេទ", "tblStart": "ថ្ងៃចាប់ផ្តើម", "tblTotalAL": "បំណាច់ឆ្នាំសរុប", "tblTotalUsed": "ម៉ោងប្រើសរុប", "tblYearRange": "រង្វង់ឆ្នាំ", "tblYears": "អតីតភាព", "thMasterAnnualLeave": "ច្បាប់បំណាច់ឆ្នាំ", "thMasterMaternityLeave": "ច្បាប់មាតុភាព", "thMasterMonthlyOT": "ម៉ោងថែម", "thMasterOtherLeave": "ច្បាប់ផ្សេងៗ", "thMasterPersonalLeave": "ច្បាប់ផ្ទាល់ខ្លួន", "thMasterSickLeave": "ច្បាប់ឈឺ", "thMasterSpecialLeave": "ច្បាប់ពិសេស", "thMasterTravelLeave": "ច្បាប់ធ្វើដំណើរ", "thMasterWorkingHours": "ម៉ោងធ្វើការ", "toastFail": "មិនជោគជ័យ", "toastSuccess": "ជោគជ័យ", "txtAvailable": "អាចប្រើបាន", "txtExceed": "លើសកំណត់", "txtInLimit": "នៅក្នុងដែនកំណត់", "txtStartNo": "មិនទាន់ដល់", "txtStartYes": "បានចាប់ផ្តើម", "txtUnavailable": "មិនអាចប្រើបាន", "workHoursLabel": "ម៉ោងធ្វើការ", "dpStatEmp": "បុគ្គលិក", "dpStatGroups": "ក្រុម", "dpStatMonthUsed": "ច្បាប់ប្រើក្នុងខែនេះ (ម៉ោង)", "dpStatWork": "ម៉ោងធ្វើការសរុប", "dpStatOT": "ម៉ោងបន្ថែមសរុប", "dpStatLeaveAL": "ច្បាប់ប្រចាំឆ្នាំបានប្រើ (ម៉ោង)", "dpLastReset": "កំណត់ឡើងវិញចុងក្រោយ៖ {m}"}, "zh": {"attDateRequiredMsg": "请先选择日期。", "attNoValuesEnteredMsg": "未输入任何工作时间或加班时间。", "attTitle": "考勤记录", "btnCheckDetails": "查看详情", "btnClose": "关闭", "btnExport": "导出为 Excel (.xlsx)", "btnLoadDept": "显示员工", "btnSubmitAtt": "提交考勤记录", "btnSubmitLeave": "提交请假记录", "checkDetailsModalTitle": "查看详情", "dgAll": "全部", "dgDept": "部门", "dpAllGroups": "所有小组", "dpAttDup": "该日期已为以下员工记录过考勤：{names}。\n是否再次记录并累加这些小时？", "dpAttSub": "选择小组和日期，然后一次性输入所有人的工作小时和加班小时。只保存在您部门自己的账本中。", "dpBack": "返回主页", "dpBookWait": "该员工的部门账本仍在准备中，请稍后重试。", "dpCmpInfo": "{e} 名员工共 {n} 处差异", "dpCmpNone": "没有差异，您的数字与人事一致。", "dpCmpShowAll": "显示所有数字（不只差异）", "dpCmpSub": "将您部门的数字与人事主控表对比，月底使用。如果数字不同，请点击“调查”，人事/管理部门将核查哪一方有误。", "dpColBy": "记录人", "dpColDeptVal": "部门", "dpColDiff": "差异", "dpColField": "项目", "dpColHRVal": "人事", "dpColHours": "小时", "dpColType": "类型", "dpDashSub": "您的部门有自己独立的账本。在此输入的内容不会更改人事或管理部门的主控表。", "dpDashTitle": "欢迎", "dpEditNote": "这些数字只保存在您部门的账本中。", "dpEditTitle": "修改数字", "dpExportNow": "立即导出", "dpInvBtn": "调查", "dpInvListTitle": "调查记录", "dpInvNote": "备注（可选）", "dpInvSent": "已发送，人事/管理部门将核查。", "dpInvTitle": "请人事调查", "dpLeaveNone": "请至少输入一项假期小时数。", "dpLeaveSub": "在此输入的假期只保存在您部门自己的账本中。", "dpLocked": "错误次数过多，请在 {m} 分钟后重试。", "dpLogin": "登录", "dpLoginErr": "用户名或密码错误。", "dpLoginSub": "请使用部门账户登录", "dpLogout": "退出登录", "dpMarkFixed": "我已更正", "dpMasterSub": "这是您部门自己的账本。在此修改的数字只保存在本部门。工号、姓名、小组和入职日期来自人事部门。", "dpNo": "否", "dpNoAccess": "此账户无法打开部门数据。请重新登录或联系管理部门。", "dpNoGroups": "此部门尚未分配小组。请联系管理部门或人事分配小组。", "dpNoStaff": "未找到此部门的员工。", "dpNoXlsx": "Excel 工具未加载。请检查网络后重试。", "dpPassword": "密码", "dpPermErr": "权限不足。请联系管理部门检查您的账户和数据库规则。", "dpRecent": "最近记录", "dpRemainingMsg": "剩余小时：{r}", "dpRemindMsg": "您部门的主控表将于1号下午5:00前由人事或管理部门重置。请现在导出或下载重要信息。", "dpReqCancel": "撤销申请", "dpReqCancelConfirm": "撤销此申请？", "dpReqGroupBad": "小组名称为空或含有不允许的字符 ( . # $ [ ] / )。", "dpReqGroupDup": "该小组名称已存在或已申请。", "dpReqNeedDetail": "请填写说明 / 原因。", "dpReqNewEdit": "修改员工信息", "dpReqNewGroup": "新建小组", "dpReqNewRemove": "删除员工", "dpReqNoChange": "请至少修改一项。", "dpReqNoEmp": "本部门中找不到该工号。", "dpReqSend": "发送申请", "dpReqSent": "申请已发送，正在等待人事和管理部门。", "dpReqSub": "修改员工的工号、姓名或个人信息、删除员工或新增小组，需要人事批准，然后管理部门批准。数字（小时、假期、应有小时）不需要批准。", "dpReqView": "查看表格", "dpSave": "保存", "dpTabAtt": "考勤记录", "dpTabCheck": "查询记录", "dpTabCmp": "与人事对比", "dpTabDash": "仪表板", "dpTabLeave": "请假记录", "dpTabMaster": "主控表", "dpTabReq": "申请", "dpTitle": "部门系统", "dpUsername": "用户名", "dpYes": "是", "empIdNotFound": "找不到该员工编号", "ivClosed": "已关闭", "ivDeptFix": "部门需更正其数字", "ivFixed": "部门称已更正", "ivHrFixed": "人事已更正其数字", "ivOpen": "调查中", "lblAllowedThisMonth": "本月可用额度", "lblAttDate": "日期", "lblAvailableCarriedBalance": "可用结转余额", "lblEmpId": "员工编号", "lblEmpName": "员工姓名", "lblIsExceeded": "超出本月限额", "lblIsStarted": "享受开始日期", "lblLeaveDate": "请假日期", "lblMonthsService": "服务月数", "lblQueryDate": "查询日期", "lblRemAfterToday": "今日后剩余余额", "lblRemarksHeading": "主控表备注/说明:", "lblSearch": "搜索员工:", "lblTodayHours": "今日请假 (可选)", "leaveRecordsTitle": "请假记录", "leaveTypeAL": "年假", "leaveTypeMaternity": "产假", "leaveTypeOther": "其他假", "leaveTypePersonal": "个人假", "leaveTypeSick": "病假", "leaveTypeSpecial": "特殊假", "leaveTypeTravel": "差旅假", "masterRowErrorMsg": "无法显示此记录 - 数据可能已损坏。请在编辑记录中检查该员工。", "noRemarksText": "该员工无特定备注或说明。", "otHoursLabel": "加班时间", "queryParams": "查询参数", "rqApproved": "已批准", "rqChange": "修改内容", "rqCurrent": "当前", "rqDate": "日期", "rqDetail": "说明 / 原因", "rqEmployee": "员工", "rqField": "项目", "rqGroupName": "新小组名称", "rqNew": "申请改为", "rqNone": "没有申请。", "rqNote": "备注", "rqOk": "好的", "rqPending": "等待中", "rqPrint": "打印 / 保存为PDF", "rqRef": "编号", "rqRejected": "已拒绝", "rqRemoveText": "请将此员工从系统中删除。", "rqSigAdmin": "管理部门", "rqSigHR": "人事", "rqSigRequested": "申请人（部门）", "rqSignedInstead": "由管理部门代替人事签名", "rqStatus": "状态", "rqStatusApproved": "已批准 - 主控表已更新", "rqStatusRejected": "已拒绝", "rqStatusWaitAdmin": "等待管理部门", "rqStatusWaitHR": "等待人事", "rqTitle": "申请表", "rqType": "类型", "rqTypeEdit": "修改员工信息", "rqTypeGroup": "新建小组", "rqTypeRemove": "删除员工", "tblActions": "操作", "tblCarried": "上年结转", "tblContact": "联系电话", "tblDepartment": "小组", "tblDob": "出生日期", "tblEmergencyContact": "紧急联络人", "tblEnd": "结束日期", "tblEntitled": "应享小时数", "tblExceeded": "超出小时数", "tblId": "工号", "tblJoin": "入职日期", "tblMonthUsed": "本月已用", "tblName": "姓名", "tblPob": "出生地", "tblPrevUsed": "上月已用", "tblRemaining": "剩余小时数", "tblRemarks": "备注", "tblRenewed": "到期剩余月数", "tblResidence": "现居地", "tblSex": "性别", "tblStart": "开始日期", "tblTotalAL": "年假总数", "tblTotalUsed": "已用总小时数", "tblYearRange": "年份范围", "tblYears": "工龄", "thMasterAnnualLeave": "年假", "thMasterMaternityLeave": "产假", "thMasterMonthlyOT": "加班时间", "thMasterOtherLeave": "其他假", "thMasterPersonalLeave": "个人假", "thMasterSickLeave": "病假", "thMasterSpecialLeave": "特殊假", "thMasterTravelLeave": "差旅假", "thMasterWorkingHours": "工作时间", "toastFail": "失败", "toastSuccess": "成功", "txtAvailable": "可用", "txtExceed": "超出", "txtInLimit": "在限额内", "txtStartNo": "未到", "txtStartYes": "已到", "txtUnavailable": "不可用", "workHoursLabel": "工作时间", "dpStatEmp": "员工", "dpStatGroups": "小组", "dpStatMonthUsed": "本月已用假期(小时)", "dpStatWork": "总工作小时", "dpStatOT": "总加班小时", "dpStatLeaveAL": "已休年假(小时)", "dpLastReset": "上次重置：{m}"}};
 const firebaseConfig = {
   apiKey: "AIzaSyAFHtPZsYq8iAYZtKBYWDt7hVitMmHKt_s",
   authDomain: "annual-leave-1feda.firebaseapp.com",
@@ -661,6 +744,49 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const fbAuth = firebase.auth();
+/* ===== shared by HR/Administration and the Department page: the request form shown like a paper form ===== */
+var RQ_FIELDS = [['id', 'tblId'], ['name', 'tblName'], ['sex', 'tblSex'], ['dob', 'tblDob'], ['pob', 'tblPob'], ['residence', 'tblResidence'], ['contact', 'tblContact'], ['emergencyContact', 'tblEmergencyContact'], ['joinDate', 'tblJoin']];
+var RQ_CSS = '.rq-doc{background:#fff;color:#0f172a;border:1px solid #cbd5e1;border-radius:6px;padding:22px 26px;max-width:760px;margin:0 auto;font-family:Arial,sans-serif;font-size:13px;line-height:1.5}' +
+    '.rq-doc h2{text-align:center;font-size:20px;letter-spacing:1px;margin:0 0 4px}.rq-doc .rq-meta{display:flex;justify-content:space-between;font-size:12px;color:#475569;border-bottom:2px solid #0f172a;padding-bottom:8px;margin-bottom:12px}' +
+    '.rq-doc table{width:100%;border-collapse:collapse;margin:6px 0 12px}.rq-doc td,.rq-doc th{border:1px solid #94a3b8;padding:6px 8px;text-align:left;vertical-align:top;font-size:12px}.rq-doc th{background:#f1f5f9;width:34%}' +
+    '.rq-doc h4{margin:12px 0 4px;font-size:13px;border-left:4px solid #92400e;padding-left:8px}.rq-doc .rq-detail{border:1px solid #94a3b8;border-radius:4px;padding:8px 10px;min-height:48px;white-space:pre-wrap}' +
+    '.rq-sigs{display:flex;gap:10px;margin-top:16px}.rq-sig{flex:1;border:1px solid #94a3b8;border-radius:4px;padding:8px 10px;min-height:110px;text-align:center}.rq-sig b{display:block;font-size:12px;margin-bottom:6px;border-bottom:1px solid #cbd5e1;padding-bottom:4px}' +
+    '.rq-stamp{font-weight:bold;font-size:13px;margin:8px 0 4px}.rq-ok{color:#15803d}.rq-no{color:#dc2626}.rq-wait{color:#94a3b8}.rq-small{font-size:11px;color:#475569}';
+function rqE(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function rqTypeLabel(ty) { return t(ty === 'edit' ? 'rqTypeEdit' : ty === 'remove' ? 'rqTypeRemove' : 'rqTypeGroup'); }
+function rqOverall(r) { if (r.status === 'rejected') return 'rejected'; if (r.status === 'approved') return 'approved'; return (r.hr && r.hr.s === 'approved') ? 'waitAdmin' : 'waitHR'; }
+function rqOverallText(r) { return t({ rejected: 'rqStatusRejected', approved: 'rqStatusApproved', waitAdmin: 'rqStatusWaitAdmin', waitHR: 'rqStatusWaitHR' }[rqOverall(r)]); }
+function rqWhen(ts) { if (!ts) return ''; const d = new Date(ts), p = function (n) { return String(n).padStart(2, '0'); }; return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
+function rqSig(title, o, extra) {
+    o = o || { s: 'pending' };
+    let body;
+    if (o.s === 'approved') body = '<div class="rq-stamp rq-ok">&#10004; ' + rqE(t('rqApproved')) + '</div><div>' + rqE(o.by || '') + '</div><div class="rq-small">' + rqE(rqWhen(o.at)) + '</div>' + (extra || '');
+    else if (o.s === 'rejected') body = '<div class="rq-stamp rq-no">&#10008; ' + rqE(t('rqRejected')) + '</div><div>' + rqE(o.by || '') + '</div><div class="rq-small">' + rqE(rqWhen(o.at)) + '</div>' + (o.note ? '<div class="rq-small">' + rqE(t('rqNote')) + ': ' + rqE(o.note) + '</div>' : '');
+    else body = '<div class="rq-stamp rq-wait">&#9203; ' + rqE(t('rqPending')) + '</div>';
+    return '<div class="rq-sig"><b>' + rqE(title) + '</b>' + body + '</div>';
+}
+function rqDocHtml(r, key) {
+    let what = '';
+    if (r.type === 'edit') {
+        const ch = r.changes || {};
+        what = '<table><tr><th style="width:30%">' + rqE(t('rqField')) + '</th><th>' + rqE(t('rqCurrent')) + '</th><th>' + rqE(t('rqNew')) + '</th></tr>' +
+            RQ_FIELDS.filter(function (f) { return ch[f[0]]; }).map(function (f) { return '<tr><td><b>' + rqE(t(f[1])) + '</b></td><td>' + rqE(ch[f[0]].o) + '</td><td><b>' + rqE(ch[f[0]].n) + '</b></td></tr>'; }).join('') + '</table>';
+    } else if (r.type === 'remove') what = '<div class="rq-detail">' + rqE(t('rqRemoveText')) + '</div>';
+    else what = '<table><tr><th>' + rqE(t('rqGroupName')) + '</th><td><b>' + rqE(r.newGroup) + '</b></td></tr></table>';
+    const instead = (r.ad && r.ad.s === 'approved' && r.ad.instead) ? '<div class="rq-small">' + rqE(t('rqSignedInstead')) + '</div>' : '';
+    const emp = r.type === 'group' ? '' : '<tr><th>' + rqE(t('rqEmployee')) + '</th><td>' + rqE(r.empId) + ' - ' + rqE(r.empName) + (r.empGroup ? ' (' + rqE(r.empGroup) + ')' : '') + '</td></tr>';
+    return '<div class="rq-doc"><h2>' + rqE(t('rqTitle')) + '</h2><div class="rq-meta"><span>' + rqE(t('rqRef')) + ': ' + rqE(String(key || '').slice(-8).toUpperCase()) + '</span><span>' + rqE(rqWhen(r.at)) + '</span></div>' +
+        '<table><tr><th>' + rqE(t('dgDept')) + '</th><td>' + rqE(r.deptName) + '</td></tr><tr><th>' + rqE(t('rqType')) + '</th><td>' + rqE(rqTypeLabel(r.type)) + '</td></tr>' + emp +
+        '<tr><th>' + rqE(t('rqStatus')) + '</th><td><b>' + rqE(rqOverallText(r)) + '</b></td></tr></table>' +
+        '<h4>' + rqE(t('rqChange')) + '</h4>' + what + '<h4>' + rqE(t('rqDetail')) + '</h4><div class="rq-detail">' + rqE(r.detail) + '</div>' +
+        '<div class="rq-sigs">' + rqSig(t('rqSigRequested'), { s: 'approved', by: r.by, at: r.at }) + rqSig(t('rqSigHR'), r.hr) + rqSig(t('rqSigAdmin'), r.ad, instead) + '</div></div>';
+}
+function rqPrint(html) {
+    const w = window.open('', '_blank'); if (!w) return;
+    w.document.write('<html><head><meta charset="utf-8"><title>' + rqE(t('rqTitle')) + '</title><style>body{margin:16px}@media print{@page{margin:12mm}}' + RQ_CSS + '</style></head><body>' + html + '</body></html>');
+    w.document.close(); w.focus(); setTimeout(function () { try { w.print(); } catch (e) {} }, 350);
+}
+
 /* ================= DEPARTMENT SYSTEM (separate page) =================
    Every department account sees only its own department: the staff list and basic information come from the HR master
    (read only), while all numbers (entitled hours, leave, working hours, overtime ...) live in the department's OWN book
@@ -701,7 +827,7 @@ function setLang(l) {
     document.querySelectorAll('.dp-lang-name').forEach(function (s) { s.textContent = LNAMES[l]; });
     document.querySelectorAll('.lang-option').forEach(function (o) { o.classList.toggle('active', o.getAttribute('data-lang') === l); });
     document.querySelectorAll('[data-i18n]').forEach(function (el) { const k = el.getAttribute('data-i18n'); const v = (I18N[l] && I18N[l][k]) || I18N.en[k]; if (v) el.innerHTML = v; });
-    if (ctx) { renderAll(true); }
+    if (ctx) { renderAll(true); dpReminder(); }
 }
 
 /* ---------- small UI helpers ---------- */
@@ -818,7 +944,7 @@ async function dpLogout() {
 }
 
 /* ---------- data ---------- */
-let groups = [], groupsSig = null, empByGroup = {}, emps = [], book = {}, leaveHist = [], attHist = [], subs = [], empSubs = [], loadedG = {}, state = { book: false, emp: false, groups: false }, creating = {};
+let invs = [], meta = {}, reqs = [], groups = [], groupsSig = null, empByGroup = {}, emps = [], book = {}, leaveHist = [], attHist = [], subs = [], empSubs = [], loadedG = {}, state = { book: false, emp: false, groups: false }, creating = {};
 const NUM = ['entitled', 'carried', 'prevUsed', 'monthUsed', 'exceeded', 'workHours', 'otHours', 'leaveAL', 'leaveSpecial', 'leaveMaternity', 'leaveTravel', 'leavePersonal', 'leaveSick', 'leaveOther'];
 const TXT = ['startDate', 'endDate', 'yearRange', 'remarks'];
 function base() { return 'deptData/' + ctx.dept; }
@@ -830,7 +956,7 @@ function onErr(e) {
 function stopData() {
     subs.forEach(function (s) { try { s.ref.off(s.ev, s.cb); } catch (e) {} }); subs = [];
     empSubs.forEach(function (x) { try { x.q.off('value', x.cb); } catch (e) {} }); empSubs = [];
-    groups = []; groupsSig = null; empByGroup = {}; emps = []; book = {}; leaveHist = []; attHist = []; loadedG = {}; state = { book: false, emp: false, groups: false }; creating = {};
+    invs = []; meta = {}; reqs = []; groups = []; groupsSig = null; empByGroup = {}; emps = []; book = {}; leaveHist = []; attHist = []; loadedG = {}; state = { book: false, emp: false, groups: false }; creating = {};
 }
 function startData() {
     stopData();
@@ -841,6 +967,9 @@ function startData() {
         queueRender();
     });
     sub(db.ref(base() + '/book'), 'value', function (s) { book = s.val() || {}; state.book = true; ensureBook(); queueRender(); });
+    (function () { const q = db.ref('deptRequests').orderByChild('dept').equalTo(ctx.dept); const cb = function (s) { const v = s.val() || {}; reqs = Object.keys(v).map(function (k) { return Object.assign({ key: k }, v[k]); }); queueRender(); }; q.on('value', cb, onErr); subs.push({ ref: q, ev: 'value', cb: cb }); })();
+    (function () { const q = db.ref('deptInvest').orderByChild('dept').equalTo(ctx.dept); const cb = function (s) { const v = s.val() || {}; invs = Object.keys(v).map(function (k) { return Object.assign({ key: k }, v[k]); }); queueRender(); }; q.on('value', cb, onErr); subs.push({ ref: q, ev: 'value', cb: cb }); })();
+    sub(db.ref(base() + '/meta'), 'value', function (s) { meta = s.val() || {}; queueRender(); });
     sub(db.ref(base() + '/leaveHistory'), 'value', function (s) { const v = s.val() || {}; leaveHist = Object.keys(v).map(function (k) { return Object.assign({ key: k }, v[k]); }); queueRender(); });
     sub(db.ref(base() + '/attendanceHistory'), 'value', function (s) { const v = s.val() || {}; attHist = Object.keys(v).map(function (k) { return Object.assign({ key: k }, v[k]); }); queueRender(); });
 }
@@ -943,7 +1072,7 @@ function renderAll(force) {
     renderGroupSelects(force);
     renderDash();
     if (curTab === 'master' || force) dpRenderMaster();
-    renderRecent();
+    renderRecent(); renderReqs(); if (curTab === 'cmp' || force) renderCmp();
 }
 function dpTab(id) {
     curTab = id;
@@ -951,6 +1080,7 @@ function dpTab(id) {
     document.querySelectorAll('.dp-tab').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-tab') === id); });
     if (id === 'master') dpRenderMaster();
     if (id === 'dash') renderDash();
+    if (id === 'cmp') renderCmp();
 }
 function initDefaults() {
     if (!$('dpLeaveDate').value) $('dpLeaveDate').value = yesterday();
@@ -962,6 +1092,7 @@ function renderGroupSelects(force) {
     const opts = groups.map(function (g) { return '<option value="' + esc(g) + '">' + esc(g) + '</option>'; }).join('');
     keep('dpMasterGroup', '<option value="">' + esc(t('dpAllGroups')) + '</option>' + opts);
     keep('dpAttGroup', opts);
+    keep('dpCmpGroup', '<option value="">' + esc(t('dpAllGroups')) + '</option>' + opts);
 }
 function renderDash() {
     const rows = emps.map(view);
@@ -1199,8 +1330,148 @@ function dpGoBack() {
     if (window.parent !== window) { window.parent.postMessage('dept-close', '*'); return; }
     location.href = 'department.html';
 }
-/* month-end reminder hook (filled in a later step) */
-function dpReminder() {}
+/* ---------- requests (edit info / remove / new group) ---------- */
+let reqType = '';
+const SEX_OPTS = ['Male', 'Female', 'Other'];
+function renderReqs() {
+    const st = $('dpReqFStatus'), ty = $('dpReqFType');
+    const sSig = currentLang; if (st.dataset.sig !== sSig) { const sv = st.value, tv = ty.value; st.innerHTML = [['', 'dgAll'], ['waitHR', 'rqStatusWaitHR'], ['waitAdmin', 'rqStatusWaitAdmin'], ['approved', 'rqStatusApproved'], ['rejected', 'rqStatusRejected']].map(function (x) { return '<option value="' + x[0] + '">' + esc(t(x[1])) + '</option>'; }).join(''); ty.innerHTML = '<option value="">' + esc(t('dgAll')) + '</option>' + ['edit', 'remove', 'group'].map(function (x) { return '<option value="' + x + '">' + esc(rqTypeLabel(x)) + '</option>'; }).join(''); st.dataset.sig = sSig; st.value = sv; ty.value = tv; }
+    const fs = st.value, ft = ty.value, col = { waitHR: '#b45309', waitAdmin: '#b45309', approved: '#15803d', rejected: '#dc2626' };
+    const sg = function (o) { o = o || { s: 'pending' }; return o.s === 'approved' ? '<span style="color:#15803d;">&#10004;</span>' : o.s === 'rejected' ? '<span style="color:#dc2626;">&#10008;</span>' : '<span style="color:#94a3b8;">&#9203;</span>'; };
+    const rows = reqs.filter(function (r) { return (!fs || rqOverall(r) === fs) && (!ft || r.type === ft); }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
+    document.querySelector('#dpReqTable tbody').innerHTML = rows.map(function (r) {
+        const o = rqOverall(r), k = esc(r.key), cancel = (r.status === 'pending' && r.hr.s === 'pending' && r.ad.s === 'pending') ? ' <button class="btn-delete" onclick="dpReqCancel(\'' + k + '\')" title="' + esc(t('dpReqCancel')) + '">&#10005;</button>' : '';
+        return '<tr><td style="white-space:nowrap;"><button class="btn-view" onclick="dpReqShow(\'' + k + '\')" title="' + esc(t('dpReqView')) + '">🔍</button>' + cancel + '</td><td>' + esc(rqWhen(r.at)) + '</td><td>' + esc(rqTypeLabel(r.type)) + '</td><td>' + esc(r.type === 'group' ? r.newGroup : (r.empId + ' - ' + r.empName)) + '</td><td>' + sg(r.hr) + '</td><td>' + sg(r.ad) + '</td><td style="color:' + col[o] + '; font-weight:bold;">' + esc(rqOverallText(r)) + '</td></tr>';
+    }).join('') || '<tr><td colspan="7" style="text-align:center; color:#94a3b8;">' + esc(t('rqNone')) + '</td></tr>';
+    const n = reqs.filter(function (r) { return r.status === 'pending'; }).length, b = $('dpReqBadge');
+    b.style.display = n ? 'inline-block' : 'none'; b.textContent = n;
+}
+function dpReqOpen(type) {
+    reqType = type;
+    $('dpReqModalTitle').textContent = t(type === 'edit' ? 'dpReqNewEdit' : type === 'remove' ? 'dpReqNewRemove' : 'dpReqNewGroup');
+    $('dpReqEmpBox').style.display = type === 'group' ? 'none' : 'block'; $('dpReqGroupBox').style.display = type === 'group' ? 'block' : 'none';
+    $('dpReqEmpId').value = ''; $('dpReqEmpName').textContent = ''; $('dpReqFields').innerHTML = ''; $('dpReqGroupName').value = ''; $('dpReqDetail').value = '';
+    $('dpReqEmpList').innerHTML = emps.map(function (e) { return '<option value="' + esc(e.id) + '">' + esc(e.name) + '</option>'; }).join('');
+    $('dpReqModal').style.display = 'flex';
+}
+function dpReqClose() { $('dpReqModal').style.display = 'none'; }
+function dpReqEmpInput() {
+    const e = findEmp($('dpReqEmpId').value.trim());
+    $('dpReqEmpName').textContent = e ? (e.name || '') + (e.department ? ' (' + e.department + ')' : '') : '';
+    if (reqType !== 'edit') return;
+    $('dpReqFields').innerHTML = !e ? '' : RQ_FIELDS.map(function (f) {
+        const v = e[f[0]] == null ? '' : e[f[0]];
+        let inp;
+        if (f[0] === 'sex') inp = '<select id="dpRF_sex">' + SEX_OPTS.map(function (o) { return '<option value="' + o + '"' + (o === v ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select>';
+        else inp = '<input type="' + (f[0] === 'dob' ? 'date' : 'text') + '" id="dpRF_' + f[0] + '" value="' + esc(v) + '">';
+        return '<div class="form-group"><label>' + esc(t(f[1])) + '</label>' + inp + '</div>';
+    }).join('');
+}
+$('dpReqForm').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    const detail = $('dpReqDetail').value.trim(), btn = this.querySelector('[type=submit]');
+    const rec = { dept: ctx.dept, deptName: ctx.deptName, type: reqType, detail: detail, by: ctx.accName, at: Date.now(), status: 'pending', hr: { s: 'pending' }, ad: { s: 'pending' } };
+    if (reqType === 'group') {
+        const name = $('dpReqGroupName').value.trim();
+        if (!name || /[.#$\[\]\/]/.test(name)) { showToast(false, t('dpReqGroupBad')); return; }
+        if (!detail) { showToast(false, t('dpReqNeedDetail')); return; }
+        let exist = {};
+        try { exist = (await db.ref('departments').once('value')).val() || {}; } catch (e) {}
+        const lc = name.toLowerCase();
+        if (Object.keys(exist).some(function (k) { return k !== '_org' && exist[k] && String(exist[k].name).toLowerCase() === lc; }) || reqs.some(function (r) { return r.type === 'group' && r.status === 'pending' && String(r.newGroup).toLowerCase() === lc; })) { showToast(false, t('dpReqGroupDup')); return; }
+        rec.newGroup = name;
+    } else {
+        const e = findEmp($('dpReqEmpId').value.trim());
+        if (!e) { showToast(false, t('dpReqNoEmp')); return; }
+        rec.empKey = e.firebaseKey; rec.empId = e.id || ''; rec.empName = e.name || ''; rec.empGroup = e.department || '';
+        if (reqType === 'edit') {
+            const ch = {};
+            RQ_FIELDS.forEach(function (f) { const el = $('dpRF_' + f[0]); if (!el) return; const o = e[f[0]] == null ? '' : String(e[f[0]]), n = String(el.value).trim(); if (o !== n) ch[f[0]] = { o: o, n: n }; });
+            if (!Object.keys(ch).length) { showToast(false, t('dpReqNoChange')); return; }
+            if (ch.id && !ch.id.n) { showToast(false, t('dpReqNoChange')); return; }
+            rec.changes = ch;
+        }
+        if (!detail) { showToast(false, t('dpReqNeedDetail')); return; }
+    }
+    withBusyButton(btn, function () { return db.ref('deptRequests').push(rec).then(function () { dpReqClose(); showToast(true, t('dpReqSent')); }).catch(function (er) { onErr(er); showToast(false); }); });
+});
+let reqCur = '';
+function dpReqShow(key) { const r = reqs.find(function (x) { return x.key === key; }); if (!r) return; reqCur = key; $('dpReqDoc').innerHTML = rqDocHtml(r, key); $('dpReqView').style.display = 'flex'; }
+function dpReqPrint() { const r = reqs.find(function (x) { return x.key === reqCur; }); if (r) rqPrint(rqDocHtml(r, reqCur)); }
+async function dpReqCancel(key) {
+    if (!(await confirmBox(t('dpReqCancelConfirm')))) return;
+    db.ref('deptRequests/' + key).remove().then(function () { showToast(true); }).catch(function (er) { onErr(er); showToast(false); });
+}
+/* ---------- compare with HR + investigations ---------- */
+const CMP_FIELDS = EDIT_FIELDS.filter(function (f) { return f[2] === 'n'; });
+let cmpRowsCache = [];
+function cmpRows() {
+    const g = $('dpCmpGroup').value, all = $('dpCmpAll').checked, out = [];
+    emps.forEach(function (e) {
+        if (g && e.department !== g) return;
+        const b = book[e.firebaseKey]; if (!b) return;
+        CMP_FIELDS.forEach(function (f) {
+            const dv = num(b[f[0]]), hv = num(e[f[0]]), d = Math.round((dv - hv) * 100) / 100;
+            if (all || Math.abs(d) > 0.001) out.push({ e: e, f: f, dv: dv, hv: hv, d: d });
+        });
+    });
+    return out;
+}
+function renderCmp() {
+    if (!$('dpCmpTable')) return;
+    const rows = cmpRows(); cmpRowsCache = rows;
+    const diffs = rows.filter(function (r) { return Math.abs(r.d) > 0.001; }), who = {}; diffs.forEach(function (r) { who[r.e.firebaseKey] = 1; });
+    $('dpCmpInfo').textContent = diffs.length ? fill(t('dpCmpInfo'), { n: diffs.length, e: Object.keys(who).length }) : t('dpCmpNone');
+    document.querySelector('#dpCmpTable tbody').innerHTML = rows.map(function (r, i) {
+        const bad = Math.abs(r.d) > 0.001, open = invs.some(function (v) { return v.empKey === r.e.firebaseKey && v.field === r.f[0] && v.status !== 'closed' && v.status !== 'hrFixed'; });
+        return '<tr' + (bad ? ' style="background:#fef2f2;"' : '') + '><td><b>' + esc(r.e.id) + '</b></td><td>' + esc(r.e.name) + '</td><td>' + esc(t(r.f[1])) + '</td><td>' + r.dv.toFixed(2) + '</td><td>' + r.hv.toFixed(2) + '</td><td style="color:' + (bad ? '#dc2626' : '#15803d') + '; font-weight:bold;">' + (r.d > 0 ? '+' : '') + r.d.toFixed(2) + '</td><td>' + (bad && !open ? '<button class="btn-edit" style="font-size:11px; padding:3px 8px;" onclick="dpInvOpen(' + i + ')">' + esc(t('dpInvBtn')) + '</button>' : (open ? '<span style="font-size:11px; color:#b45309;">' + esc(t('ivOpen')) + '</span>' : '')) + '</td></tr>';
+    }).join('') || '<tr><td colspan="7" style="text-align:center; color:#94a3b8;">' + esc(t('dpCmpNone')) + '</td></tr>';
+    const sMap = { open: 'ivOpen', hrFixed: 'ivHrFixed', deptToFix: 'ivDeptFix', fixed: 'ivFixed', closed: 'ivClosed' }, sCol = { open: '#b45309', hrFixed: '#15803d', deptToFix: '#dc2626', fixed: '#b45309', closed: '#64748b' };
+    document.querySelector('#dpInvTable tbody').innerHTML = invs.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }).map(function (v) {
+        const note = (v.resp && v.resp.note) ? v.resp.note : '';
+        return '<tr><td>' + esc(rqWhen(v.at)) + '</td><td>' + esc(v.empId) + ' - ' + esc(v.empName) + '</td><td>' + esc(t(v.fieldKey)) + '</td><td>' + num(v.dv).toFixed(2) + '</td><td>' + num(v.hv).toFixed(2) + '</td><td style="color:' + sCol[v.status] + '; font-weight:bold;">' + esc(t(sMap[v.status] || 'ivOpen')) + '</td><td>' + esc(note) + '</td><td>' + (v.status === 'deptToFix' ? '<button class="btn-edit" style="font-size:11px; padding:3px 8px;" onclick="dpInvFixed(\'' + esc(v.key) + '\')">' + esc(t('dpMarkFixed')) + '</button>' : '') + '</td></tr>';
+    }).join('') || '<tr><td colspan="8" style="text-align:center; color:#94a3b8;">-</td></tr>';
+}
+let invPick = null;
+function dpInvOpen(i) {
+    const r = cmpRowsCache[i]; if (!r) return; invPick = r;
+    $('dpInvInfo').innerHTML = '<b>' + esc(r.e.id) + ' - ' + esc(r.e.name) + '</b><br>' + esc(t(r.f[1])) + ': ' + esc(t('dpColDeptVal')) + ' <b>' + r.dv.toFixed(2) + '</b> / ' + esc(t('dpColHRVal')) + ' <b>' + r.hv.toFixed(2) + '</b>';
+    $('dpInvText').value = ''; $('dpInvModal').style.display = 'flex';
+}
+function dpInvSend(btn) {
+    const r = invPick; if (!r) return;
+    const rec = { dept: ctx.dept, deptName: ctx.deptName, empKey: r.e.firebaseKey, empId: r.e.id || '', empName: r.e.name || '', field: r.f[0], fieldKey: r.f[1], dv: r.dv, hv: r.hv, note: $('dpInvText').value.trim(), by: ctx.accName, at: Date.now(), status: 'open' };
+    withBusyButton(btn, function () { return db.ref('deptInvest').push(rec).then(function () { $('dpInvModal').style.display = 'none'; showToast(true, t('dpInvSent')); }).catch(function (er) { onErr(er); showToast(false); }); });
+}
+function dpInvFixed(key) { db.ref('deptInvest/' + key + '/status').set('fixed').then(function () { showToast(true); }).catch(function (er) { onErr(er); showToast(false); }); }
+function cmpAoa() {
+    const rows = cmpRows();
+    return [[t('tblId'), t('tblName'), t('tblDepartment'), t('dpColField'), t('dpColDeptVal'), t('dpColHRVal'), t('dpColDiff')]].concat(rows.map(function (r) { return [r.e.id, r.e.name, r.e.department || '', t(r.f[1]), r.dv, r.hv, r.d]; }));
+}
+function dpCmpExport() {
+    if (typeof XLSX === 'undefined') { showToast(false, t('dpNoXlsx')); return; }
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(cmpAoa()), 'Compare');
+    XLSX.writeFile(wb, 'Compare_' + String(ctx.deptName).replace(/[^\w\u1780-\u17FF\u4e00-\u9fa5-]+/g, '_') + '_' + localDate(new Date()) + '.xlsx');
+}
+function dpCmpPrint() {
+    const a = cmpAoa(), head = a[0], body = a.slice(1);
+    const html = '<div class="rq-doc"><h2>' + rqE(t('dpTabCmp')) + '</h2><div class="rq-meta"><span>' + rqE(ctx.deptName) + '</span><span>' + rqE(rqWhen(Date.now())) + '</span></div><table><tr>' + head.map(function (h) { return '<th style="width:auto">' + rqE(h) + '</th>'; }).join('') + '</tr>' +
+        body.map(function (r) { return '<tr>' + r.map(function (c, i) { return '<td' + (i === 6 && Number(c) !== 0 ? ' style="color:#dc2626;font-weight:bold"' : '') + '>' + rqE(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</table></div>';
+    rqPrint(html);
+}
+function dpInvStatus() { return 0; }
+
+/* ---------- month-end reminder: from 3 days before the end of the month, once per month as a pop-up and all the time as a banner ---------- */
+function cambodiaNow() { const n = new Date(); return new Date(n.getTime() + (7 * 60 + n.getTimezoneOffset()) * 60000); }
+function dpReminder() {
+    const c = cambodiaNow(), last = new Date(c.getFullYear(), c.getMonth() + 1, 0).getDate();
+    const on = c.getDate() >= last - 2;
+    $('dpBanner').innerHTML = on ? '<div class="dp-banner"><span>&#9888;&#65039; ' + esc(t('dpRemindMsg')) + '</span><button type="button" class="dp-bexp" onclick="dpTab(\'master\'); dpExportMaster();" style="font-size:12px; font-weight:700; text-decoration:underline;">' + esc(t('dpExportNow')) + '</button></div>' : '';
+    if (!on || !ctx) return;
+    const k = 'dpRemind_' + ctx.dept + '_' + c.getFullYear() + '-' + pad2(c.getMonth() + 1);
+    let seen = false; try { seen = localStorage.getItem(k) === '1'; } catch (e) {}
+    if (!seen) { $('dpRemindMsg').textContent = t('dpRemindMsg'); $('dpRemindModal').style.display = 'flex'; try { localStorage.setItem(k, '1'); } catch (e) {} }
+}
 
 buildLangMenus();
 setLang(currentLang);
