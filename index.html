@@ -631,7 +631,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.46</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.47</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1348,7 +1348,7 @@
                      <th data-i18n="tblActions">Actions</th>
                      <th data-i18n="tblId">ID</th>
                      <th data-i18n="tblName">Name</th>
-                     <th data-i18n="tblDepartment">Department</th>
+                     <th data-i18n="tblDepartment">Group</th>
                      <th data-i18n="tblJoin">Join Date</th>
                      <th data-i18n="tblYears">Years of Work</th>
                      <th data-i18n="tblEntitled">Entitled Hours</th>
@@ -1531,7 +1531,7 @@
      <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="attSub">Pick a department and date, then fill in working hours and overtime for everyone at once.</p>
      <form style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center; align-items:flex-end; max-width:600px; margin:10px auto;" onsubmit="event.preventDefault(); loadAttendanceDeptTable();">
          <div class="form-group" style="min-width:180px; margin-bottom:0; text-align:left;">
-             <label data-i18n="tblDepartment">Department</label>
+             <label data-i18n="tblDepartment">Group</label>
              <select id="attDeptSelect"></select>
          </div>
          <div class="form-group" style="min-width:160px; margin-bottom:0; text-align:left;">
@@ -1590,7 +1590,7 @@
                      <th data-i18n="tblJoin">Join Date</th>
                      <th data-i18n="tblYears">Years of Work</th>
                      <th data-i18n="tblEntitled">Entitled Hours</th>
-                     <th data-i18n="tblDepartment">Department</th>
+                     <th data-i18n="tblDepartment">Group</th>
                      <th data-i18n="tblStatus">Status</th>
                  </tr>
              </thead>
@@ -1911,7 +1911,7 @@
          <div class="detail-view-grid-3col">
              <div class="detail-item"><span class="lbl" data-i18n="tblId">ID</span><span class="val" id="cdId">-</span></div>
              <div class="detail-item"><span class="lbl" data-i18n="tblName">Name</span><span class="val" id="cdName">-</span></div>
-             <div class="detail-item"><span class="lbl" data-i18n="tblDepartment">Department</span><span class="val" id="cdDept">-</span></div>
+             <div class="detail-item"><span class="lbl" data-i18n="tblDepartment">Group</span><span class="val" id="cdDept">-</span></div>
 
              <div class="detail-item"><span class="lbl" data-i18n="tblJoin">Join Date</span><span class="val" id="cdJoin">-</span></div>
              <div class="detail-item"><span class="lbl" data-i18n="tblYears">Years of Work</span><span class="val" id="cdYears">-</span></div>
@@ -2047,7 +2047,7 @@
                  </div>
              </div>
              <div class="form-group" style="max-width:380px;">
-                 <label data-i18n="tblDepartment">Department</label>
+                 <label data-i18n="tblDepartment">Group</label>
                  <select id="newDept"></select>
              </div>
              <button type="submit" class="btn-submit" style="margin-top:6px;" data-i18n="btnSaveEmp">Save Employee</button>
@@ -2277,7 +2277,7 @@
              <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="faExportSub">Export a finished day (normally the next morning, after 7:00 AM). The PDF opens in a print window - choose "Save as PDF".</p>
              <div class="fa-grid">
                  <div class="form-group" style="margin-bottom:0; min-width:170px;"><label data-i18n="faExportDate">Report date</label><input type="date" id="faExportDate"></div>
-                 <div class="form-group" style="margin-bottom:0; min-width:200px;"><label data-i18n="tblDepartment">Department</label><select id="faExportDept"></select></div>
+                 <div class="form-group" style="margin-bottom:0; min-width:200px;"><label data-i18n="tblDepartment">Group</label><select id="faExportDept"></select></div>
                  <div class="form-group" style="margin-bottom:0; min-width:160px;"><label data-i18n="faExportLang">Report language</label>
                      <select id="faExportLang"><option value="en">English</option><option value="km">ខ្មែរ</option><option value="zh">中文</option></select></div>
              </div>
@@ -2342,7 +2342,7 @@
              <div class="fa-grid">
                  <div class="form-group" style="margin-bottom:0; min-width:170px;"><label data-i18n="faExportLang">Report language</label>
                      <select id="xcLang"><option value="en">English</option><option value="km">ខ្មែរ</option><option value="zh">中文</option></select></div>
-                 <div class="form-group" id="xcDeptRow" style="margin-bottom:0; min-width:200px;"><label data-i18n="tblDepartment">Department</label><select id="xcDept"></select></div>
+                 <div class="form-group" id="xcDeptRow" style="margin-bottom:0; min-width:200px;"><label data-i18n="tblDepartment">Group</label><select id="xcDept"></select></div>
                  <div class="form-group" id="xcOptMonth" style="margin-bottom:0; min-width:170px; display:none;"><label data-i18n="xcMonthLbl">Month</label><input type="month" id="xcMonth"></div>
                  <div class="form-group" id="xcOptAtt" style="margin-bottom:0; min-width:170px; display:none;"><label data-i18n="xcAttDateLbl">Attendance date</label><input type="date" id="xcAttDate"></div>
                  <div class="form-group" id="xcOptRenew" style="margin-bottom:0; min-width:200px; display:none;"><label data-i18n="renewWithinLbl">Renewing within</label><select id="xcRenew"></select></div>
@@ -2472,12 +2472,12 @@
  </div>
  <!-- TAB 10: DEPARTMENTS (v5.00) -->
  <div id="tab-dept" class="tab-panel">
-     <h3 data-i18n="deptTitle">Departments / Teams</h3>
-     <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="deptSub">Group employees into departments or teams</p>
+     <h3 data-i18n="deptTitle">Departments &amp; Groups</h3>
+     <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="deptSub">A department contains groups. Each employee belongs to one group.</p>
 
      <form style="display:flex; gap:10px; align-items:flex-end; max-width:520px; margin-bottom:16px;" onsubmit="event.preventDefault(); addDepartment(this.querySelector('[type=submit]'));">
          <div class="form-group" style="flex:1; margin-bottom:0;">
-             <label data-i18n="deptNewLabel">New Department Name</label>
+             <label data-i18n="deptNewLabel">New Group Name</label>
              <input type="text" id="newDeptName" placeholder="e.g. Sales">
          </div>
          <button type="submit" class="btn-submit" style="width:auto; padding:8px 16px; margin-top:0;" data-i18n="btnAddDept">Add</button>
@@ -2488,7 +2488,7 @@
              <thead>
                  <tr>
                      <th data-i18n="tblActions">Actions</th>
-                     <th data-i18n="deptColName">Department Name</th>
+                     <th data-i18n="deptColName">Group Name</th>
                      <th data-i18n="deptColCount">Employees Assigned</th>
                  </tr>
              </thead>
@@ -2725,7 +2725,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.46
+     HR & Administration System Version 7.47
  </div>
 </div>
 
@@ -2892,7 +2892,7 @@
          <div class="grid-3">
              <div class="form-group"><label data-i18n="lblLoginUsername">Login Username</label><input type="text" id="editLoginUsername" placeholder="Defaults to Employee ID"></div>
              <div class="form-group"><label data-i18n="lblLoginPassword">Login Password</label><input type="text" id="editLoginPassword" placeholder="Defaults to Employee ID"></div>
-             <div class="form-group"><label data-i18n="tblDepartment">Department</label><select id="editDept"></select></div>
+             <div class="form-group"><label data-i18n="tblDepartment">Group</label><select id="editDept"></select></div>
          </div>
          <div class="grid-3">
              <div class="form-group"><label data-i18n="tblStatus">Status</label>
