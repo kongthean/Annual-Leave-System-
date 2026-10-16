@@ -626,7 +626,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.49</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.52</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1018,6 +1018,7 @@
  <!-- New v5.00 sections, reachable only from Main Menu, same "hidden nav button" wiring pattern -->
  <button id="nav-shift" onclick="switchTab('tab-shift', this)" data-i18n="navShiftRoster" style="display:none;">Shift Roster</button>
  <button id="nav-dept" onclick="switchTab('tab-dept', this)" data-i18n="navDepartments" style="display:none;">Departments</button>
+ <button id="nav-mse" onclick="switchTab('tab-mse', this)" data-i18n="navMSE" style="display:none;">MSE Departments</button>
 <button id="nav-makeup" onclick="switchTab('tab-makeup', this)" data-i18n="navMakeup" style="display:none;">Makeup Attendance Record</button>
 <button id="nav-attcal" onclick="switchTab('tab-attcal', this)" data-i18n="navAttCal" style="display:none;">Leave &amp; Attendance Calendar</button>
 <button id="nav-printing" onclick="switchTab('tab-printing', this)" data-i18n="navPrinting" style="display:none;">Document Library</button>
@@ -1173,6 +1174,20 @@
          <button class="quick-btn purple admin-only" onclick="triggerNav('tab-dept', 'nav-dept')">
              <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01"/><path d="M15 10h.01"/></svg></span><span class="quick-btn-label" data-i18n="navDepartments">Departments</span>
          </button>
+         <button class="quick-btn teal" onclick="triggerNav('tab-mse', 'nav-mse')">
+             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg></span><span class="quick-btn-label" data-i18n="navMSE">MSE Departments</span>
+         </button>
+         <button class="quick-btn" style="background:linear-gradient(135deg,#b45309,#78350f); position:relative;" onclick="openDeptReqModal()">
+             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></span><span class="quick-btn-label" data-i18n="navDeptReq">Department Requests</span>
+             <span id="deptReqBadge" class="notif-badge" style="display:none; top:2px; right:2px;">0</span>
+         </button>
+         <button class="quick-btn" style="background:linear-gradient(135deg,#be123c,#881337); position:relative;" onclick="openDeptIvModal()">
+             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span><span class="quick-btn-label" data-i18n="navDeptIv">Investigations</span>
+             <span id="deptIvBadge" class="notif-badge" style="display:none; top:2px; right:2px;">0</span>
+         </button>
+         <button class="quick-btn" style="background:linear-gradient(135deg,#0e7490,#164e63);" onclick="openDateCtl()">
+             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="quick-btn-label" data-i18n="navDateCtl">Date Control</span>
+         </button>
          <button class="quick-btn brown admin-only" onclick="openRecentlyDeletedModal()">
              <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-9.36L1 10"/></svg></span><span class="quick-btn-label" data-i18n="navRecentlyDeleted">Recently Deleted</span>
          </button>
@@ -1317,6 +1332,31 @@
             </div>
             <div id="lxStatus" style="font-size:12px; margin:10px 0; display:none;"></div>
             <div id="lxResults"></div>
+</div>
+
+<!-- TAB: MSE DEPARTMENTS (view only) -->
+<div id="tab-mse" class="tab-panel">
+    <h3 data-i18n="navMSE">MSE Departments</h3>
+    <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="msSub"></p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
+        <select id="msDept" onchange="msPick(this.value)" style="padding:7px 10px; border:1px solid #cbd5e1; border-radius:8px; min-width:220px;"></select>
+        <select id="msGroup" onchange="msRenderTable()" style="padding:7px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
+        <input type="text" id="msSearch" oninput="msRenderTable()" placeholder="ID / Name" style="padding:7px 10px; border:1px solid #cbd5e1; border-radius:8px;">
+        <button type="button" class="quick-btn green" style="width:auto; min-width:auto; min-height:auto; padding:7px 14px; font-size:12px;" onclick="msExport()" data-i18n="btnExport">Export to Excel (.xlsx)</button>
+        <span id="msInfo" style="font-size:12px; color:#64748b;"></span>
+    </div>
+    <div class="table-responsive">
+        <table class="master-tbl tbl-wide" id="msTable">
+            <thead><tr>
+                <th></th><th data-i18n="tblId">ID</th><th data-i18n="tblName">Name</th><th data-i18n="tblDepartment">Group</th><th data-i18n="tblJoin">Join Date</th><th data-i18n="tblYears">Years of Work</th><th data-i18n="tblEntitled">Entitled Hours</th>
+                <th data-i18n="tblStart">AL Start Date</th><th data-i18n="tblEnd">AL End Date</th><th data-i18n="tblYearRange">Year Range</th><th data-i18n="tblRenewed">AL Renewed At</th><th data-i18n="tblTotalAL">Total AL</th><th data-i18n="tblCarried">Carried Forward</th>
+                <th data-i18n="tblPrevUsed">Prev Month Used</th><th data-i18n="tblMonthUsed">Current Month Used</th><th data-i18n="tblTotalUsed">Total Used Hours</th><th data-i18n="tblExceeded">Exceeded Hours</th><th data-i18n="tblRemaining">Remaining Hours</th>
+                <th data-i18n="thMasterWorkingHours">Working Hours</th><th data-i18n="thMasterMonthlyOT">Monthly Overtime</th><th data-i18n="thMasterAnnualLeave">Annual Leave</th><th data-i18n="thMasterSpecialLeave">Special Leave</th>
+                <th data-i18n="thMasterMaternityLeave">Maternity Leave</th><th data-i18n="thMasterTravelLeave">Travel Leave</th><th data-i18n="thMasterPersonalLeave">Personal Leave</th><th data-i18n="thMasterSickLeave">Sick Leave</th><th data-i18n="thMasterOtherLeave">Other Leave</th><th data-i18n="tblRemarks">Remarks</th>
+            </tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
 
 <!-- TAB 2: MASTER SHEET -->
@@ -2723,7 +2763,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.49
+     HR & Administration System Version 7.52
  </div>
 </div>
 
@@ -2832,6 +2872,54 @@
                 <tbody></tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<!-- DEPARTMENT REQUESTS (v7.51) -->
+<div class="modal" id="deptReqModal">
+    <div class="modal-content" style="max-width: 980px;">
+        <div class="modal-header">
+            <h4 data-i18n="navDeptReq">Department Requests</h4>
+            <button class="modal-close" onclick="closeDeptReqModal()">&times;</button>
+        </div>
+        <p style="font-size:12px; color:#64748b; margin-bottom:10px;" data-i18n="rqSub"></p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+            <select id="rqFDept" onchange="rqFilter()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
+            <select id="rqFType" onchange="rqFilter()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
+            <select id="rqFStatus" onchange="rqFilter()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
+            <input type="text" id="rqFSearch" oninput="rqFilter()" placeholder="ID / Name" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;">
+        </div>
+        <div class="table-responsive"><table class="master-tbl" id="rqTable"><thead><tr><th></th><th data-i18n="rqDate">Date</th><th data-i18n="dgDept">Department</th><th data-i18n="rqType">Type</th><th data-i18n="rqEmployee">Employee</th><th data-i18n="rqStatus">Status</th></tr></thead><tbody></tbody></table></div>
+    </div>
+</div>
+<div class="modal" id="deptReqView" style="z-index:3000;">
+    <div class="modal-content" style="max-width: 860px; max-height:92vh; overflow-y:auto;">
+        <div class="modal-header"><h4 data-i18n="rqTitle">Request Form</h4><button class="modal-close" onclick="rqCloseView()">&times;</button></div>
+        <div id="rqDoc"></div>
+        <div id="rqActions"></div>
+    </div>
+</div>
+
+<!-- DEPARTMENT INVESTIGATIONS (v7.52) -->
+<div class="modal" id="deptIvModal">
+    <div class="modal-content" style="max-width: 1100px;">
+        <div class="modal-header"><h4 data-i18n="navDeptIv">Investigations</h4><button class="modal-close" onclick="closeDeptIvModal()">&times;</button></div>
+        <p style="font-size:12px; color:#64748b; margin-bottom:10px;" data-i18n="ivSub"></p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+            <select id="ivFDept" onchange="ivFilter()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
+            <select id="ivFStatus" onchange="ivFilter()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
+        </div>
+        <div class="table-responsive"><table class="master-tbl" id="ivTable"><thead><tr><th data-i18n="rqDate">Date</th><th data-i18n="dgDept">Department</th><th data-i18n="rqEmployee">Employee</th><th data-i18n="ivColField">Item</th><th data-i18n="ivColDept">Department number</th><th data-i18n="ivColHr">HR number</th><th data-i18n="rqStatus">Status</th><th data-i18n="ivColNote">Note</th><th></th></tr></thead><tbody></tbody></table></div>
+    </div>
+</div>
+<!-- DATE CONTROL (v7.52) -->
+<div class="modal" id="dateCtlModal">
+    <div class="modal-content" style="max-width: 640px;">
+        <div class="modal-header"><h4 data-i18n="navDateCtl">Date Control</h4><button class="modal-close" onclick="closeDateCtl()">&times;</button></div>
+        <p style="font-size:12px; color:#64748b; margin-bottom:10px;" data-i18n="dcSub"></p>
+        <div style="margin-bottom:8px; font-size:12px;"><a href="#" onclick="dcAll(true); return false;" data-i18n="dcSelAll">Select all</a> &nbsp;|&nbsp; <a href="#" onclick="dcAll(false); return false;" data-i18n="dcSelNone">Select none</a></div>
+        <div id="dcList" style="max-height:50vh; overflow-y:auto;"></div>
+        <button type="button" class="btn-submit" style="margin-top:12px;" onclick="dcRun(this)" data-i18n="dcRun">Reset Monthly</button>
     </div>
 </div>
 
@@ -4054,6 +4142,87 @@
         daBadGroup: "These group names contain a character that is not allowed ( . # $ [ ] / ) so their department cannot see them. Please rename: {names}",
         daInUse: "This department still has login accounts. Delete those accounts first.",
         chooserPortalLink: "Employees & Departments →",
+        navMSE: "MSE Departments",
+        msSub: "View the master sheet of each department (view only - nothing can be changed here).",
+        msChoose: "-- Choose a department --",
+        msPickFirst: "Choose a department above to see its master sheet.",
+        msNotStarted: "This employee is not in the department book yet (the department has not opened it).",
+        msCount: "Showing {n} of {total} employees",
+        msViewOnlyTag: "View only",
+        navDeptReq: "Department Requests",
+        rqSub: "Requests from departments. HR signs first, then Administration (Administration can sign instead if HR is busy). When Administration approves, the master sheet is updated straight away.",
+        rqTitle: "Request Form",
+        rqRef: "Ref",
+        rqDate: "Date",
+        rqType: "Type",
+        rqTypeEdit: "Edit employee information",
+        rqTypeRemove: "Remove employee",
+        rqTypeGroup: "New group",
+        rqEmployee: "Employee",
+        rqStatus: "Status",
+        rqChange: "What to change",
+        rqField: "Field",
+        rqCurrent: "Current",
+        rqNew: "Requested",
+        rqDetail: "Description / Reason",
+        rqRemoveText: "Please remove this employee from the system.",
+        rqGroupName: "New group name",
+        rqSigRequested: "Requested by (Department)",
+        rqSigHR: "HR",
+        rqSigAdmin: "Administration",
+        rqPending: "Waiting",
+        rqApproved: "Approved",
+        rqRejected: "Rejected",
+        rqNote: "Note",
+        rqSignedInstead: "Signed by Administration instead of HR",
+        rqStatusWaitHR: "Waiting for HR",
+        rqStatusWaitAdmin: "Waiting for Administration",
+        rqStatusApproved: "Approved - master updated",
+        rqStatusRejected: "Rejected",
+        rqPrint: "Print / Save as PDF",
+        rqFOpen: "Open (not finished)",
+        rqNone: "No requests.",
+        rqOnBehalf: "HR has not signed yet. Your approval will count as the HR signature too.",
+        rqRejectPrompt: "Reason for rejecting (the department will see it):",
+        rqEmpGone: "This employee no longer exists in the master sheet.",
+        rqGroupDup: "This group name already exists.",
+        rqApplied: "Approved. The master sheet was updated.",
+        rqOk: "OK",
+        ivOpen: "Under investigation",
+        ivHrFixed: "HR corrected its number",
+        ivDeptFix: "Department must correct its number",
+        ivFixed: "Department says it is corrected",
+        ivClosed: "Closed",
+        navDeptIv: "Investigations",
+        navDateCtl: "Date Control",
+        ivSub: "A department found a number that does not match HR. Decide which side is wrong.",
+        ivColField: "Item",
+        ivColDept: "Department number",
+        ivColHr: "HR number",
+        ivColNote: "Note",
+        ivNow: "now",
+        ivActHr: "HR number is wrong",
+        ivActDept: "Department is wrong",
+        ivActClose: "Numbers are fine",
+        ivPromptValue: "Correct value for {f} of {n}:",
+        ivPromptDept: "Message for the department (what they should correct):",
+        ivPromptClose: "Note for closing (optional):",
+        ivSentApproval: "Sent to Administration for approval.",
+        dcSub: "Reset the monthly numbers of the department master sheets in one click. A backup is saved first.",
+        dcNever: "Never",
+        dcEmps: "employees",
+        dcLast: "Last reset",
+        dcThisMonth: "already reset this month",
+        dcBackups: "Backups",
+        dcRestore: "Restore",
+        dcRestoreConfirm: "Restore the master sheet from this backup? Current numbers will be replaced.",
+        dcNone: "Please choose at least one department.",
+        dcSelAll: "Select all",
+        dcSelNone: "Select none",
+        dcRun: "Reset Monthly",
+        dcConfirm: "Reset the monthly numbers for: {names}? Prev Month Used will add Current Month Used; Current Month Used, Exceeded, Working Hours, Overtime and all leave types become 0. A backup is saved first.",
+        dcAlready: "Already reset in {m}: {names}. Reset again anyway?",
+        dcDone: "{n} department(s) reset.",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -5205,6 +5374,87 @@
         daBadGroup: "ឈ្មោះក្រុមទាំងនេះមានតួអក្សរដែលមិនអនុញ្ញាត ( . # $ [ ] / ) ដូច្នេះនាយកដ្ឋានមិនអាចឃើញទេ។ សូមប្តូរឈ្មោះ៖ {names}",
         daInUse: "នាយកដ្ឋាននេះនៅមានគណនីចូលប្រើ។ សូមលុបគណនីទាំងនោះជាមុន។",
         chooserPortalLink: "បុគ្គលិក និងនាយកដ្ឋាន →",
+        navMSE: "បញ្ជីចម្បងនាយកដ្ឋាន",
+        msSub: "មើលបញ្ជីចម្បងរបស់នាយកដ្ឋាននីមួយៗ (មើលតែប៉ុណ្ណោះ - មិនអាចកែប្រែទេ)។",
+        msChoose: "-- ជ្រើសរើសនាយកដ្ឋាន --",
+        msPickFirst: "សូមជ្រើសរើសនាយកដ្ឋានខាងលើ ដើម្បីមើលបញ្ជីចម្បង។",
+        msNotStarted: "បុគ្គលិកនេះមិនទាន់មាននៅក្នុងសៀវភៅនាយកដ្ឋានទេ (នាយកដ្ឋានមិនទាន់បើក)។",
+        msCount: "បង្ហាញ {n} ក្នុងចំណោម {total} នាក់",
+        msViewOnlyTag: "មើលតែប៉ុណ្ណោះ",
+        navDeptReq: "សំណើពីនាយកដ្ឋាន",
+        rqSub: "សំណើពីនាយកដ្ឋាន។ HR ចុះហត្ថលេខាមុន បន្ទាប់មករដ្ឋបាល (រដ្ឋបាលអាចចុះហត្ថលេខាជំនួសបានប្រសិនបើ HR រវល់)។ ពេលរដ្ឋបាលអនុម័ត បញ្ជីចម្បងនឹងត្រូវកែភ្លាមៗ។",
+        rqTitle: "ទម្រង់សំណើ",
+        rqRef: "លេខយោង",
+        rqDate: "កាលបរិច្ឆេទ",
+        rqType: "ប្រភេទ",
+        rqTypeEdit: "កែព័ត៌មានបុគ្គលិក",
+        rqTypeRemove: "ដកបុគ្គលិកចេញ",
+        rqTypeGroup: "ក្រុមថ្មី",
+        rqEmployee: "បុគ្គលិក",
+        rqStatus: "ស្ថានភាព",
+        rqChange: "អ្វីដែលត្រូវកែប្រែ",
+        rqField: "ប្រភេទព័ត៌មាន",
+        rqCurrent: "បច្ចុប្បន្ន",
+        rqNew: "ស្នើសុំ",
+        rqDetail: "ការពិពណ៌នា / មូលហេតុ",
+        rqRemoveText: "សូមដកបុគ្គលិកនេះចេញពីប្រព័ន្ធ។",
+        rqGroupName: "ឈ្មោះក្រុមថ្មី",
+        rqSigRequested: "ស្នើសុំដោយ (នាយកដ្ឋាន)",
+        rqSigHR: "ធនធានមនុស្ស (HR)",
+        rqSigAdmin: "រដ្ឋបាល",
+        rqPending: "កំពុងរង់ចាំ",
+        rqApproved: "បានអនុម័ត",
+        rqRejected: "បានបដិសេធ",
+        rqNote: "កំណត់ចំណាំ",
+        rqSignedInstead: "ចុះហត្ថលេខាដោយរដ្ឋបាលជំនួស HR",
+        rqStatusWaitHR: "រង់ចាំ HR",
+        rqStatusWaitAdmin: "រង់ចាំរដ្ឋបាល",
+        rqStatusApproved: "បានអនុម័ត - បានកែបញ្ជីចម្បង",
+        rqStatusRejected: "បានបដិសេធ",
+        rqPrint: "បោះពុម្ព / រក្សាទុកជា PDF",
+        rqFOpen: "កំពុងរង់ចាំ (មិនទាន់ចប់)",
+        rqNone: "គ្មានសំណើទេ។",
+        rqOnBehalf: "HR មិនទាន់ចុះហត្ថលេខាទេ។ ការអនុម័តរបស់អ្នកនឹងរាប់ជាហត្ថលេខា HR ផងដែរ។",
+        rqRejectPrompt: "មូលហេតុនៃការបដិសេធ (នាយកដ្ឋាននឹងឃើញ)៖",
+        rqEmpGone: "បុគ្គលិកនេះលែងមានក្នុងបញ្ជីចម្បងទៀតហើយ។",
+        rqGroupDup: "ឈ្មោះក្រុមនេះមានរួចហើយ។",
+        rqApplied: "បានអនុម័ត។ បញ្ជីចម្បងត្រូវបានកែប្រែ។",
+        rqOk: "យល់ព្រម",
+        ivOpen: "កំពុងស៊ើបអង្កេត",
+        ivHrFixed: "HR បានកែលេខរបស់ខ្លួន",
+        ivDeptFix: "នាយកដ្ឋានត្រូវកែលេខរបស់ខ្លួន",
+        ivFixed: "នាយកដ្ឋានថាបានកែហើយ",
+        ivClosed: "បានបិទ",
+        navDeptIv: "ការស៊ើបអង្កេត",
+        navDateCtl: "ត្រួតពិនិត្យកាលបរិច្ឆេទ",
+        ivSub: "នាយកដ្ឋានបានឃើញលេខមិនដូច HR។ សូមសម្រេចថាខាងណាខុស។",
+        ivColField: "ប្រភេទ",
+        ivColDept: "លេខរបស់នាយកដ្ឋាន",
+        ivColHr: "លេខរបស់ HR",
+        ivColNote: "កំណត់ចំណាំ",
+        ivNow: "ឥឡូវ",
+        ivActHr: "លេខ HR ខុស",
+        ivActDept: "នាយកដ្ឋានខុស",
+        ivActClose: "លេខត្រឹមត្រូវ",
+        ivPromptValue: "តម្លៃត្រឹមត្រូវនៃ {f} របស់ {n}៖",
+        ivPromptDept: "សារជូននាយកដ្ឋាន (អ្វីដែលត្រូវកែ)៖",
+        ivPromptClose: "កំណត់ចំណាំសម្រាប់បិទ (មិនបង្ខំ)៖",
+        ivSentApproval: "បានផ្ញើទៅរដ្ឋបាលដើម្បីអនុម័ត។",
+        dcSub: "កំណត់លេខប្រចាំខែនៃបញ្ជីចម្បងនាយកដ្ឋានឡើងវិញដោយចុចម្តង។ មានការបម្រុងទុកជាមុន។",
+        dcNever: "មិនធ្លាប់",
+        dcEmps: "បុគ្គលិក",
+        dcLast: "កំណត់ឡើងវិញចុងក្រោយ",
+        dcThisMonth: "បានកំណត់ឡើងវិញក្នុងខែនេះហើយ",
+        dcBackups: "ការបម្រុងទុក",
+        dcRestore: "ស្តារ",
+        dcRestoreConfirm: "ស្តារបញ្ជីចម្បងពីការបម្រុងទុកនេះ? លេខបច្ចុប្បន្នត្រូវជំនួស។",
+        dcNone: "សូមជ្រើសរើសនាយកដ្ឋានយ៉ាងហោចណាស់មួយ។",
+        dcSelAll: "ជ្រើសទាំងអស់",
+        dcSelNone: "មិនជ្រើស",
+        dcRun: "កំណត់ប្រចាំខែឡើងវិញ",
+        dcConfirm: "កំណត់លេខប្រចាំខែឡើងវិញសម្រាប់៖ {names}? \"ប្រើខែមុន\" នឹងបូកបន្ថែម \"ប្រើខែនេះ\"; ប្រើខែនេះ ហួសម៉ោង ម៉ោងធ្វើការ ម៉ោងបន្ថែម និងប្រភេទច្បាប់ទាំងអស់ទៅជា 0។ មានការបម្រុងទុកជាមុន។",
+        dcAlready: "បានកំណត់ឡើងវិញក្នុង {m} រួចហើយ៖ {names}។ កំណត់ម្តងទៀតមែនទេ?",
+        dcDone: "បានកំណត់ឡើងវិញ {n} នាយកដ្ឋាន។",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -6318,6 +6568,87 @@
         daBadGroup: "这些小组名称含有不允许的字符 ( . # $ [ ] / )，其部门无法看到。请重命名：{names}",
         daInUse: "该部门仍有登录账户，请先删除这些账户。",
         chooserPortalLink: "员工与部门 →",
+        navMSE: "部门主控表",
+        msSub: "查看各部门的主控表（仅查看，不能修改）。",
+        msChoose: "-- 选择部门 --",
+        msPickFirst: "请在上方选择部门以查看其主控表。",
+        msNotStarted: "该员工尚未进入部门账本（部门还未打开）。",
+        msCount: "显示 {n} / {total} 名员工",
+        msViewOnlyTag: "仅查看",
+        navDeptReq: "部门申请",
+        rqSub: "各部门的申请。人事先签名，然后管理部门签名（人事忙时管理部门可代签）。管理部门批准后，主控表将立即更新。",
+        rqTitle: "申请表",
+        rqRef: "编号",
+        rqDate: "日期",
+        rqType: "类型",
+        rqTypeEdit: "修改员工信息",
+        rqTypeRemove: "删除员工",
+        rqTypeGroup: "新建小组",
+        rqEmployee: "员工",
+        rqStatus: "状态",
+        rqChange: "修改内容",
+        rqField: "项目",
+        rqCurrent: "当前",
+        rqNew: "申请改为",
+        rqDetail: "说明 / 原因",
+        rqRemoveText: "请将此员工从系统中删除。",
+        rqGroupName: "新小组名称",
+        rqSigRequested: "申请人（部门）",
+        rqSigHR: "人事",
+        rqSigAdmin: "管理部门",
+        rqPending: "等待中",
+        rqApproved: "已批准",
+        rqRejected: "已拒绝",
+        rqNote: "备注",
+        rqSignedInstead: "由管理部门代替人事签名",
+        rqStatusWaitHR: "等待人事",
+        rqStatusWaitAdmin: "等待管理部门",
+        rqStatusApproved: "已批准 - 主控表已更新",
+        rqStatusRejected: "已拒绝",
+        rqPrint: "打印 / 保存为PDF",
+        rqFOpen: "待处理（未完成）",
+        rqNone: "没有申请。",
+        rqOnBehalf: "人事尚未签名。您的批准将同时视为人事签名。",
+        rqRejectPrompt: "拒绝原因（部门将看到）：",
+        rqEmpGone: "主控表中已没有此员工。",
+        rqGroupDup: "该小组名称已存在。",
+        rqApplied: "已批准，主控表已更新。",
+        rqOk: "好的",
+        ivOpen: "调查中",
+        ivHrFixed: "人事已更正其数字",
+        ivDeptFix: "部门需更正其数字",
+        ivFixed: "部门称已更正",
+        ivClosed: "已关闭",
+        navDeptIv: "核查",
+        navDateCtl: "日期控制",
+        ivSub: "部门发现数字与人事不一致，请判断哪一方有误。",
+        ivColField: "项目",
+        ivColDept: "部门数字",
+        ivColHr: "人事数字",
+        ivColNote: "备注",
+        ivNow: "现在",
+        ivActHr: "人事数字有误",
+        ivActDept: "部门有误",
+        ivActClose: "数字无误",
+        ivPromptValue: "{n} 的 {f} 正确值：",
+        ivPromptDept: "给部门的留言（需要更正的内容）：",
+        ivPromptClose: "关闭备注（可选）：",
+        ivSentApproval: "已提交行政审批。",
+        dcSub: "一键重置部门主控表的月度数字，重置前会先自动备份。",
+        dcNever: "从未",
+        dcEmps: "名员工",
+        dcLast: "上次重置",
+        dcThisMonth: "本月已重置",
+        dcBackups: "备份",
+        dcRestore: "还原",
+        dcRestoreConfirm: "从此备份还原主控表？当前数字将被替换。",
+        dcNone: "请至少选择一个部门。",
+        dcSelAll: "全选",
+        dcSelNone: "全不选",
+        dcRun: "月度重置",
+        dcConfirm: "重置以下部门的月度数字：{names}？“上月已用”将加上“本月已用”；本月已用、超出、工时、加班及所有假期归零。重置前会先备份。",
+        dcAlready: "{m} 已重置：{names}。仍要再次重置吗？",
+        dcDone: "已重置 {n} 个部门。",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -8071,6 +8402,7 @@ async function deleteAnnouncement(firebaseKey, btnEl) {
      if(tabId === 'tab-add') document.getElementById('newId').focus();
      if(tabId === 'tab-shift') { renderShiftCalendarTable(); }
      if(tabId === 'tab-dept') renderDeptTable();
+     if(tabId === 'tab-mse') msRender();
      if(tabId === 'tab-attcal') { renderAttCalTable(); }
      if(tabId === 'tab-printing') { renderPrintingView(); }
      if(tabId === 'tab-auditlog') { renderAuditLogTable(); populateAuditActionFilter(); }
@@ -16707,6 +17039,399 @@ async function daDelete(k) {
         return od(i, btnEl);
     };
 })();
+
+/* ================= v7.50: MSE DEPARTMENTS (view only) =================
+   HR / Administration choose a department and look at that department's own master sheet (its book). Nothing can be changed here. */
+var msKey = '', msRef = null, msBook = {}, msLoaded = false, msEmps = [];
+function msDeptEmps() {
+    const o = dgOrg.find(function (x) { return x.key === msKey; }); if (!o) return [];
+    const gs = departments.filter(function (g) { return g.parent === o.name; }).map(function (g) { return g.name; });
+    return employees.filter(function (e) { return gs.indexOf(e.department) >= 0; });
+}
+function msInit() {
+    const tab = document.getElementById('tab-mse'); if (!tab) return;
+    const sel = document.getElementById('msDept'), cur = sel.value;
+    sel.innerHTML = '<option value="">' + dgEsc(t('msChoose')) + '</option>' + dgOrg.map(function (o) { return '<option value="' + dgEsc(o.key) + '">' + dgEsc(o.name) + '</option>'; }).join('');
+    if (cur && dgOrg.some(function (o) { return o.key === cur; })) sel.value = cur; else if (cur) { msKey = ''; }
+}
+function msPick(k) {
+    msKey = k; msLoaded = false; msBook = {};
+    if (msRef) { try { msRef.off('value'); } catch (e) {} msRef = null; }
+    document.getElementById('msGroup').value = '';
+    if (k) {
+        msRef = db.ref('deptData/' + k + '/book');
+        msRef.on('value', function (s) { msBook = s.val() || {}; msLoaded = true; msRenderTable(); }, function () { showToast(false); });
+    }
+    msFillGroups(); msRenderTable();
+}
+function msFillGroups() {
+    const sel = document.getElementById('msGroup'), o = dgOrg.find(function (x) { return x.key === msKey; });
+    const gs = o ? departments.filter(function (g) { return g.parent === o.name; }).map(function (g) { return g.name; }) : [];
+    sel.innerHTML = '<option value="">' + dgEsc(t('dgAll')) + '</option>' + gs.map(function (g) { return '<option value="' + dgEsc(g) + '">' + dgEsc(g) + '</option>'; }).join('');
+}
+function msRender() { msInit(); msFillGroups(); msRenderTable(); }
+function msMerge(e) {
+    const b = msBook[e.firebaseKey], v = Object.assign({}, e);
+    if (b) { ['entitled', 'carried', 'prevUsed', 'monthUsed', 'exceeded', 'workHours', 'otHours', 'leaveAL', 'leaveSpecial', 'leaveMaternity', 'leaveTravel', 'leavePersonal', 'leaveSick', 'leaveOther'].forEach(function (k) { v[k] = parseFloat(b[k]) || 0; }); ['startDate', 'endDate', 'yearRange', 'remarks'].forEach(function (k) { v[k] = b[k]; }); v._has = true; }
+    else v._has = false;
+    return v;
+}
+function msRenderTable() {
+    const tb = document.querySelector('#msTable tbody'); if (!tb) return;
+    const info = document.getElementById('msInfo');
+    if (!msKey) { tb.innerHTML = '<tr><td colspan="27" style="text-align:center; color:#94a3b8;">' + dgEsc(t('msPickFirst')) + '</td></tr>'; info.textContent = ''; return; }
+    const q = (document.getElementById('msSearch').value || '').toLowerCase(), g = document.getElementById('msGroup').value, now = new Date();
+    const list = msDeptEmps().sort(function (a, b) { return String(a.id).localeCompare(String(b.id), undefined, { numeric: true }); });
+    msEmps = list;
+    let html = '', n = 0;
+    list.forEach(function (e0, idx) {
+        if (g && e0.department !== g) return;
+        if (q && String(e0.id || '').toLowerCase().indexOf(q) < 0 && String(e0.name || '').toLowerCase().indexOf(q) < 0) return;
+        n++;
+        const e = msMerge(e0);
+        if (!e._has) { html += '<tr><td></td><td><b>' + dgEsc(e.id) + '</b></td><td>' + dgEsc(e.name) + '</td><td>' + dgEsc(e.department || '-') + '</td><td colspan="23" style="color:#b45309;">' + dgEsc(t('msNotStarted')) + '</td></tr>'; return; }
+        try {
+            const jp = (e.joinDate || '').split('.'), join = jp.length === 3 ? new Date(jp[0], jp[1] - 1, jp[2]) : null;
+            const twm = join ? (now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth()) : 0;
+            const cyc = computeLeaveCycle(e.joinDate, now), st = e.startDate || cyc.startStr, en = e.endDate || cyc.endStr, yr = e.yearRange || cyc.yearRangeStr;
+            const rem = (st && en) ? getRemainingCycleMonths(st, en, now) : 0;
+            const used = (parseFloat(e.prevUsed) || 0) + (parseFloat(e.monthUsed) || 0) - (parseFloat(e.exceeded) || 0), remaining = (parseFloat(e.entitled) || 0) - used + (parseFloat(e.carried) || 0);
+            const f = function (v) { return (parseFloat(v) || 0).toFixed(2); };
+            html += '<tr><td><button class="btn-view" onclick="msDetail(' + idx + ')" title="View">' + ICON_VIEW + '</button></td><td><b>' + dgEsc(e.id) + '</b></td><td>' + dgEsc(e.name) + '</td><td>' + dgEsc(e.department || '-') + '</td><td>' + dgEsc(e.joinDate) + '</td><td>' + Math.floor(Math.max(0, twm) / 12) + '</td>' +
+                '<td>' + f(e.entitled) + '</td><td>' + dgEsc(st) + '</td><td>' + dgEsc(en) + '</td><td>' + dgEsc(yr) + '</td><td><b>' + rem + '</b></td><td>' + f(e.entitled) + '</td><td>' + f(e.carried) + '</td><td>' + f(e.prevUsed) + '</td><td>' + f(e.monthUsed) + '</td><td><b>' + used.toFixed(2) + '</b></td>' +
+                '<td style="color:' + (e.exceeded > 0 ? '#dc2626' : '#64748b') + '; font-weight:bold;">' + f(e.exceeded) + '</td><td style="color:' + (remaining < 0 ? '#dc2626' : '#15803d') + '; font-weight:bold;">' + remaining.toFixed(2) + '</td>' +
+                '<td>' + f(e.workHours) + '</td><td>' + f(e.otHours) + '</td><td>' + f(e.leaveAL) + '</td><td>' + f(e.leaveSpecial) + '</td><td>' + f(e.leaveMaternity) + '</td><td>' + f(e.leaveTravel) + '</td><td>' + f(e.leavePersonal) + '</td><td>' + f(e.leaveSick) + '</td><td>' + f(e.leaveOther) + '</td><td>' + dgEsc(e.remarks || '-') + '</td></tr>';
+        } catch (err) { html += '<tr><td colspan="27" style="color:#dc2626;">' + dgEsc(e.id) + '</td></tr>'; }
+    });
+    tb.innerHTML = html || '<tr><td colspan="27" style="text-align:center; color:#94a3b8;">-</td></tr>';
+    info.textContent = fillTemplate(t('msCount'), { n: n, total: list.length });
+}
+/* same read-only detail window as Check Details, filled with the department's numbers */
+function msDetail(idx) {
+    const e0 = msEmps[idx]; if (!e0) return;
+    const emp = msMerge(e0), now = new Date();
+    const qd = computeQueryData(emp, now, 0), carried = parseFloat(emp.carried) || 0, hasC = carried > 0, exceeds = qd.allowedThisMonth < 0, f = function (v) { return (parseFloat(v) || 0).toFixed(2); };
+    const S = function (id, v) { const el = document.getElementById(id); if (el) el.innerText = v; };
+    S('cdTitleInfo', ': ' + (emp.name || '-') + ' (' + (emp.id || '-') + ')'); S('cdQueryShift', '');
+    const sh = document.getElementById('cdQueryShift'); if (sh) sh.textContent = t('msViewOnlyTag') + ' - ' + dgOrgNameOf(msKey);
+    S('cdId', emp.id || '-'); S('cdName', emp.name || '-'); S('cdDept', emp.department || '-'); S('cdJoin', emp.joinDate || '-'); S('cdYears', qd.workYears); S('cdEntitled', f(emp.entitled));
+    S('cdStart', qd.startStr || '-'); S('cdEnd', qd.endStr || '-'); S('cdRenewal', qd.renewalMonths); S('cdYearRange', qd.yearRangeStr || '-'); S('cdMonths', qd.monthsOfService); S('cdTotalAL', f(emp.entitled));
+    S('cdTotalUsed', qd.totalUsed.toFixed(2)); S('cdCurrentMonthUsed', f(emp.monthUsed)); S('cdRemainingTotal', qd.remainingTotal.toFixed(2)); S('cdCarried', carried.toFixed(2));
+    S('cdAllowedThisMonth', qd.allowedThisMonth.toFixed(2)); S('cdRemAfterToday', qd.remAfterToday.toFixed(2)); S('cdAvailCarried', hasC ? t('txtAvailable') : t('txtUnavailable'));
+    S('cdIsStarted', qd.isStarted ? t('txtStartYes') : t('txtStartNo')); S('cdIsExceeded', exceeds ? t('txtExceed') : t('txtInLimit'));
+    S('cdWorkHours', f(emp.workHours)); S('cdOTHours', f(emp.otHours)); S('cdLeaveAL', f(emp.leaveAL)); S('cdLeavePersonal', f(emp.leavePersonal)); S('cdLeaveSpecial', f(emp.leaveSpecial));
+    S('cdLeaveMaternity', f(emp.leaveMaternity)); S('cdLeaveTravel', f(emp.leaveTravel)); S('cdLeaveSick', f(emp.leaveSick)); S('cdLeaveOther', f(emp.leaveOther)); S('cdRemarks', emp.remarks || t('noRemarksText'));
+    setAmountColor('cdCarriedLabel', 'cdCarried', hasC); setAmountColor('cdAllowedLabel', 'cdAllowedThisMonth', qd.allowedThisMonth > 0); setAmountColor('cdRemAfterLabel', 'cdRemAfterToday', qd.remAfterToday > 0);
+    setAmountColor('cdAvailCarriedLabel', 'cdAvailCarried', hasC); setAmountColor('cdIsStartedLabel', 'cdIsStarted', qd.isStarted); setAmountColor('cdIsExceededLabel', 'cdIsExceeded', !exceeds);
+    document.getElementById('checkDetailsModal').style.display = 'flex';
+}
+function dgOrgNameOf(k) { const o = dgOrg.find(function (x) { return x.key === k; }); return o ? o.name : ''; }
+function msExport() {
+    if (!msKey || typeof XLSX === 'undefined') { showToast(false); return; }
+    const cols = [['tblId', 'id'], ['tblName', 'name'], ['tblDepartment', 'department'], ['tblJoin', 'joinDate'], ['tblEntitled', 'entitled'], ['tblStart', 'startDate'], ['tblEnd', 'endDate'], ['tblYearRange', 'yearRange'], ['tblCarried', 'carried'], ['tblPrevUsed', 'prevUsed'], ['tblMonthUsed', 'monthUsed'], ['tblTotalUsed', '_u'], ['tblExceeded', 'exceeded'], ['tblRemaining', '_r'], ['thMasterWorkingHours', 'workHours'], ['thMasterMonthlyOT', 'otHours'], ['thMasterAnnualLeave', 'leaveAL'], ['thMasterSpecialLeave', 'leaveSpecial'], ['thMasterMaternityLeave', 'leaveMaternity'], ['thMasterTravelLeave', 'leaveTravel'], ['thMasterPersonalLeave', 'leavePersonal'], ['thMasterSickLeave', 'leaveSick'], ['thMasterOtherLeave', 'leaveOther'], ['tblRemarks', 'remarks']];
+    const g = document.getElementById('msGroup').value, aoa = [cols.map(function (c) { return t(c[0]); })], N = ['entitled', 'carried', 'prevUsed', 'monthUsed', 'exceeded', 'workHours', 'otHours', 'leaveAL', 'leaveSpecial', 'leaveMaternity', 'leaveTravel', 'leavePersonal', 'leaveSick', 'leaveOther'];
+    msEmps.forEach(function (e0) {
+        if (g && e0.department !== g) return; const e = msMerge(e0); if (!e._has) return;
+        const cyc = computeLeaveCycle(e.joinDate, new Date()), u = (parseFloat(e.prevUsed) || 0) + (parseFloat(e.monthUsed) || 0) - (parseFloat(e.exceeded) || 0), r = (parseFloat(e.entitled) || 0) - u + (parseFloat(e.carried) || 0);
+        aoa.push(cols.map(function (c) { const k = c[1]; if (k === '_u') return Number(u.toFixed(2)); if (k === '_r') return Number(r.toFixed(2)); if (k === 'startDate') return e.startDate || cyc.startStr; if (k === 'endDate') return e.endDate || cyc.endStr; if (k === 'yearRange') return e.yearRange || cyc.yearRangeStr; if (N.indexOf(k) >= 0) return parseFloat(e[k]) || 0; return e[k] == null ? '' : e[k]; }));
+    });
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), 'Master Sheet');
+    XLSX.writeFile(wb, 'MSE_' + dgOrgNameOf(msKey).replace(/[^\wក-៿一-龥-]+/g, '_') + '_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+}
+/* the lists follow the HR data when departments / employees change */
+(function () { const o = renderDeptTable; renderDeptTable = function () { o(); if (isTabActive('tab-mse')) msRender(); }; })();
+
+/* ===== shared by HR/Administration and the Department page: the request form shown like a paper form ===== */
+var RQ_FIELDS = [['id', 'tblId'], ['name', 'tblName'], ['sex', 'tblSex'], ['dob', 'tblDob'], ['pob', 'tblPob'], ['residence', 'tblResidence'], ['contact', 'tblContact'], ['emergencyContact', 'tblEmergencyContact'], ['joinDate', 'tblJoin']];
+var RQ_CSS = '.rq-doc{background:#fff;color:#0f172a;border:1px solid #cbd5e1;border-radius:6px;padding:22px 26px;max-width:760px;margin:0 auto;font-family:Arial,sans-serif;font-size:13px;line-height:1.5}' +
+    '.rq-doc h2{text-align:center;font-size:20px;letter-spacing:1px;margin:0 0 4px}.rq-doc .rq-meta{display:flex;justify-content:space-between;font-size:12px;color:#475569;border-bottom:2px solid #0f172a;padding-bottom:8px;margin-bottom:12px}' +
+    '.rq-doc table{width:100%;border-collapse:collapse;margin:6px 0 12px}.rq-doc td,.rq-doc th{border:1px solid #94a3b8;padding:6px 8px;text-align:left;vertical-align:top;font-size:12px}.rq-doc th{background:#f1f5f9;width:34%}' +
+    '.rq-doc h4{margin:12px 0 4px;font-size:13px;border-left:4px solid #92400e;padding-left:8px}.rq-doc .rq-detail{border:1px solid #94a3b8;border-radius:4px;padding:8px 10px;min-height:48px;white-space:pre-wrap}' +
+    '.rq-sigs{display:flex;gap:10px;margin-top:16px}.rq-sig{flex:1;border:1px solid #94a3b8;border-radius:4px;padding:8px 10px;min-height:110px;text-align:center}.rq-sig b{display:block;font-size:12px;margin-bottom:6px;border-bottom:1px solid #cbd5e1;padding-bottom:4px}' +
+    '.rq-stamp{font-weight:bold;font-size:13px;margin:8px 0 4px}.rq-ok{color:#15803d}.rq-no{color:#dc2626}.rq-wait{color:#94a3b8}.rq-small{font-size:11px;color:#475569}';
+function rqE(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function rqTypeLabel(ty) { return t(ty === 'edit' ? 'rqTypeEdit' : ty === 'remove' ? 'rqTypeRemove' : 'rqTypeGroup'); }
+function rqOverall(r) { if (r.status === 'rejected') return 'rejected'; if (r.status === 'approved') return 'approved'; return (r.hr && r.hr.s === 'approved') ? 'waitAdmin' : 'waitHR'; }
+function rqOverallText(r) { return t({ rejected: 'rqStatusRejected', approved: 'rqStatusApproved', waitAdmin: 'rqStatusWaitAdmin', waitHR: 'rqStatusWaitHR' }[rqOverall(r)]); }
+function rqWhen(ts) { if (!ts) return ''; const d = new Date(ts), p = function (n) { return String(n).padStart(2, '0'); }; return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
+function rqSig(title, o, extra) {
+    o = o || { s: 'pending' };
+    let body;
+    if (o.s === 'approved') body = '<div class="rq-stamp rq-ok">&#10004; ' + rqE(t('rqApproved')) + '</div><div>' + rqE(o.by || '') + '</div><div class="rq-small">' + rqE(rqWhen(o.at)) + '</div>' + (extra || '');
+    else if (o.s === 'rejected') body = '<div class="rq-stamp rq-no">&#10008; ' + rqE(t('rqRejected')) + '</div><div>' + rqE(o.by || '') + '</div><div class="rq-small">' + rqE(rqWhen(o.at)) + '</div>' + (o.note ? '<div class="rq-small">' + rqE(t('rqNote')) + ': ' + rqE(o.note) + '</div>' : '');
+    else body = '<div class="rq-stamp rq-wait">&#9203; ' + rqE(t('rqPending')) + '</div>';
+    return '<div class="rq-sig"><b>' + rqE(title) + '</b>' + body + '</div>';
+}
+function rqDocHtml(r, key) {
+    let what = '';
+    if (r.type === 'edit') {
+        const ch = r.changes || {};
+        what = '<table><tr><th style="width:30%">' + rqE(t('rqField')) + '</th><th>' + rqE(t('rqCurrent')) + '</th><th>' + rqE(t('rqNew')) + '</th></tr>' +
+            RQ_FIELDS.filter(function (f) { return ch[f[0]]; }).map(function (f) { return '<tr><td><b>' + rqE(t(f[1])) + '</b></td><td>' + rqE(ch[f[0]].o) + '</td><td><b>' + rqE(ch[f[0]].n) + '</b></td></tr>'; }).join('') + '</table>';
+    } else if (r.type === 'remove') what = '<div class="rq-detail">' + rqE(t('rqRemoveText')) + '</div>';
+    else what = '<table><tr><th>' + rqE(t('rqGroupName')) + '</th><td><b>' + rqE(r.newGroup) + '</b></td></tr></table>';
+    const instead = (r.ad && r.ad.s === 'approved' && r.ad.instead) ? '<div class="rq-small">' + rqE(t('rqSignedInstead')) + '</div>' : '';
+    const emp = r.type === 'group' ? '' : '<tr><th>' + rqE(t('rqEmployee')) + '</th><td>' + rqE(r.empId) + ' - ' + rqE(r.empName) + (r.empGroup ? ' (' + rqE(r.empGroup) + ')' : '') + '</td></tr>';
+    return '<div class="rq-doc"><h2>' + rqE(t('rqTitle')) + '</h2><div class="rq-meta"><span>' + rqE(t('rqRef')) + ': ' + rqE(String(key || '').slice(-8).toUpperCase()) + '</span><span>' + rqE(rqWhen(r.at)) + '</span></div>' +
+        '<table><tr><th>' + rqE(t('dgDept')) + '</th><td>' + rqE(r.deptName) + '</td></tr><tr><th>' + rqE(t('rqType')) + '</th><td>' + rqE(rqTypeLabel(r.type)) + '</td></tr>' + emp +
+        '<tr><th>' + rqE(t('rqStatus')) + '</th><td><b>' + rqE(rqOverallText(r)) + '</b></td></tr></table>' +
+        '<h4>' + rqE(t('rqChange')) + '</h4>' + what + '<h4>' + rqE(t('rqDetail')) + '</h4><div class="rq-detail">' + rqE(r.detail) + '</div>' +
+        '<div class="rq-sigs">' + rqSig(t('rqSigRequested'), { s: 'approved', by: r.by, at: r.at }) + rqSig(t('rqSigHR'), r.hr) + rqSig(t('rqSigAdmin'), r.ad, instead) + '</div></div>';
+}
+function rqPrint(html) {
+    const w = window.open('', '_blank'); if (!w) return;
+    w.document.write('<html><head><meta charset="utf-8"><title>' + rqE(t('rqTitle')) + '</title><style>body{margin:16px}@media print{@page{margin:12mm}}' + RQ_CSS + '</style></head><body>' + html + '</body></html>');
+    w.document.close(); w.focus(); setTimeout(function () { try { w.print(); } catch (e) {} }, 350);
+}
+
+/* ================= v7.51: DEPARTMENT REQUESTS (HR + Administration) =================
+   A department asks to change an employee's basic information, remove an employee, or add a group (deptRequests/<id>).
+   HR signs first, then Administration. If HR is busy, Administration can sign instead. When Administration approves,
+   the HR/Administration master is changed straight away (a removed employee goes to Recently Deleted). */
+(function () { var st = document.createElement('style'); st.textContent = RQ_CSS; document.head.appendChild(st); })();
+var rqList = [], rqFilt = { dept: '', type: '', status: 'open', q: '' }, rqCur = '';
+(function () { try { db.ref('deptRequests').on('value', function (s) { const v = s.val() || {}; rqList = Object.keys(v).map(function (k) { return Object.assign({ key: k }, v[k]); }); rqBadge(); if (document.getElementById('deptReqModal').style.display === 'flex') rqRender(); if (rqCur && document.getElementById('deptReqView').style.display === 'flex') rqShow(rqCur); }, function () {}); } catch (e) {} })();
+function rqRole() { return sessionStorage.getItem('loggedInRole') || 'admin'; }
+function rqMine(r) { return r.status === 'pending' && (rqRole() === 'admin' || (r.hr && r.hr.s === 'pending')); }
+function rqBadge() {
+    const el = document.getElementById('deptReqBadge'); if (!el) return;
+    const n = rqList.filter(rqMine).length;
+    el.style.display = n ? 'inline-block' : 'none'; el.innerText = n;
+}
+function openDeptReqModal() {
+    rqFill(); rqRender();
+    document.getElementById('deptReqModal').style.display = 'flex';
+}
+function closeDeptReqModal() { document.getElementById('deptReqModal').style.display = 'none'; }
+function rqFill() {
+    const d = document.getElementById('rqFDept'), cur = d.value;
+    d.innerHTML = '<option value="">' + dgEsc(t('dgAll')) + '</option>' + dgOrg.map(function (o) { return '<option value="' + dgEsc(o.key) + '">' + dgEsc(o.name) + '</option>'; }).join('');
+    d.value = cur;
+    const ty = document.getElementById('rqFType'); const tc = ty.value;
+    ty.innerHTML = '<option value="">' + dgEsc(t('dgAll')) + '</option>' + ['edit', 'remove', 'group'].map(function (x) { return '<option value="' + x + '">' + dgEsc(rqTypeLabel(x)) + '</option>'; }).join('');
+    ty.value = tc;
+    const st = document.getElementById('rqFStatus'), sc = st.value || rqFilt.status;
+    st.innerHTML = [['open', 'rqFOpen'], ['', 'dgAll'], ['waitHR', 'rqStatusWaitHR'], ['waitAdmin', 'rqStatusWaitAdmin'], ['approved', 'rqStatusApproved'], ['rejected', 'rqStatusRejected']].map(function (x) { return '<option value="' + x[0] + '">' + dgEsc(t(x[1])) + '</option>'; }).join('');
+    st.value = sc;
+}
+function rqFilter() {
+    rqFilt = { dept: document.getElementById('rqFDept').value, type: document.getElementById('rqFType').value, status: document.getElementById('rqFStatus').value, q: (document.getElementById('rqFSearch').value || '').toLowerCase() };
+    rqRender();
+}
+function rqRender() {
+    const tb = document.querySelector('#rqTable tbody'); if (!tb) return;
+    const rows = rqList.filter(function (r) {
+        if (rqFilt.dept && r.dept !== rqFilt.dept) return false;
+        if (rqFilt.type && r.type !== rqFilt.type) return false;
+        const o = rqOverall(r);
+        if (rqFilt.status === 'open') { if (o !== 'waitHR' && o !== 'waitAdmin') return false; } else if (rqFilt.status && o !== rqFilt.status) return false;
+        if (rqFilt.q && (String(r.empId || '') + ' ' + String(r.empName || '') + ' ' + String(r.newGroup || '')).toLowerCase().indexOf(rqFilt.q) < 0) return false;
+        return true;
+    }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
+    const col = { waitHR: '#b45309', waitAdmin: '#b45309', approved: '#15803d', rejected: '#dc2626' };
+    tb.innerHTML = rows.map(function (r) {
+        const o = rqOverall(r);
+        return '<tr><td><button class="btn-view" onclick="rqShow(\'' + dgEsc(r.key) + '\')" title="View">' + ICON_VIEW + '</button></td><td>' + dgEsc(rqWhen(r.at)) + '</td><td><b>' + dgEsc(r.deptName) + '</b></td><td>' + dgEsc(rqTypeLabel(r.type)) + '</td>' +
+            '<td>' + dgEsc(r.type === 'group' ? r.newGroup : (r.empId + ' - ' + r.empName)) + '</td><td style="color:' + col[o] + '; font-weight:bold;">' + dgEsc(rqOverallText(r)) + '</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">' + dgEsc(t('rqNone')) + '</td></tr>';
+}
+function rqShow(key) {
+    const r = rqList.find(function (x) { return x.key === key; }); if (!r) return;
+    rqCur = key;
+    document.getElementById('rqDoc').innerHTML = rqDocHtml(r, key);
+    const can = rqMine(r), role = rqRole();
+    let note = '';
+    if (can && role === 'admin' && !(r.hr && r.hr.s === 'approved')) note = '<div style="font-size:12px; color:#92400e; text-align:center; margin-top:8px;">' + dgEsc(t('rqOnBehalf')) + '</div>';
+    document.getElementById('rqActions').innerHTML = note + '<div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:12px;">' +
+        (can ? '<button type="button" class="btn-submit" style="width:auto; padding:8px 22px; background:#16a34a;" onclick="rqApprove(\'' + dgEsc(key) + '\', this)">' + dgEsc(t('btnApprove')) + '</button><button type="button" class="btn-submit" style="width:auto; padding:8px 22px; background:#dc2626;" onclick="rqReject(\'' + dgEsc(key) + '\', this)">' + dgEsc(t('btnReject')) + '</button>' : '') +
+        '<button type="button" class="btn-submit" style="width:auto; padding:8px 22px; background:#475569;" onclick="rqPrintCur()">' + dgEsc(t('rqPrint')) + '</button></div>';
+    document.getElementById('deptReqView').style.display = 'flex';
+}
+function rqCloseView() { document.getElementById('deptReqView').style.display = 'none'; rqCur = ''; }
+function rqPrintCur() { const r = rqList.find(function (x) { return x.key === rqCur; }); if (r) rqPrint(rqDocHtml(r, rqCur)); }
+function rqWho() { return sessionStorage.getItem('loggedInAccountName') || rqRole(); }
+async function rqApprove(key, btnEl) {
+    const r = rqList.find(function (x) { return x.key === key; }); if (!r || !rqMine(r)) return;
+    const role = rqRole(), by = rqWho(), now = Date.now();
+    withBusyButton(btnEl, async function () {
+        try {
+            if (role !== 'admin') {
+                await db.ref('deptRequests/' + key + '/hr').set({ s: 'approved', by: by, at: now });
+                try { logActivity('Department request signed (HR)', 'Department', r.deptName, rqTypeLabel(r.type), r.empId || r.newGroup || ''); } catch (e) {}
+                showToast(true); return;
+            }
+            const up = {};
+            if (r.type === 'edit' || r.type === 'remove') {
+                const snap = await db.ref('employees/' + r.empKey).once('value'), cur = snap.val();
+                if (!cur) { showToast(false, t('rqEmpGone')); return; }
+                if (r.type === 'edit') {
+                    const ch = r.changes || {};
+                    Object.keys(ch).forEach(function (f) { up['employees/' + r.empKey + '/' + f] = ch[f].n; });
+                    if (ch.id) { const b = await db.ref('deptData/' + r.dept + '/book/' + r.empKey).once('value'); if (b.exists()) up['deptData/' + r.dept + '/book/' + r.empKey + '/empId'] = ch.id.n; }
+                } else {
+                    const rec = Object.assign({}, cur); rec.deletedAt = new Date().toISOString();
+                    up['deletedEmployees/' + r.empKey] = rec; up['employees/' + r.empKey] = null;
+                }
+            } else {
+                if (departments.some(function (g) { return String(g.name).toLowerCase() === String(r.newGroup).toLowerCase(); })) { showToast(false, t('rqGroupDup')); return; }
+                up['departments/' + db.ref('departments').push().key] = { name: r.newGroup, parent: r.deptName };
+            }
+            up['deptRequests/' + key + '/ad'] = { s: 'approved', by: by, at: now, instead: !(r.hr && r.hr.s === 'approved') };
+            up['deptRequests/' + key + '/status'] = 'approved'; up['deptRequests/' + key + '/applied'] = true; up['deptRequests/' + key + '/appliedAt'] = now;
+            await db.ref().update(up);
+            try { logActivity('Department request approved', 'Department', r.deptName, rqTypeLabel(r.type), r.empId || r.newGroup || ''); } catch (e) {}
+            showToast(true, t('rqApplied'));
+        } catch (e) { console.error(e); showToast(false); }
+    });
+}
+async function rqReject(key, btnEl) {
+    const r = rqList.find(function (x) { return x.key === key; }); if (!r || !rqMine(r)) return;
+    const note = prompt(t('rqRejectPrompt'), ''); if (note === null) return;
+    const role = rqRole(), up = {}, o = { s: 'rejected', by: rqWho(), at: Date.now(), note: note.trim() };
+    up['deptRequests/' + key + (role === 'admin' ? '/ad' : '/hr')] = o; up['deptRequests/' + key + '/status'] = 'rejected';
+    withBusyButton(btnEl, function () { return db.ref().update(up).then(function () { showToast(true); try { logActivity('Department request rejected', 'Department', r.deptName, rqTypeLabel(r.type), r.empId || r.newGroup || ''); } catch (e) {} }).catch(function () { showToast(false); }); });
+}
+
+/* ================= v7.52: DEPARTMENT INVESTIGATIONS (HR + Administration) =================
+   At month end a department compares its numbers with HR. When one number differs (e.g. 144 vs 145) the department sends an
+   investigation (deptInvest/<id>). HR / Administration decide which side is wrong:
+     - HR number wrong -> corrected (Administration writes it straight away; HR sends it to Administration as a normal pending edit)
+     - Department number wrong -> the department is asked to correct it and later says "I corrected it"
+     - nothing wrong -> closed */
+var ivList = [], ivFilt = { dept: '', status: 'open' };
+(function () { try { db.ref('deptInvest').on('value', function (s) { const v = s.val() || {}; ivList = Object.keys(v).map(function (k) { return Object.assign({ key: k }, v[k]); }); ivBadge(); if (document.getElementById('deptIvModal').style.display === 'flex') ivRender(); }, function () {}); } catch (e) {} })();
+function ivNeedsMe(v) { return v.status === 'open' || v.status === 'fixed'; }
+function ivBadge() { const el = document.getElementById('deptIvBadge'); if (!el) return; const n = ivList.filter(ivNeedsMe).length; el.style.display = n ? 'inline-block' : 'none'; el.innerText = n; }
+function openDeptIvModal() { ivFill(); ivRender(); document.getElementById('deptIvModal').style.display = 'flex'; }
+function closeDeptIvModal() { document.getElementById('deptIvModal').style.display = 'none'; }
+function ivFill() {
+    const d = document.getElementById('ivFDept'), dc = d.value;
+    d.innerHTML = '<option value="">' + dgEsc(t('dgAll')) + '</option>' + dgOrg.map(function (o) { return '<option value="' + dgEsc(o.key) + '">' + dgEsc(o.name) + '</option>'; }).join(''); d.value = dc;
+    const s = document.getElementById('ivFStatus'), sc = s.value || ivFilt.status;
+    s.innerHTML = [['open', 'rqFOpen'], ['', 'dgAll'], ['open1', 'ivOpen'], ['fixed', 'ivFixed'], ['deptToFix', 'ivDeptFix'], ['hrFixed', 'ivHrFixed'], ['closed', 'ivClosed']].map(function (x) { return '<option value="' + x[0] + '">' + dgEsc(t(x[1])) + '</option>'; }).join(''); s.value = sc;
+}
+function ivFilter() { ivFilt = { dept: document.getElementById('ivFDept').value, status: document.getElementById('ivFStatus').value }; ivRender(); }
+var IV_MAP = { open: 'ivOpen', hrFixed: 'ivHrFixed', deptToFix: 'ivDeptFix', fixed: 'ivFixed', closed: 'ivClosed' };
+function ivRender() {
+    const tb = document.querySelector('#ivTable tbody'); if (!tb) return;
+    const f = ivFilt.status;
+    const rows = ivList.filter(function (v) {
+        if (ivFilt.dept && v.dept !== ivFilt.dept) return false;
+        if (f === 'open') return ivNeedsMe(v);
+        if (f === 'open1') return v.status === 'open';
+        return !f || v.status === f;
+    }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
+    const col = { open: '#b45309', fixed: '#b45309', deptToFix: '#dc2626', hrFixed: '#15803d', closed: '#64748b' };
+    tb.innerHTML = rows.map(function (v) {
+        const emp = employees.find(function (e) { return e.firebaseKey === v.empKey; });
+        const live = emp ? (parseFloat(emp[v.field]) || 0).toFixed(2) : '-';
+        const k = dgEsc(v.key);
+        const acts = ivNeedsMe(v) ? '<button class="btn-edit" style="font-size:11px; padding:3px 8px;" onclick="ivHrCorrect(\'' + k + '\')">' + dgEsc(t('ivActHr')) + '</button> <button class="btn-delete" style="font-size:11px; padding:3px 8px; color:#b45309;" onclick="ivDeptFix(\'' + k + '\')">' + dgEsc(t('ivActDept')) + '</button> <button class="btn-view" style="font-size:11px; padding:3px 8px;" onclick="ivClose(\'' + k + '\')">' + dgEsc(t('ivActClose')) + '</button>' : '';
+        return '<tr><td>' + dgEsc(rqWhen(v.at)) + '</td><td><b>' + dgEsc(v.deptName) + '</b></td><td>' + dgEsc(v.empId) + ' - ' + dgEsc(v.empName) + '</td><td>' + dgEsc(t(v.fieldKey)) + '</td><td>' + (parseFloat(v.dv) || 0).toFixed(2) + '</td><td>' + (parseFloat(v.hv) || 0).toFixed(2) + ' <span style="color:#64748b; font-size:11px;">(' + dgEsc(t('ivNow')) + ' ' + live + ')</span></td>' +
+            '<td style="color:' + col[v.status] + '; font-weight:bold;">' + dgEsc(t(IV_MAP[v.status] || 'ivOpen')) + '</td><td style="max-width:200px;">' + dgEsc(v.note || '') + (v.resp && v.resp.note ? '<div style="color:#475569; font-size:11px;">&rarr; ' + dgEsc(v.resp.by || '') + ': ' + dgEsc(v.resp.note) + '</div>' : '') + '</td><td style="white-space:nowrap;">' + acts + '</td></tr>';
+    }).join('') || '<tr><td colspan="9" style="text-align:center; color:#94a3b8;">' + dgEsc(t('rqNone')) + '</td></tr>';
+}
+function ivFind(k) { return ivList.find(function (x) { return x.key === k; }); }
+function ivWho() { return sessionStorage.getItem('loggedInAccountName') || rqRole(); }
+async function ivHrCorrect(k) {
+    const v = ivFind(k); if (!v) return;
+    const raw = prompt(fillTemplate(t('ivPromptValue'), { f: t(v.fieldKey), n: v.empName }), String(v.dv)); if (raw === null) return;
+    const nv = parseFloat(raw); if (isNaN(nv)) { showToast(false); return; }
+    try {
+        const snap = await db.ref('employees/' + v.empKey).once('value'), cur = snap.val();
+        if (!cur) { showToast(false, t('rqEmpGone')); return; }
+        const up = {}, resp = { by: ivWho(), at: Date.now(), newVal: nv };
+        if (rqRole() === 'admin') up['employees/' + v.empKey + '/' + v.field] = nv;
+        else { const nr = Object.assign({}, cur); nr[v.field] = nv; up['pendingEdits/' + db.ref('pendingEdits').push().key] = { employeeKey: v.empKey, empId: cur.id, empName: cur.name, oldRecord: cur, newRecord: nr, requestedBy: ivWho(), timestamp: Date.now() }; resp.note = t('ivSentApproval'); }
+        up['deptInvest/' + k + '/status'] = 'hrFixed'; up['deptInvest/' + k + '/resp'] = resp;
+        await db.ref().update(up);
+        try { logActivity('Investigation: HR number corrected', 'Department', v.deptName, v.empId + ' ' + v.field, String(nv)); } catch (e) {}
+        showToast(rqRole() === 'admin' ? true : 'pending', rqRole() === 'admin' ? undefined : t('ivSentApproval'));
+    } catch (e) { console.error(e); showToast(false); }
+}
+async function ivDeptFix(k) {
+    const v = ivFind(k); if (!v) return;
+    const note = prompt(t('ivPromptDept'), ''); if (note === null) return;
+    db.ref().update({ ['deptInvest/' + k + '/status']: 'deptToFix', ['deptInvest/' + k + '/resp']: { by: ivWho(), at: Date.now(), note: note.trim() } }).then(function () { showToast(true); }).catch(function () { showToast(false); });
+}
+async function ivClose(k) {
+    const v = ivFind(k); if (!v) return;
+    const note = prompt(t('ivPromptClose'), ''); if (note === null) return;
+    db.ref().update({ ['deptInvest/' + k + '/status']: 'closed', ['deptInvest/' + k + '/resp']: { by: ivWho(), at: Date.now(), note: note.trim() } }).then(function () { showToast(true); }).catch(function () { showToast(false); });
+}
+
+/* ================= v7.52: DATE CONTROL (HR + Administration) =================
+   One click "Reset Monthly" for the master sheet of each department (same rule as the Edit-menu reset of the HR master):
+   Prev Month Used = Prev Month Used + Current Month Used, Current Month Used = 0, and Exceeded, Working Hours, Overtime and
+   every leave type = 0. Safety: choose the departments, see a summary, a backup is saved first (and can be restored),
+   and a warning shows if a department was already reset this month. HR's own master sheet is NOT touched here. */
+var dcInfo = {};
+function dcMonth() { const n = new Date(), c = new Date(n.getTime() + (7 * 60 + n.getTimezoneOffset()) * 60000); return c.getFullYear() + '-' + String(c.getMonth() + 1).padStart(2, '0'); }
+async function openDateCtl() {
+    document.getElementById('dateCtlModal').style.display = 'flex';
+    const box = document.getElementById('dcList'); box.innerHTML = '<p style="color:#64748b;">' + dgEsc(t('mtLoading')) + '</p>';
+    dcInfo = {};
+    for (const o of dgOrg) {
+        try {
+            const b = (await db.ref('deptData/' + o.key + '/book').once('value')).val() || {};
+            const m = (await db.ref('deptData/' + o.key + '/meta/lastReset').once('value')).val();
+            const bk = (await db.ref('deptBackups/' + o.key).once('value')).val() || {};
+            dcInfo[o.key] = { n: Object.keys(b).length, last: m, backups: Object.keys(bk).map(function (k) { return Object.assign({ key: k }, bk[k]); }).sort(function (a, c) { return c.at - a.at; }).slice(0, 5) };
+        } catch (e) { dcInfo[o.key] = { n: 0, last: null, backups: [] }; }
+    }
+    dcRender();
+}
+function closeDateCtl() { document.getElementById('dateCtlModal').style.display = 'none'; }
+function dcRender() {
+    const cur = dcMonth(), box = document.getElementById('dcList');
+    box.innerHTML = dgOrg.map(function (o) {
+        const i = dcInfo[o.key] || { n: 0, backups: [] }, last = i.last ? (i.last.month + ' (' + (i.last.by || '') + ')') : t('dcNever'), warn = i.last && i.last.month === cur;
+        const bks = (i.backups || []).map(function (b) { return '<div style="font-size:11px; color:#475569;">' + dgEsc(rqWhen(b.at)) + ' - ' + dgEsc(b.by || '') + (rqRole() === 'admin' ? ' <button class="btn-edit" style="font-size:10px; padding:2px 6px;" onclick="dcRestore(\'' + dgEsc(o.key) + '\', \'' + dgEsc(b.key) + '\')">' + dgEsc(t('dcRestore')) + '</button>' : '') + '</div>'; }).join('');
+        return '<label style="display:block; border:1px solid #e2e8f0; border-radius:10px; padding:10px 12px; margin-bottom:8px; cursor:pointer;"><div style="display:flex; align-items:center; gap:10px;"><input type="checkbox" class="dc-chk" value="' + dgEsc(o.key) + '" style="width:auto;"> <b>' + dgEsc(o.name) + '</b> <span style="color:#64748b; font-size:12px;">' + i.n + ' ' + dgEsc(t('dcEmps')) + '</span></div>' +
+            '<div style="font-size:12px; margin-top:4px; color:' + (warn ? '#b45309' : '#64748b') + ';">' + dgEsc(t('dcLast')) + ': ' + dgEsc(last) + (warn ? ' &#9888; ' + dgEsc(t('dcThisMonth')) : '') + '</div>' + (bks ? '<details style="margin-top:4px;" onclick="event.stopPropagation()"><summary style="font-size:11px; cursor:pointer;">' + dgEsc(t('dcBackups')) + '</summary>' + bks + '</details>' : '') + '</label>';
+    }).join('') || '<p style="color:#94a3b8;">' + dgEsc(t('daNoDept')) + '</p>';
+}
+function dcAll(on) { document.querySelectorAll('.dc-chk').forEach(function (c) { c.checked = on; }); }
+async function dcRun(btnEl) {
+    const keys = Array.prototype.map.call(document.querySelectorAll('.dc-chk:checked'), function (c) { return c.value; });
+    if (!keys.length) { showToast(false, t('dcNone')); return; }
+    const names = keys.map(function (k) { return (dgOrg.find(function (o) { return o.key === k; }) || {}).name; }), cur = dcMonth();
+    if (!(await showConfirm(fillTemplate(t('dcConfirm'), { names: names.join(', ') })))) return;
+    const again = keys.filter(function (k) { return dcInfo[k] && dcInfo[k].last && dcInfo[k].last.month === cur; }).map(function (k) { return daOrgName(k); });
+    if (again.length && !(await showConfirm(fillTemplate(t('dcAlready'), { m: cur, names: again.join(', ') })))) return;
+    withBusyButton(btnEl, async function () {
+        try {
+            const by = sessionStorage.getItem('loggedInAccountName') || rqRole(), now = Date.now();
+            for (const k of keys) await dcResetDept(k, by, now, cur);
+            showToast(true, fillTemplate(t('dcDone'), { n: keys.length }));
+            try { logActivity('Date Control: monthly reset', 'Department', names.join(', '), cur, ''); } catch (e) {}
+            openDateCtl();
+        } catch (e) { console.error(e); showToast(false); }
+    });
+}
+async function dcResetDept(k, by, now, month) {
+    const book = (await db.ref('deptData/' + k + '/book').once('value')).val() || {};
+    const up = {};
+    if (Object.keys(book).length) up['deptBackups/' + k + '/' + db.ref('deptBackups/' + k).push().key] = { at: now, by: by, month: month, book: book };
+    Object.keys(book).forEach(function (ek) {
+        const b = book[ek], p = 'deptData/' + k + '/book/' + ek + '/';
+        up[p + 'prevUsed'] = Number(((parseFloat(b.prevUsed) || 0) + (parseFloat(b.monthUsed) || 0)).toFixed(2));
+        up[p + 'monthUsed'] = 0;
+        ['exceeded', 'workHours', 'otHours', 'leaveAL', 'leaveSpecial', 'leaveMaternity', 'leaveTravel', 'leavePersonal', 'leaveSick', 'leaveOther'].forEach(function (f) { up[p + f] = 0; });
+    });
+    up['deptData/' + k + '/meta/lastReset'] = { month: month, at: now, by: by };
+    up['deptData/' + k + '/log/' + db.ref('deptData/' + k + '/log').push().key] = { at: now, by: by, action: 'monthlyReset', month: month };
+    await db.ref().update(up);
+}
+async function dcRestore(k, bk) {
+    if (!(await showConfirm(t('dcRestoreConfirm')))) return;
+    try {
+        const b = (await db.ref('deptBackups/' + k + '/' + bk).once('value')).val(); if (!b) { showToast(false); return; }
+        const up = {}; up['deptData/' + k + '/book'] = b.book || {}; up['deptData/' + k + '/meta/lastReset'] = null;
+        await db.ref().update(up); showToast(true); try { logActivity('Date Control: backup restored', 'Department', daOrgName(k), b.month || '', ''); } catch (e) {}
+        openDateCtl();
+    } catch (e) { showToast(false); }
+}
 
 
  /* v6.96: leave notifications are stored with a language-neutral kind + params, and turned into
