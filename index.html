@@ -631,7 +631,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.47</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.48</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2478,7 +2478,7 @@
      <form style="display:flex; gap:10px; align-items:flex-end; max-width:520px; margin-bottom:16px;" onsubmit="event.preventDefault(); addDepartment(this.querySelector('[type=submit]'));">
          <div class="form-group" style="flex:1; margin-bottom:0;">
              <label data-i18n="deptNewLabel">New Group Name</label>
-             <input type="text" id="newDeptName" placeholder="e.g. Sales">
+             <input type="text" id="newDeptName" placeholder="e.g. Sewing">
          </div>
          <button type="submit" class="btn-submit" style="width:auto; padding:8px 16px; margin-top:0;" data-i18n="btnAddDept">Add</button>
      </form>
@@ -2725,7 +2725,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.47
+     HR & Administration System Version 7.48
  </div>
 </div>
 
@@ -3998,7 +3998,7 @@
         dgNoDept: "No department",
         dgClear: "Clear filter",
         dgOrgTitle: "Departments",
-        dgOrgSub: "A department contains groups. For example EED contains Engineering, Water Plant and Electric Plant.",
+        dgOrgSub: "A department contains groups. For example Production contains Cutting, Sewing and Packing.",
         dgNewOrg: "New Department Name",
         dgOrgColGroups: "Groups",
         dgOrgColEmps: "Employees",
@@ -5129,7 +5129,7 @@
         dgNoDept: "គ្មាននាយកដ្ឋាន",
         dgClear: "សម្អាតតម្រង",
         dgOrgTitle: "នាយកដ្ឋាន",
-        dgOrgSub: "នាយកដ្ឋានមួយមានក្រុមជាច្រើន។ ឧទាហរណ៍ EED មាន Engineering, Water Plant និង Electric Plant។",
+        dgOrgSub: "នាយកដ្ឋានមួយមានក្រុមជាច្រើន។ ឧទាហរណ៍ Production មាន Cutting, Sewing និង Packing។",
         dgNewOrg: "ឈ្មោះនាយកដ្ឋានថ្មី",
         dgOrgColGroups: "ក្រុម",
         dgOrgColEmps: "បុគ្គលិក",
@@ -6222,7 +6222,7 @@
         dgNoDept: "无部门",
         dgClear: "清除筛选",
         dgOrgTitle: "部门",
-        dgOrgSub: "一个部门包含多个小组。例如 EED 包含 Engineering、Water Plant 和 Electric Plant。",
+        dgOrgSub: "一个部门包含多个小组。例如 Production 包含 Cutting、Sewing 和 Packing。",
         dgNewOrg: "新部门名称",
         dgOrgColGroups: "小组数",
         dgOrgColEmps: "员工数",
@@ -16410,7 +16410,7 @@ function dgRenderDeptTab() {
         box = document.createElement('div'); box.id = 'dgOrgBox'; box.style.cssText = 'margin-bottom:22px;';
         const form = tab.querySelector('form'); tab.insertBefore(box, form);
         box.innerHTML = '<h3 data-i18n="dgOrgTitle" style="margin-top:6px;">Departments</h3><p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="dgOrgSub"></p>' +
-            '<form style="display:flex; gap:10px; align-items:flex-end; max-width:520px; margin-bottom:12px;" onsubmit="event.preventDefault(); dgAddOrg(this.querySelector(\'[type=submit]\'));"><div class="form-group" style="flex:1; margin-bottom:0;"><label data-i18n="dgNewOrg">New Department Name</label><input type="text" id="dgNewOrgName" placeholder="e.g. EED"></div><button type="submit" class="btn-submit" style="width:auto; padding:8px 16px; margin-top:0;" data-i18n="btnAddDept">Add</button></form>' +
+            '<form style="display:flex; gap:10px; align-items:flex-end; max-width:520px; margin-bottom:12px;" onsubmit="event.preventDefault(); dgAddOrg(this.querySelector(\'[type=submit]\'));"><div class="form-group" style="flex:1; margin-bottom:0;"><label data-i18n="dgNewOrg">New Department Name</label><input type="text" id="dgNewOrgName" placeholder="e.g. Production"></div><button type="submit" class="btn-submit" style="width:auto; padding:8px 16px; margin-top:0;" data-i18n="btnAddDept">Add</button></form>' +
             '<div class="table-responsive"><table class="master-tbl" id="dgOrgTable"><thead><tr><th data-i18n="tblActions">Actions</th><th data-i18n="dgDept">Department</th><th data-i18n="dgOrgColGroups">Groups</th><th data-i18n="dgOrgColEmps">Employees</th></tr></thead><tbody></tbody></table></div>' +
             '<h3 data-i18n="dgGroupsTitle" style="margin-top:22px;">Groups</h3>';
         box.querySelectorAll('[data-i18n]').forEach(function (el) { el.innerHTML = t(el.getAttribute('data-i18n')); });
