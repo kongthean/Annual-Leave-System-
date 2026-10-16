@@ -274,6 +274,7 @@
      .chooser-card.employee { background: linear-gradient(150deg, #123a5c, #0a2740); }
      .chooser-card.hr { background: linear-gradient(150deg, #0d9488, #0f766e); }
      .chooser-card.admin { background: linear-gradient(150deg, #0f172a, #334155); }
+    .chooser-card.dept { background: linear-gradient(150deg, #b45309, #92400e); }
      .chooser-card .chooser-icon { width: 64px; height: 64px; }
      .chooser-card .chooser-icon svg { width: 100%; height: 100%; stroke: currentColor; }
      .chooser-card .chooser-label { font-size: 16px; font-weight: 700; text-align: center; }
@@ -607,13 +608,6 @@
 
  <div class="chooser-body">
      <div class="chooser-options">
-         <button class="chooser-card employee" onclick="showEmployeeView()">
-             <span class="chooser-icon">
-                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-             </span>
-             <span class="chooser-label" data-i18n="chooserEmployee">Employee System</span>
-             <span class="chooser-sub" data-i18n="chooserEmployeeSub">Submit requests &amp; view responses</span>
-         </button>
          <button class="chooser-card hr" onclick="openRoleLogin('hr')">
              <span class="chooser-icon">
                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -629,9 +623,11 @@
              <span class="chooser-sub" data-i18n="chooserAdminSub">Manage employees &amp; records</span>
          </button>
      </div>
+
+     <div style="width:100%; text-align:center; margin-top:6px;"><a href="department.html" data-i18n="chooserPortalLink" style="font-size:13px; color:#475569;">Employees &amp; Departments &rarr;</a></div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.48</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.49</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1188,6 +1184,9 @@
          <button class="quick-btn admin-only" style="background:linear-gradient(135deg,#6d28d9,#5b21b6);" onclick="openManagementModal()">
              <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="quick-btn-label" data-i18n="navManagement">Management</span>
          </button>
+        <button class="quick-btn admin-only" style="background:linear-gradient(135deg,#b45309,#92400e);" onclick="openDeptAccModal()">
+            <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-4h6v4"/></svg></span><span class="quick-btn-label" data-i18n="navDeptAcc">Department Accounts</span>
+        </button>
         <button class="quick-btn admin-only" style="background:linear-gradient(135deg,#b91c1c,#7f1d1d); position:relative;" onclick="openLockSystemModal()">
             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="quick-btn-label" data-i18n="navLockSystem">Lock System</span>
             <span id="lockSystemActiveBadge" class="notif-badge" style="display:none; top:2px; right:2px; background:#facc15; color:#7c2d12;">!</span>
@@ -2725,7 +2724,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.48
+     HR & Administration System Version 7.49
  </div>
 </div>
 
@@ -2808,6 +2807,34 @@
 
      </div>
  </div>
+
+<!-- DEPARTMENT ACCOUNTS MODAL (v7.49) -->
+<div class="modal" id="deptAccModal">
+    <div class="modal-content" style="max-width: 900px;">
+        <div class="modal-header">
+            <h4 data-i18n="navDeptAcc">Department Accounts</h4>
+            <button class="modal-close" onclick="closeDeptAccModal()">&times;</button>
+        </div>
+        <p style="font-size:12px; color:#64748b; margin-bottom:12px;" data-i18n="daSub"></p>
+        <div id="daWarn" style="display:none; background:#fef3c7; border:1px solid #f59e0b; color:#92400e; border-radius:8px; padding:8px 12px; font-size:12px; margin-bottom:12px;"></div>
+        <form style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom:18px;" onsubmit="event.preventDefault(); daAdd(this.querySelector('[type=submit]'));">
+            <div class="form-group" style="margin-bottom:0;"><label data-i18n="daColDept">Department</label><select id="daNewDept"></select></div>
+            <div class="form-group" style="margin-bottom:0;"><label data-i18n="acctColName">Name</label><input type="text" id="daNewName" required></div>
+            <div class="form-group" style="margin-bottom:0;"><label data-i18n="acctColUsername">Username</label><input type="text" id="daNewUser" required autocomplete="off"></div>
+            <div class="form-group" style="margin-bottom:0;"><label data-i18n="acctColPassword">Password</label><input type="text" id="daNewPass" required autocomplete="off"></div>
+            <button type="submit" class="btn-submit" style="width:auto; padding:8px 16px; margin-top:0;" data-i18n="daAdd">Add Account</button>
+        </form>
+        <div class="table-responsive">
+            <table class="master-tbl" id="daTable">
+                <thead><tr>
+                    <th data-i18n="tblActions">Actions</th><th data-i18n="daColDept">Department</th><th data-i18n="acctColName">Name</th>
+                    <th data-i18n="acctColUsername">Username</th><th data-i18n="acctColPassword">Password</th><th data-i18n="acctColStatus">Status</th>
+                </tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 <!-- LOCK SYSTEM MODAL (v6.00) - lock Employee and/or HR System for maintenance -->
 <div class="modal" id="lockSystemModal">
@@ -4008,6 +4035,26 @@
         dgOrgRename: "Enter new department name:",
         dgGroupsTitle: "Groups (every employee belongs to one group)",
         dgUnassigned: "-- not assigned --",
+        chooserDept: "Department System",
+        chooserDeptSub: "Department leave & attendance records",
+        navDeptAcc: "Department Accounts",
+        daSub: "Create login accounts for each department. Every account of a department has the same power and sees all groups of that department.",
+        daColDept: "Department",
+        daAdd: "Add Account",
+        daNoDept: "Please create a department first (Departments page).",
+        daDupUser: "This username is already used.",
+        daPwShort: "Password must have at least 6 characters.",
+        daPwPrompt: "Enter the new password (at least 6 characters):",
+        daReset: "Reset password",
+        daEnable: "Enable account",
+        daDisable: "Disable account",
+        daDelete: "Delete account",
+        daDelConfirm: "Delete this department account? The person can no longer log in.",
+        daActive: "Active",
+        daDisabled: "Disabled",
+        daBadGroup: "These group names contain a character that is not allowed ( . # $ [ ] / ) so their department cannot see them. Please rename: {names}",
+        daInUse: "This department still has login accounts. Delete those accounts first.",
+        chooserPortalLink: "Employees & Departments →",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -5139,6 +5186,26 @@
         dgOrgRename: "បញ្ចូលឈ្មោះនាយកដ្ឋានថ្មី៖",
         dgGroupsTitle: "ក្រុម (បុគ្គលិកម្នាក់ៗស្ថិតក្នុងក្រុមមួយ)",
         dgUnassigned: "-- មិនទាន់កំណត់ --",
+        chooserDept: "ប្រព័ន្ធនាយកដ្ឋាន",
+        chooserDeptSub: "កំណត់ត្រាច្បាប់ និងវត្តមាននាយកដ្ឋាន",
+        navDeptAcc: "គណនីនាយកដ្ឋាន",
+        daSub: "បង្កើតគណនីចូលប្រើសម្រាប់នាយកដ្ឋាននីមួយៗ។ គណនីទាំងអស់របស់នាយកដ្ឋានមានសិទ្ធិដូចគ្នា ហើយឃើញគ្រប់ក្រុមរបស់នាយកដ្ឋាននោះ។",
+        daColDept: "នាយកដ្ឋាន",
+        daAdd: "បន្ថែមគណនី",
+        daNoDept: "សូមបង្កើតនាយកដ្ឋានជាមុនសិន (ទំព័រនាយកដ្ឋាន)។",
+        daDupUser: "ឈ្មោះអ្នកប្រើនេះត្រូវបានប្រើរួចហើយ។",
+        daPwShort: "ពាក្យសម្ងាត់ត្រូវមានយ៉ាងតិច ៦ តួអក្សរ។",
+        daPwPrompt: "បញ្ចូលពាក្យសម្ងាត់ថ្មី (យ៉ាងតិច ៦ តួអក្សរ)៖",
+        daReset: "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+        daEnable: "បើកគណនី",
+        daDisable: "បិទគណនី",
+        daDelete: "លុបគណនី",
+        daDelConfirm: "លុបគណនីនាយកដ្ឋាននេះ? អ្នកប្រើមិនអាចចូលបានទៀតទេ។",
+        daActive: "សកម្ម",
+        daDisabled: "បានបិទ",
+        daBadGroup: "ឈ្មោះក្រុមទាំងនេះមានតួអក្សរដែលមិនអនុញ្ញាត ( . # $ [ ] / ) ដូច្នេះនាយកដ្ឋានមិនអាចឃើញទេ។ សូមប្តូរឈ្មោះ៖ {names}",
+        daInUse: "នាយកដ្ឋាននេះនៅមានគណនីចូលប្រើ។ សូមលុបគណនីទាំងនោះជាមុន។",
+        chooserPortalLink: "បុគ្គលិក និងនាយកដ្ឋាន →",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -6232,6 +6299,26 @@
         dgOrgRename: "请输入新的部门名称：",
         dgGroupsTitle: "小组(每位员工属于一个小组)",
         dgUnassigned: "-- 未分配 --",
+        chooserDept: "部门系统",
+        chooserDeptSub: "部门请假与考勤记录",
+        navDeptAcc: "部门账户",
+        daSub: "为每个部门创建登录账户。同一部门的所有账户权限相同，可查看该部门的所有小组。",
+        daColDept: "部门",
+        daAdd: "添加账户",
+        daNoDept: "请先创建部门（部门页面）。",
+        daDupUser: "该用户名已被使用。",
+        daPwShort: "密码至少需要6个字符。",
+        daPwPrompt: "请输入新密码（至少6个字符）：",
+        daReset: "重置密码",
+        daEnable: "启用账户",
+        daDisable: "停用账户",
+        daDelete: "删除账户",
+        daDelConfirm: "删除此部门账户？该用户将无法再登录。",
+        daActive: "正常",
+        daDisabled: "已停用",
+        daBadGroup: "这些小组名称含有不允许的字符 ( . # $ [ ] / )，其部门无法看到。请重命名：{names}",
+        daInUse: "该部门仍有登录账户，请先删除这些账户。",
+        chooserPortalLink: "员工与部门 →",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -7596,6 +7683,7 @@ function renderEmpShiftCalendar() {
      renderDeptTable();
      renderMaster();
      try { dgFillAll(); dgRefresh(); } catch (e) {}
+     try { daSync(); } catch (e) {}
  });
 
  /* v6.00: Accounts (HR System / Administration System logins) */
@@ -16468,6 +16556,158 @@ async function dgDeleteOrg(i, btnEl) {
 }
 /* the install runs when the page is ready, and again whenever the department data changes */
 try { dgInstall(); } catch (e) {}
+
+/* ================= v7.49: DEPARTMENT ACCOUNTS (Administration) =================
+   Administration creates login accounts for each Department (many accounts per department, all with the same power).
+   Each account has its own secure Firebase login (hidden e-mail <id>@dept.cambodiainsight.net) - the same safe method the
+   HR/Administration accounts use. Data written:
+     deptAcc/<key>        {dept:<departmentKey>, name, username, authId, uid, disabled, at}
+     deptAuth/<uid>       {dept, acc, name}            (exists only while the account is enabled -> this is what lets it in)
+     deptLookup/<hex>/<authId> = true                  (so the login page can find the account by username)
+     deptGroups/<deptKey>/<groupName> = true           (which groups belong to the department - used by the database rules)
+   Nothing existing is changed. */
+var DA_DOMAIN = 'dept.cambodiainsight.net';
+var daAccs = [], daListening = false, daSig = '';
+function daEmail(id) { return id + '@' + DA_DOMAIN; }
+function daKey(u) { return saHexStr('dept|' + String(u).toLowerCase()); }
+function daPw(pass, id) { return saPw(pass, 'dept:' + id); }
+function daOrgName(k) { const o = dgOrg.find(function (x) { return x.key === k; }); return o ? o.name : '?'; }
+function daIsAdmin() { return sessionStorage.getItem('isLoggedIn') === 'true' && (sessionStorage.getItem('loggedInRole') || 'admin') === 'admin'; }
+function daBadName(n) { return !/^[^.#$\[\]\/]+$/.test(String(n)); }
+/* the groups of every department, kept in the database so the rules know which employees a department may read */
+function daDesired() {
+    const d = {};
+    dgOrg.forEach(function (o) {
+        departments.forEach(function (g) { if (g.parent === o.name && g.name && !daBadName(g.name)) { (d[o.key] = d[o.key] || {})[g.name] = true; } });
+    });
+    return d;
+}
+function daSync() {
+    if (!(sessionStorage.getItem('isLoggedIn') === 'true')) return;
+    if (typeof departments === 'undefined' || !Array.isArray(departments)) return;
+    const d = daDesired(), sig = JSON.stringify(d);
+    if (sig === daSig) return;
+    daSig = sig;
+    db.ref('deptGroups').set(Object.keys(d).length ? d : null).catch(function () { daSig = ''; });
+}
+function daStart() {
+    if (daListening || !daIsAdmin()) return;
+    daListening = true;
+    db.ref('deptAcc').on('value', function (s) {
+        const v = s.val() || {};
+        daAccs = Object.keys(v).map(function (k) { return Object.assign({ firebaseKey: k }, v[k]); });
+        daRender();
+    }, function () { daListening = false; });
+}
+function openDeptAccModal() {
+    if (!daIsAdmin()) return;
+    daStart();
+    daFillOrgs();
+    daRender();
+    document.getElementById('deptAccModal').style.display = 'flex';
+    daSync();
+}
+function closeDeptAccModal() { document.getElementById('deptAccModal').style.display = 'none'; }
+function daFillOrgs() {
+    const sel = document.getElementById('daNewDept'); if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = dgOrg.map(function (o) { return '<option value="' + dgEsc(o.key) + '">' + dgEsc(o.name) + '</option>'; }).join('');
+    if (cur) sel.value = cur;
+}
+function daRender() {
+    const tb = document.querySelector('#daTable tbody'); if (!tb) return;
+    daFillOrgs();
+    const bad = departments.filter(function (g) { return g.parent && daBadName(g.name); }).map(function (g) { return g.name; });
+    const warn = document.getElementById('daWarn');
+    if (warn) { warn.style.display = bad.length ? 'block' : 'none'; warn.textContent = bad.length ? fillTemplate(t('daBadGroup'), { names: bad.join(', ') }) : ''; }
+    if (!dgOrg.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">' + dgEsc(t('daNoDept')) + '</td></tr>'; return; }
+    const rows = daAccs.slice().sort(function (a, b) { return (daOrgName(a.dept) + a.username).localeCompare(daOrgName(b.dept) + b.username); });
+    tb.innerHTML = rows.map(function (a) {
+        const k = dgEsc(a.firebaseKey);
+        return '<tr><td style="white-space:nowrap;">' +
+            '<button class="btn-edit" onclick="daResetPw(\'' + k + '\')" title="' + dgEsc(t('daReset')) + '">' + ICON_EDIT + '</button> ' +
+            '<button class="btn-view" onclick="daToggle(\'' + k + '\')" title="' + dgEsc(a.disabled ? t('daEnable') : t('daDisable')) + '">' + (a.disabled ? '▶' : '⏸') + '</button> ' +
+            '<button class="btn-delete" onclick="daDelete(\'' + k + '\')" title="' + dgEsc(t('daDelete')) + '">' + ICON_DELETE + '</button></td>' +
+            '<td><b>' + dgEsc(daOrgName(a.dept)) + '</b></td><td>' + dgEsc(a.name || '') + '</td><td>' + dgEsc(a.username || '') + '</td><td>••••••</td>' +
+            '<td>' + (a.disabled ? '<span style="color:#dc2626;">' + dgEsc(t('daDisabled')) + '</span>' : '<span style="color:#15803d;">' + dgEsc(t('daActive')) + '</span>') + '</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">-</td></tr>';
+}
+/* make a new secure login (the Administration stays signed in) and return {id, uid} */
+async function daMakeLogin(pass) {
+    if (!SA_OK) throw new Error('secure login not available');
+    if (!saApp2) saApp2 = firebase.initializeApp(firebase.app().options, 'staffSecondary');
+    const a2 = saApp2.auth(), id = saNewId();
+    const cred = await a2.createUserWithEmailAndPassword(daEmail(id), await daPw(pass, id));
+    const uid = cred.user.uid;
+    try { await a2.signOut(); } catch (e) {}
+    return { id: id, uid: uid };
+}
+async function daAdd(btnEl) {
+    const dept = document.getElementById('daNewDept').value;
+    const name = document.getElementById('daNewName').value.trim();
+    const user = document.getElementById('daNewUser').value.trim();
+    const pass = document.getElementById('daNewPass').value;
+    if (!dept) { showToast(false, t('daNoDept')); return; }
+    if (!name || !user) { showToast(false); return; }
+    if (pass.length < 6) { showToast(false, t('daPwShort')); return; }
+    withBusyButton(btnEl, async function () {
+        try {
+            const exist = await db.ref('deptLookup/' + daKey(user)).once('value');
+            if (exist.exists()) { showToast(false, t('daDupUser')); return; }
+            const lg = await daMakeLogin(pass);
+            const key = db.ref('deptAcc').push().key, up = {};
+            up['deptAcc/' + key] = { dept: dept, name: name, username: user, authId: lg.id, uid: lg.uid, disabled: false, at: Date.now() };
+            up['deptAuth/' + lg.uid] = { dept: dept, acc: key, name: name };
+            up['deptLookup/' + daKey(user) + '/' + lg.id] = true;
+            await db.ref().update(up);
+            ['daNewName', 'daNewUser', 'daNewPass'].forEach(function (i) { document.getElementById(i).value = ''; });
+            showToast(true);
+            try { logActivity('Department account added', 'Department', daOrgName(dept), user, ''); } catch (e) {}
+            daSync();
+        } catch (e) { console.error(e); showToast(false); }
+    });
+}
+function daFind(k) { return daAccs.find(function (a) { return a.firebaseKey === k; }); }
+async function daToggle(k) {
+    const a = daFind(k); if (!a) return;
+    const dis = !a.disabled, up = {};
+    up['deptAcc/' + k + '/disabled'] = dis;
+    up['deptAuth/' + a.uid] = dis ? null : { dept: a.dept, acc: k, name: a.name || '' };
+    try { await db.ref().update(up); showToast(true); } catch (e) { showToast(false); }
+}
+async function daResetPw(k) {
+    const a = daFind(k); if (!a) return;
+    const np = prompt(t('daPwPrompt'), ''); if (np === null) return;
+    if (np.length < 6) { showToast(false, t('daPwShort')); return; }
+    try {
+        const lg = await daMakeLogin(np), up = {};
+        up['deptAuth/' + a.uid] = null;
+        up['deptLookup/' + daKey(a.username) + '/' + a.authId] = null;
+        up['deptLookup/' + daKey(a.username) + '/' + lg.id] = true;
+        up['deptAcc/' + k + '/authId'] = lg.id; up['deptAcc/' + k + '/uid'] = lg.uid;
+        if (!a.disabled) up['deptAuth/' + lg.uid] = { dept: a.dept, acc: k, name: a.name || '' };
+        await db.ref().update(up);
+        showToast(true);
+    } catch (e) { console.error(e); showToast(false); }
+}
+async function daDelete(k) {
+    const a = daFind(k); if (!a) return;
+    if (!(await showConfirm(t('daDelConfirm')))) return;
+    const up = {};
+    up['deptAcc/' + k] = null; up['deptAuth/' + a.uid] = null; up['deptLookup/' + daKey(a.username) + '/' + a.authId] = null;
+    try { await db.ref().update(up); showToast(true); try { logActivity('Department account deleted', 'Department', daOrgName(a.dept), a.username, ''); } catch (e) {} } catch (e) { showToast(false); }
+}
+/* a department that still has login accounts cannot be deleted */
+(function () {
+    const od = dgDeleteOrg;
+    dgDeleteOrg = async function (i, btnEl) {
+        const o = dgOrg[i];
+        if (o) {
+            try { const s = await db.ref('deptAcc').once('value'); const v = s.val() || {}; if (Object.keys(v).some(function (k) { return v[k].dept === o.key; })) { showToast(false, t('daInUse')); return; } } catch (e) {}
+        }
+        return od(i, btnEl);
+    };
+})();
 
 
  /* v6.96: leave notifications are stored with a language-neutral kind + params, and turned into
