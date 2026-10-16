@@ -631,7 +631,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.45</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.46</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2725,7 +2725,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.45
+     HR & Administration System Version 7.46
  </div>
 </div>
 
@@ -3992,6 +3992,22 @@
         lxColNight: "Night shift",
         lxColOt: "OT hours",
         lxColWork: "Working hours",
+        dgDept: "Department",
+        dgGroup: "Group",
+        dgAll: "All",
+        dgNoDept: "No department",
+        dgClear: "Clear filter",
+        dgOrgTitle: "Departments",
+        dgOrgSub: "A department contains groups. For example EED contains Engineering, Water Plant and Electric Plant.",
+        dgNewOrg: "New Department Name",
+        dgOrgColGroups: "Groups",
+        dgOrgColEmps: "Employees",
+        dgOrgDup: "This department name already exists.",
+        dgOrgInUse: "This department still has groups. Move the groups to another department first.",
+        dgOrgDelConfirm: "Delete this department?",
+        dgOrgRename: "Enter new department name:",
+        dgGroupsTitle: "Groups (every employee belongs to one group)",
+        dgUnassigned: "-- not assigned --",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -4016,6 +4032,9 @@
         mtA_devices_rename: "Rename device",
         mtA_notif_delete: "Delete sent notification",
         mtA_convert_choose: "Choose file to convert",
+        mtA_dept_renameorg: "Rename department",
+        mtA_dept_deleteorg: "Delete department",
+        mtA_dept_assign: "Assign group to department",
         mtA_emp_shift_check: "Check my shift",
         mtA_notif_reminders: "Dashboard reminders: add / edit / delete",
         /* v7.24 */
@@ -4327,7 +4346,7 @@
         manageNotifFromMgmtHint: "Send one-time or template notifications to employees, and review what has been sent, from Manage Notifications.",
         navRecentlyDeleted: "Recently Deleted",
         navBackupNow: "Backup Now",
-        tblDepartment: "Department",
+        tblDepartment: "Group",
         shiftTitle: "Shift Roster",
         shiftSub: "Assign daily shift types to employees",
         shiftTypesTitle: "Shift Types",
@@ -4367,16 +4386,16 @@
         shiftDowThu: "Thu",
         shiftDowFri: "Fri",
         shiftDowSat: "Sat",
-        deptTitle: "Departments / Teams",
-        deptSub: "Group employees into departments or teams",
-        deptNewLabel: "New Department Name",
+        deptTitle: "Departments & Groups",
+        deptSub: "A department contains groups. Each employee belongs to one group.",
+        deptNewLabel: "New Group Name",
         btnAddDept: "Add",
-        deptColName: "Department Name",
+        deptColName: "Group Name",
         deptColCount: "Employees Assigned",
         deptNone: "-- None --",
         deptDuplicateMsg: "That department already exists",
         deptInUseMsg: "Cannot delete: employees are still assigned to this department",
-        deptDeleteConfirm: "Delete this department?",
+        deptDeleteConfirm: "Delete this group?",
         recentlyDeletedTitle: "Recently Deleted Employees",
         recentlyDeletedSub: "Deleted employees are kept here for 30 days before being permanently removed.",
         recentlyDeletedEmpty: "No recently deleted employees.",
@@ -4441,7 +4460,7 @@
         navPendingApprovals: "Pending Approvals",
         navManagement: "Management",
         hrNotAllowedMsg: "This action is not available to HR accounts.",
-        deptRenamePrompt: "Enter new department name:",
+        deptRenamePrompt: "Enter new group name:",
         pendingApprovalsTitle: "Pending Approvals",
         pendingApprovalsSub: "Edits made by HR accounts wait here until an Administrator approves or rejects them.",
         pendingApprovalsEmpty: "There is nothing waiting for approval.",
@@ -4538,7 +4557,7 @@
         exportLangModalTitle: "Choose Export Language",
         exportLangModalSub: "Choose which language to use for the exported Excel file, then confirm to download.",
         exportDeptFilterLabel: "Department",
-        exportAllDepartments: "All Departments",
+        exportAllDepartments: "All Groups",
         navLockSystem: "Lock System",
         lockSystemModalTitle: "Lock System",
         lockSystemModalSub: "Temporarily block access to Employee and/or HR System, for example during maintenance. Administration is never locked out.",
@@ -5104,6 +5123,22 @@
         lxColNight: "វេនយប់",
         lxColOt: "ម៉ោង OT",
         lxColWork: "ម៉ោងធ្វើការ",
+        dgDept: "នាយកដ្ឋាន",
+        dgGroup: "ក្រុម",
+        dgAll: "ទាំងអស់",
+        dgNoDept: "គ្មាននាយកដ្ឋាន",
+        dgClear: "សម្អាតតម្រង",
+        dgOrgTitle: "នាយកដ្ឋាន",
+        dgOrgSub: "នាយកដ្ឋានមួយមានក្រុមជាច្រើន។ ឧទាហរណ៍ EED មាន Engineering, Water Plant និង Electric Plant។",
+        dgNewOrg: "ឈ្មោះនាយកដ្ឋានថ្មី",
+        dgOrgColGroups: "ក្រុម",
+        dgOrgColEmps: "បុគ្គលិក",
+        dgOrgDup: "ឈ្មោះនាយកដ្ឋាននេះមានរួចហើយ។",
+        dgOrgInUse: "នាយកដ្ឋាននេះនៅមានក្រុម។ សូមផ្លាស់ប្តូរក្រុមទៅនាយកដ្ឋានផ្សេងជាមុនសិន។",
+        dgOrgDelConfirm: "លុបនាយកដ្ឋាននេះ?",
+        dgOrgRename: "បញ្ចូលឈ្មោះនាយកដ្ឋានថ្មី៖",
+        dgGroupsTitle: "ក្រុម (បុគ្គលិកម្នាក់ៗស្ថិតក្នុងក្រុមមួយ)",
+        dgUnassigned: "-- មិនទាន់កំណត់ --",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -5128,6 +5163,9 @@
         mtA_devices_rename: "ប្តូរឈ្មោះឧបករណ៍",
         mtA_notif_delete: "លុបការជូនដំណឹងដែលបានផ្ញើ",
         mtA_convert_choose: "ជ្រើសរើសឯកសារដើម្បីបម្លែង",
+        mtA_dept_renameorg: "ប្តូរឈ្មោះនាយកដ្ឋាន",
+        mtA_dept_deleteorg: "លុបនាយកដ្ឋាន",
+        mtA_dept_assign: "កំណត់ក្រុមទៅនាយកដ្ឋាន",
         mtA_emp_shift_check: "ពិនិត្យវេនរបស់ខ្ញុំ",
         mtA_notif_reminders: "ការរំលឹកលើ Dashboard៖ បន្ថែម/កែ/លុប",
         /* v7.24 */
@@ -5439,7 +5477,7 @@
         manageNotifFromMgmtHint: "ផ្ញើការជូនដំណឹងតែម្តង ឬតាមគំរូទៅបុគ្គលិក និងពិនិត្យមើលអ្វីដែលបានផ្ញើរួច សូមចូលទៅ \u201cគ្រប់គ្រងការជូនដំណឹង\u201d។",
         navRecentlyDeleted: "បានលុបថ្មីៗ",
         navBackupNow: "បម្រុងទុកទិន្នន័យ",
-        tblDepartment: "នាយកដ្ឋាន",
+        tblDepartment: "ក្រុម",
         shiftTitle: "កាលវិភាគវេន",
         shiftSub: "កំណត់ប្រភេទវេនប្រចាំថ្ងៃឱ្យបុគ្គលិក",
         shiftTypesTitle: "ប្រភេទវេន",
@@ -5479,16 +5517,16 @@
         shiftDowThu: "ព្រ",
         shiftDowFri: "សុ",
         shiftDowSat: "ស",
-        deptTitle: "នាយកដ្ឋាន / ក្រុម",
-        deptSub: "ចាត់ថ្នាក់បុគ្គលិកទៅតាមនាយកដ្ឋាន ឬក្រុម",
-        deptNewLabel: "ឈ្មោះនាយកដ្ឋានថ្មី",
+        deptTitle: "នាយកដ្ឋាន និងក្រុម",
+        deptSub: "នាយកដ្ឋានមួយមានក្រុមជាច្រើន។ បុគ្គលិកម្នាក់ៗស្ថិតក្នុងក្រុមមួយ។",
+        deptNewLabel: "ឈ្មោះក្រុមថ្មី",
         btnAddDept: "បន្ថែម",
-        deptColName: "ឈ្មោះនាយកដ្ឋាន",
+        deptColName: "ឈ្មោះក្រុម",
         deptColCount: "ចំនួនបុគ្គលិក",
         deptNone: "-- គ្មាន --",
         deptDuplicateMsg: "នាយកដ្ឋាននេះមានរួចហើយ",
         deptInUseMsg: "មិនអាចលុបបានទេ៖ នៅមានបុគ្គលិកនៅក្នុងនាយកដ្ឋាននេះ",
-        deptDeleteConfirm: "លុបនាយកដ្ឋាននេះ?",
+        deptDeleteConfirm: "លុបក្រុមនេះ?",
         recentlyDeletedTitle: "បុគ្គលិកដែលបានលុបថ្មីៗ",
         recentlyDeletedSub: "បុគ្គលិកដែលបានលុបនឹងរក្សាទុកទីនេះរយៈពេល 30ថ្ងៃ មុនពេលលុបជាអចិន្ត្រៃយ៍។",
         recentlyDeletedEmpty: "មិនមានបុគ្គលិកដែលបានលុបថ្មីៗទេ។",
@@ -5523,7 +5561,7 @@
         navPendingApprovals: "ការអនុម័តកំពុងរង់ចាំ",
         navManagement: "ការគ្រប់គ្រង",
         hrNotAllowedMsg: "សកម្មភាពនេះមិនអាចប្រើប្រាស់បានសម្រាប់គណនីធនធានមនុស្សទេ។",
-        deptRenamePrompt: "បញ្ចូលឈ្មោះនាយកដ្ឋានថ្មី៖",
+        deptRenamePrompt: "បញ្ចូលឈ្មោះក្រុមថ្មី៖",
         pendingApprovalsTitle: "ការអនុម័តកំពុងរង់ចាំ",
         pendingApprovalsSub: "ការកែប្រែដែលធ្វើឡើងដោយគណនីធនធានមនុស្ស នឹងរង់ចាំនៅទីនេះ រហូតដល់អ្នកគ្រប់គ្រងអនុម័ត ឬបដិសេធ។",
         pendingApprovalsEmpty: "មិនមានអ្វីកំពុងរង់ចាំការអនុម័តទេ។",
@@ -5620,7 +5658,7 @@
         exportLangModalTitle: "ជ្រើសរើសភាសាសម្រាប់នាំចេញ",
         exportLangModalSub: "ជ្រើសរើសភាសាដែលត្រូវប្រើសម្រាប់ឯកសារ Excel ដែលបាននាំចេញ រួចបញ្ជាក់ដើម្បីទាញយក។",
         exportDeptFilterLabel: "ដេប៉ាតឺម៉ង់",
-        exportAllDepartments: "គ្រប់ដេប៉ាតឺម៉ង់ទាំងអស់",
+        exportAllDepartments: "គ្រប់ក្រុមទាំងអស់",
         navLockSystem: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalTitle: "ចាក់សោប្រព័ន្ធ",
         lockSystemModalSub: "ទប់ស្កាត់ការចូលប្រើប្រព័ន្ធបុគ្គលិក និង/ឬ ធនធានមនុស្សជាបណ្តោះអាសន្ន ឧទាហរណ៍ក្នុងអំឡុងពេលថែទាំប្រព័ន្ធ។ ប្រព័ន្ធរដ្ឋបាលមិនត្រូវបានចាក់សោឡើយ។",
@@ -6178,6 +6216,22 @@
         lxColNight: "夜班",
         lxColOt: "加班时数",
         lxColWork: "工作时数",
+        dgDept: "部门",
+        dgGroup: "小组",
+        dgAll: "全部",
+        dgNoDept: "无部门",
+        dgClear: "清除筛选",
+        dgOrgTitle: "部门",
+        dgOrgSub: "一个部门包含多个小组。例如 EED 包含 Engineering、Water Plant 和 Electric Plant。",
+        dgNewOrg: "新部门名称",
+        dgOrgColGroups: "小组数",
+        dgOrgColEmps: "员工数",
+        dgOrgDup: "此部门名称已存在。",
+        dgOrgInUse: "此部门下仍有小组，请先将小组移到其他部门。",
+        dgOrgDelConfirm: "删除此部门？",
+        dgOrgRename: "请输入新的部门名称：",
+        dgGroupsTitle: "小组(每位员工属于一个小组)",
+        dgUnassigned: "-- 未分配 --",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -6202,6 +6256,9 @@
         mtA_devices_rename: "重命名设备",
         mtA_notif_delete: "删除已发送通知",
         mtA_convert_choose: "选择要转换的文件",
+        mtA_dept_renameorg: "重命名部门",
+        mtA_dept_deleteorg: "删除部门",
+        mtA_dept_assign: "将小组分配到部门",
         mtA_emp_shift_check: "查看我的班次",
         mtA_notif_reminders: "仪表板提醒：添加/编辑/删除",
         /* v7.24 */
@@ -6513,7 +6570,7 @@
         manageNotifFromMgmtHint: "向员工发送一次性或模板通知，并查看已发送的记录，请前往「管理通知」。",
         navRecentlyDeleted: "最近删除",
         navBackupNow: "立即备份",
-        tblDepartment: "部门",
+        tblDepartment: "小组",
         shiftTitle: "排班表",
         shiftSub: "为员工分配每日班次类型",
         shiftTypesTitle: "班次类型",
@@ -6553,16 +6610,16 @@
         shiftDowThu: "四",
         shiftDowFri: "五",
         shiftDowSat: "六",
-        deptTitle: "部门 / 团队",
-        deptSub: "将员工分组到部门或团队",
-        deptNewLabel: "新部门名称",
+        deptTitle: "部门与小组",
+        deptSub: "一个部门包含多个小组，每位员工属于一个小组。",
+        deptNewLabel: "新小组名称",
         btnAddDept: "添加",
-        deptColName: "部门名称",
+        deptColName: "小组名称",
         deptColCount: "已分配员工数",
         deptNone: "-- 无 --",
         deptDuplicateMsg: "该部门已存在",
         deptInUseMsg: "无法删除：仍有员工被分配到该部门",
-        deptDeleteConfirm: "删除此部门？",
+        deptDeleteConfirm: "删除此小组？",
         recentlyDeletedTitle: "最近删除的员工",
         recentlyDeletedSub: "已删除的员工将在此保留30天，之后将被永久移除。",
         recentlyDeletedEmpty: "没有最近删除的员工。",
@@ -6597,7 +6654,7 @@
         navPendingApprovals: "待审批",
         navManagement: "账户管理",
         hrNotAllowedMsg: "人力资源账户无法执行此操作。",
-        deptRenamePrompt: "请输入新的部门名称：",
+        deptRenamePrompt: "请输入新的小组名称：",
         pendingApprovalsTitle: "待审批",
         pendingApprovalsSub: "人力资源账户所做的修改将在此等待，直到管理员批准或拒绝。",
         pendingApprovalsEmpty: "目前没有待审批的项目。",
@@ -6694,7 +6751,7 @@
         exportLangModalTitle: "选择导出语言",
         exportLangModalSub: "选择导出的 Excel 文件使用的语言，然后确认下载。",
         exportDeptFilterLabel: "部门",
-        exportAllDepartments: "所有部门",
+        exportAllDepartments: "所有小组",
         navLockSystem: "锁定系统",
         lockSystemModalTitle: "锁定系统",
         lockSystemModalSub: "临时阻止员工系统和/或人力资源系统的访问，例如在系统维护期间。行政管理系统永远不会被锁定。",
@@ -7530,14 +7587,15 @@ function renderEmpShiftCalendar() {
  let departments = [];
  db.ref('departments').on('value', (snapshot) => {
      const data = snapshot.val();
-     departments = data ? Object.keys(data).map(key => ({ firebaseKey: key, name: data[key].name || '' })) : [];
-     if (departments.length === 0) {
+     const _dgd = data || {}; dgOrg = Object.keys(_dgd._org || {}).map(k => ({ key: k, name: (_dgd._org[k] && _dgd._org[k].name) || '' })); departments = Object.keys(_dgd).filter(k => k.charAt(0) !== '_').map(key => ({ firebaseKey: key, name: (_dgd[key] && _dgd[key].name) || '', parent: (_dgd[key] && _dgd[key].parent) || '' }));
+     if (departments.length === 0 && !data) {
          // Seed with generic placeholders the first time this feature is used, so the dropdowns aren't empty.
          ['Department 1', 'Department 2', 'Department 3'].forEach(name => db.ref('departments').push({ name }));
      }
      populateDeptDropdowns();
      renderDeptTable();
      renderMaster();
+     try { dgFillAll(); dgRefresh(); } catch (e) {}
  });
 
  /* v6.00: Accounts (HR System / Administration System logins) */
@@ -15844,7 +15902,7 @@ function mtCurrentSvc() {
 }
 /* per-button control: inside an open service, single buttons can be closed on the maintenance page (faded; a click shows the popup).
    MT_ACT = [service, action, matcher, label key]; matcher "fn:name" (onclick/onchange calls name(...)), "fn:name|text" (and the call contains text), "i:key" (button with data-i18n=key) */
-const MT_ACT = [["master", "export", "fn:openExportLangModal|'master'", "btnExport"], ["master", "leavereport", "fn:openLeaveReportModal", "btnExportLeaveReport"], ["master", "settings", "fn:mlOpen", "mlBtnText"], ["master", "alcheck", "fn:mlStOpen", "mlStBtnText"], ["master", "view", "fn:openMasterDetailModal", "mtA_master_view"], ["master", "edit", "fn:openEditModal", "mtA_master_edit"], ["master", "delete", "fn:confirmDelete", "mtA_master_delete"], ["monthly", "applyall", "fn:applyBulkWorkingHours", "btnApplyAll"], ["monthly", "export", "fn:openExportLangModal|'monthly'", "btnExport"], ["monthly", "view", "fn:openMonthlyDetailModal", "mtA_monthly_view"], ["monthly", "edit", "fn:openEditModal", "mtA_monthly_edit"], ["monthly", "delete", "fn:confirmDelete", "mtA_monthly_delete"], ["monthly", "hours", "fn:updateEmpMonthlyField", "mtA_monthly_hours"], ["monthlyal", "renewal", "fn:openRenewalExportModal", "btnExportRenewal"], ["monthlyal", "export", "fn:openExportLangModal|'monthlyal'", "btnExport"], ["employee", "export", "fn:openExportLangModal|'employee'", "btnExport"], ["employee", "view", "fn:openEmployeeDetailModal", "mtA_employee_view"], ["employee", "edit", "fn:openEditModal", "mtA_employee_edit"], ["employee", "delete", "fn:confirmDelete", "mtA_employee_delete"], ["leave", "submit", "i:btnSubmitLeave", "btnSubmitLeave"], ["att", "load", "i:btnLoadDept", "btnLoadDept"], ["att", "submit", "fn:saveAttendanceDeptBatch", "btnSubmitAtt"], ["query", "check", "i:btnCheckDetails", "btnCheckDetails"], ["add", "bulkimport", "fn:openBulkImportModal", "btnBulkImport"], ["add", "bulkupdate", "fn:openBulkUpdateModal", "btnBulkUpdate"], ["add", "save", "i:btnSaveEmp", "btnSaveEmp"], ["shift", "check", "i:btnCheckShift", "btnCheckShift"], ["shift", "export", "fn:openExportLangModal|'shift'", "btnExport"], ["shift", "editcell", "fn:updateShiftCell", "mtA_shift_editcell"], ["makeup", "submit", "i:btnSubmitMakeup", "btnSubmitMakeup"], ["attcal", "pdf", "fn:exportAttCalToPDF", "btnExportPDF"], ["attcal", "editday", "fn:openAttCalEditModal", "mtA_attcal_editday"], ["dept", "add", "i:btnAddDept", "btnAddDept"], ["dept", "edit", "fn:editDepartment", "mtA_dept_edit"], ["dept", "delete", "fn:deleteDepartment", "mtA_dept_delete"], ["audit", "export", "fn:openExportLangModal|'auditlog'", "btnExport"], ["cert", "generate", "fn:generateCertificate", "btnGenerateCertificate"], ["faceatt", "copylink", "fn:faCopyScanLink", "faCopyLink"], ["faceatt", "camera", "fn:faStartCamera", "faStartCamera"], ["faceatt", "capture", "fn:faCaptureAngle", "faCapture"], ["faceatt", "clear", "fn:faClearCaptures", "faClearCaptures"], ["faceatt", "saveenroll", "fn:faSaveEnrollment", "faSaveEnroll"], ["faceatt", "delenroll", "fn:faDeleteEnrollment", "mtA_faceatt_delenroll"], ["faceatt", "saverules", "fn:faSaveRules", "faSaveRules"], ["faceatt", "resetrules", "fn:faResetRules", "faResetRules"], ["faceatt", "manualsave", "fn:faSaveManual", "faManualSave"], ["faceatt", "preview", "fn:faPreviewReport", "faPreview"], ["faceatt", "export", "fn:faExportReport", "faExportBtn"], ["export", "preview", "fn:xcPreview", "faPreview"], ["export", "export", "fn:xcExport", "faExportBtn"], ["recdeleted", "restore", "fn:restoreEmployee", "mtA_recdeleted_restore"], ["pending", "approve", "fn:approvePendingEdit", "btnApprove"], ["pending", "reject", "fn:rejectPendingEdit", "btnReject"], ["mgmt", "addaccount", "i:btnAddAccount", "btnAddAccount"], ["mgmt", "disable", "fn:toggleAccountDisabled", "mtA_mgmt_disable"], ["mgmt", "delete", "fn:deleteAccount", "mtA_mgmt_delete"], ["mgmt", "editfield", "fn:updateAccountField", "mtA_mgmt_editfield"], ["mgmt", "pwreset", "fn:pwOpenReset", "pwResetBtn"], ["mgmt", "totp", "fn:toggleAccountTotpEnabled", "mtA_mgmt_totp"], ["mgmt", "resettotp", "fn:resetAccountTotp", "btnResetAuthenticator"], ["mgmt", "backupcodes", "fn:regenerateBackupCodes", "btnRegenerateBackupCodes"], ["lock", "apply", "fn:applySystemLockSettings", "btnApplyLock"], ["lock", "unlock", "fn:unlockAllSystems", "btnUnlockAll"], ["devices", "block", "fn:toggleDeviceBlocked", "mtA_devices_block"], ["devices", "rename", "fn:renameDevice", "mtA_devices_rename"], ["backup", "backupnow", "fn:confirmBackupNow", "btnConfirmBackup"], ["notif", "onetime", "fn:openOneTimeNotifModal", "broadcastSectionTitle"], ["notif", "announce", "fn:openComposeNotification", "btnNewAnnouncement"], ["notif", "shiftready", "fn:openNotifyShiftReadyModal", "btnNotifyShiftReady"], ["notif", "cardready", "fn:openCardReadyNotifModal", "btnNotifyCardReady"], ["notif", "delete", "fn:deleteSentNotif", "mtA_notif_delete"], ["convert", "convertphoto", "fn:showExtractPane|'convert'", "lxBtnConvert"], ["convert", "leaveextract", "fn:openAttExtract", "lxBtnLeave"], ["convert", "lxrecord", "fn:lxRecord", "lxRecBtn"], ["convert", "choose", "fn:handleConvertPhotoFileSelected", "mtA_convert_choose"], ["convert", "lxread", "fn:lxRead", "lxRead"], ["convert", "lxkey", "fn:lxSaveKey", "lxKeySaveBtn"], ["convert", "lxexport", "fn:lxExport", "lxExport"], ["bell", "respond", "fn:openComposeNotification", "btnRespond"], ["bell", "processed", "fn:markRequestProcessed", "btnMarkProcessed"], ["bell", "delete", "fn:deleteRequest", "btnDeleteRequest"], ["bell", "dismiss", "fn:dismissAdminAlert", "btnDismiss"], ["emp_request", "submit", "i:btnSubmitRequest", "btnSubmitRequest"], ["emp_shift", "check", "fn:checkMyShift", "mtA_emp_shift_check"], ["master", "settings", "fn:mlSave", "mlBtnText"], ["master", "settings", "fn:mlAddRule", "mlBtnText"], ["master", "settings", "fn:mlRemoveRule", "mlBtnText"], ["master", "settings", "fn:mlMakeFormula", "mlBtnText"], ["notif", "reminders", "fn:addAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:editAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:deleteAnnouncement", "mtA_notif_reminders"]];
+const MT_ACT = [["master", "export", "fn:openExportLangModal|'master'", "btnExport"], ["master", "leavereport", "fn:openLeaveReportModal", "btnExportLeaveReport"], ["master", "settings", "fn:mlOpen", "mlBtnText"], ["master", "alcheck", "fn:mlStOpen", "mlStBtnText"], ["master", "view", "fn:openMasterDetailModal", "mtA_master_view"], ["master", "edit", "fn:openEditModal", "mtA_master_edit"], ["master", "delete", "fn:confirmDelete", "mtA_master_delete"], ["monthly", "applyall", "fn:applyBulkWorkingHours", "btnApplyAll"], ["monthly", "export", "fn:openExportLangModal|'monthly'", "btnExport"], ["monthly", "view", "fn:openMonthlyDetailModal", "mtA_monthly_view"], ["monthly", "edit", "fn:openEditModal", "mtA_monthly_edit"], ["monthly", "delete", "fn:confirmDelete", "mtA_monthly_delete"], ["monthly", "hours", "fn:updateEmpMonthlyField", "mtA_monthly_hours"], ["monthlyal", "renewal", "fn:openRenewalExportModal", "btnExportRenewal"], ["monthlyal", "export", "fn:openExportLangModal|'monthlyal'", "btnExport"], ["employee", "export", "fn:openExportLangModal|'employee'", "btnExport"], ["employee", "view", "fn:openEmployeeDetailModal", "mtA_employee_view"], ["employee", "edit", "fn:openEditModal", "mtA_employee_edit"], ["employee", "delete", "fn:confirmDelete", "mtA_employee_delete"], ["leave", "submit", "i:btnSubmitLeave", "btnSubmitLeave"], ["att", "load", "i:btnLoadDept", "btnLoadDept"], ["att", "submit", "fn:saveAttendanceDeptBatch", "btnSubmitAtt"], ["query", "check", "i:btnCheckDetails", "btnCheckDetails"], ["add", "bulkimport", "fn:openBulkImportModal", "btnBulkImport"], ["add", "bulkupdate", "fn:openBulkUpdateModal", "btnBulkUpdate"], ["add", "save", "i:btnSaveEmp", "btnSaveEmp"], ["shift", "check", "i:btnCheckShift", "btnCheckShift"], ["shift", "export", "fn:openExportLangModal|'shift'", "btnExport"], ["shift", "editcell", "fn:updateShiftCell", "mtA_shift_editcell"], ["makeup", "submit", "i:btnSubmitMakeup", "btnSubmitMakeup"], ["attcal", "pdf", "fn:exportAttCalToPDF", "btnExportPDF"], ["attcal", "editday", "fn:openAttCalEditModal", "mtA_attcal_editday"], ["dept", "add", "i:btnAddDept", "btnAddDept"], ["dept", "edit", "fn:editDepartment", "mtA_dept_edit"], ["dept", "delete", "fn:deleteDepartment", "mtA_dept_delete"], ["audit", "export", "fn:openExportLangModal|'auditlog'", "btnExport"], ["cert", "generate", "fn:generateCertificate", "btnGenerateCertificate"], ["faceatt", "copylink", "fn:faCopyScanLink", "faCopyLink"], ["faceatt", "camera", "fn:faStartCamera", "faStartCamera"], ["faceatt", "capture", "fn:faCaptureAngle", "faCapture"], ["faceatt", "clear", "fn:faClearCaptures", "faClearCaptures"], ["faceatt", "saveenroll", "fn:faSaveEnrollment", "faSaveEnroll"], ["faceatt", "delenroll", "fn:faDeleteEnrollment", "mtA_faceatt_delenroll"], ["faceatt", "saverules", "fn:faSaveRules", "faSaveRules"], ["faceatt", "resetrules", "fn:faResetRules", "faResetRules"], ["faceatt", "manualsave", "fn:faSaveManual", "faManualSave"], ["faceatt", "preview", "fn:faPreviewReport", "faPreview"], ["faceatt", "export", "fn:faExportReport", "faExportBtn"], ["export", "preview", "fn:xcPreview", "faPreview"], ["export", "export", "fn:xcExport", "faExportBtn"], ["recdeleted", "restore", "fn:restoreEmployee", "mtA_recdeleted_restore"], ["pending", "approve", "fn:approvePendingEdit", "btnApprove"], ["pending", "reject", "fn:rejectPendingEdit", "btnReject"], ["mgmt", "addaccount", "i:btnAddAccount", "btnAddAccount"], ["mgmt", "disable", "fn:toggleAccountDisabled", "mtA_mgmt_disable"], ["mgmt", "delete", "fn:deleteAccount", "mtA_mgmt_delete"], ["mgmt", "editfield", "fn:updateAccountField", "mtA_mgmt_editfield"], ["mgmt", "pwreset", "fn:pwOpenReset", "pwResetBtn"], ["mgmt", "totp", "fn:toggleAccountTotpEnabled", "mtA_mgmt_totp"], ["mgmt", "resettotp", "fn:resetAccountTotp", "btnResetAuthenticator"], ["mgmt", "backupcodes", "fn:regenerateBackupCodes", "btnRegenerateBackupCodes"], ["lock", "apply", "fn:applySystemLockSettings", "btnApplyLock"], ["lock", "unlock", "fn:unlockAllSystems", "btnUnlockAll"], ["devices", "block", "fn:toggleDeviceBlocked", "mtA_devices_block"], ["devices", "rename", "fn:renameDevice", "mtA_devices_rename"], ["backup", "backupnow", "fn:confirmBackupNow", "btnConfirmBackup"], ["notif", "onetime", "fn:openOneTimeNotifModal", "broadcastSectionTitle"], ["notif", "announce", "fn:openComposeNotification", "btnNewAnnouncement"], ["notif", "shiftready", "fn:openNotifyShiftReadyModal", "btnNotifyShiftReady"], ["notif", "cardready", "fn:openCardReadyNotifModal", "btnNotifyCardReady"], ["notif", "delete", "fn:deleteSentNotif", "mtA_notif_delete"], ["convert", "convertphoto", "fn:showExtractPane|'convert'", "lxBtnConvert"], ["convert", "leaveextract", "fn:openAttExtract", "lxBtnLeave"], ["convert", "lxrecord", "fn:lxRecord", "lxRecBtn"], ["convert", "choose", "fn:handleConvertPhotoFileSelected", "mtA_convert_choose"], ["convert", "lxread", "fn:lxRead", "lxRead"], ["convert", "lxkey", "fn:lxSaveKey", "lxKeySaveBtn"], ["convert", "lxexport", "fn:lxExport", "lxExport"], ["dept", "addorg", "fn:dgAddOrg", "dgNewOrg"], ["dept", "renameorg", "fn:dgRenameOrg", "mtA_dept_renameorg"], ["dept", "deleteorg", "fn:dgDeleteOrg", "mtA_dept_deleteorg"], ["dept", "assign", "fn:dgAssign", "mtA_dept_assign"], ["bell", "respond", "fn:openComposeNotification", "btnRespond"], ["bell", "processed", "fn:markRequestProcessed", "btnMarkProcessed"], ["bell", "delete", "fn:deleteRequest", "btnDeleteRequest"], ["bell", "dismiss", "fn:dismissAdminAlert", "btnDismiss"], ["emp_request", "submit", "i:btnSubmitRequest", "btnSubmitRequest"], ["emp_shift", "check", "fn:checkMyShift", "mtA_emp_shift_check"], ["master", "settings", "fn:mlSave", "mlBtnText"], ["master", "settings", "fn:mlAddRule", "mlBtnText"], ["master", "settings", "fn:mlRemoveRule", "mlBtnText"], ["master", "settings", "fn:mlMakeFormula", "mlBtnText"], ["notif", "reminders", "fn:addAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:editAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:deleteAnnouncement", "mtA_notif_reminders"]];
 const MT_MODAL_SVC = { recentlyDeletedModal: 'recdeleted', pendingApprovalsModal: 'pending', managementModal: 'mgmt', lockSystemModal: 'lock', deviceLogModal: 'devices', backupLangModal: 'backup', manageNotifModal: 'notif', convertPhotoModal: 'convert', 'tab-attextract': 'convert', globalSearchModal: 'search', notifModal: 'bell', mlModal: 'master', mlStModal: 'master' };
 const MT_ACT_BY = {};
 MT_ACT.forEach(function (e) {
@@ -16223,6 +16281,193 @@ function lxExport() {
     const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Attendance Extract');
     XLSX.writeFile(wb, 'Attendance_Extract_' + (lxDate || new Date().toISOString().slice(0, 10)) + '.xlsx');
 }
+
+/* ================= v7.50: DEPARTMENT > GROUP =================
+   The existing "Department" list (departments/<key>.name) is really the GROUP level (Engineering, Water Plant, Electric Plant).
+   A new top level DEPARTMENT (EED...) sits above it: stored under departments/_org/<key>.name, and each group points to its
+   department with departments/<groupKey>.parent (the department name). An employee's department is therefore derived from
+   the group - no employee record is changed. Filters (Department + Group) apply on screen and in exports. */
+var dgOrg = [];            /* [{key, name}] top-level departments */
+var dgSel = { dept: '', group: '' };
+try { var dgS0 = JSON.parse(sessionStorage.getItem('dgSel') || 'null'); if (dgS0 && typeof dgS0 === 'object') dgSel = { dept: dgS0.dept || '', group: dgS0.group || '' }; } catch (e) {}
+function dgActive() { return !!(dgSel.dept || dgSel.group); }
+function dgGroupObj(name) { return (typeof departments !== 'undefined' ? departments : []).find(function (d) { return d.name === name; }); }
+function dgParentOf(groupName) { const g = dgGroupObj(groupName); return g ? (g.parent || '') : ''; }
+function dgDeptOfEmp(e) { return dgParentOf((e && e.department) || ''); }
+function dgOk(e) {
+    if (!e) return false;
+    if (dgSel.dept) { const d = dgDeptOfEmp(e); if (dgSel.dept === '__none') { if (d) return false; } else if (d !== dgSel.dept) return false; }
+    if (dgSel.group && (e.department || '') !== dgSel.group) return false;
+    return true;
+}
+function dgOkId(id) {
+    if (!dgActive()) return true;
+    const e = (typeof employees !== 'undefined' ? employees : []).find(function (x) { return String(x.id) === String(id); });
+    return e ? dgOk(e) : false;
+}
+function dgGroupsFor(dept) {
+    return (typeof departments !== 'undefined' ? departments : []).filter(function (g) { return !dept || (dept === '__none' ? !g.parent : g.parent === dept); });
+}
+function dgEsc(s) { return escapeHtmlText(String(s == null ? '' : s)); }
+function dgMake(withGroup) {
+    const bar = document.createElement('div'); bar.className = 'dg-bar';
+    bar.style.cssText = 'display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:8px 0 12px; padding:8px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; text-align:left;';
+    const sty = 'padding:6px 8px; border:1px solid #cbd5e1; border-radius:8px; font-size:12px; max-width:200px;';
+    bar.innerHTML = '<label style="margin:0; font-size:12px; font-weight:700;" data-i18n="dgDept">Department</label><select class="dg-dept" style="' + sty + '" onchange="dgChange(this)"></select>' +
+        (withGroup ? '<label style="margin:0; font-size:12px; font-weight:700;" data-i18n="dgGroup">Group</label><select class="dg-group" style="' + sty + '" onchange="dgChange(this)"></select>' : '') +
+        '<button type="button" class="quick-btn slate dg-clear" style="width:auto; min-width:auto; min-height:auto; padding:5px 12px; font-size:11px;" onclick="dgClear()" data-i18n="dgClear">Clear filter</button>';
+    return bar;
+}
+function dgFillBar(bar) {
+    const ds = bar.querySelector('.dg-dept'), gs = bar.querySelector('.dg-group');
+    ds.innerHTML = '<option value="">' + dgEsc(t('dgAll')) + '</option>' + dgOrg.map(function (o) { return '<option value="' + dgEsc(o.name) + '">' + dgEsc(o.name) + '</option>'; }).join('') + '<option value="__none">' + dgEsc(t('dgNoDept')) + '</option>';
+    ds.value = dgSel.dept; if (ds.value !== dgSel.dept) { dgSel.dept = ''; ds.value = ''; }
+    if (gs) {
+        gs.innerHTML = '<option value="">' + dgEsc(t('dgAll')) + '</option>' + dgGroupsFor(dgSel.dept).map(function (g) { return '<option value="' + dgEsc(g.name) + '">' + dgEsc(g.name) + '</option>'; }).join('');
+        gs.value = dgSel.group; if (gs.value !== dgSel.group) { dgSel.group = ''; gs.value = ''; }
+    }
+    const cl = bar.querySelector('.dg-clear'); if (cl) cl.style.visibility = dgActive() ? 'visible' : 'hidden';
+    bar.style.background = dgActive() ? '#eff6ff' : '#f8fafc'; bar.style.borderColor = dgActive() ? '#93c5fd' : '#e2e8f0';
+}
+function dgFillAll() { document.querySelectorAll('.dg-bar').forEach(dgFillBar); }
+function dgSave() { try { sessionStorage.setItem('dgSel', JSON.stringify(dgSel)); } catch (e) {} }
+function dgChange(el) {
+    const bar = el.closest('.dg-bar');
+    const ds = bar.querySelector('.dg-dept'), gs = bar.querySelector('.dg-group');
+    const prevDept = dgSel.dept;
+    dgSel.dept = ds.value;
+    if (gs) dgSel.group = (dgSel.dept !== prevDept) ? '' : gs.value;
+    else if (dgSel.dept !== prevDept) dgSel.group = '';
+    dgSave(); dgRefresh();
+}
+function dgClear() { dgSel = { dept: '', group: '' }; dgSave(); dgRefresh(); }
+function dgRefresh() {
+    dgFillAll();
+    ['filterMasterTable', 'filterMonthlyTable', 'filterMonthlyALTable', 'filterEmployeeTable', 'filterMakeupTable'].forEach(function (n) { try { if (typeof window[n] === 'function') window[n](); } catch (e) {} });
+    try { if (document.getElementById('shiftCalendarTable') && typeof renderShiftCalendarTable === 'function') renderShiftCalendarTable(); } catch (e) {}
+    try { if (document.getElementById('attCalTable') && typeof renderAttCalTable === 'function') renderAttCalTable(); } catch (e) {}
+    try { populateDeptDropdowns(); } catch (e) {}
+}
+/* DOM tables: hide rows of employees outside the chosen Department / Group, on top of the normal search filter */
+function dgDom(sel, col) {
+    if (!dgActive()) return;
+    document.querySelectorAll(sel + ' tbody tr').forEach(function (row) {
+        if (row.cells.length <= col || row.style.display === 'none') return;
+        if (!dgOkId(row.cells[col].innerText.trim())) row.style.display = 'none';
+    });
+}
+[['filterMasterTable', '#masterTable', 1], ['filterMonthlyTable', '#monthlyReportTable', 1], ['filterMonthlyALTable', '#monthlyALTable', 0], ['filterEmployeeTable', '#employeeTable', 1], ['filterMakeupTable', '#makeupTable', 1]].forEach(function (x) {
+    const f = window[x[0]]; if (typeof f !== 'function') return;
+    window[x[0]] = function () { const r = f.apply(this, arguments); dgDom(x[1], x[2]); return r; };
+});
+/* Rendering and exports read the global employees list: show / export only the chosen Department / Group */
+['renderShiftCalendarTable', 'renderAttCalTable', 'exportToExcel', 'exportMonthlyALReport', 'exportLeaveReport', 'exportShiftCalendarToExcel', 'exportAttCalToPDF'].forEach(function (n) {
+    const f = window[n]; if (typeof f !== 'function') return;
+    window[n] = function () {
+        if (!dgActive()) return f.apply(this, arguments);
+        const all = employees; employees = all.filter(dgOk);
+        try { return f.apply(this, arguments); } finally { employees = all; }
+    };
+});
+/* Attendance record: the group picker only lists the groups of the chosen department */
+(function () {
+    const f = window.populateDeptDropdowns; if (typeof f !== 'function') return;
+    window.populateDeptDropdowns = function () {
+        const r = f.apply(this, arguments);
+        const sel = document.getElementById('attDeptSelect');
+        if (sel && dgSel.dept) {
+            const cur = sel.value;
+            sel.innerHTML = '<option value="">' + dgEsc(t('deptNone')) + '</option>' + dgGroupsFor(dgSel.dept).map(function (g) { return '<option value="' + dgEsc(g.name) + '">' + dgEsc(g.name) + '</option>'; }).join('');
+            if (cur) sel.value = cur;
+        }
+        return r;
+    };
+})();
+(function () {
+    const f = window.setLanguage; if (typeof f !== 'function') return;
+    window.setLanguage = function () { const r = f.apply(this, arguments); try { dgFillAll(); dgRenderDeptTab(); } catch (e) {} return r; };
+})();
+/* put the filter bar into every tab that lists employees */
+function dgInstall() {
+    const spots = [
+        ['masterSearchInput', true], ['monthlySearchInput', true], ['monthlyALSearchInput', true], ['employeeSearchInput', true],
+        ['shiftCalSearchInput', true], ['attCalSearchInput', true], ['makeupSearchInput', true]
+    ];
+    spots.forEach(function (s) {
+        const inp = document.getElementById(s[0]); if (!inp || inp.dataset.dg) return; inp.dataset.dg = '1';
+        let host = inp.closest('.search-bar-wrapper') || inp.parentElement;
+        host.parentNode.insertBefore(dgMake(s[1]), host.nextSibling);
+    });
+    const att = document.getElementById('tab-att');
+    if (att && !att.querySelector('.dg-bar')) { const form = att.querySelector('form'); if (form) form.parentNode.insertBefore(dgMake(false), form); }
+    dgFillAll();
+}
+/* ---------- Departments tab: manage departments + assign every group to a department ---------- */
+function dgRenderDeptTab() {
+    const tab = document.getElementById('tab-dept'); if (!tab) return;
+    let box = document.getElementById('dgOrgBox');
+    if (!box) {
+        box = document.createElement('div'); box.id = 'dgOrgBox'; box.style.cssText = 'margin-bottom:22px;';
+        const form = tab.querySelector('form'); tab.insertBefore(box, form);
+        box.innerHTML = '<h3 data-i18n="dgOrgTitle" style="margin-top:6px;">Departments</h3><p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="dgOrgSub"></p>' +
+            '<form style="display:flex; gap:10px; align-items:flex-end; max-width:520px; margin-bottom:12px;" onsubmit="event.preventDefault(); dgAddOrg(this.querySelector(\'[type=submit]\'));"><div class="form-group" style="flex:1; margin-bottom:0;"><label data-i18n="dgNewOrg">New Department Name</label><input type="text" id="dgNewOrgName" placeholder="e.g. EED"></div><button type="submit" class="btn-submit" style="width:auto; padding:8px 16px; margin-top:0;" data-i18n="btnAddDept">Add</button></form>' +
+            '<div class="table-responsive"><table class="master-tbl" id="dgOrgTable"><thead><tr><th data-i18n="tblActions">Actions</th><th data-i18n="dgDept">Department</th><th data-i18n="dgOrgColGroups">Groups</th><th data-i18n="dgOrgColEmps">Employees</th></tr></thead><tbody></tbody></table></div>' +
+            '<h3 data-i18n="dgGroupsTitle" style="margin-top:22px;">Groups</h3>';
+        box.querySelectorAll('[data-i18n]').forEach(function (el) { el.innerHTML = t(el.getAttribute('data-i18n')); });
+    }
+    const tb = box.querySelector('#dgOrgTable tbody'); if (!tb) return;
+    box.querySelector('[data-i18n="dgOrgSub"]').textContent = t('dgOrgSub');
+    tb.innerHTML = dgOrg.map(function (o, i) {
+        const gs = (typeof departments !== 'undefined' ? departments : []).filter(function (g) { return g.parent === o.name; });
+        const emps = (typeof employees !== 'undefined' ? employees : []).filter(function (e) { return gs.some(function (g) { return g.name === (e.department || ''); }); }).length;
+        return '<tr><td><button class="btn-edit" onclick="dgRenameOrg(' + i + ')" title="Edit">' + ICON_EDIT + '</button> <button class="btn-delete" onclick="dgDeleteOrg(' + i + ', this)" title="Delete">' + ICON_DELETE + '</button></td><td><b>' + dgEsc(o.name) + '</b></td><td>' + gs.length + '</td><td>' + emps + '</td></tr>';
+    }).join('') || '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">-</td></tr>';
+}
+function renderDeptTable() {
+    if (!isTabActive('tab-dept')) return;
+    dgRenderDeptTab();
+    const table = document.getElementById('deptTable'); if (!table) return;
+    table.querySelector('thead').innerHTML = '<tr><th data-i18n="tblActions">' + dgEsc(t('tblActions')) + '</th><th data-i18n="deptColName">' + dgEsc(t('deptColName')) + '</th><th data-i18n="dgDept">' + dgEsc(t('dgDept')) + '</th><th data-i18n="deptColCount">' + dgEsc(t('deptColCount')) + '</th></tr>';
+    const tbody = table.querySelector('tbody');
+    tbody.innerHTML = departments.map(function (d) {
+        const count = employees.filter(function (e) { return e.department === d.name; }).length;
+        const opts = '<option value="">' + dgEsc(t('dgUnassigned')) + '</option>' + dgOrg.map(function (o) { return '<option value="' + dgEsc(o.name) + '"' + (d.parent === o.name ? ' selected' : '') + '>' + dgEsc(o.name) + '</option>'; }).join('');
+        return '<tr><td><button class="btn-edit" onclick="editDepartment(\'' + d.firebaseKey + '\', \'' + String(d.name).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + '\')" title="Edit">' + ICON_EDIT + '</button> <button class="btn-delete" onclick="deleteDepartment(\'' + d.firebaseKey + '\', ' + count + ', this)" title="Delete">' + ICON_DELETE + '</button></td>' +
+            '<td>' + dgEsc(d.name) + '</td><td><select onchange="dgAssign(\'' + d.firebaseKey + '\', this)" style="padding:5px 8px; border:1px solid #cbd5e1; border-radius:8px;">' + opts + '</select></td><td>' + count + '</td></tr>';
+    }).join('');
+    if (departments.length === 0) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">-</td></tr>';
+}
+function dgAssign(groupKey, sel) {
+    const g = departments.find(function (x) { return x.firebaseKey === groupKey; }); if (!g) return;
+    const val = sel.value || null;
+    db.ref('departments/' + groupKey + '/parent').set(val).then(function () {
+        showToast(true); try { logActivity('Group assigned to department', 'Department', g.name, g.name, (val || '-')); } catch (e) {}
+    }).catch(function () { showToast(false); });
+}
+function dgAddOrg(btnEl) {
+    const inp = document.getElementById('dgNewOrgName'); const name = (inp.value || '').trim();
+    if (!name) { showToast(false); return; }
+    if (dgOrg.some(function (o) { return o.name.toLowerCase() === name.toLowerCase(); })) { showToast(false, t('dgOrgDup')); return; }
+    withBusyButton(btnEl, function () { return db.ref('departments/_org').push({ name: name }).then(function () { inp.value = ''; showToast(true); try { logActivity('Department added', 'Department', name, name, ''); } catch (e) {} }).catch(function () { showToast(false); }); });
+}
+function dgRenameOrg(i) {
+    const o = dgOrg[i]; if (!o) return;
+    const nn = prompt(t('dgOrgRename'), o.name); if (nn === null) return;
+    const name = nn.trim(); if (!name || name === o.name) return;
+    if (dgOrg.some(function (x, k) { return k !== i && x.name.toLowerCase() === name.toLowerCase(); })) { showToast(false, t('dgOrgDup')); return; }
+    const up = {}; up['departments/_org/' + o.key + '/name'] = name;
+    departments.forEach(function (g) { if (g.parent === o.name) up['departments/' + g.firebaseKey + '/parent'] = name; });
+    db.ref().update(up).then(function () { if (dgSel.dept === o.name) { dgSel.dept = name; dgSave(); } showToast(true); try { logActivity('Department renamed', 'Department', name, o.name + ' > ' + name, ''); } catch (e) {} }).catch(function () { showToast(false); });
+}
+async function dgDeleteOrg(i, btnEl) {
+    const o = dgOrg[i]; if (!o) return;
+    if (departments.some(function (g) { return g.parent === o.name; })) { showToast(false, t('dgOrgInUse')); return; }
+    if (await showConfirm(t('dgOrgDelConfirm'))) {
+        withBusyButton(btnEl, function () { return db.ref('departments/_org/' + o.key).remove().then(function () { showToast(true); try { logActivity('Department deleted', 'Department', o.name, o.name, ''); } catch (e) {} }).catch(function () { showToast(false); }); });
+    }
+}
+/* the install runs when the page is ready, and again whenever the department data changes */
+try { dgInstall(); } catch (e) {}
 
 
  /* v6.96: leave notifications are stored with a language-neutral kind + params, and turned into
