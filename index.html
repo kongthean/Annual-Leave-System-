@@ -4348,6 +4348,8 @@
         composeDeptPick: "Choose departments",
         composeDeptAll: "All departments",
         composeDeptNone: "Choose at least one department.",
+        rqTypeOther: "Other request",
+        rqSubject: "Subject",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -5640,6 +5642,8 @@
         composeDeptPick: "ជ្រើសរើសនាយកដ្ឋាន",
         composeDeptAll: "នាយកដ្ឋានទាំងអស់",
         composeDeptNone: "សូមជ្រើសរើសនាយកដ្ឋានយ៉ាងហោចណាស់មួយ។",
+        rqTypeOther: "សំណើផ្សេងៗ",
+        rqSubject: "ប្រធានបទ",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -6894,6 +6898,8 @@
         composeDeptPick: "选择部门",
         composeDeptAll: "全部部门",
         composeDeptNone: "请至少选择一个部门。",
+        rqTypeOther: "其他申请",
+        rqSubject: "主题",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -16476,7 +16482,15 @@ let mtData = null, mtModal = null, mtReady = false;
 function mtUnknown() { return !mtReady && (sessionStorage.getItem('isLoggedIn') === 'true' || !!sessionStorage.getItem('empLoggedInId')); }
 function mtSvc(id) { for (const s of MT_SVC) if (s[0] === id) return s; return null; }
 function mtSvcOfTab(tabId) { for (const s of MT_SVC) if (s[2] === 'tab' && s[3] === tabId) return s[0]; return null; }
-function mtIsOn() { return !!(mtData && mtData.on); }
+/* v7.57: the maintenance can be limited to some systems (scope: admin / hr / emp / dept). No scope saved = everybody, as before. */
+function mtScopeOk() {
+    const sc = mtData && mtData.scope; if (!sc) return true;
+    if (sessionStorage.getItem('isLoggedIn') === 'true') return sc[sessionStorage.getItem('loggedInRole') === 'hr' ? 'hr' : 'admin'] === true;
+    if (sessionStorage.getItem('empLoggedInId')) return sc.emp === true;
+    return !!(sc.admin || sc.hr || sc.emp);
+}
+function mtIsOn() { return !!(mtData && mtData.on && mtScopeOk()); }
+(function () { let k0 = null; setInterval(function () { const k = [sessionStorage.getItem('isLoggedIn'), sessionStorage.getItem('loggedInRole'), sessionStorage.getItem('empLoggedInId')].join('|'); if (k !== k0) { if (k0 !== null) { try { mtRefresh(); } catch (e) {} } k0 = k; } }, 700); })();
 /* only the Administration accounts ticked on the maintenance page keep full access (e.g. one account for testing) */
 function mtBypass() {
     if (!(mtData && mtData.bypassKeys) || sessionStorage.getItem('isLoggedIn') !== 'true' || sessionStorage.getItem('loggedInRole') !== 'admin') return false;
@@ -17489,7 +17503,8 @@ var RQ_CSS = '.rq-doc{background:#fff;color:#0f172a;border:1px solid #cbd5e1;bor
     '.rq-sigs{display:flex;gap:10px;margin-top:16px}.rq-sig{flex:1;border:1px solid #94a3b8;border-radius:4px;padding:8px 10px;min-height:110px;text-align:center}.rq-sig b{display:block;font-size:12px;margin-bottom:6px;border-bottom:1px solid #cbd5e1;padding-bottom:4px}' +
     '.rq-stamp{font-weight:bold;font-size:13px;margin:8px 0 4px}.rq-ok{color:#15803d}.rq-no{color:#dc2626}.rq-wait{color:#94a3b8}.rq-small{font-size:11px;color:#475569}';
 function rqE(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-function rqTypeLabel(ty) { return t(ty === 'edit' ? 'rqTypeEdit' : ty === 'remove' ? 'rqTypeRemove' : 'rqTypeGroup'); }
+function rqTypeLabel(ty) { return t(ty === 'edit' ? 'rqTypeEdit' : ty === 'remove' ? 'rqTypeRemove' : ty === 'other' ? 'rqTypeOther' : 'rqTypeGroup'); }
+function rqSubject(r) { return r.type === 'group' ? r.newGroup : r.type === 'other' ? (r.subject || '') : (r.empId + ' - ' + r.empName); }
 function rqOverall(r) { if (r.status === 'rejected') return 'rejected'; if (r.status === 'approved') return 'approved'; return (r.hr && r.hr.s === 'approved') ? 'waitAdmin' : 'waitHR'; }
 function rqOverallText(r) { return t({ rejected: 'rqStatusRejected', approved: 'rqStatusApproved', waitAdmin: 'rqStatusWaitAdmin', waitHR: 'rqStatusWaitHR' }[rqOverall(r)]); }
 function rqWhen(ts) { if (!ts) return ''; const d = new Date(ts), p = function (n) { return String(n).padStart(2, '0'); }; return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
@@ -17514,9 +17529,10 @@ function rqDocHtml(r, key) {
         what = '<table><tr><th style="width:30%">' + rqE(t('rqField')) + '</th><th>' + rqE(t('rqCurrent')) + '</th><th>' + rqE(t('rqNew')) + '</th></tr>' +
             RQ_FIELDS.filter(function (f) { return ch[f[0]]; }).map(function (f) { return '<tr><td><b>' + rqE(t(f[1])) + '</b></td><td>' + rqE(ch[f[0]].o) + '</td><td><b>' + rqE(ch[f[0]].n) + '</b></td></tr>'; }).join('') + '</table>';
     } else if (r.type === 'remove') what = '<div class="rq-detail">' + rqE(t('rqRemoveText')) + '</div>';
+    else if (r.type === 'other') what = '<table><tr><th>' + rqE(t('rqSubject')) + '</th><td><b>' + rqE(r.subject) + '</b></td></tr></table>';
     else what = '<table><tr><th>' + rqE(t('rqGroupName')) + '</th><td><b>' + rqE(r.newGroup) + '</b></td></tr></table>';
     const instead = (r.ad && r.ad.s === 'approved' && r.ad.instead) ? '<div class="rq-small">' + rqE(t('rqSignedInstead')) + '</div>' : '';
-    const emp = r.type === 'group' ? '' : '<tr><th>' + rqE(t('rqEmployee')) + '</th><td>' + rqE(r.empId) + ' - ' + rqE(r.empName) + (r.empGroup ? ' (' + rqE(r.empGroup) + ')' : '') + '</td></tr>';
+    const emp = (r.type === 'group' || r.type === 'other') ? '' : '<tr><th>' + rqE(t('rqEmployee')) + '</th><td>' + rqE(r.empId) + ' - ' + rqE(r.empName) + (r.empGroup ? ' (' + rqE(r.empGroup) + ')' : '') + '</td></tr>';
     return '<div class="rq-doc"><h2>' + rqE(t('rqTitle')) + '</h2><div class="rq-meta"><span>' + rqE(t('rqRef')) + ': ' + rqE(String(key || '').slice(-8).toUpperCase()) + '</span><span>' + rqE(rqWhen(r.at)) + '</span></div>' +
         '<table><tr><th>' + rqE(t('dgDept')) + '</th><td>' + rqE(r.deptName) + '</td></tr><tr><th>' + rqE(t('rqType')) + '</th><td>' + rqE(rqTypeLabel(r.type)) + '</td></tr>' + emp +
         '<tr><th>' + rqE(t('rqStatus')) + '</th><td><b>' + rqE(rqOverallText(r)) + '</b></td></tr></table>' +
@@ -17553,7 +17569,7 @@ function rqFill() {
     d.innerHTML = '<option value="">' + dgEsc(t('dgAll')) + '</option>' + dgOrg.map(function (o) { return '<option value="' + dgEsc(o.key) + '">' + dgEsc(o.name) + '</option>'; }).join('');
     d.value = cur;
     const ty = document.getElementById('rqFType'); const tc = ty.value;
-    ty.innerHTML = '<option value="">' + dgEsc(t('dgAll')) + '</option>' + ['edit', 'remove', 'group'].map(function (x) { return '<option value="' + x + '">' + dgEsc(rqTypeLabel(x)) + '</option>'; }).join('');
+    ty.innerHTML = '<option value="">' + dgEsc(t('dgAll')) + '</option>' + ['edit', 'remove', 'group', 'other'].map(function (x) { return '<option value="' + x + '">' + dgEsc(rqTypeLabel(x)) + '</option>'; }).join('');
     ty.value = tc;
     const st = document.getElementById('rqFStatus'), sc = st.value || rqFilt.status;
     st.innerHTML = [['open', 'rqFOpen'], ['', 'dgAll'], ['waitHR', 'rqStatusWaitHR'], ['waitAdmin', 'rqStatusWaitAdmin'], ['approved', 'rqStatusApproved'], ['rejected', 'rqStatusRejected']].map(function (x) { return '<option value="' + x[0] + '">' + dgEsc(t(x[1])) + '</option>'; }).join('');
@@ -17577,7 +17593,7 @@ function rqRender() {
     tb.innerHTML = rows.map(function (r) {
         const o = rqOverall(r);
         return '<tr><td><button class="btn-view" onclick="rqShow(\'' + dgEsc(r.key) + '\')" title="View">' + ICON_VIEW + '</button></td><td>' + dgEsc(rqWhen(r.at)) + '</td><td><b>' + dgEsc(r.deptName) + '</b></td><td>' + dgEsc(rqTypeLabel(r.type)) + '</td>' +
-             '<td>' + dgEsc(r.type === 'group' ? r.newGroup : (r.empId + ' - ' + r.empName)) + '</td><td>' + rqSigCell(r.hr) + '</td><td>' + rqSigCell(r.ad) + '</td><td style="color:' + col[o] + '; font-weight:bold;">' + dgEsc(rqOverallText(r)) + '</td></tr>';
+             '<td>' + dgEsc(rqSubject(r)) + '</td><td>' + rqSigCell(r.hr) + '</td><td>' + rqSigCell(r.ad) + '</td><td style="color:' + col[o] + '; font-weight:bold;">' + dgEsc(rqOverallText(r)) + '</td></tr>';
     }).join('') || '<tr><td colspan="8" style="text-align:center; color:#94a3b8;">' + dgEsc(t('rqNone')) + '</td></tr>';
 }
 function rqShow(key) {
@@ -17617,7 +17633,7 @@ async function rqApprove(key, btnEl) {
                     const rec = Object.assign({}, cur); rec.deletedAt = new Date().toISOString();
                     up['deletedEmployees/' + r.empKey] = rec; up['employees/' + r.empKey] = null;
                 }
-            } else {
+            } else if (r.type === 'group') {
                 if (departments.some(function (g) { return String(g.name).toLowerCase() === String(r.newGroup).toLowerCase(); })) { showToast(false, t('rqGroupDup')); return; }
                 up['departments/' + db.ref('departments').push().key] = { name: r.newGroup, parent: r.deptName };
             }
