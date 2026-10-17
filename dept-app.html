@@ -713,12 +713,12 @@ td.num-edit input { width: 80px; }
       <button type="button" class="quick-btn rose" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; font-size:12px;" onclick="dpReqOpen('remove')" data-i18n="dpReqNewRemove">Remove employee</button>
       <button type="button" class="quick-btn teal" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; font-size:12px;" onclick="dpReqOpen('group')" data-i18n="dpReqNewGroup">New group</button>
       <button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; font-size:12px;" onclick="dpReqOpen('other')" data-i18n="dpReqNewOther">Other request</button>
+      <button type="button" class="quick-btn purple" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; font-size:12px;" onclick="lfUse('dept'); lfNewOpen()" data-i18n="lfNewForEmp">New leave form for an employee</button>
     </div>
     <div class="dp-filter"><select id="dpReqFStatus" onchange="renderReqs()"></select><select id="dpReqFType" onchange="renderReqs()"></select></div>
     <div class="table-responsive"><table class="master-tbl dp-rec" id="dpReqTable"><thead><tr><th></th><th data-i18n="rqDate">Date</th><th data-i18n="rqType">Type</th><th data-i18n="rqEmployee">Employee</th><th data-i18n="rqSigHR">HR</th><th data-i18n="rqSigAdmin">Administration</th><th data-i18n="rqStatus">Status</th></tr></thead><tbody></tbody></table></div>
   <h3 style="margin-top:22px;"><span data-i18n="lfTitle">Leave Form</span> <span id="lfDeptTodo" style="display:none; background:#dc2626; color:#fff; border-radius:999px; font-size:11px; padding:1px 7px; vertical-align:middle;"></span></h3>
   <p class="dp-note" data-i18n="lfSubDept"></p>
-  <div style="margin-bottom:10px;"><button type="button" class="quick-btn rose" style="width:auto; min-width:auto; min-height:auto; padding:8px 14px; font-size:12px;" onclick="lfUse('dept'); lfNewOpen()" data-i18n="lfNewForEmp">New leave form for an employee</button></div>
   <div class="table-responsive"><table class="master-tbl dp-rec" id="lfDeptTable"><thead><tr><th></th><th data-i18n="lfCDate">Date</th><th data-i18n="lfCEmployee">Employee</th><th data-i18n="lfCType">Leave type</th><th data-i18n="lfCPeriod">Period</th><th data-i18n="lfCDays">Days</th><th data-i18n="lfCStatus">Status</th></tr></thead><tbody></tbody></table></div>
   </div>
 
@@ -977,17 +977,17 @@ var LF_CSS = '.lf-ovl{position:fixed;inset:0;background:rgba(15,23,42,.55);z-ind
     '.lf-types{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px}.lf-types label{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:600;color:#0f172a;border:1px solid #e2e8f0;border-radius:8px;padding:7px 9px;margin:0;cursor:pointer}.lf-types input{width:auto}' +
     '.lf-st{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;color:#fff}' +
     '.lf-scroll{overflow-x:auto;background:#f1f5f9;border-radius:8px;padding:8px}' +
-    '.lf-paper{width:1000px;background:#fff;color:#000;font-family:"Khmer OS Battambang","Khmer OS",Arial,"Noto Sans Khmer","Noto Sans SC","Microsoft YaHei",sans-serif;font-size:12.5px;line-height:1.35;padding:8px 12px 12px;box-sizing:border-box}' +
+    '.lf-paper{width:1000px;background:#fff;color:#000;font-family:"Khmer OS Battambang","Khmer OS",Arial,"Noto Sans Khmer","Noto Sans SC","Microsoft YaHei",sans-serif;font-size:13px;line-height:1.4;padding:8px 12px 12px;box-sizing:border-box}' +
     '.lf-paper table{width:100%;border-collapse:collapse;table-layout:fixed}.lf-paper td{border:1px solid #000;text-align:center;vertical-align:middle;padding:5px 6px;word-wrap:break-word}' +
     '.lf-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-height:84px}.lf-logo{width:26%;text-align:left}.lf-logo img{max-height:80px;max-width:100%}' +
     '.lf-ttl{width:44%;text-align:center}.lf-ttl .k{font-size:21px;font-weight:700}.lf-ttl .z{font-size:23px;font-weight:700;letter-spacing:2px}' +
-    '.lf-dn{width:30%;display:flex;justify-content:flex-end}.lf-dn div{border:1.5px solid #000;padding:7px 12px;font-size:14px;line-height:1.7;text-align:left;white-space:pre-line}' +
-    '.lf-k{font-weight:700}.lf-z{font-weight:700}.lf-v{color:#1e3a8a;font-weight:700;font-size:15px}' +
+    '.lf-dn{width:30%;display:flex;justify-content:flex-end}.lf-dn div{border:1.5px solid #000;padding:7px 12px;font-size:13px;line-height:1.7;text-align:left;white-space:pre-line}' +
+    '.lf-k{font-weight:700}.lf-z{font-weight:700}.lf-v{color:#1e3a8a;font-weight:700;font-size:13px}' +
     '.lf-box0{display:inline-block;width:11px;height:11px;border:1px solid #000;margin-right:3px;vertical-align:-1px;line-height:10px;font-size:11px;text-align:center;color:#1e3a8a;font-weight:900}' +
     '.lf-ch{display:inline-block;margin:2px 14px 2px 0;white-space:nowrap}.lf-line{text-align:left;padding:2px 4px}.lf-dots{display:inline-block;min-width:60px;border-bottom:1px dotted #000;text-align:center;padding:0 6px}' +
-    '.lf-sigc{height:92px;vertical-align:top!important}.lf-sigc .n{color:#1e3a8a;font-weight:700;font-size:14px;margin-top:6px}.lf-sigc .d{color:#1e3a8a;font-size:11px}.lf-sigc .x{color:#b91c1c;font-weight:700;font-size:12px}' +
+    '.lf-sigc{height:92px;vertical-align:top!important}.lf-sigc .n{color:#1e3a8a;font-weight:700;font-size:13px;margin-top:6px}.lf-sigc .d{color:#1e3a8a;font-size:13px}.lf-sigc .x{color:#b91c1c;font-weight:700;font-size:13px}' +
     '.lf-paper td.lf-line{text-align:left}' +
-    '.lf-note{font-size:11.5px;margin-top:8px;text-align:left}.lf-edit{font-size:11px;margin-top:4px;text-align:left;color:#334155}' +
+    '.lf-note{font-size:13px;margin-top:8px;text-align:left}.lf-edit{font-size:13px;margin-top:4px;text-align:left;color:#334155}' +
     '@media print{.lf-paper{width:100%!important;zoom:1!important}}';
 (function () { var st = document.createElement('style'); st.textContent = LF_CSS; document.head.appendChild(st); })();
 
@@ -1026,7 +1026,7 @@ function lfPaper(r) {
         '<table style="margin-top:-1px"><colgroup><col style="width:22%"><col style="width:20%"><col style="width:28%"><col style="width:15%"><col style="width:15%"></colgroup>' +
         '<tr><td style="height:58px">' + lfL('s_top') + '</td><td>' + lfL('s_admin') + '</td><td>' + lfL('s_hr') + '</td><td>' + lfL('s_head') + '</td><td>' + lfL('s_app') + '</td></tr>' +
         '<tr><td class="lf-sigc">' + topSig + '</td><td class="lf-sigc">' + lfSigCell(s.ad, s.ad && s.ad.instead ? '' : '') + '</td>' +
-        '<td class="lf-sigc"><div style="text-align:left;font-size:11.5px"><span class="lf-box0">' + (r.checked ? '&#10004;' : '') + '</span>' + lfE(lfTxt('s_checked').replace('\n', ' ')) + '</div>' + lfSigCell(s.hr) + '</td>' +
+        '<td class="lf-sigc"><div style="text-align:left;font-size:13px"><span class="lf-box0">' + (r.checked ? '&#10004;' : '') + '</span>' + lfE(lfTxt('s_checked').replace('\n', ' ')) + '</div>' + lfSigCell(s.hr) + '</td>' +
         '<td class="lf-sigc">' + lfSigCell(s.dept) + '</td><td class="lf-sigc">' + lfSigCell(s.emp) + '</td></tr></table>' +
         ed + '<div class="lf-note">' + lfE(lfTxt('note_km')) + '</div><div class="lf-note">' + lfE(lfTxt('note_zh')) + '</div></div>';
 }
