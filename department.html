@@ -834,6 +834,7 @@
              <input type="password" id="loginPass" placeholder="Enter password" required>
          </div>
          <button type="submit" class="login-btn">Log In</button>
+         <button type="button" class="login-btn" style="background:#e2e8f0; color:#123a5c;" onclick="loginBackToChooser()" data-i18n="returnToChooserOption">Return to Choose System</button>
          <div id="loginError" class="login-error">Invalid Username or Password!</div>
      </form>
  </div>
@@ -17970,6 +17971,14 @@ function dnSend(form) {
 function switchToDepartment() {
     closeAllMenus();
     if (typeof openDeptFrame === 'function') openDeptFrame(); else location.href = 'department.html?go=dept';
+}
+
+/* Back button on the HR / Administration login window: close it and return to Choose System */
+function loginBackToChooser() {
+    try { document.getElementById('loginForm').reset(); } catch (e) {}
+    var er = document.getElementById('loginError'); if (er) er.style.display = 'none';
+    document.getElementById('loginOverlay').style.display = 'none';
+    showChooserView();
 }
 
 /* v7.56: long tables show 20 rows per page with page numbers (1 2 3 ...).
