@@ -1285,6 +1285,7 @@ function dpTab(id) {
     curTab = id;
     document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.toggle('active', p.id === 'tab-' + id); });
     document.querySelectorAll('.dp-tab').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-tab') === id); });
+    if (id === 'req') dpReqBadgeRender();
     if (id === 'master') dpRenderMaster();
     if (id === 'dash') renderDash();
     if (id === 'cmp') renderCmp();
@@ -1555,8 +1556,17 @@ function renderReqs() {
         const o = rqOverall(r), k = esc(r.key), cancel = (r.status === 'pending' && r.hr.s === 'pending' && r.ad.s === 'pending') ? ' <button class="btn-delete" onclick="dpReqCancel(\'' + k + '\')" title="' + esc(t('dpReqCancel')) + '">&#10005;</button>' : '';
         return '<tr><td style="white-space:nowrap;"><button class="btn-view" onclick="dpReqShow(\'' + k + '\')" title="' + esc(t('dpReqView')) + '">🔍</button>' + cancel + '</td><td>' + esc(rqWhen(r.at)) + '</td><td>' + esc(rqTypeLabel(r.type)) + '</td><td>' + esc(rqSubject(r)) + '</td><td>' + rqHrCell(r) + '</td><td>' + sg(r.ad) + '</td><td style="color:' + col[o] + '; font-weight:bold;">' + esc(rqOverallText(r)) + '</td></tr>';
     }).join('') || '<tr><td colspan="7" style="text-align:center; color:#94a3b8;">' + esc(t('rqNone')) + '</td></tr>';
-    const n = reqs.filter(function (r) { return r.status === 'pending'; }).length, b = $('dpReqBadge');
-    b.style.display = n ? 'inline-block' : 'none'; b.textContent = n;
+    dpReqBadgeRender();
+}
+/* red number on Requests = requests Administration has just approved / rejected and the department has not looked at yet */
+function dpReqBadgeRender() {
+    let un = notifs.filter(function (x) { return !x.seen && x.kind === 'req'; });
+    if (un.length && curTab === 'req' && ctx && ctx.dept) {
+        const up = {}; un.forEach(function (x) { up['deptNotif/' + ctx.dept + '/' + x.key + '/seen'] = true; });
+        db.ref().update(up).catch(onErr); un = [];
+    }
+    const n = un.length, b = $('dpReqBadge');
+    if (b) { b.style.display = n ? 'inline-block' : 'none'; b.textContent = n; }
     const b2 = $('dpReqBadge2'); if (b2) { b2.style.display = n ? 'inline-block' : 'none'; b2.textContent = n; }
 }
 function dpReqOpen(type) {
@@ -1900,14 +1910,15 @@ function dpPurgeOwn() {
 /* bell: messages sent by HR / Administration (and the clear-old-data notices) */
 var bellUnseen = null;
 function dpBellRender() {
-    const un = notifs.filter(function (n) { return !n.seen && (n.kind === 'msg' || n.kind === 'req'); }).length, b = $('dpBellBadge');
+    const un = notifs.filter(function (n) { return !n.seen && n.kind === 'msg'; }).length, b = $('dpBellBadge');
     if (b) { b.textContent = un; b.style.display = un ? 'inline-block' : 'none'; }
     if (bellUnseen !== null && un > bellUnseen) showToast(true, t('dpBellNew'));
     bellUnseen = un;
+    dpReqBadgeRender();
 }
 function dpBellOpen() {
     const labels = { shift: 'clrFShift', makeup: 'clrFMakeup', leave: 'clrFLeave', att: 'clrFAtt' };
-    const list = notifs.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
+    const list = notifs.filter(function (n) { return n.kind !== 'req'; }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
     $('dpBellList').innerHTML = list.length ? list.map(function (n) {
         const head = '<div style="font-size:11px; color:#64748b;">' + esc(rqWhen(n.at)) + ' &middot; ' + esc(t('dpBellFrom')) + ' ' + esc(n.by || '') + '</div>';
         const body = n.kind === 'req' ? '<div style="font-weight:700; color:' + (n.result === 'approved' ? '#15803d' : '#dc2626') + ';">' + esc(t(n.result === 'approved' ? 'dpBellReqApproved' : 'dpBellReqRejected')) + '</div><div>' + esc(rqTypeLabel(n.type)) + ' &middot; ' + esc(n.subject || '') + '</div>'
@@ -1916,7 +1927,7 @@ function dpBellOpen() {
         return '<div style="padding:8px 10px; border-bottom:1px solid #e2e8f0; border-radius:6px;' + (n.seen ? '' : ' background:#ecfeff;') + '">' + head + body + '</div>';
     }).join('') : '<p style="color:#64748b;">' + esc(t('dpBellEmpty')) + '</p>';
     $('dpBellModal').style.display = 'flex';
-    const up = {}; notifs.forEach(function (n) { if (!n.seen) up['deptNotif/' + ctx.dept + '/' + n.key + '/seen'] = true; });
+    const up = {}; notifs.forEach(function (n) { if (!n.seen && n.kind !== 'req') up['deptNotif/' + ctx.dept + '/' + n.key + '/seen'] = true; });
     if (Object.keys(up).length) db.ref().update(up).catch(onErr);
 }
 
