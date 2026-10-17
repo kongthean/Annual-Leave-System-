@@ -626,7 +626,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.53</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.54</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2763,7 +2763,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.53
+     HR & Administration System Version 7.54
  </div>
 </div>
 
@@ -2864,6 +2864,7 @@
             <button type="submit" class="btn-submit" style="width:auto; padding:8px 16px; margin-top:0;" data-i18n="daAdd">Add Account</button>
         </form>
         <div class="table-responsive">
+            <input type="text" id="daSearch" oninput="daRender()" autocomplete="off" style="padding:7px 10px; border:1px solid #cbd5e1; border-radius:8px; margin-bottom:10px; min-width:260px;">
             <table class="master-tbl" id="daTable">
                 <thead><tr>
                     <th data-i18n="tblActions">Actions</th><th data-i18n="daColDept">Department</th><th data-i18n="acctColName">Name</th>
@@ -2889,7 +2890,7 @@
             <select id="rqFStatus" onchange="rqFilter()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
             <input type="text" id="rqFSearch" oninput="rqFilter()" placeholder="ID / Name" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;">
         </div>
-        <div class="table-responsive"><table class="master-tbl" id="rqTable"><thead><tr><th></th><th data-i18n="rqDate">Date</th><th data-i18n="dgDept">Department</th><th data-i18n="rqType">Type</th><th data-i18n="rqEmployee">Employee</th><th data-i18n="rqStatus">Status</th></tr></thead><tbody></tbody></table></div>
+        <div class="table-responsive"><table class="master-tbl" id="rqTable"><thead><tr><th></th><th data-i18n="rqDate">Date</th><th data-i18n="dgDept">Department</th><th data-i18n="rqType">Type</th><th data-i18n="rqEmployee">Employee</th><th data-i18n="rqSigHR">HR</th><th data-i18n="rqSigAdmin">Administration</th><th data-i18n="rqStatus">Status</th></tr></thead><tbody></tbody></table></div>
     </div>
 </div>
 <div class="modal" id="deptReqView" style="z-index:3000;">
@@ -2933,6 +2934,28 @@
          <button type="button" id="askOk" class="btn-submit" style="width:auto; padding:8px 30px; background:#123a5c;" data-i18n="btnOk">OK</button>
      </div>
  </div>
+</div>
+
+<!-- EDIT DEPARTMENT (v7.54) -->
+<div class="modal" id="dgEditModal">
+    <div class="modal-content" style="max-width: 720px;">
+        <div class="modal-header"><h4 data-i18n="dgEditTitle">Edit Department</h4><button class="modal-close" onclick="closeDgEdit()">&times;</button></div>
+        <div style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom:16px;">
+            <div class="form-group" style="flex:1; min-width:220px; margin-bottom:0;"><label data-i18n="dgEditName">Department name</label><input type="text" id="dgEditName"></div>
+            <button type="button" class="btn-submit" style="width:auto; padding:8px 16px; margin-top:0;" onclick="dgEditSaveName(this)" data-i18n="dgSaveName">Save name</button>
+        </div>
+        <h4 style="margin-bottom:8px; color:#334155;"><span data-i18n="dgGroupsIn">Groups in this department</span> (<span id="dgEditCount">0</span>)</h4>
+        <form style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom:10px;" onsubmit="event.preventDefault(); dgGroupAdd(this.querySelector('[type=submit]'));">
+            <div class="form-group" style="flex:1; min-width:220px; margin-bottom:0;"><label data-i18n="dgNewGroup">New group name</label><input type="text" id="dgEditNewGroup" autocomplete="off"></div>
+            <button type="submit" class="btn-submit" style="width:auto; padding:8px 16px; margin-top:0;" data-i18n="dgAddGroup">Add group</button>
+        </form>
+        <div id="dgEditAttachBox" style="display:none; gap:8px; align-items:flex-end; flex-wrap:wrap; margin-bottom:10px;">
+            <div class="form-group" style="flex:1; min-width:220px; margin-bottom:0;"><label data-i18n="dgAttachLabel">Add a group that has no department yet</label><select id="dgEditAttach"></select></div>
+            <button type="button" class="btn-submit" style="width:auto; padding:8px 16px; margin-top:0; background:#0d9488;" onclick="dgGroupAttach(this)" data-i18n="dgAttach">Add to this department</button>
+        </div>
+        <input type="text" id="dgEditSearch" oninput="dgEditRender()" autocomplete="off" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; margin-bottom:10px;">
+        <div class="table-responsive" style="max-height:44vh; overflow-y:auto;"><table class="master-tbl" id="dgEditTable"><thead><tr><th data-i18n="tblActions">Actions</th><th data-i18n="deptColName">Group Name</th><th data-i18n="deptColCount">Employees Assigned</th></tr></thead><tbody></tbody></table></div>
+    </div>
 </div>
 
 <!-- LOCK SYSTEM MODAL (v6.00) - lock Employee and/or HR System for maintenance -->
@@ -3779,7 +3802,7 @@
      if (document.getElementById('adminApp').style.display !== 'none') {
          if (inactivityTimer) clearTimeout(inactivityTimer);
          inactivityTimer = setTimeout(() => {
-             alert("Session expired due to 1 hour of inactivity. Please log in again.");
+             showToast(false, "Session expired due to 1 hour of inactivity. Please log in again.");
              lockSystem();
          }, INACTIVITY_TIMEOUT);
      }
@@ -4235,6 +4258,25 @@
         dcConfirm: "Reset the monthly numbers for: {names}? Prev Month Used will add Current Month Used; Current Month Used, Exceeded, Working Hours, Overtime and all leave types become 0. A backup is saved first.",
         dcAlready: "Already reset in {m}: {names}. Reset again anyway?",
         dcDone: "{n} department(s) reset.",
+        dgEditTitle: "Edit Department",
+        dgEditName: "Department name",
+        dgSaveName: "Save name",
+        dgNewGroup: "New group name",
+        dgAddGroup: "Add group",
+        dgGroupsIn: "Groups in this department",
+        dgGroupSearch: "Search group...",
+        dgNoGroupsIn: "No groups in this department yet. Type a name above to add the first one.",
+        dgAttachLabel: "Add a group that has no department yet",
+        dgAttach: "Add to this department",
+        dgRemoveFromDept: "Take out of this department",
+        dgUnassignedTitle: "Groups that are not in any department yet",
+        dgSearchPh: "Search...",
+        dgGroupBad: "A group name cannot contain these characters: . # $ [ ] /",
+        dgGroupAdded: "Group added to this department.",
+        dpCmpMatch: "Match all to HR (one click)",
+        dpCmpMatchConfirm: "Change {n} number(s) in your department book to the same as HR? The old numbers are saved in a backup.",
+        dpCmpMatched: "{n} number(s) changed to match HR.",
+        dpCmpNothing: "Nothing to change - all numbers already match HR.",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -5467,6 +5509,25 @@
         dcConfirm: "កំណត់លេខប្រចាំខែឡើងវិញសម្រាប់៖ {names}? \"ប្រើខែមុន\" នឹងបូកបន្ថែម \"ប្រើខែនេះ\"; ប្រើខែនេះ ហួសម៉ោង ម៉ោងធ្វើការ ម៉ោងបន្ថែម និងប្រភេទច្បាប់ទាំងអស់ទៅជា 0។ មានការបម្រុងទុកជាមុន។",
         dcAlready: "បានកំណត់ឡើងវិញក្នុង {m} រួចហើយ៖ {names}។ កំណត់ម្តងទៀតមែនទេ?",
         dcDone: "បានកំណត់ឡើងវិញ {n} នាយកដ្ឋាន។",
+        dgEditTitle: "កែនាយកដ្ឋាន",
+        dgEditName: "ឈ្មោះនាយកដ្ឋាន",
+        dgSaveName: "រក្សាទុកឈ្មោះ",
+        dgNewGroup: "ឈ្មោះក្រុមថ្មី",
+        dgAddGroup: "បន្ថែមក្រុម",
+        dgGroupsIn: "ក្រុមក្នុងនាយកដ្ឋាននេះ",
+        dgGroupSearch: "ស្វែងរកក្រុម...",
+        dgNoGroupsIn: "មិនទាន់មានក្រុមក្នុងនាយកដ្ឋាននេះទេ។ វាយឈ្មោះខាងលើដើម្បីបន្ថែមក្រុមដំបូង។",
+        dgAttachLabel: "បន្ថែមក្រុមដែលមិនទាន់មាននាយកដ្ឋាន",
+        dgAttach: "បន្ថែមទៅនាយកដ្ឋាននេះ",
+        dgRemoveFromDept: "ដកចេញពីនាយកដ្ឋាននេះ",
+        dgUnassignedTitle: "ក្រុមដែលមិនទាន់នៅក្នុងនាយកដ្ឋានណាមួយ",
+        dgSearchPh: "ស្វែងរក...",
+        dgGroupBad: "ឈ្មោះក្រុមមិនអាចមានតួអក្សរទាំងនេះ៖ . # $ [ ] /",
+        dgGroupAdded: "បានបន្ថែមក្រុមទៅនាយកដ្ឋាននេះ។",
+        dpCmpMatch: "កែទាំងអស់ឲ្យដូច HR (ចុចម្តង)",
+        dpCmpMatchConfirm: "ប្តូរលេខ {n} ក្នុងសៀវភៅនាយកដ្ឋានឲ្យដូច HR? លេខចាស់ត្រូវបានរក្សាទុកក្នុងការបម្រុងទុក។",
+        dpCmpMatched: "បានប្តូរលេខ {n} ឲ្យដូច HR។",
+        dpCmpNothing: "គ្មានអ្វីត្រូវប្តូរ - លេខទាំងអស់ដូច HR រួចហើយ។",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -6661,6 +6722,25 @@
         dcConfirm: "重置以下部门的月度数字：{names}？“上月已用”将加上“本月已用”；本月已用、超出、工时、加班及所有假期归零。重置前会先备份。",
         dcAlready: "{m} 已重置：{names}。仍要再次重置吗？",
         dcDone: "已重置 {n} 个部门。",
+        dgEditTitle: "编辑部门",
+        dgEditName: "部门名称",
+        dgSaveName: "保存名称",
+        dgNewGroup: "新小组名称",
+        dgAddGroup: "添加小组",
+        dgGroupsIn: "本部门的小组",
+        dgGroupSearch: "搜索小组...",
+        dgNoGroupsIn: "本部门暂无小组，请在上方输入名称添加。",
+        dgAttachLabel: "添加尚未分配部门的小组",
+        dgAttach: "加入本部门",
+        dgRemoveFromDept: "移出本部门",
+        dgUnassignedTitle: "尚未分配到部门的小组",
+        dgSearchPh: "搜索...",
+        dgGroupBad: "小组名称不能包含这些字符： . # $ [ ] /",
+        dgGroupAdded: "已将小组添加到本部门。",
+        dpCmpMatch: "一键全部改为与人事一致",
+        dpCmpMatchConfirm: "将本部门账簿中的 {n} 个数字改为与人事一致？旧数字会保存备份。",
+        dpCmpMatched: "已将 {n} 个数字改为与人事一致。",
+        dpCmpNothing: "无需更改——所有数字已与人事一致。",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -8314,11 +8394,11 @@ function addAnnouncement(btnEl) {
     }).catch(() => showToast(false)));
 }
 
-function editAnnouncement(firebaseKey, btnEl) {
+async function editAnnouncement(firebaseKey, btnEl) {
     if ((sessionStorage.getItem('loggedInRole') || 'admin') !== 'admin') return;
     const current = announcements.find(a => a.firebaseKey === firebaseKey);
     if (!current) { showToast(false); return; }
-    const updated = prompt(t('announcementEditPrompt'), current.text || '');
+    const updated = await askText(t('announcementEditPrompt'), current.text || '');
     if (updated === null) return; /* user cancelled the prompt - not a failure, stays silent */
     const trimmed = updated.trim();
     if (!trimmed) { showToast(false); return; }
@@ -9129,8 +9209,8 @@ async function deleteAnnouncement(firebaseKey, btnEl) {
      }
  }
 
- function editDepartment(firebaseKey, oldName) {
-     const newName = prompt(t('deptRenamePrompt'), oldName);
+ async function editDepartment(firebaseKey, oldName) {
+     const newName = await askText(t('deptRenamePrompt'), oldName);
      if (newName === null) return;
      const trimmed = newName.trim();
      if (!trimmed || trimmed === oldName) return;
@@ -11544,8 +11624,8 @@ function renderPrintingView() {
     }).join('');
 }
 
-function createPrintFolder() {
-    const name = prompt(t('printFolderNamePrompt'));
+async function createPrintFolder() {
+    const name = await askText(t('printFolderNamePrompt'), '');
     if (!name || !name.trim()) return;
     const siblings = getPrintChildren(currentPrintFolderId);
     const maxOrder = siblings.reduce((m, c) => Math.max(m, c.order || 0), 0);
@@ -11648,11 +11728,11 @@ function handlePrintFileReplace(inputEl) {
     inputEl.value = '';
 }
 
-function renamePrintItem(type, key) {
+async function renamePrintItem(type, key) {
     const collection = type === 'folder' ? printFolders : printFiles;
     const item = collection.find(c => c.firebaseKey === key);
     if (!item) return;
-    const newName = prompt(t('printRenamePrompt'), item.name || '');
+    const newName = await askText(t('printRenamePrompt'), item.name || '');
     if (!newName || !newName.trim() || newName.trim() === item.name) return;
     const path = (type === 'folder' ? 'printFolders/' : 'printFiles/') + key;
     db.ref(path).update({ name: newName.trim() }).then(() => showToast(true, t('printToastRenamed'))).catch(() => showToast(false));
@@ -16857,16 +16937,17 @@ function dgRenderDeptTab() {
         const form = tab.querySelector('form'); tab.insertBefore(box, form);
         box.innerHTML = '<h3 data-i18n="dgOrgTitle" style="margin-top:6px;">Departments</h3><p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="dgOrgSub"></p>' +
             '<form style="display:flex; gap:10px; align-items:flex-end; max-width:520px; margin-bottom:12px;" onsubmit="event.preventDefault(); dgAddOrg(this.querySelector(\'[type=submit]\'));"><div class="form-group" style="flex:1; margin-bottom:0;"><label data-i18n="dgNewOrg">New Department Name</label><input type="text" id="dgNewOrgName" placeholder="e.g. Production"></div><button type="submit" class="btn-submit" style="width:auto; padding:8px 16px; margin-top:0;" data-i18n="btnAddDept">Add</button></form>' +
-            '<div class="table-responsive"><table class="master-tbl" id="dgOrgTable"><thead><tr><th data-i18n="tblActions">Actions</th><th data-i18n="dgDept">Department</th><th data-i18n="dgOrgColGroups">Groups</th><th data-i18n="dgOrgColEmps">Employees</th></tr></thead><tbody></tbody></table></div>' +
+            '<input type="text" id="dgOrgSearch" oninput="dgRenderDeptTab()" style="padding:7px 10px; border:1px solid #cbd5e1; border-radius:8px; margin-bottom:10px; min-width:240px;">' + '<div class="table-responsive"><table class="master-tbl" id="dgOrgTable"><thead><tr><th data-i18n="tblActions">Actions</th><th data-i18n="dgDept">Department</th><th data-i18n="dgOrgColGroups">Groups</th><th data-i18n="dgOrgColEmps">Employees</th></tr></thead><tbody></tbody></table></div>' +
             '<h3 data-i18n="dgGroupsTitle" style="margin-top:22px;">Groups</h3>';
         box.querySelectorAll('[data-i18n]').forEach(function (el) { el.innerHTML = t(el.getAttribute('data-i18n')); });
     }
     const tb = box.querySelector('#dgOrgTable tbody'); if (!tb) return;
     box.querySelector('[data-i18n="dgOrgSub"]').textContent = t('dgOrgSub');
-    tb.innerHTML = dgOrg.map(function (o, i) {
+    const sq = ((document.getElementById('dgOrgSearch') || {}).value || '').trim().toLowerCase(); const sInp = document.getElementById('dgOrgSearch'); if (sInp) sInp.placeholder = t('dgSearchPh');
+    tb.innerHTML = dgOrg.map(function (o, i) { return { o: o, i: i }; }).filter(function (x) { if (!sq) return true; return x.o.name.toLowerCase().indexOf(sq) >= 0 || (typeof departments !== 'undefined' ? departments : []).some(function (g) { return g.parent === x.o.name && String(g.name).toLowerCase().indexOf(sq) >= 0; }); }).map(function (x) { const o = x.o, i = x.i;
         const gs = (typeof departments !== 'undefined' ? departments : []).filter(function (g) { return g.parent === o.name; });
         const emps = (typeof employees !== 'undefined' ? employees : []).filter(function (e) { return gs.some(function (g) { return g.name === (e.department || ''); }); }).length;
-        return '<tr><td><button class="btn-edit" onclick="dgRenameOrg(' + i + ')" title="Edit">' + ICON_EDIT + '</button> <button class="btn-delete" onclick="dgDeleteOrg(' + i + ', this)" title="Delete">' + ICON_DELETE + '</button></td><td><b>' + dgEsc(o.name) + '</b></td><td>' + gs.length + '</td><td>' + emps + '</td></tr>';
+        return '<tr><td><button class="btn-edit" onclick="dgOpenEdit(' + i + ')" title="Edit">' + ICON_EDIT + '</button> <button class="btn-delete" onclick="dgDeleteOrg(' + i + ', this)" title="Delete">' + ICON_DELETE + '</button></td><td><b>' + dgEsc(o.name) + '</b></td><td>' + gs.length + '</td><td>' + emps + '</td></tr>';
     }).join('') || '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">-</td></tr>';
 }
 function renderDeptTable() {
@@ -16914,6 +16995,78 @@ async function dgDeleteOrg(i, btnEl) {
 }
 /* the install runs when the page is ready, and again whenever the department data changes */
 try { dgInstall(); } catch (e) {}
+
+/* ================= v7.54: EDIT DEPARTMENT (Administration / HR) =================
+   The Edit button of a department opens one window where you can rename it, search its groups, add a NEW group straight into it,
+   take a group out of it, rename / delete a group, or add a group that has no department yet. */
+var dgEditKey = '';
+function dgEditOrg() { return dgOrg.find(function (o) { return o.key === dgEditKey; }); }
+function dgOpenEdit(i) {
+    const o = dgOrg[i]; if (!o) return;
+    dgEditKey = o.key;
+    document.getElementById('dgEditName').value = o.name; document.getElementById('dgEditSearch').value = ''; document.getElementById('dgEditNewGroup').value = '';
+    dgEditRender(); document.getElementById('dgEditModal').style.display = 'flex';
+}
+function closeDgEdit() { document.getElementById('dgEditModal').style.display = 'none'; dgEditKey = ''; }
+function dgEditRender() {
+    const o = dgEditOrg(); if (!o) { if (dgEditKey) closeDgEdit(); return; }
+    const q = (document.getElementById('dgEditSearch').value || '').trim().toLowerCase();
+    const all = departments.filter(function (g) { return g.parent === o.name; });
+    const gs = all.filter(function (g) { return !q || String(g.name).toLowerCase().indexOf(q) >= 0; });
+    document.getElementById('dgEditCount').textContent = all.length;
+    document.querySelector('#dgEditTable tbody').innerHTML = gs.map(function (g) {
+        const n = employees.filter(function (e) { return e.department === g.name; }).length, k = dgEsc(g.firebaseKey), nm = String(g.name).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        return '<tr><td style="white-space:nowrap;"><button class="btn-edit" onclick="editDepartment(\'' + k + '\', \'' + dgEsc(nm) + '\')" title="Edit">' + ICON_EDIT + '</button> <button class="btn-view" onclick="dgGroupOut(\'' + k + '\')" title="' + dgEsc(t('dgRemoveFromDept')) + '">&#8856;</button> <button class="btn-delete" onclick="deleteDepartment(\'' + k + '\', ' + n + ', this)" title="Delete">' + ICON_DELETE + '</button></td><td><b>' + dgEsc(g.name) + '</b></td><td>' + n + '</td></tr>';
+    }).join('') || '<tr><td colspan="3" style="text-align:center; color:#94a3b8;">' + dgEsc(all.length ? t('rqNone') : t('dgNoGroupsIn')) + '</td></tr>';
+    const un = departments.filter(function (g) { return !g.parent; }), sel = document.getElementById('dgEditAttach'), cur = sel.value;
+    sel.innerHTML = un.map(function (g) { return '<option value="' + dgEsc(g.firebaseKey) + '">' + dgEsc(g.name) + '</option>'; }).join(''); if (cur) sel.value = cur;
+    document.getElementById('dgEditAttachBox').style.display = un.length ? 'flex' : 'none';
+    document.getElementById('dgEditSearch').placeholder = t('dgGroupSearch');
+}
+async function dgEditSaveName(btnEl) {
+    const o = dgEditOrg(); if (!o) return;
+    const name = document.getElementById('dgEditName').value.trim(); if (!name || name === o.name) return;
+    if (dgOrg.some(function (x) { return x.key !== o.key && x.name.toLowerCase() === name.toLowerCase(); })) { showToast(false, t('dgOrgDup')); return; }
+    const up = {}; up['departments/_org/' + o.key + '/name'] = name;
+    departments.forEach(function (g) { if (g.parent === o.name) up['departments/' + g.firebaseKey + '/parent'] = name; });
+    const old = o.name;
+    withBusyButton(btnEl, function () { return db.ref().update(up).then(function () { if (dgSel.dept === old) { dgSel.dept = name; dgSave(); } showToast(true); try { logActivity('Department renamed', 'Department', name, old + ' > ' + name, ''); } catch (e) {} }).catch(function () { showToast(false); }); });
+}
+function dgGroupAdd(btnEl) {
+    const o = dgEditOrg(); if (!o) return;
+    const inp = document.getElementById('dgEditNewGroup'), name = inp.value.trim();
+    if (!name) { showToast(false); return; }
+    if (!/^[^.#$\[\]\/]+$/.test(name)) { showToast(false, t('dgGroupBad')); return; }
+    if (departments.some(function (d) { return d.name.toLowerCase() === name.toLowerCase(); })) { showToast(false, t('deptDuplicateMsg')); return; }
+    withBusyButton(btnEl, function () { return db.ref('departments').push({ name: name, parent: o.name }).then(function () { inp.value = ''; showToast(true, t('dgGroupAdded')); try { logActivity('Group added to department', 'Department', o.name, name, ''); } catch (e) {} }).catch(function () { showToast(false); }); });
+}
+function dgGroupOut(key) {
+    const g = departments.find(function (x) { return x.firebaseKey === key; }); if (!g) return;
+    db.ref('departments/' + key + '/parent').set(null).then(function () { showToast(true); try { logActivity('Group taken out of department', 'Department', g.name, g.name, ''); } catch (e) {} }).catch(function () { showToast(false); });
+}
+function dgGroupAttach(btnEl) {
+    const o = dgEditOrg(); if (!o) return;
+    const key = document.getElementById('dgEditAttach').value, g = departments.find(function (x) { return x.firebaseKey === key; }); if (!g) return;
+    withBusyButton(btnEl, function () { return db.ref('departments/' + key + '/parent').set(o.name).then(function () { showToast(true); try { logActivity('Group assigned to department', 'Department', g.name, g.name, o.name); } catch (e) {} }).catch(function () { showToast(false); }); });
+}
+/* the Departments page: the old "Groups" list now only shows groups that have no department yet; search for departments */
+(function () {
+    const od = renderDeptTable;
+    renderDeptTable = function () {
+        od();
+        try {
+            const tab = document.getElementById('tab-dept'); if (!tab) return;
+            const f = tab.querySelector(':scope > form'); if (f) f.style.display = 'none';
+            const un = departments.filter(function (g) { return !g.parent; });
+            const tbody = document.querySelector('#deptTable tbody');
+            tbody.innerHTML = Array.prototype.filter.call(tbody.querySelectorAll('tr'), function (tr) { const sel = tr.querySelector('select'); return sel && !sel.value; }).map(function (tr) { return tr.outerHTML; }).join('');
+            const wrap = document.getElementById('deptTable').closest('.table-responsive'); if (wrap) wrap.style.display = un.length ? '' : 'none';
+            const h = document.querySelector('#dgOrgBox [data-i18n="dgGroupsTitle"], #dgOrgBox [data-i18n="dgUnassignedTitle"]');
+            if (h) { h.setAttribute('data-i18n', 'dgUnassignedTitle'); h.textContent = t('dgUnassignedTitle'); h.style.display = un.length ? '' : 'none'; }
+            if (document.getElementById('dgEditModal').style.display === 'flex') dgEditRender();
+        } catch (e) { console.error(e); }
+    };
+})();
 
 /* ================= v7.49: DEPARTMENT ACCOUNTS (Administration) =================
    Administration creates login accounts for each Department (many accounts per department, all with the same power).
@@ -16979,7 +17132,9 @@ function daRender() {
     const warn = document.getElementById('daWarn');
     if (warn) { warn.style.display = bad.length ? 'block' : 'none'; warn.textContent = bad.length ? fillTemplate(t('daBadGroup'), { names: bad.join(', ') }) : ''; }
     if (!dgOrg.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">' + dgEsc(t('daNoDept')) + '</td></tr>'; return; }
-    const rows = daAccs.slice().sort(function (a, b) { return (daOrgName(a.dept) + a.username).localeCompare(daOrgName(b.dept) + b.username); });
+    const sInp = document.getElementById('daSearch'); if (sInp) sInp.placeholder = t('dgSearchPh');
+    const dq = ((sInp || {}).value || '').trim().toLowerCase();
+    const rows = daAccs.filter(function (a) { return !dq || (daOrgName(a.dept) + ' ' + (a.name || '') + ' ' + (a.username || '')).toLowerCase().indexOf(dq) >= 0; }).sort(function (a, b) { return (daOrgName(a.dept) + a.username).localeCompare(daOrgName(b.dept) + b.username); });
     tb.innerHTML = rows.map(function (a) {
         const k = dgEsc(a.firebaseKey);
         return '<tr><td style="white-space:nowrap;">' +
@@ -17189,6 +17344,12 @@ function rqSig(title, o, extra) {
     else body = '<div class="rq-stamp rq-wait">&#9203; ' + rqE(t('rqPending')) + '</div>';
     return '<div class="rq-sig"><b>' + rqE(title) + '</b>' + body + '</div>';
 }
+function rqSigCell(o) {
+    o = o || { s: 'pending' };
+    if (o.s === 'approved') return '<span style="color:#15803d; font-weight:600;">&#10004; ' + rqE(o.by || '') + '</span><div class="rq-small">' + rqE(rqWhen(o.at)) + '</div>';
+    if (o.s === 'rejected') return '<span style="color:#dc2626; font-weight:600;">&#10008; ' + rqE(o.by || '') + '</span><div class="rq-small">' + rqE(rqWhen(o.at)) + '</div>';
+    return '<span style="color:#94a3b8;">&#9203; ' + rqE(t('rqPending')) + '</span>';
+}
 function rqDocHtml(r, key) {
     let what = '';
     if (r.type === 'edit') {
@@ -17259,8 +17420,8 @@ function rqRender() {
     tb.innerHTML = rows.map(function (r) {
         const o = rqOverall(r);
         return '<tr><td><button class="btn-view" onclick="rqShow(\'' + dgEsc(r.key) + '\')" title="View">' + ICON_VIEW + '</button></td><td>' + dgEsc(rqWhen(r.at)) + '</td><td><b>' + dgEsc(r.deptName) + '</b></td><td>' + dgEsc(rqTypeLabel(r.type)) + '</td>' +
-            '<td>' + dgEsc(r.type === 'group' ? r.newGroup : (r.empId + ' - ' + r.empName)) + '</td><td style="color:' + col[o] + '; font-weight:bold;">' + dgEsc(rqOverallText(r)) + '</td></tr>';
-    }).join('') || '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">' + dgEsc(t('rqNone')) + '</td></tr>';
+             '<td>' + dgEsc(r.type === 'group' ? r.newGroup : (r.empId + ' - ' + r.empName)) + '</td><td>' + rqSigCell(r.hr) + '</td><td>' + rqSigCell(r.ad) + '</td><td style="color:' + col[o] + '; font-weight:bold;">' + dgEsc(rqOverallText(r)) + '</td></tr>';
+    }).join('') || '<tr><td colspan="8" style="text-align:center; color:#94a3b8;">' + dgEsc(t('rqNone')) + '</td></tr>';
 }
 function rqShow(key) {
     const r = rqList.find(function (x) { return x.key === key; }); if (!r) return;
