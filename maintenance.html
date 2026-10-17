@@ -117,6 +117,7 @@
         <button class="btn red" id="allClosed" data-i="allClosed"></button>
       </div>
       <div class="count" id="count"></div>
+      <div class="seg" id="grpSeg" style="flex-wrap:wrap; margin:10px 0;"></div>
       <div id="list"></div>
       <div class="row" style="margin-top:16px;"><button class="btn" id="saveBtn" data-i="save"></button><span class="note" id="dirtyNote"></span></div>
     </section>
@@ -286,6 +287,7 @@ async function openPanel() {
 function readForm() { ['en', 'km', 'zh'].forEach(l => form.message[l] = $('m_' + l).value); }
 function counts() { const c = { open: 0, closed: 0, btn: 0 }; SERVICES.forEach(x => { c[form.services[x.id] === 'closed' ? 'closed' : 'open']++; if (form.services[x.id] !== 'closed') c.btn += closedN(x.id); }); return c; }
 const expanded = {};
+let curGrp = 'admin';
 function closedN(sid) { const a = form.actions && form.actions[sid]; return a ? Object.keys(a).filter(k => a[k] === 'closed').length : 0; }
 function markDirty() { dirty = true; renderPanel(); }
 function renderPanel() {
@@ -298,7 +300,9 @@ function renderPanel() {
   renderAccts(); renderScope();
   document.querySelectorAll('#alignSeg button').forEach(b => { b.className = (form.align === b.dataset.a) ? 'sel-open' : ''; b.onclick = () => { readForm(); form.align = b.dataset.a; markDirty(); }; });
   const list = $('list'); list.innerHTML = '';
-  ['admin', 'emp', 'dept'].forEach(g => {
+  const gs = $('grpSeg'); gs.innerHTML = '';
+  ['admin', 'emp', 'dept'].forEach(g => { const b = document.createElement('button'); b.type = 'button'; b.textContent = (GROUPS[g][lang] || GROUPS[g].en) + ' (' + SERVICES.filter(x => x.group === g).length + ')'; if (g === curGrp) b.className = 'sel-open'; b.onclick = () => { readForm(); curGrp = g; renderPanel(); }; gs.appendChild(b); });
+  [curGrp].forEach(g => {
     const items = SERVICES.filter(x => x.group === g); if (!items.length) return;
     const h = document.createElement('div'); h.className = 'grp'; h.textContent = GROUPS[g][lang] || GROUPS[g].en; list.appendChild(h);
     items.forEach(x => {
@@ -346,8 +350,8 @@ function renderPanel() {
   $('saveBtn').disabled = !dirty;
 }
 ['m_en', 'm_km', 'm_zh'].forEach(id => $(id).addEventListener('input', () => { if (!form) return; readForm(); dirty = true; $('saveBtn').disabled = false; $('dirtyNote').textContent = T('unsaved'); }));
-$('allOpen').onclick = () => { readForm(); SERVICES.forEach(x => form.services[x.id] = 'open'); form.actions = {}; dirty = true; renderPanel(); };
-$('allClosed').onclick = () => { readForm(); SERVICES.forEach(x => form.services[x.id] = 'closed'); dirty = true; renderPanel(); };
+$('allOpen').onclick = () => { readForm(); SERVICES.filter(x => x.group === curGrp).forEach(x => { form.services[x.id] = 'open'; if (form.actions) delete form.actions[x.id]; }); dirty = true; renderPanel(); };
+$('allClosed').onclick = () => { readForm(); SERVICES.filter(x => x.group === curGrp).forEach(x => form.services[x.id] = 'closed'); dirty = true; renderPanel(); };
 function toast(msg, bad) { const t = $('toast'); t.textContent = msg; t.className = 'toast' + (bad ? ' bad' : ''); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.add('hide'), 3500); }
 function cleanActions() { const o = {}; ACTIONS.forEach(a => { if (form.actions && form.actions[a.s] && form.actions[a.s][a.id] === 'closed' && form.services[a.s] !== 'closed') { o[a.s] = o[a.s] || {}; o[a.s][a.id] = 'closed'; } }); return o; }
 async function writeState(on) {
