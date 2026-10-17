@@ -626,7 +626,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.54</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.56</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1187,6 +1187,10 @@
          </button>
          <button class="quick-btn" style="background:linear-gradient(135deg,#0e7490,#164e63);" onclick="openDateCtl()">
              <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="quick-btn-label" data-i18n="navDateCtl">Dept Data Reset</span>
+         </button>
+         <button class="quick-btn slate" style="position:relative;" onclick="openClr()">
+             <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span><span class="quick-btn-label" data-i18n="navClr">Clear Old Data</span>
+             <span id="clrBadge" class="notif-badge" style="display:none; top:2px; right:2px;">0</span>
          </button>
          <button class="quick-btn brown admin-only" onclick="openRecentlyDeletedModal()">
              <span class="quick-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-9.36L1 10"/></svg></span><span class="quick-btn-label" data-i18n="navRecentlyDeleted">Recently Deleted</span>
@@ -2095,7 +2099,7 @@
 
  <!-- TAB 9: SHIFT ROSTER (v5.00) -->
  <div id="tab-shift" class="tab-panel">
-     <h3 data-i18n="shiftTitle">Shift Roster</h3>
+     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;"><h3 data-i18n="shiftTitle">Shift Roster</h3><button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:7px 14px; font-size:12px; flex-direction:row; gap:6px;" onclick="openClr('shift')" data-i18n="navClr">Clear Old Data</button></div>
      <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="shiftSub">Assign daily shift types to employees</p>
 
      <!-- SHIFT CHECK (v6.18) - a lookup, not an assignment form: enter an Employee ID + date
@@ -2537,7 +2541,7 @@
 
 <!-- TAB: MAKEUP ATTENDANCE RECORD (补卡记录) -->
 <div id="tab-makeup" class="tab-panel">
-    <h3 data-i18n="makeupTitle">Makeup Attendance Record</h3>
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;"><h3 data-i18n="makeupTitle">Makeup Attendance Record</h3><button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:7px 14px; font-size:12px; flex-direction:row; gap:6px;" onclick="openClr('makeup')" data-i18n="navClr">Clear Old Data</button></div>
     <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="makeupSub">Record makeup punches for employees who forgot to check in/out, lost their card, or need another correction.</p>
 
     <form id="makeupForm" style="max-width:960px; margin:10px auto 0 auto;" onsubmit="event.preventDefault(); saveMakeupRecord(this.querySelector('[type=submit]'));">
@@ -2611,7 +2615,7 @@
      new dated attendanceHistory log, v6.44+, started fresh from this update - workHours/otHours
      entered before this update have no date on record so cannot appear here). -->
 <div id="tab-attcal" class="tab-panel">
-    <h3 data-i18n="attCalTitle">Leave &amp; Attendance Calendar</h3>
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;"><h3 data-i18n="attCalTitle">Leave &amp; Attendance Calendar</h3><button type="button" class="quick-btn slate" style="width:auto; min-width:auto; min-height:auto; padding:7px 14px; font-size:12px; flex-direction:row; gap:6px;" onclick="openClr('cal')" data-i18n="navClr">Clear Old Data</button></div>
     <p style="font-size:11px; color:#64748b; margin-bottom:10px;" data-i18n="attCalSub">Pick Leave Calendar or Attendance Calendar, choose a month, and search by Employee ID or Name.</p>
 
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
@@ -2763,7 +2767,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.54
+     HR & Administration System Version 7.56
  </div>
 </div>
 
@@ -2955,6 +2959,29 @@
         </div>
         <input type="text" id="dgEditSearch" oninput="dgEditRender()" autocomplete="off" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; margin-bottom:10px;">
         <div class="table-responsive" style="max-height:44vh; overflow-y:auto;"><table class="master-tbl" id="dgEditTable"><thead><tr><th data-i18n="tblActions">Actions</th><th data-i18n="deptColName">Group Name</th><th data-i18n="deptColCount">Employees Assigned</th></tr></thead><tbody></tbody></table></div>
+    </div>
+</div>
+
+<!-- CLEAR OLD DATA (v7.55) -->
+<div class="modal" id="clrModal">
+    <div class="modal-content" style="max-width: 720px; max-height:92vh; overflow-y:auto;">
+        <div class="modal-header"><h4 data-i18n="navClr">Clear Old Data</h4><button class="modal-close" onclick="closeClr()">&times;</button></div>
+        <p style="font-size:12px; color:#64748b; margin-bottom:12px;" data-i18n="clrSub"></p>
+        <h4 style="margin-bottom:6px; color:#334155;" data-i18n="clrReqTitle">Requests from departments</h4>
+        <div id="clrReq" style="margin-bottom:16px;"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+            <div class="form-group" style="flex:1; min-width:220px; margin-bottom:0;"><label data-i18n="clrSource">Where</label><select id="clrSrc" onchange="clrRefresh()"></select></div>
+            <div class="form-group" style="flex:1; min-width:180px; margin-bottom:0;"><label data-i18n="clrMonth">Month</label><select id="clrMonth" onchange="clrCounts()"></select></div>
+        </div>
+        <div style="margin-bottom:8px;"><label style="font-weight:600; font-size:12px; color:#334155; display:block; margin-bottom:4px;" data-i18n="clrFeatures">What to remove</label>
+            <label style="display:inline-flex; gap:6px; align-items:center; margin-right:14px;"><input type="checkbox" class="clr-f" value="shift" style="width:auto;"> <span data-i18n="clrFShift">Shift Roster records</span></label>
+            <label style="display:inline-flex; gap:6px; align-items:center; margin-right:14px;"><input type="checkbox" class="clr-f" value="makeup" style="width:auto;"> <span data-i18n="clrFMakeup">Makeup Attendance records</span></label>
+            <label style="display:inline-flex; gap:6px; align-items:center; margin-right:14px;"><input type="checkbox" class="clr-f" value="leave" style="width:auto;"> <span data-i18n="clrFLeave">Leave Calendar records</span></label>
+            <label style="display:inline-flex; gap:6px; align-items:center;"><input type="checkbox" class="clr-f" value="att" style="width:auto;"> <span data-i18n="clrFAtt">Attendance Calendar records</span></label>
+        </div>
+        <div id="clrInfo" style="font-size:12px; color:#475569; margin-bottom:8px;"></div>
+        <label style="display:flex; gap:6px; align-items:center; font-size:12px; margin-bottom:12px;"><input type="checkbox" id="clrCopy" checked style="width:auto;"> <span data-i18n="clrCopy">Download a copy of the removed records first (recommended)</span></label>
+        <button type="button" class="btn-submit" style="background:#dc2626;" onclick="clrRun(this)" data-i18n="clrRun">Remove now</button>
     </div>
 </div>
 
@@ -4277,6 +4304,41 @@
         dpCmpMatchConfirm: "Change {n} number(s) in your department book to the same as HR? The old numbers are saved in a backup.",
         dpCmpMatched: "{n} number(s) changed to match HR.",
         dpCmpNothing: "Nothing to change - all numbers already match HR.",
+        navClr: "Clear Old Data",
+        clrSub: "Remove records of old months to free space in the database. Master Sheet totals and balances are NOT changed.",
+        clrSource: "Where",
+        clrHR: "HR master data (all employees)",
+        clrFeatures: "What to remove",
+        clrFShift: "Shift Roster records",
+        clrFMakeup: "Makeup Attendance records",
+        clrFLeave: "Leave Calendar records",
+        clrFAtt: "Attendance Calendar records",
+        clrMonth: "Month",
+        clrAllOld: "All old months (before this month)",
+        clrNoOld: "No old records found.",
+        clrCounts: "Found: {s} shift, {m} makeup, {l} leave, {a} attendance record(s).",
+        clrCopy: "Download a copy of the removed records first (recommended)",
+        clrRun: "Remove now",
+        clrPickFeat: "Please choose what to remove.",
+        clrNothing: "Nothing to remove for this choice.",
+        clrConfirm: "Remove {what} of {month} from {where}? {n} record(s) will be deleted. This cannot be undone.",
+        clrDone: "Removed {n} record(s).",
+        clrReqTitle: "Requests from departments",
+        clrReqNone: "No requests from departments.",
+        clrRemoveNow: "Remove now",
+        clrDismiss: "Dismiss",
+        clrBy: "requested by",
+        dpClrBtn: "Clear old month",
+        dpClrTitle: "Clear old month",
+        dpClrSub: "Choose an old month. Administration will remove these records to free space, and you will get a notice when it is done.",
+        dpClrSend: "Send request",
+        dpClrSent: "Request sent to Administration.",
+        dpClrDup: "This request is already waiting for Administration.",
+        dpClrWaiting: "Waiting for Administration",
+        dpNotifTitle: "Notice from Administration",
+        dpNotifLine: "{when}: removed {what} of {month}.",
+        dpNotifOk: "OK, I understand",
+        pgShowing: "Showing {a}-{b} of {c}",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -5528,6 +5590,41 @@
         dpCmpMatchConfirm: "ប្តូរលេខ {n} ក្នុងសៀវភៅនាយកដ្ឋានឲ្យដូច HR? លេខចាស់ត្រូវបានរក្សាទុកក្នុងការបម្រុងទុក។",
         dpCmpMatched: "បានប្តូរលេខ {n} ឲ្យដូច HR។",
         dpCmpNothing: "គ្មានអ្វីត្រូវប្តូរ - លេខទាំងអស់ដូច HR រួចហើយ។",
+        navClr: "សម្អាតទិន្នន័យចាស់",
+        clrSub: "លុបកំណត់ត្រាខែចាស់ដើម្បីបង្កើនទំហំទំនេរក្នុងមូលដ្ឋានទិន្នន័យ។ ចំនួនសរុប និងសមតុល្យក្នុងបញ្ជីចម្បងមិនផ្លាស់ប្តូរទេ។",
+        clrSource: "ទីតាំង",
+        clrHR: "ទិន្នន័យ HR ចម្បង (បុគ្គលិកទាំងអស់)",
+        clrFeatures: "អ្វីដែលត្រូវលុប",
+        clrFShift: "កំណត់ត្រាកាលវិភាគវេន",
+        clrFMakeup: "កំណត់ត្រាបំពេញវត្តមាន",
+        clrFLeave: "កំណត់ត្រាប្រតិទិនច្បាប់",
+        clrFAtt: "កំណត់ត្រាប្រតិទិនវត្តមាន",
+        clrMonth: "ខែ",
+        clrAllOld: "ខែចាស់ទាំងអស់ (មុនខែនេះ)",
+        clrNoOld: "រកមិនឃើញកំណត់ត្រាចាស់ទេ។",
+        clrCounts: "រកឃើញ៖ វេន {s}, បំពេញវត្តមាន {m}, ច្បាប់ {l}, វត្តមាន {a}។",
+        clrCopy: "ទាញយកច្បាប់ចម្លងនៃកំណត់ត្រាដែលលុបជាមុន (ណែនាំ)",
+        clrRun: "លុបឥឡូវនេះ",
+        clrPickFeat: "សូមជ្រើសរើសអ្វីដែលត្រូវលុប។",
+        clrNothing: "គ្មានអ្វីត្រូវលុបសម្រាប់ជម្រើសនេះទេ។",
+        clrConfirm: "លុប {what} នៃ {month} ពី {where}? កំណត់ត្រា {n} នឹងត្រូវលុប។ មិនអាចត្រឡប់វិញបានទេ។",
+        clrDone: "បានលុបកំណត់ត្រា {n}។",
+        clrReqTitle: "សំណើពីនាយកដ្ឋាន",
+        clrReqNone: "គ្មានសំណើពីនាយកដ្ឋានទេ។",
+        clrRemoveNow: "លុបឥឡូវនេះ",
+        clrDismiss: "បដិសេធ",
+        clrBy: "ស្នើដោយ",
+        dpClrBtn: "សម្អាតខែចាស់",
+        dpClrTitle: "សម្អាតខែចាស់",
+        dpClrSub: "ជ្រើសរើសខែចាស់។ រដ្ឋបាលនឹងលុបកំណត់ត្រាទាំងនេះដើម្បីបង្កើនទំហំទំនេរ ហើយអ្នកនឹងទទួលបានការជូនដំណឹងពេលរួចរាល់។",
+        dpClrSend: "ផ្ញើសំណើ",
+        dpClrSent: "បានផ្ញើសំណើទៅរដ្ឋបាល។",
+        dpClrDup: "សំណើនេះកំពុងរង់ចាំរដ្ឋបាលរួចហើយ។",
+        dpClrWaiting: "កំពុងរង់ចាំរដ្ឋបាល",
+        dpNotifTitle: "ការជូនដំណឹងពីរដ្ឋបាល",
+        dpNotifLine: "{when}៖ បានលុប {what} នៃ {month}។",
+        dpNotifOk: "យល់ព្រម ខ្ញុំយល់ហើយ",
+        pgShowing: "បង្ហាញ {a}-{b} នៃ {c}",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -6741,6 +6838,41 @@
         dpCmpMatchConfirm: "将本部门账簿中的 {n} 个数字改为与人事一致？旧数字会保存备份。",
         dpCmpMatched: "已将 {n} 个数字改为与人事一致。",
         dpCmpNothing: "无需更改——所有数字已与人事一致。",
+        navClr: "清理旧数据",
+        clrSub: "删除旧月份的记录以释放数据库空间。主控表的合计和余额不会改变。",
+        clrSource: "范围",
+        clrHR: "人事主数据（全部员工）",
+        clrFeatures: "要删除的内容",
+        clrFShift: "排班记录",
+        clrFMakeup: "补卡记录",
+        clrFLeave: "请假日历记录",
+        clrFAtt: "考勤日历记录",
+        clrMonth: "月份",
+        clrAllOld: "所有旧月份（本月之前）",
+        clrNoOld: "没有找到旧记录。",
+        clrCounts: "找到：排班 {s}、补卡 {m}、请假 {l}、考勤 {a} 条记录。",
+        clrCopy: "先下载被删除记录的副本（推荐）",
+        clrRun: "立即删除",
+        clrPickFeat: "请选择要删除的内容。",
+        clrNothing: "此选择没有可删除的内容。",
+        clrConfirm: "从 {where} 删除 {month} 的{what}？将删除 {n} 条记录，无法恢复。",
+        clrDone: "已删除 {n} 条记录。",
+        clrReqTitle: "部门的清理申请",
+        clrReqNone: "没有部门申请。",
+        clrRemoveNow: "立即删除",
+        clrDismiss: "忽略",
+        clrBy: "申请人",
+        dpClrBtn: "清理旧月份",
+        dpClrTitle: "清理旧月份",
+        dpClrSub: "请选择旧月份。管理部门会删除这些记录以释放空间，完成后您会收到通知。",
+        dpClrSend: "发送申请",
+        dpClrSent: "申请已发送给管理部门。",
+        dpClrDup: "此申请已在等待管理部门处理。",
+        dpClrWaiting: "等待管理部门",
+        dpNotifTitle: "管理部门通知",
+        dpNotifLine: "{when}：已删除 {month} 的{what}。",
+        dpNotifOk: "好的，我知道了",
+        pgShowing: "显示第 {a}-{b} 条，共 {c} 条",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -17346,9 +17478,9 @@ function rqSig(title, o, extra) {
 }
 function rqSigCell(o) {
     o = o || { s: 'pending' };
-    if (o.s === 'approved') return '<span style="color:#15803d; font-weight:600;">&#10004; ' + rqE(o.by || '') + '</span><div class="rq-small">' + rqE(rqWhen(o.at)) + '</div>';
-    if (o.s === 'rejected') return '<span style="color:#dc2626; font-weight:600;">&#10008; ' + rqE(o.by || '') + '</span><div class="rq-small">' + rqE(rqWhen(o.at)) + '</div>';
-    return '<span style="color:#94a3b8;">&#9203; ' + rqE(t('rqPending')) + '</span>';
+    if (o.s === 'approved') return '<span style="color:#15803d; font-weight:600;">' + rqE(o.by || '') + '</span><div class="rq-small">' + rqE(t('rqApproved')) + ' &middot; ' + rqE(rqWhen(o.at)) + '</div>';
+    if (o.s === 'rejected') return '<span style="color:#dc2626; font-weight:600;">' + rqE(o.by || '') + '</span><div class="rq-small">' + rqE(t('rqRejected')) + ' &middot; ' + rqE(rqWhen(o.at)) + '</div>';
+    return '<span style="color:#94a3b8;">' + rqE(t('rqPending')) + '</span>';
 }
 function rqDocHtml(r, key) {
     let what = '';
@@ -17600,6 +17732,10 @@ async function dcRun(btnEl) {
 async function dcResetDept(k, by, now, month) {
     const book = (await db.ref('deptData/' + k + '/book').once('value')).val() || {};
     const up = {};
+    try {
+        const ob = (await db.ref('deptBackups/' + k).once('value')).val() || {}, ks = Object.keys(ob).sort(function (x, y) { return (ob[y].at || 0) - (ob[x].at || 0); });
+        ks.slice(2).forEach(function (bk) { if ((ob[bk].at || 0) < now - 30 * 86400000) up['deptBackups/' + k + '/' + bk] = null; });
+    } catch (e) {}
     if (Object.keys(book).length) up['deptBackups/' + k + '/' + db.ref('deptBackups/' + k).push().key] = { at: now, by: by, month: month, book: book };
     Object.keys(book).forEach(function (ek) {
         const b = book[ek], p = 'deptData/' + k + '/book/' + ek + '/';
@@ -17620,6 +17756,189 @@ async function dcRestore(k, bk) {
         openDateCtl();
     } catch (e) { showToast(false); }
 }
+
+/* ================= v7.55: CLEAR OLD DATA (HR + Administration) =================
+   One click to remove the records of an old month to free database space:
+   Shift Roster, Makeup Attendance, Leave Calendar (leaveHistory) and Attendance Calendar (attendanceHistory) - for the HR master
+   or for one department's own book. Master Sheet totals and balances are never changed (only the dated logs are removed).
+   Departments can only REQUEST this (deptClear); HR / Administration remove it and the department gets a notice (deptNotif).
+   Also: resolved department requests / investigations / clear-requests / notices are removed automatically after 30 days. */
+var clrList = [], clrSrc = 'hr', clrData = null, clrPurged = false;
+var CLR_FEATS = [['shift', 'clrFShift'], ['makeup', 'clrFMakeup'], ['leave', 'clrFLeave'], ['att', 'clrFAtt']];
+var CLR_PATH = { shift: 'shifts', makeup: 'makeupRecords', leave: 'leaveHistory', att: 'attendanceHistory' };
+var CLR_DPATH = { shift: 'shifts', makeup: 'makeup', leave: 'leaveHistory', att: 'attendanceHistory' };
+var CLR_DAYS30 = 30 * 86400000;
+(function () { try { db.ref('deptClear').on('value', function (s) { const v = s.val() || {}; clrList = Object.keys(v).map(function (k) { return Object.assign({ key: k }, v[k]); }); clrBadge(); if (document.getElementById('clrModal').style.display === 'flex') clrRenderReq(); clrPurge(); }, function () {}); } catch (e) {} })();
+function clrBadge() { const el = document.getElementById('clrBadge'); if (!el) return; const n = clrList.filter(function (c) { return c.status === 'pending'; }).length; el.style.display = n ? 'inline-block' : 'none'; el.innerText = n; }
+function clrWho() { return sessionStorage.getItem('loggedInAccountName') || rqRole(); }
+function clrMonthNow() { return dcMonth(); }
+function clrFeatLabel(f) { return t(CLR_FEATS.filter(function (x) { return x[0] === f; })[0][1]); }
+function clrSrcName(src) { return src === 'hr' ? t('clrHR') : daOrgName(src); }
+/* all records of one source: {feature: [{path, month, rec}]} */
+async function clrLoad(src) {
+    const out = { shift: [], makeup: [], leave: [], att: [] };
+    const put = function (f, base, obj) { Object.keys(obj || {}).forEach(function (k) { const r = obj[k] || {}; out[f].push({ path: base + '/' + k, month: String(r.date || '').slice(0, 7), rec: r }); }); };
+    for (const x of CLR_FEATS) {
+        const base = src === 'hr' ? CLR_PATH[x[0]] : 'deptData/' + src + '/' + CLR_DPATH[x[0]];
+        put(x[0], base, (await db.ref(base).once('value')).val());
+    }
+    return out;
+}
+function openClr(feat) {
+    clrSrc = 'hr';
+    const sel = document.getElementById('clrSrc');
+    sel.innerHTML = '<option value="hr">' + dgEsc(t('clrHR')) + '</option>' + dgOrg.map(function (o) { return '<option value="' + dgEsc(o.key) + '">' + dgEsc(o.name) + '</option>'; }).join('');
+    sel.value = 'hr';
+    document.querySelectorAll('.clr-f').forEach(function (c) { c.checked = !feat || c.value === feat || (feat === 'cal' && (c.value === 'leave' || c.value === 'att')); });
+    document.getElementById('clrCopy').checked = true;
+    document.getElementById('clrModal').style.display = 'flex';
+    clrRenderReq(); clrRefresh();
+}
+function closeClr() { document.getElementById('clrModal').style.display = 'none'; }
+function clrFeatsChecked() { return Array.prototype.map.call(document.querySelectorAll('.clr-f:checked'), function (c) { return c.value; }); }
+async function clrRefresh() {
+    clrSrc = document.getElementById('clrSrc').value;
+    const info = document.getElementById('clrInfo'); info.textContent = t('mtLoading');
+    clrData = await clrLoad(clrSrc);
+    const cur = clrMonthNow(), months = {};
+    CLR_FEATS.forEach(function (x) { clrData[x[0]].forEach(function (it) { if (it.month && it.month < cur) months[it.month] = 1; }); });
+    const list = Object.keys(months).sort().reverse(), sel = document.getElementById('clrMonth'), keep = sel.value;
+    sel.innerHTML = (list.length ? '<option value="ALL">' + dgEsc(t('clrAllOld')) + '</option>' : '') + list.map(function (m) { return '<option value="' + m + '">' + m + '</option>'; }).join('');
+    if (keep && (keep === 'ALL' || months[keep])) sel.value = keep;
+    clrCounts();
+}
+function clrPick(f) { const m = document.getElementById('clrMonth').value, cur = clrMonthNow(); if (!m) return []; return clrData[f].filter(function (it) { return it.month && it.month < cur && (m === 'ALL' || it.month === m); }); }
+function clrCounts() {
+    const info = document.getElementById('clrInfo'), m = document.getElementById('clrMonth').value;
+    if (!m) { info.textContent = t('clrNoOld'); return; }
+    info.textContent = fillTemplate(t('clrCounts'), { s: clrPick('shift').length, m: clrPick('makeup').length, l: clrPick('leave').length, a: clrPick('att').length });
+}
+function clrRenderReq() {
+    const box = document.getElementById('clrReq'), list = clrList.filter(function (c) { return c.status === 'pending'; }).sort(function (a, b) { return (a.at || 0) - (b.at || 0); });
+    box.innerHTML = list.map(function (c) {
+        const k = dgEsc(c.key), what = (c.features || []).map(clrFeatLabel).join(', ');
+        return '<div style="border:1px solid #e2e8f0; border-radius:8px; padding:8px 10px; margin-bottom:6px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;"><div style="flex:1; min-width:200px;"><b>' + dgEsc(c.deptName) + '</b> - ' + dgEsc(what) + ' - <b>' + dgEsc(c.month === 'ALL' ? t('clrAllOld') : c.month) + '</b><div style="font-size:11px; color:#64748b;">' + dgEsc(t('clrBy')) + ' ' + dgEsc(c.by || '') + ' &middot; ' + dgEsc(rqWhen(c.at)) + '</div></div>' +
+            '<button class="btn-delete" style="padding:5px 10px;" onclick="clrRemoveReq(\'' + k + '\', this)">' + dgEsc(t('clrRemoveNow')) + '</button> <button class="btn-view" style="padding:5px 10px;" onclick="clrDismissReq(\'' + k + '\')">' + dgEsc(t('clrDismiss')) + '</button></div>';
+    }).join('') || '<p style="color:#94a3b8; font-size:12px;">' + dgEsc(t('clrReqNone')) + '</p>';
+}
+async function clrDownload(name, obj) {
+    try { const blob = new Blob([JSON.stringify(obj, null, 1)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500); } catch (e) {}
+}
+/* the actual removal; returns counts {shift, makeup, leave, att} */
+async function clrDoRemove(src, feats, month, copy) {
+    const data = src === clrSrc && clrData && !arguments[4] ? clrData : await clrLoad(src), cur = clrMonthNow(), counts = {}, all = [], copyObj = {};
+    feats.forEach(function (f) {
+        const items = data[f].filter(function (it) { return it.month && it.month < cur && (month === 'ALL' || it.month === month); });
+        counts[f] = items.length; copyObj[f] = items.map(function (it) { return Object.assign({ _path: it.path }, it.rec); }); items.forEach(function (it) { all.push(it.path); });
+    });
+    const total = all.length; if (!total) return { total: 0, counts: counts };
+    if (copy) await clrDownload('Removed_' + String(clrSrcName(src)).replace(/[^\wក-៿一-龥-]+/g, '_') + '_' + month + '_' + Date.now() + '.json', copyObj);
+    for (let i = 0; i < all.length; i += 400) { const up = {}; all.slice(i, i + 400).forEach(function (p) { up[p] = null; }); await db.ref().update(up); }
+    return { total: total, counts: counts };
+}
+async function clrNotify(dept, feats, month, counts) {
+    const id = db.ref('deptNotif/' + dept).push().key;
+    await db.ref('deptNotif/' + dept + '/' + id).set({ at: Date.now(), by: clrWho(), month: month, features: feats, counts: counts || {}, seen: false });
+}
+async function clrRun(btnEl) {
+    const feats = clrFeatsChecked(); if (!feats.length) { showToast(false, t('clrPickFeat')); return; }
+    const month = document.getElementById('clrMonth').value; if (!month) { showToast(false, t('clrNoOld')); return; }
+    const n = feats.reduce(function (a, f) { return a + clrPick(f).length; }, 0); if (!n) { showToast(false, t('clrNothing')); return; }
+    const src = clrSrc, what = feats.map(clrFeatLabel).join(', '), mname = month === 'ALL' ? t('clrAllOld') : month;
+    if (!(await showConfirm(fillTemplate(t('clrConfirm'), { what: what, month: mname, where: clrSrcName(src), n: n })))) return;
+    withBusyButton(btnEl, async function () {
+        try {
+            const r = await clrDoRemove(src, feats, month, document.getElementById('clrCopy').checked);
+            if (src !== 'hr') await clrNotify(src, feats, month, r.counts);
+            try { logActivity('Clear old data', 'Department', clrSrcName(src), what + ' ' + month, String(r.total)); } catch (e) {}
+            showToast(true, fillTemplate(t('clrDone'), { n: r.total })); clrRefresh();
+        } catch (e) { console.error(e); showToast(false); }
+    });
+}
+async function clrRemoveReq(key, btnEl) {
+    const c = clrList.find(function (x) { return x.key === key; }); if (!c || c.status !== 'pending') return;
+    const feats = c.features || [], what = feats.map(clrFeatLabel).join(', '), mname = c.month === 'ALL' ? t('clrAllOld') : c.month;
+    if (!(await showConfirm(fillTemplate(t('clrConfirm'), { what: what, month: mname, where: c.deptName, n: '?' })))) return;
+    withBusyButton(btnEl, async function () {
+        try {
+            const r = await clrDoRemove(c.dept, feats, c.month, document.getElementById('clrCopy').checked, true);
+            await db.ref('deptClear/' + key).update({ status: 'done', doneBy: clrWho(), doneAt: Date.now(), removed: r.total });
+            await clrNotify(c.dept, feats, c.month, r.counts);
+            try { logActivity('Clear old data (department request)', 'Department', c.deptName, what + ' ' + c.month, String(r.total)); } catch (e) {}
+            showToast(true, fillTemplate(t('clrDone'), { n: r.total }));
+        } catch (e) { console.error(e); showToast(false); }
+    });
+}
+function clrDismissReq(key) { db.ref('deptClear/' + key).update({ status: 'dismissed', doneBy: clrWho(), doneAt: Date.now() }).then(function () { showToast(true); }).catch(function () { showToast(false); }); }
+/* resolved department requests / investigations / clear-requests / notices disappear 30 days after they were resolved */
+function clrPurge() {
+    if (clrPurged) return; clrPurged = true;
+    setTimeout(async function () {
+        try {
+            const cut = Date.now() - CLR_DAYS30, up = {};
+            (typeof rqList !== 'undefined' ? rqList : []).forEach(function (r) { if (r.status === 'approved' || r.status === 'rejected') { const at = Math.max((r.hr && r.hr.at) || 0, (r.ad && r.ad.at) || 0, r.appliedAt || 0); if (at && at < cut) up['deptRequests/' + r.key] = null; } });
+            (typeof ivList !== 'undefined' ? ivList : []).forEach(function (v) { if ((v.status === 'closed' || v.status === 'hrFixed') && v.resp && v.resp.at && v.resp.at < cut) up['deptInvest/' + v.key] = null; });
+            clrList.forEach(function (c) { if ((c.status === 'done' || c.status === 'dismissed') && c.doneAt && c.doneAt < cut) up['deptClear/' + c.key] = null; });
+            const n = (await db.ref('deptNotif').once('value')).val() || {};
+            Object.keys(n).forEach(function (d) { Object.keys(n[d] || {}).forEach(function (i) { if ((n[d][i].at || 0) < cut) up['deptNotif/' + d + '/' + i] = null; }); });
+            if (Object.keys(up).length) await db.ref().update(up);
+        } catch (e) {}
+    }, 9000);
+}
+
+/* v7.56: long tables show 20 rows per page with page numbers (1 2 3 ...).
+   Works on top of the existing renderers and search boxes: rows hidden by a search stay hidden,
+   and the pager only hides the rows outside the current page with a CSS class (no data is touched). */
+var PG_SIZE = 20, PG_IDS = ["dashSummaryTable", "masterTable", "monthlyReportTable", "monthlyALTable", "employeeTable", "shiftCalendarTable", "attCalTable", "msTable", "makeupTable", "deletedTable", "accountsTable", "daTable", "rqTable", "ivTable", "auditLogTableBody", "deviceLogTable", "sentNotifTable", "myRequestsTable", "empShiftCalTable", "deptTable", "dgOrgTable", "faLiveTable", "faEnrolledTable"], pgPage = {}, pgSeen = {}, pgTimer = {};
+(function () {
+    var st = document.createElement('style');
+    st.textContent = '.pg-hide{display:none !important;} @media print{.pg-hide{display:table-row !important;}} .pg-bar{display:flex; flex-wrap:wrap; gap:6px; align-items:center; justify-content:space-between; margin:10px 0;} .pg-bar button{min-width:34px; padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; color:#334155; font-weight:600; cursor:pointer;} .pg-bar button.on{background:#0f766e; border-color:#0f766e; color:#fff;} .pg-bar button:disabled{opacity:.45; cursor:default;}';
+    document.head.appendChild(st);
+})();
+function pgBody(id) { var el = document.getElementById(id); if (!el) return null; return el.tagName === 'TBODY' ? el : el.querySelector('tbody'); }
+function pgGo(id, n) { pgPage[id] = n; pgApply(id); }
+function pgApply(id) {
+    var tb = pgBody(id); if (!tb) return;
+    var rows = Array.prototype.filter.call(tb.children, function (r) { return r.tagName === 'TR' && r.style.display !== 'none'; });
+    Array.prototype.forEach.call(tb.children, function (r) { if (r.classList) r.classList.remove('pg-hide'); });
+    var total = rows.length, pages = Math.max(1, Math.ceil(total / PG_SIZE)), cur = pgPage[id] || 1;
+    if (cur > pages) cur = pgPage[id] = pages;
+    var from = (cur - 1) * PG_SIZE;
+    var barId = 'pg_' + id, bar = document.getElementById(barId), table = tb.closest('table');
+    if (total > PG_SIZE) rows.forEach(function (r, i) { if (i < from || i >= from + PG_SIZE) r.classList.add('pg-hide'); });
+    if (total <= PG_SIZE) { if (bar) bar.innerHTML = ''; return; }
+    if (!bar) {
+        bar = document.createElement('div'); bar.id = barId; bar.className = 'pg-bar';
+        var holder = table.closest('.table-responsive') || table;
+        holder.insertAdjacentElement('afterend', bar);
+    }
+    var list = [], i;
+    for (i = 1; i <= pages; i++) { if (i === 1 || i === pages || Math.abs(i - cur) <= 2) list.push(i); else if (list[list.length - 1] !== '..') list.push('..'); }
+    var h = '<button type="button"' + (cur === 1 ? ' disabled' : ' onclick="pgGo(\'' + id + '\',' + (cur - 1) + ')"') + '>&lsaquo;</button>';
+    list.forEach(function (p) { h += p === '..' ? '<span style="padding:0 4px; color:#64748b;">&hellip;</span>' : '<button type="button"' + (p === cur ? ' class="on"' : '') + ' onclick="pgGo(\'' + id + '\',' + p + ')">' + p + '</button>'; });
+    h += '<button type="button"' + (cur === pages ? ' disabled' : ' onclick="pgGo(\'' + id + '\',' + (cur + 1) + ')"') + '>&rsaquo;</button>';
+    var info = t('pgShowing').replace('{a}', from + 1).replace('{b}', Math.min(total, from + PG_SIZE)).replace('{c}', total);
+    bar.innerHTML = '<span style="font-size:12px; color:#64748b;">' + info + '</span><div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">' + h + '</div>';
+}
+function pgSoon(id) { clearTimeout(pgTimer[id]); pgTimer[id] = setTimeout(function () { pgApply(id); }, 30); }
+function pgAttach(id) {
+    var tb = pgBody(id); if (!tb || pgSeen[id] === tb) return;
+    pgSeen[id] = tb;
+    new MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i++) { var m = ms[i]; if (m.type === 'childList' ? m.target === tb : (m.target.parentNode === tb)) { pgSoon(id); return; } }
+    }).observe(tb, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+    pgApply(id);
+}
+function pgScan() { PG_IDS.forEach(pgAttach); }
+/* typing in a search box or changing a month/department box (outside the tables) goes back to page 1 */
+['input', 'change'].forEach(function (ev) {
+    document.addEventListener(ev, function (e) {
+        var el = e.target; if (!el || !el.closest || el.closest('table')) return;
+        PG_IDS.forEach(function (id) { pgPage[id] = 1; if (pgSeen[id]) pgSoon(id); });
+    });
+});
+setInterval(pgScan, 1500);
+document.addEventListener('DOMContentLoaded', pgScan);
 
 
  /* v6.96: leave notifications are stored with a language-neutral kind + params, and turned into
