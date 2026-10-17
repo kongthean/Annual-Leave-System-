@@ -4347,6 +4347,8 @@
         composeDeptPick: "Choose departments",
         composeDeptAll: "All departments",
         composeDeptNone: "Choose at least one department.",
+        rqTypeOther: "Other request",
+        rqSubject: "Subject",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -4376,6 +4378,8 @@
         mtA_dept_assign: "Assign group to department",
         mtA_emp_shift_check: "Check my shift",
         mtA_notif_reminders: "Dashboard reminders: add / edit / delete",
+        mtA_mse_detail: "View details",
+        mtA_deptacc_toggle: "Enable / disable account",
         /* v7.24 */
         ecStaffActive: "Administration/HR is signed in on this browser. Please log out of it first, then log in as an employee.",
         ecSummary: "Employee secure login ready: {a} of {b} active employees",
@@ -5637,6 +5641,8 @@
         composeDeptPick: "ជ្រើសរើសនាយកដ្ឋាន",
         composeDeptAll: "នាយកដ្ឋានទាំងអស់",
         composeDeptNone: "សូមជ្រើសរើសនាយកដ្ឋានយ៉ាងហោចណាស់មួយ។",
+        rqTypeOther: "សំណើផ្សេងៗ",
+        rqSubject: "ប្រធានបទ",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -5666,6 +5672,8 @@
         mtA_dept_assign: "កំណត់ក្រុមទៅនាយកដ្ឋាន",
         mtA_emp_shift_check: "ពិនិត្យវេនរបស់ខ្ញុំ",
         mtA_notif_reminders: "ការរំលឹកលើ Dashboard៖ បន្ថែម/កែ/លុប",
+        mtA_mse_detail: "មើលព័ត៌មានលម្អិត",
+        mtA_deptacc_toggle: "បើក/បិទគណនី",
         /* v7.24 */
         ecStaffActive: "Administration/HR កំពុងចូលក្នុងកម្មវិធីរុករកនេះ។ សូមចាកចេញជាមុនសិន រួចចូលជាបុគ្គលិក។",
         ecSummary: "ការចូលសុវត្ថិភាពរបស់បុគ្គលិកត្រៀមរួច៖ {a} ក្នុងចំណោម {b} នាក់ដែលកំពុងធ្វើការ",
@@ -6889,6 +6897,8 @@
         composeDeptPick: "选择部门",
         composeDeptAll: "全部部门",
         composeDeptNone: "请至少选择一个部门。",
+        rqTypeOther: "其他申请",
+        rqSubject: "主题",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -6918,6 +6928,8 @@
         mtA_dept_assign: "将小组分配到部门",
         mtA_emp_shift_check: "查看我的班次",
         mtA_notif_reminders: "仪表板提醒：添加/编辑/删除",
+        mtA_mse_detail: "查看详情",
+        mtA_deptacc_toggle: "启用/停用账户",
         /* v7.24 */
         ecStaffActive: "此浏览器已登录管理/HR 系统。请先退出，再以员工身份登录。",
         ecSummary: "员工安全登录已就绪：{a} / {b} 名在职员工",
@@ -16460,6 +16472,7 @@ const MT_SVC = [
     ['backup', 'navBackupNow', 'fn', 'openBackupLangModal'], ['notif', 'navManageNotif', 'fn', 'openManageNotifModal'],
     ['audit', 'navAuditLog', 'tab', 'tab-auditlog'], ['cert', 'navCertificates', 'tab', 'tab-certificates'], ['convert', 'navConvertPhoto', 'fn', 'openConvertPhotoModal'],
     ['faceatt', 'navFaceAtt', 'tab', 'tab-faceatt'], ['export', 'navExport', 'tab', 'tab-export'],
+    ['mse', 'navMSE', 'tab', 'tab-mse'], ['deptreq', 'navDeptReq', 'fn', 'openDeptReqModal'], ['deptiv', 'navDeptIv', 'fn', 'openDeptIvModal'], ['datectl', 'navDateCtl', 'fn', 'openDateCtl'], ['clr', 'navClr', 'fn', 'openClr'], ['deptacc', 'navDeptAcc', 'fn', 'openDeptAccModal'],
     ['search', 'globalSearchTitle', 'fn', 'openGlobalSearch'], ['bell', 'notifTitle', 'fn', 'toggleNotifPanel'],
     ['emp_request', 'empMenuRequest', 'emp', 'request'], ['emp_shift', 'empMenuCheckShift', 'emp', 'shift']
 ];
@@ -16468,7 +16481,15 @@ let mtData = null, mtModal = null, mtReady = false;
 function mtUnknown() { return !mtReady && (sessionStorage.getItem('isLoggedIn') === 'true' || !!sessionStorage.getItem('empLoggedInId')); }
 function mtSvc(id) { for (const s of MT_SVC) if (s[0] === id) return s; return null; }
 function mtSvcOfTab(tabId) { for (const s of MT_SVC) if (s[2] === 'tab' && s[3] === tabId) return s[0]; return null; }
-function mtIsOn() { return !!(mtData && mtData.on); }
+/* v7.57: the maintenance can be limited to some systems (scope: admin / hr / emp / dept). No scope saved = everybody, as before. */
+function mtScopeOk() {
+    const sc = mtData && mtData.scope; if (!sc) return true;
+    if (sessionStorage.getItem('isLoggedIn') === 'true') return sc[sessionStorage.getItem('loggedInRole') === 'hr' ? 'hr' : 'admin'] === true;
+    if (sessionStorage.getItem('empLoggedInId')) return sc.emp === true;
+    return !!(sc.admin || sc.hr || sc.emp);
+}
+function mtIsOn() { return !!(mtData && mtData.on && mtScopeOk()); }
+(function () { let k0 = null; setInterval(function () { const k = [sessionStorage.getItem('isLoggedIn'), sessionStorage.getItem('loggedInRole'), sessionStorage.getItem('empLoggedInId')].join('|'); if (k !== k0) { if (k0 !== null) { try { mtRefresh(); } catch (e) {} } k0 = k; } }, 700); })();
 /* only the Administration accounts ticked on the maintenance page keep full access (e.g. one account for testing) */
 function mtBypass() {
     if (!(mtData && mtData.bypassKeys) || sessionStorage.getItem('isLoggedIn') !== 'true' || sessionStorage.getItem('loggedInRole') !== 'admin') return false;
@@ -16562,8 +16583,8 @@ function mtCurrentSvc() {
 }
 /* per-button control: inside an open service, single buttons can be closed on the maintenance page (faded; a click shows the popup).
    MT_ACT = [service, action, matcher, label key]; matcher "fn:name" (onclick/onchange calls name(...)), "fn:name|text" (and the call contains text), "i:key" (button with data-i18n=key) */
-const MT_ACT = [["master", "export", "fn:openExportLangModal|'master'", "btnExport"], ["master", "leavereport", "fn:openLeaveReportModal", "btnExportLeaveReport"], ["master", "settings", "fn:mlOpen", "mlBtnText"], ["master", "alcheck", "fn:mlStOpen", "mlStBtnText"], ["master", "view", "fn:openMasterDetailModal", "mtA_master_view"], ["master", "edit", "fn:openEditModal", "mtA_master_edit"], ["master", "delete", "fn:confirmDelete", "mtA_master_delete"], ["monthly", "applyall", "fn:applyBulkWorkingHours", "btnApplyAll"], ["monthly", "export", "fn:openExportLangModal|'monthly'", "btnExport"], ["monthly", "view", "fn:openMonthlyDetailModal", "mtA_monthly_view"], ["monthly", "edit", "fn:openEditModal", "mtA_monthly_edit"], ["monthly", "delete", "fn:confirmDelete", "mtA_monthly_delete"], ["monthly", "hours", "fn:updateEmpMonthlyField", "mtA_monthly_hours"], ["monthlyal", "renewal", "fn:openRenewalExportModal", "btnExportRenewal"], ["monthlyal", "export", "fn:openExportLangModal|'monthlyal'", "btnExport"], ["employee", "export", "fn:openExportLangModal|'employee'", "btnExport"], ["employee", "view", "fn:openEmployeeDetailModal", "mtA_employee_view"], ["employee", "edit", "fn:openEditModal", "mtA_employee_edit"], ["employee", "delete", "fn:confirmDelete", "mtA_employee_delete"], ["leave", "submit", "i:btnSubmitLeave", "btnSubmitLeave"], ["att", "load", "i:btnLoadDept", "btnLoadDept"], ["att", "submit", "fn:saveAttendanceDeptBatch", "btnSubmitAtt"], ["query", "check", "i:btnCheckDetails", "btnCheckDetails"], ["add", "bulkimport", "fn:openBulkImportModal", "btnBulkImport"], ["add", "bulkupdate", "fn:openBulkUpdateModal", "btnBulkUpdate"], ["add", "save", "i:btnSaveEmp", "btnSaveEmp"], ["shift", "check", "i:btnCheckShift", "btnCheckShift"], ["shift", "export", "fn:openExportLangModal|'shift'", "btnExport"], ["shift", "editcell", "fn:updateShiftCell", "mtA_shift_editcell"], ["makeup", "submit", "i:btnSubmitMakeup", "btnSubmitMakeup"], ["attcal", "pdf", "fn:exportAttCalToPDF", "btnExportPDF"], ["attcal", "editday", "fn:openAttCalEditModal", "mtA_attcal_editday"], ["dept", "add", "i:btnAddDept", "btnAddDept"], ["dept", "edit", "fn:editDepartment", "mtA_dept_edit"], ["dept", "delete", "fn:deleteDepartment", "mtA_dept_delete"], ["audit", "export", "fn:openExportLangModal|'auditlog'", "btnExport"], ["cert", "generate", "fn:generateCertificate", "btnGenerateCertificate"], ["faceatt", "copylink", "fn:faCopyScanLink", "faCopyLink"], ["faceatt", "camera", "fn:faStartCamera", "faStartCamera"], ["faceatt", "capture", "fn:faCaptureAngle", "faCapture"], ["faceatt", "clear", "fn:faClearCaptures", "faClearCaptures"], ["faceatt", "saveenroll", "fn:faSaveEnrollment", "faSaveEnroll"], ["faceatt", "delenroll", "fn:faDeleteEnrollment", "mtA_faceatt_delenroll"], ["faceatt", "saverules", "fn:faSaveRules", "faSaveRules"], ["faceatt", "resetrules", "fn:faResetRules", "faResetRules"], ["faceatt", "manualsave", "fn:faSaveManual", "faManualSave"], ["faceatt", "preview", "fn:faPreviewReport", "faPreview"], ["faceatt", "export", "fn:faExportReport", "faExportBtn"], ["export", "preview", "fn:xcPreview", "faPreview"], ["export", "export", "fn:xcExport", "faExportBtn"], ["recdeleted", "restore", "fn:restoreEmployee", "mtA_recdeleted_restore"], ["pending", "approve", "fn:approvePendingEdit", "btnApprove"], ["pending", "reject", "fn:rejectPendingEdit", "btnReject"], ["mgmt", "addaccount", "i:btnAddAccount", "btnAddAccount"], ["mgmt", "disable", "fn:toggleAccountDisabled", "mtA_mgmt_disable"], ["mgmt", "delete", "fn:deleteAccount", "mtA_mgmt_delete"], ["mgmt", "editfield", "fn:updateAccountField", "mtA_mgmt_editfield"], ["mgmt", "pwreset", "fn:pwOpenReset", "pwResetBtn"], ["mgmt", "totp", "fn:toggleAccountTotpEnabled", "mtA_mgmt_totp"], ["mgmt", "resettotp", "fn:resetAccountTotp", "btnResetAuthenticator"], ["mgmt", "backupcodes", "fn:regenerateBackupCodes", "btnRegenerateBackupCodes"], ["lock", "apply", "fn:applySystemLockSettings", "btnApplyLock"], ["lock", "unlock", "fn:unlockAllSystems", "btnUnlockAll"], ["devices", "block", "fn:toggleDeviceBlocked", "mtA_devices_block"], ["devices", "rename", "fn:renameDevice", "mtA_devices_rename"], ["backup", "backupnow", "fn:confirmBackupNow", "btnConfirmBackup"], ["notif", "onetime", "fn:openOneTimeNotifModal", "broadcastSectionTitle"], ["notif", "announce", "fn:openComposeNotification", "btnNewAnnouncement"], ["notif", "shiftready", "fn:openNotifyShiftReadyModal", "btnNotifyShiftReady"], ["notif", "cardready", "fn:openCardReadyNotifModal", "btnNotifyCardReady"], ["notif", "delete", "fn:deleteSentNotif", "mtA_notif_delete"], ["convert", "convertphoto", "fn:showExtractPane|'convert'", "lxBtnConvert"], ["convert", "leaveextract", "fn:openAttExtract", "lxBtnLeave"], ["convert", "lxrecord", "fn:lxRecord", "lxRecBtn"], ["convert", "choose", "fn:handleConvertPhotoFileSelected", "mtA_convert_choose"], ["convert", "lxread", "fn:lxRead", "lxRead"], ["convert", "lxkey", "fn:lxSaveKey", "lxKeySaveBtn"], ["convert", "lxexport", "fn:lxExport", "lxExport"], ["dept", "addorg", "fn:dgAddOrg", "dgNewOrg"], ["dept", "renameorg", "fn:dgRenameOrg", "mtA_dept_renameorg"], ["dept", "deleteorg", "fn:dgDeleteOrg", "mtA_dept_deleteorg"], ["dept", "assign", "fn:dgAssign", "mtA_dept_assign"], ["bell", "respond", "fn:openComposeNotification", "btnRespond"], ["bell", "processed", "fn:markRequestProcessed", "btnMarkProcessed"], ["bell", "delete", "fn:deleteRequest", "btnDeleteRequest"], ["bell", "dismiss", "fn:dismissAdminAlert", "btnDismiss"], ["emp_request", "submit", "i:btnSubmitRequest", "btnSubmitRequest"], ["emp_shift", "check", "fn:checkMyShift", "mtA_emp_shift_check"], ["master", "settings", "fn:mlSave", "mlBtnText"], ["master", "settings", "fn:mlAddRule", "mlBtnText"], ["master", "settings", "fn:mlRemoveRule", "mlBtnText"], ["master", "settings", "fn:mlMakeFormula", "mlBtnText"], ["notif", "reminders", "fn:addAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:editAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:deleteAnnouncement", "mtA_notif_reminders"]];
-const MT_MODAL_SVC = { recentlyDeletedModal: 'recdeleted', pendingApprovalsModal: 'pending', managementModal: 'mgmt', lockSystemModal: 'lock', deviceLogModal: 'devices', backupLangModal: 'backup', manageNotifModal: 'notif', convertPhotoModal: 'convert', 'tab-attextract': 'convert', globalSearchModal: 'search', notifModal: 'bell', mlModal: 'master', mlStModal: 'master' };
+const MT_ACT = [["master", "export", "fn:openExportLangModal|'master'", "btnExport"], ["master", "leavereport", "fn:openLeaveReportModal", "btnExportLeaveReport"], ["master", "settings", "fn:mlOpen", "mlBtnText"], ["master", "alcheck", "fn:mlStOpen", "mlStBtnText"], ["master", "view", "fn:openMasterDetailModal", "mtA_master_view"], ["master", "edit", "fn:openEditModal", "mtA_master_edit"], ["master", "delete", "fn:confirmDelete", "mtA_master_delete"], ["monthly", "applyall", "fn:applyBulkWorkingHours", "btnApplyAll"], ["monthly", "export", "fn:openExportLangModal|'monthly'", "btnExport"], ["monthly", "view", "fn:openMonthlyDetailModal", "mtA_monthly_view"], ["monthly", "edit", "fn:openEditModal", "mtA_monthly_edit"], ["monthly", "delete", "fn:confirmDelete", "mtA_monthly_delete"], ["monthly", "hours", "fn:updateEmpMonthlyField", "mtA_monthly_hours"], ["monthlyal", "renewal", "fn:openRenewalExportModal", "btnExportRenewal"], ["monthlyal", "export", "fn:openExportLangModal|'monthlyal'", "btnExport"], ["employee", "export", "fn:openExportLangModal|'employee'", "btnExport"], ["employee", "view", "fn:openEmployeeDetailModal", "mtA_employee_view"], ["employee", "edit", "fn:openEditModal", "mtA_employee_edit"], ["employee", "delete", "fn:confirmDelete", "mtA_employee_delete"], ["leave", "submit", "i:btnSubmitLeave", "btnSubmitLeave"], ["att", "load", "i:btnLoadDept", "btnLoadDept"], ["att", "submit", "fn:saveAttendanceDeptBatch", "btnSubmitAtt"], ["query", "check", "i:btnCheckDetails", "btnCheckDetails"], ["add", "bulkimport", "fn:openBulkImportModal", "btnBulkImport"], ["add", "bulkupdate", "fn:openBulkUpdateModal", "btnBulkUpdate"], ["add", "save", "i:btnSaveEmp", "btnSaveEmp"], ["shift", "check", "i:btnCheckShift", "btnCheckShift"], ["shift", "export", "fn:openExportLangModal|'shift'", "btnExport"], ["shift", "editcell", "fn:updateShiftCell", "mtA_shift_editcell"], ["makeup", "submit", "i:btnSubmitMakeup", "btnSubmitMakeup"], ["attcal", "pdf", "fn:exportAttCalToPDF", "btnExportPDF"], ["attcal", "editday", "fn:openAttCalEditModal", "mtA_attcal_editday"], ["dept", "add", "i:btnAddDept", "btnAddDept"], ["dept", "edit", "fn:editDepartment", "mtA_dept_edit"], ["dept", "delete", "fn:deleteDepartment", "mtA_dept_delete"], ["audit", "export", "fn:openExportLangModal|'auditlog'", "btnExport"], ["cert", "generate", "fn:generateCertificate", "btnGenerateCertificate"], ["faceatt", "copylink", "fn:faCopyScanLink", "faCopyLink"], ["faceatt", "camera", "fn:faStartCamera", "faStartCamera"], ["faceatt", "capture", "fn:faCaptureAngle", "faCapture"], ["faceatt", "clear", "fn:faClearCaptures", "faClearCaptures"], ["faceatt", "saveenroll", "fn:faSaveEnrollment", "faSaveEnroll"], ["faceatt", "delenroll", "fn:faDeleteEnrollment", "mtA_faceatt_delenroll"], ["faceatt", "saverules", "fn:faSaveRules", "faSaveRules"], ["faceatt", "resetrules", "fn:faResetRules", "faResetRules"], ["faceatt", "manualsave", "fn:faSaveManual", "faManualSave"], ["faceatt", "preview", "fn:faPreviewReport", "faPreview"], ["faceatt", "export", "fn:faExportReport", "faExportBtn"], ["export", "preview", "fn:xcPreview", "faPreview"], ["export", "export", "fn:xcExport", "faExportBtn"], ["recdeleted", "restore", "fn:restoreEmployee", "mtA_recdeleted_restore"], ["pending", "approve", "fn:approvePendingEdit", "btnApprove"], ["pending", "reject", "fn:rejectPendingEdit", "btnReject"], ["mgmt", "addaccount", "i:btnAddAccount", "btnAddAccount"], ["mgmt", "disable", "fn:toggleAccountDisabled", "mtA_mgmt_disable"], ["mgmt", "delete", "fn:deleteAccount", "mtA_mgmt_delete"], ["mgmt", "editfield", "fn:updateAccountField", "mtA_mgmt_editfield"], ["mgmt", "pwreset", "fn:pwOpenReset", "pwResetBtn"], ["mgmt", "totp", "fn:toggleAccountTotpEnabled", "mtA_mgmt_totp"], ["mgmt", "resettotp", "fn:resetAccountTotp", "btnResetAuthenticator"], ["mgmt", "backupcodes", "fn:regenerateBackupCodes", "btnRegenerateBackupCodes"], ["lock", "apply", "fn:applySystemLockSettings", "btnApplyLock"], ["lock", "unlock", "fn:unlockAllSystems", "btnUnlockAll"], ["devices", "block", "fn:toggleDeviceBlocked", "mtA_devices_block"], ["devices", "rename", "fn:renameDevice", "mtA_devices_rename"], ["backup", "backupnow", "fn:confirmBackupNow", "btnConfirmBackup"], ["notif", "onetime", "fn:openOneTimeNotifModal", "broadcastSectionTitle"], ["notif", "announce", "fn:openComposeNotification", "btnNewAnnouncement"], ["notif", "shiftready", "fn:openNotifyShiftReadyModal", "btnNotifyShiftReady"], ["notif", "cardready", "fn:openCardReadyNotifModal", "btnNotifyCardReady"], ["notif", "delete", "fn:deleteSentNotif", "mtA_notif_delete"], ["convert", "convertphoto", "fn:showExtractPane|'convert'", "lxBtnConvert"], ["convert", "leaveextract", "fn:openAttExtract", "lxBtnLeave"], ["convert", "lxrecord", "fn:lxRecord", "lxRecBtn"], ["convert", "choose", "fn:handleConvertPhotoFileSelected", "mtA_convert_choose"], ["convert", "lxread", "fn:lxRead", "lxRead"], ["convert", "lxkey", "fn:lxSaveKey", "lxKeySaveBtn"], ["convert", "lxexport", "fn:lxExport", "lxExport"], ["dept", "addorg", "fn:dgAddOrg", "dgNewOrg"], ["dept", "renameorg", "fn:dgRenameOrg", "mtA_dept_renameorg"], ["dept", "deleteorg", "fn:dgDeleteOrg", "mtA_dept_deleteorg"], ["dept", "assign", "fn:dgAssign", "mtA_dept_assign"], ["bell", "respond", "fn:openComposeNotification", "btnRespond"], ["bell", "processed", "fn:markRequestProcessed", "btnMarkProcessed"], ["bell", "delete", "fn:deleteRequest", "btnDeleteRequest"], ["bell", "dismiss", "fn:dismissAdminAlert", "btnDismiss"], ["emp_request", "submit", "i:btnSubmitRequest", "btnSubmitRequest"], ["emp_shift", "check", "fn:checkMyShift", "mtA_emp_shift_check"], ["master", "settings", "fn:mlSave", "mlBtnText"], ["master", "settings", "fn:mlAddRule", "mlBtnText"], ["master", "settings", "fn:mlRemoveRule", "mlBtnText"], ["master", "settings", "fn:mlMakeFormula", "mlBtnText"], ["notif", "reminders", "fn:addAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:editAnnouncement", "mtA_notif_reminders"], ["notif", "reminders", "fn:deleteAnnouncement", "mtA_notif_reminders"], ["mse", "export", "fn:msExport", "btnExport"], ["mse", "detail", "fn:msDetail", "mtA_mse_detail"], ["deptreq", "approve", "fn:rqApprove", "btnApprove"], ["deptreq", "reject", "fn:rqReject", "btnReject"], ["deptreq", "print", "fn:rqPrintCur", "rqPrint"], ["deptiv", "hrfix", "fn:ivHrCorrect", "ivActHr"], ["deptiv", "deptfix", "fn:ivDeptFix", "ivActDept"], ["deptiv", "close", "fn:ivClose", "ivActClose"], ["datectl", "run", "fn:dcRun", "dcRun"], ["datectl", "restore", "fn:dcRestore", "dcRestore"], ["clr", "run", "fn:clrRun", "clrRun"], ["clr", "removereq", "fn:clrRemoveReq", "clrRemoveNow"], ["clr", "dismiss", "fn:clrDismissReq", "clrDismiss"], ["deptacc", "add", "i:daAdd", "daAdd"], ["deptacc", "toggle", "fn:daToggle", "mtA_deptacc_toggle"], ["deptacc", "resetpw", "fn:daResetPw", "daReset"], ["deptacc", "delete", "fn:daDelete", "daDelete"]];
+const MT_MODAL_SVC = { recentlyDeletedModal: 'recdeleted', pendingApprovalsModal: 'pending', managementModal: 'mgmt', lockSystemModal: 'lock', deviceLogModal: 'devices', backupLangModal: 'backup', manageNotifModal: 'notif', convertPhotoModal: 'convert', 'tab-attextract': 'convert', globalSearchModal: 'search', notifModal: 'bell', deptReqModal: 'deptreq', deptReqView: 'deptreq', deptIvModal: 'deptiv', dateCtlModal: 'datectl', clrModal: 'clr', deptAccModal: 'deptacc', mlModal: 'master', mlStModal: 'master' };
 const MT_ACT_BY = {};
 MT_ACT.forEach(function (e) {
     const m = e[2], o = { svc: e[0], id: e[1], label: e[3] };
@@ -17481,7 +17502,8 @@ var RQ_CSS = '.rq-doc{background:#fff;color:#0f172a;border:1px solid #cbd5e1;bor
     '.rq-sigs{display:flex;gap:10px;margin-top:16px}.rq-sig{flex:1;border:1px solid #94a3b8;border-radius:4px;padding:8px 10px;min-height:110px;text-align:center}.rq-sig b{display:block;font-size:12px;margin-bottom:6px;border-bottom:1px solid #cbd5e1;padding-bottom:4px}' +
     '.rq-stamp{font-weight:bold;font-size:13px;margin:8px 0 4px}.rq-ok{color:#15803d}.rq-no{color:#dc2626}.rq-wait{color:#94a3b8}.rq-small{font-size:11px;color:#475569}';
 function rqE(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-function rqTypeLabel(ty) { return t(ty === 'edit' ? 'rqTypeEdit' : ty === 'remove' ? 'rqTypeRemove' : 'rqTypeGroup'); }
+function rqTypeLabel(ty) { return t(ty === 'edit' ? 'rqTypeEdit' : ty === 'remove' ? 'rqTypeRemove' : ty === 'other' ? 'rqTypeOther' : 'rqTypeGroup'); }
+function rqSubject(r) { return r.type === 'group' ? r.newGroup : r.type === 'other' ? (r.subject || '') : (r.empId + ' - ' + r.empName); }
 function rqOverall(r) { if (r.status === 'rejected') return 'rejected'; if (r.status === 'approved') return 'approved'; return (r.hr && r.hr.s === 'approved') ? 'waitAdmin' : 'waitHR'; }
 function rqOverallText(r) { return t({ rejected: 'rqStatusRejected', approved: 'rqStatusApproved', waitAdmin: 'rqStatusWaitAdmin', waitHR: 'rqStatusWaitHR' }[rqOverall(r)]); }
 function rqWhen(ts) { if (!ts) return ''; const d = new Date(ts), p = function (n) { return String(n).padStart(2, '0'); }; return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
@@ -17506,9 +17528,10 @@ function rqDocHtml(r, key) {
         what = '<table><tr><th style="width:30%">' + rqE(t('rqField')) + '</th><th>' + rqE(t('rqCurrent')) + '</th><th>' + rqE(t('rqNew')) + '</th></tr>' +
             RQ_FIELDS.filter(function (f) { return ch[f[0]]; }).map(function (f) { return '<tr><td><b>' + rqE(t(f[1])) + '</b></td><td>' + rqE(ch[f[0]].o) + '</td><td><b>' + rqE(ch[f[0]].n) + '</b></td></tr>'; }).join('') + '</table>';
     } else if (r.type === 'remove') what = '<div class="rq-detail">' + rqE(t('rqRemoveText')) + '</div>';
+    else if (r.type === 'other') what = '<table><tr><th>' + rqE(t('rqSubject')) + '</th><td><b>' + rqE(r.subject) + '</b></td></tr></table>';
     else what = '<table><tr><th>' + rqE(t('rqGroupName')) + '</th><td><b>' + rqE(r.newGroup) + '</b></td></tr></table>';
     const instead = (r.ad && r.ad.s === 'approved' && r.ad.instead) ? '<div class="rq-small">' + rqE(t('rqSignedInstead')) + '</div>' : '';
-    const emp = r.type === 'group' ? '' : '<tr><th>' + rqE(t('rqEmployee')) + '</th><td>' + rqE(r.empId) + ' - ' + rqE(r.empName) + (r.empGroup ? ' (' + rqE(r.empGroup) + ')' : '') + '</td></tr>';
+    const emp = (r.type === 'group' || r.type === 'other') ? '' : '<tr><th>' + rqE(t('rqEmployee')) + '</th><td>' + rqE(r.empId) + ' - ' + rqE(r.empName) + (r.empGroup ? ' (' + rqE(r.empGroup) + ')' : '') + '</td></tr>';
     return '<div class="rq-doc"><h2>' + rqE(t('rqTitle')) + '</h2><div class="rq-meta"><span>' + rqE(t('rqRef')) + ': ' + rqE(String(key || '').slice(-8).toUpperCase()) + '</span><span>' + rqE(rqWhen(r.at)) + '</span></div>' +
         '<table><tr><th>' + rqE(t('dgDept')) + '</th><td>' + rqE(r.deptName) + '</td></tr><tr><th>' + rqE(t('rqType')) + '</th><td>' + rqE(rqTypeLabel(r.type)) + '</td></tr>' + emp +
         '<tr><th>' + rqE(t('rqStatus')) + '</th><td><b>' + rqE(rqOverallText(r)) + '</b></td></tr></table>' +
@@ -17545,7 +17568,7 @@ function rqFill() {
     d.innerHTML = '<option value="">' + dgEsc(t('dgAll')) + '</option>' + dgOrg.map(function (o) { return '<option value="' + dgEsc(o.key) + '">' + dgEsc(o.name) + '</option>'; }).join('');
     d.value = cur;
     const ty = document.getElementById('rqFType'); const tc = ty.value;
-    ty.innerHTML = '<option value="">' + dgEsc(t('dgAll')) + '</option>' + ['edit', 'remove', 'group'].map(function (x) { return '<option value="' + x + '">' + dgEsc(rqTypeLabel(x)) + '</option>'; }).join('');
+    ty.innerHTML = '<option value="">' + dgEsc(t('dgAll')) + '</option>' + ['edit', 'remove', 'group', 'other'].map(function (x) { return '<option value="' + x + '">' + dgEsc(rqTypeLabel(x)) + '</option>'; }).join('');
     ty.value = tc;
     const st = document.getElementById('rqFStatus'), sc = st.value || rqFilt.status;
     st.innerHTML = [['open', 'rqFOpen'], ['', 'dgAll'], ['waitHR', 'rqStatusWaitHR'], ['waitAdmin', 'rqStatusWaitAdmin'], ['approved', 'rqStatusApproved'], ['rejected', 'rqStatusRejected']].map(function (x) { return '<option value="' + x[0] + '">' + dgEsc(t(x[1])) + '</option>'; }).join('');
@@ -17569,7 +17592,7 @@ function rqRender() {
     tb.innerHTML = rows.map(function (r) {
         const o = rqOverall(r);
         return '<tr><td><button class="btn-view" onclick="rqShow(\'' + dgEsc(r.key) + '\')" title="View">' + ICON_VIEW + '</button></td><td>' + dgEsc(rqWhen(r.at)) + '</td><td><b>' + dgEsc(r.deptName) + '</b></td><td>' + dgEsc(rqTypeLabel(r.type)) + '</td>' +
-             '<td>' + dgEsc(r.type === 'group' ? r.newGroup : (r.empId + ' - ' + r.empName)) + '</td><td>' + rqSigCell(r.hr) + '</td><td>' + rqSigCell(r.ad) + '</td><td style="color:' + col[o] + '; font-weight:bold;">' + dgEsc(rqOverallText(r)) + '</td></tr>';
+             '<td>' + dgEsc(rqSubject(r)) + '</td><td>' + rqSigCell(r.hr) + '</td><td>' + rqSigCell(r.ad) + '</td><td style="color:' + col[o] + '; font-weight:bold;">' + dgEsc(rqOverallText(r)) + '</td></tr>';
     }).join('') || '<tr><td colspan="8" style="text-align:center; color:#94a3b8;">' + dgEsc(t('rqNone')) + '</td></tr>';
 }
 function rqShow(key) {
@@ -17609,7 +17632,7 @@ async function rqApprove(key, btnEl) {
                     const rec = Object.assign({}, cur); rec.deletedAt = new Date().toISOString();
                     up['deletedEmployees/' + r.empKey] = rec; up['employees/' + r.empKey] = null;
                 }
-            } else {
+            } else if (r.type === 'group') {
                 if (departments.some(function (g) { return String(g.name).toLowerCase() === String(r.newGroup).toLowerCase(); })) { showToast(false, t('rqGroupDup')); return; }
                 up['departments/' + db.ref('departments').push().key] = { name: r.newGroup, parent: r.deptName };
             }
