@@ -625,7 +625,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.56</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.57</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2766,7 +2766,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.56
+     HR & Administration System Version 7.57
  </div>
 </div>
 
@@ -3167,6 +3167,7 @@
              <select id="composeTargetType" onchange="onComposeTargetTypeChange()">
                  <option value="SPECIFIC" data-i18n="targetSpecific">Specific Employee ID</option>
                  <option value="ALL" data-i18n="targetAll">All Employees (General Notification)</option>
+                 <option value="DEPT" data-i18n="composeToDept">Departments</option>
              </select>
          </div>
          <div class="form-group" id="composeSpecificIdGroup">
@@ -3176,6 +3177,10 @@
                   repeating the whole form once per person. -->
              <div id="composeSpecificIdList"></div>
              <button type="button" class="btn-edit" style="font-size:12px; padding:4px 0;" onclick="addComposeIdRow()" data-i18n="btnAddAnotherId">+ Add Another Employee ID</button>
+         </div>
+         <div class="form-group" id="composeDeptGroup" style="display:none;">
+             <label data-i18n="composeDeptPick">Choose departments</label>
+             <div id="composeDeptList" style="max-height:160px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px; padding:6px 10px;"></div>
          </div>
          <div class="form-group">
              <label data-i18n="lblComposeMessage">Response / Notification Title</label>
@@ -4306,7 +4311,7 @@
         navClr: "Clear Old Data",
         clrSub: "Remove records of old months to free space in the database. Master Sheet totals and balances are NOT changed.",
         clrSource: "Where",
-        clrHR: "HR master data (all employees)",
+        clrHR: "HR & Administration data (all employees)",
         clrFeatures: "What to remove",
         clrFShift: "Shift Roster records",
         clrFMakeup: "Makeup Attendance records",
@@ -4338,6 +4343,10 @@
         dpNotifLine: "{when}: removed {what} of {month}.",
         dpNotifOk: "OK, I understand",
         pgShowing: "Showing {a}-{b} of {c}",
+        composeToDept: "Departments",
+        composeDeptPick: "Choose departments",
+        composeDeptAll: "All departments",
+        composeDeptNone: "Choose at least one department.",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -5592,7 +5601,7 @@
         navClr: "សម្អាតទិន្នន័យចាស់",
         clrSub: "លុបកំណត់ត្រាខែចាស់ដើម្បីបង្កើនទំហំទំនេរក្នុងមូលដ្ឋានទិន្នន័យ។ ចំនួនសរុប និងសមតុល្យក្នុងបញ្ជីចម្បងមិនផ្លាស់ប្តូរទេ។",
         clrSource: "ទីតាំង",
-        clrHR: "ទិន្នន័យ HR ចម្បង (បុគ្គលិកទាំងអស់)",
+        clrHR: "ទិន្នន័យ HR និងរដ្ឋបាល (បុគ្គលិកទាំងអស់)",
         clrFeatures: "អ្វីដែលត្រូវលុប",
         clrFShift: "កំណត់ត្រាកាលវិភាគវេន",
         clrFMakeup: "កំណត់ត្រាបំពេញវត្តមាន",
@@ -5624,6 +5633,10 @@
         dpNotifLine: "{when}៖ បានលុប {what} នៃ {month}។",
         dpNotifOk: "យល់ព្រម ខ្ញុំយល់ហើយ",
         pgShowing: "បង្ហាញ {a}-{b} នៃ {c}",
+        composeToDept: "នាយកដ្ឋាន",
+        composeDeptPick: "ជ្រើសរើសនាយកដ្ឋាន",
+        composeDeptAll: "នាយកដ្ឋានទាំងអស់",
+        composeDeptNone: "សូមជ្រើសរើសនាយកដ្ឋានយ៉ាងហោចណាស់មួយ។",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -6840,7 +6853,7 @@
         navClr: "清理旧数据",
         clrSub: "删除旧月份的记录以释放数据库空间。主控表的合计和余额不会改变。",
         clrSource: "范围",
-        clrHR: "人事主数据（全部员工）",
+        clrHR: "人事与管理部门数据（全部员工）",
         clrFeatures: "要删除的内容",
         clrFShift: "排班记录",
         clrFMakeup: "补卡记录",
@@ -6872,6 +6885,10 @@
         dpNotifLine: "{when}：已删除 {month} 的{what}。",
         dpNotifOk: "好的，我知道了",
         pgShowing: "显示第 {a}-{b} 条，共 {c} 条",
+        composeToDept: "部门",
+        composeDeptPick: "选择部门",
+        composeDeptAll: "全部部门",
+        composeDeptNone: "请至少选择一个部门。",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -13791,7 +13808,7 @@ async function notifyCardReady() {
 
  function onComposeTargetTypeChange() {
      const type = document.getElementById('composeTargetType').value;
-     document.getElementById('composeSpecificIdGroup').style.display = (type === 'SPECIFIC') ? 'block' : 'none';
+     document.getElementById('composeSpecificIdGroup').style.display = (type === 'SPECIFIC') ? 'block' : 'none'; dnToggle(type);
  }
 
  function closeComposeModal() {
@@ -13801,6 +13818,7 @@ async function notifyCardReady() {
  document.getElementById('composeForm').addEventListener('submit', function(e) {
      e.preventDefault();
      const targetType = document.getElementById('composeTargetType').value;
+     if (targetType === 'DEPT') { dnSend(this); return; }
      /* v6.51: SPECIFIC can now be a list of Employee IDs, not just one - each gets its own
         notification entry (same message/description/picture), so nothing else about how a
         notification is stored, filtered, or shown to an employee has to change. */
@@ -17884,6 +17902,32 @@ function clrPurge() {
         } catch (e) {}
     }, 9000);
 }
+
+/* v7.57: HR / Administration can send a notification to one or more departments (shown on the department's bell). */
+function dnToggle(type) {
+    var g = document.getElementById('composeDeptGroup'); if (!g) return;
+    g.style.display = type === 'DEPT' ? 'block' : 'none';
+    var img = document.getElementById('composeImage'); if (img && img.closest) img.closest('.form-group').style.display = type === 'DEPT' ? 'none' : '';
+    if (type === 'DEPT') dnRenderList();
+}
+function dnRenderList() {
+    var el = document.getElementById('composeDeptList'); if (!el) return;
+    var lab = 'display:flex; gap:6px; align-items:center; margin:3px 0;';
+    el.innerHTML = '<label style="' + lab + ' font-weight:700;"><input type="checkbox" style="width:auto;" onchange="dnAllToggle(this)"> ' + dgEsc(t('composeDeptAll')) + '</label>' +
+        dgOrg.map(function (o) { return '<label style="' + lab + '"><input type="checkbox" class="dn-d" style="width:auto;" value="' + dgEsc(o.key) + '"> ' + dgEsc(o.name) + '</label>'; }).join('');
+}
+function dnAllToggle(cb) { document.querySelectorAll('.dn-d').forEach(function (c) { c.checked = cb.checked; }); }
+function dnSend(form) {
+    var keys = Array.prototype.map.call(document.querySelectorAll('.dn-d:checked'), function (c) { return c.value; });
+    if (!keys.length) { showToast(false, t('composeDeptNone')); return; }
+    var message = document.getElementById('composeMessage').value.trim(), description = document.getElementById('composeDescription').value.trim();
+    var up = {}, at = Date.now(), by = clrWho();
+    keys.forEach(function (k) { var id = db.ref('deptNotif/' + k).push().key; up['deptNotif/' + k + '/' + id] = { at: at, by: by, kind: 'msg', message: message, description: description, seen: false }; });
+    withBusyButton(form.querySelector('[type=submit]'), function () {
+        return db.ref().update(up).then(function () { closeComposeModal(); showToast(true, t('notifSentAlert')); }).catch(function () { showToast(false); });
+    });
+}
+(function () { var o = openComposeNotification; openComposeNotification = function (a, b) { o(a, b); onComposeTargetTypeChange(); }; })();
 
 /* v7.56: long tables show 20 rows per page with page numbers (1 2 3 ...).
    Works on top of the existing renderers and search boxes: rows hidden by a search stay hidden,
