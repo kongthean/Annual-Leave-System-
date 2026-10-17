@@ -17514,13 +17514,18 @@ function rqSubject(r) { return r.type === 'group' ? r.newGroup : r.type === 'oth
 function rqOverall(r) { if (r.status === 'rejected') return 'rejected'; if (r.status === 'approved') return 'approved'; return (r.hr && r.hr.s === 'approved') ? 'waitAdmin' : 'waitHR'; }
 function rqOverallText(r) { return t({ rejected: 'rqStatusRejected', approved: 'rqStatusApproved', waitAdmin: 'rqStatusWaitAdmin', waitHR: 'rqStatusWaitHR' }[rqOverall(r)]); }
 function rqWhen(ts) { if (!ts) return ''; const d = new Date(ts), p = function (n) { return String(n).padStart(2, '0'); }; return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
-function rqSig(title, o, extra) {
+function rqSig(title, o, extra, whole) {
     o = o || { s: 'pending' };
     let body;
+    if (whole && o.s === 'pending' && whole.ad && whole.ad.s && whole.ad.s !== 'pending') return '<div class="rq-sig"><b>' + rqE(title) + '</b><div class="rq-small">&mdash;</div></div>';
     if (o.s === 'approved') body = '<div class="rq-stamp rq-ok">&#10004; ' + rqE(t('rqApproved')) + '</div><div>' + rqE(o.by || '') + '</div><div class="rq-small">' + rqE(rqWhen(o.at)) + '</div>' + (extra || '');
     else if (o.s === 'rejected') body = '<div class="rq-stamp rq-no">&#10008; ' + rqE(t('rqRejected')) + '</div><div>' + rqE(o.by || '') + '</div><div class="rq-small">' + rqE(rqWhen(o.at)) + '</div>' + (o.note ? '<div class="rq-small">' + rqE(t('rqNote')) + ': ' + rqE(o.note) + '</div>' : '');
     else body = '<div class="rq-stamp rq-wait">&#9203; ' + rqE(t('rqPending')) + '</div>';
     return '<div class="rq-sig"><b>' + rqE(title) + '</b>' + body + '</div>';
+}
+function rqHrCell(r) {
+    if ((!r.hr || r.hr.s === 'pending') && r.ad && r.ad.s && r.ad.s !== 'pending') return '<span style="color:#94a3b8;">&mdash;</span>';
+    return rqSigCell(r.hr);
 }
 function rqSigCell(o) {
     o = o || { s: 'pending' };
@@ -17543,7 +17548,7 @@ function rqDocHtml(r, key) {
         '<table><tr><th>' + rqE(t('dgDept')) + '</th><td>' + rqE(r.deptName) + '</td></tr><tr><th>' + rqE(t('rqType')) + '</th><td>' + rqE(rqTypeLabel(r.type)) + '</td></tr>' + emp +
         '<tr><th>' + rqE(t('rqStatus')) + '</th><td><b>' + rqE(rqOverallText(r)) + '</b></td></tr></table>' +
         '<h4>' + rqE(t('rqChange')) + '</h4>' + what + '<h4>' + rqE(t('rqDetail')) + '</h4><div class="rq-detail">' + rqE(r.detail) + '</div>' +
-        '<div class="rq-sigs">' + rqSig(t('rqSigRequested'), { s: 'approved', by: r.by, at: r.at }) + rqSig(t('rqSigHR'), r.hr) + rqSig(t('rqSigAdmin'), r.ad, instead) + '</div></div>';
+        '<div class="rq-sigs">' + rqSig(t('rqSigRequested'), { s: 'approved', by: r.by, at: r.at }) + rqSig(t('rqSigHR'), r.hr, null, r) + rqSig(t('rqSigAdmin'), r.ad, instead) + '</div></div>';
 }
 function rqPrint(html) {
     const w = window.open('', '_blank'); if (!w) return;
@@ -17599,7 +17604,7 @@ function rqRender() {
     tb.innerHTML = rows.map(function (r) {
         const o = rqOverall(r);
         return '<tr><td><button class="btn-view" onclick="rqShow(\'' + dgEsc(r.key) + '\')" title="View">' + ICON_VIEW + '</button></td><td>' + dgEsc(rqWhen(r.at)) + '</td><td><b>' + dgEsc(r.deptName) + '</b></td><td>' + dgEsc(rqTypeLabel(r.type)) + '</td>' +
-             '<td>' + dgEsc(rqSubject(r)) + '</td><td>' + rqSigCell(r.hr) + '</td><td>' + rqSigCell(r.ad) + '</td><td style="color:' + col[o] + '; font-weight:bold;">' + dgEsc(rqOverallText(r)) + '</td></tr>';
+             '<td>' + dgEsc(rqSubject(r)) + '</td><td>' + rqHrCell(r) + '</td><td>' + rqSigCell(r.ad) + '</td><td style="color:' + col[o] + '; font-weight:bold;">' + dgEsc(rqOverallText(r)) + '</td></tr>';
     }).join('') || '<tr><td colspan="8" style="text-align:center; color:#94a3b8;">' + dgEsc(t('rqNone')) + '</td></tr>';
 }
 function rqShow(key) {
@@ -17644,6 +17649,7 @@ async function rqApprove(key, btnEl) {
                 up['departments/' + db.ref('departments').push().key] = { name: r.newGroup, parent: r.deptName };
             }
             up['deptRequests/' + key + '/ad'] = { s: 'approved', by: by, at: now, instead: !(r.hr && r.hr.s === 'approved') };
+            up['deptNotif/' + r.dept + '/' + db.ref('deptNotif/' + r.dept).push().key] = { at: now, by: by, kind: 'req', result: 'approved', type: r.type, subject: r.type === 'group' ? r.newGroup : r.type === 'other' ? (r.subject || '') : (r.empId + ' - ' + r.empName), seen: false };
             up['deptRequests/' + key + '/status'] = 'approved'; up['deptRequests/' + key + '/applied'] = true; up['deptRequests/' + key + '/appliedAt'] = now;
             await db.ref().update(up);
             try { logActivity('Department request approved', 'Department', r.deptName, rqTypeLabel(r.type), r.empId || r.newGroup || ''); } catch (e) {}
@@ -17656,6 +17662,7 @@ async function rqReject(key, btnEl) {
     const note = await askText(t('rqRejectPrompt'), ''); if (note === null) return;
     const role = rqRole(), up = {}, o = { s: 'rejected', by: rqWho(), at: Date.now(), note: note.trim() };
     up['deptRequests/' + key + (role === 'admin' ? '/ad' : '/hr')] = o; up['deptRequests/' + key + '/status'] = 'rejected';
+    up['deptNotif/' + r.dept + '/' + db.ref('deptNotif/' + r.dept).push().key] = { at: o.at, by: o.by, kind: 'req', result: 'rejected', type: r.type, subject: r.type === 'group' ? r.newGroup : r.type === 'other' ? (r.subject || '') : (r.empId + ' - ' + r.empName), seen: false };
     withBusyButton(btnEl, function () { return db.ref().update(up).then(function () { showToast(true); try { logActivity('Department request rejected', 'Department', r.deptName, rqTypeLabel(r.type), r.empId || r.newGroup || ''); } catch (e) {} }).catch(function () { showToast(false); }); });
 }
 
