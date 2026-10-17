@@ -667,8 +667,7 @@
              <button class="lang-btn" onclick="toggleEmpPowerMenu(event)" title="Power" style="background:#dc2626;">⏻</button>
              <div class="lang-menu" id="empPowerMenu">
                  <div class="lang-option" onclick="empLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> <span data-i18n="empLogoutOption">Log Out</span></div>
-                 <div class="lang-option" onclick="openRoleLogin('hr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <span data-i18n="switchToHROption">Switch to HR System</span></div>
-                 <div class="lang-option" onclick="openRoleLogin('admin')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M12 2l9 4.5v5.5c0 5-3.5 9-9 10-5.5-1-9-5-9-10V6.5L12 2z"/></svg> <span data-i18n="switchToAdminOption">Switch to Administration System</span></div>
+                 <div class="lang-option" onclick="switchToDepartment()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h1M14 9h1M9 13h1M14 13h1M9 17h1M14 17h1"/></svg> <span data-i18n="switchToDeptOption">Switch to Department System</span></div>
                  <div class="lang-option" onclick="returnToChooser()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M3 9.5L12 3l9 6.5"/><path d="M5 10v10a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1V10"/></svg> <span data-i18n="returnToChooserOption">Return to Choose System</span></div>
              </div>
          </div>
@@ -994,9 +993,11 @@
              <button class="lang-btn" onclick="toggleAdminPowerMenu(event)" title="Power" style="background:#dc2626;">⏻</button>
              <div class="lang-menu" id="adminPowerMenu">
                  <div class="lang-option" onclick="lockSystem()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> <span data-i18n="lockSystemOption">Log Out</span></div>
-                 <div class="lang-option" onclick="switchToEmployee()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg> <span data-i18n="switchToEmployeeOption">Switch to Employee</span></div>
                  <div class="lang-option" id="switchToHRMenuOption" onclick="openRoleLogin('hr')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <span data-i18n="switchToHROption">Switch to HR System</span></div>
                  <div class="lang-option" id="switchToAdminMenuOption" onclick="openRoleLogin('admin')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M12 2l9 4.5v5.5c0 5-3.5 9-9 10-5.5-1-9-5-9-10V6.5L12 2z"/></svg> <span data-i18n="switchToAdminOption">Switch to Administration System</span></div>
+                 <div class="lang-option" onclick="switchToDepartment()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h1M14 9h1M9 13h1M14 13h1M9 17h1M14 17h1"/></svg> <span data-i18n="switchToDeptOption">Switch to Department System</span></div>
+                 <div class="lang-option" onclick="switchToEmployee()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg> <span data-i18n="switchToEmpSysOption">Switch to Employee System</span></div>
+                 <div class="lang-option" onclick="returnToChooser()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; vertical-align:middle;"><path d="M3 9.5L12 3l9 6.5"/><path d="M5 10v10a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1V10"/></svg> <span data-i18n="returnToChooserOption">Return to Choose System</span></div>
              </div>
          </div>
      </div>
@@ -4350,6 +4351,8 @@
         composeDeptNone: "Choose at least one department.",
         rqTypeOther: "Other request",
         rqSubject: "Subject",
+        switchToDeptOption: "Switch to Department System",
+        switchToEmpSysOption: "Switch to Employee System",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -5644,6 +5647,8 @@
         composeDeptNone: "សូមជ្រើសរើសនាយកដ្ឋានយ៉ាងហោចណាស់មួយ។",
         rqTypeOther: "សំណើផ្សេងៗ",
         rqSubject: "ប្រធានបទ",
+        switchToDeptOption: "ប្តូរទៅប្រព័ន្ធនាយកដ្ឋាន",
+        switchToEmpSysOption: "ប្តូរទៅប្រព័ន្ធបុគ្គលិក",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -6900,6 +6905,8 @@
         composeDeptNone: "请至少选择一个部门。",
         rqTypeOther: "其他申请",
         rqSubject: "主题",
+        switchToDeptOption: "切换到部门系统",
+        switchToEmpSysOption: "切换到员工系统",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -17952,6 +17959,12 @@ function dnSend(form) {
     });
 }
 (function () { var o = openComposeNotification; openComposeNotification = function (a, b) { o(a, b); onComposeTargetTypeChange(); }; })();
+
+/* v7.57: power-menu switching between the 4 systems */
+function switchToDepartment() {
+    closeAllMenus();
+    if (typeof openDeptFrame === 'function') openDeptFrame(); else location.href = 'department.html?go=dept';
+}
 
 /* v7.56: long tables show 20 rows per page with page numbers (1 2 3 ...).
    Works on top of the existing renderers and search boxes: rows hidden by a search stay hidden,
