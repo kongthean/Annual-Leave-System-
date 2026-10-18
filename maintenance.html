@@ -360,6 +360,19 @@ async function writeState(on) {
   const data = { on: !!on, message: msg, bypassKeys: Object.keys(form.bypassKeys || {}).reduce((o, k) => { if (form.bypassKeys[k]) o[k] = true; return o; }, {}), services: Object.assign({}, form.services), actions: cleanActions(), scope: { admin: !!(form.scope && form.scope.admin), hr: !!(form.scope && form.scope.hr), emp: !!(form.scope && form.scope.emp), dept: !!(form.scope && form.scope.dept) }, align: form.align === 'center' ? 'center' : 'left', by: (account && (account.name || account.username)) || 'admin', at: firebase.database.ServerValue.TIMESTAMP };
   await db.ref('maintenance').set(data);
 }
+/* in-page question (no browser pop-up) */
+function askYes(msg) {
+  return new Promise(res => {
+    const L = ({ en: ['Cancel', 'OK'], km: ['បោះបង់', 'យល់ព្រម'], zh: ['取消', '确定'] })[lang] || ['Cancel', 'OK'];
+    const o = document.createElement('div');
+    o.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+    o.innerHTML = '<div style="background:#fff;color:#0f172a;border-radius:12px;max-width:440px;width:100%;padding:20px;box-shadow:0 14px 40px rgba(0,0,0,.35);font-size:15px;line-height:1.5"><div class="aq-m" style="white-space:pre-line"></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button type="button" class="aq-c" style="border:0;border-radius:8px;padding:10px 18px;font-weight:700;background:#64748b;color:#fff;cursor:pointer"></button><button type="button" class="aq-o" style="border:0;border-radius:8px;padding:10px 18px;font-weight:700;background:#16a34a;color:#fff;cursor:pointer"></button></div></div>';
+    o.querySelector('.aq-m').textContent = msg; o.querySelector('.aq-c').textContent = L[0]; o.querySelector('.aq-o').textContent = L[1];
+    const done = v => { o.remove(); res(v); };
+    o.querySelector('.aq-c').onclick = () => done(false); o.querySelector('.aq-o').onclick = () => done(true);
+    document.body.appendChild(o);
+  });
+}
 $('saveBtn').onclick = async () => {
   try { await writeState(!!(cur && cur.on)); dirty = false; toast(T('saved')); } catch (e) { console.error(e); toast(T('saveFail'), true); }
   renderPanel();
@@ -369,7 +382,7 @@ $('mainBtn').onclick = async () => {
   readForm();
   if (!on && !(form.scope && (form.scope.admin || form.scope.hr || form.scope.emp || form.scope.dept))) { toast(T('scopeNone'), true); return; }
   const none = !on && !Object.keys(form.bypassKeys || {}).some(k => form.bypassKeys[k]);
-  if (!confirm(T(on ? 'confirmOff' : 'confirmOn') + (none ? '\n\n' + T('acctNone') : ''))) return;
+  if (!(await askYes(T(on ? 'confirmOff' : 'confirmOn') + (none ? '\n\n' + T('acctNone') : '')))) return;
   try {
     if (on) { readForm(); await db.ref('maintenance').update({ on: false, by: (account && (account.name || account.username)) || 'admin', at: firebase.database.ServerValue.TIMESTAMP }); toast(T('savedOff')); }
     else { await writeState(true); toast(T('savedOn')); }
