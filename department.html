@@ -2260,7 +2260,11 @@
                      </div>
                      <div id="faCaptureInfo" style="font-size:12px; margin-bottom:6px;"></div>
                      <div id="faCaptureThumbs" style="margin-bottom:10px;"></div>
+                     <div style="margin-bottom:10px;"><label style="font-size:12px; display:block;" data-i18n="faceCodeTitle">Card security code</label>
+                     <input type="password" id="faEnrollCode" inputmode="numeric" maxlength="3" autocomplete="off" style="width:90px; letter-spacing:4px; padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;" oninput="this.value=this.value.replace(/\D/g,'')">
+                     <div style="font-size:11px; color:#64748b; margin-top:3px;" data-i18n="faceCodeAsk">Employee: enter the 3-digit security code from your card to turn on face attendance.</div></div>
                      <button type="button" class="btn-submit" style="width:auto; padding:8px 20px;" onclick="faSaveEnrollment(this)" data-i18n="faSaveEnroll">Save enrollment</button>
+                     <button type="button" class="btn-submit" style="width:auto; padding:8px 20px; background:#475569; margin-left:6px;" onclick="faVerifyCardCode(this)" data-i18n="faVerifyCode">Verify card code only</button>
                  </div>
              </div>
          </div>
@@ -2940,6 +2944,7 @@
         </div>
         <p style="font-size:12px; color:#64748b; margin-bottom:10px;" data-i18n="ccStaffSub"></p>
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; align-items:center;">
+            <button type="button" id="ccFeeBtn" onclick="ccFeeOpen()" style="padding:6px 14px; border:0; border-radius:8px; background:#123a5c; color:#fff; font-weight:700; cursor:pointer;" data-i18n="ccFeeList">Fee list</button>
             <input type="text" id="ccsSearch" oninput="ccStaffRender()" data-i18n-ph="ccSearch" placeholder="Reference / ID / Name" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px; min-width:200px;">
             <select id="ccsDept" onchange="ccStaffRender()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
             <select id="ccsStatus" onchange="ccStaffRender()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
@@ -4505,19 +4510,19 @@
         ccTotal: "Total",
         ccFree: "Free",
         ccCardN: "Card number {n}",
-        ccFeeWarn: "This is your card number {n}. The first 3 cards are free. From the 4th card the fee is {amt}. Please pay it at your department.",
+        ccFeeWarn: "This is your card number {n}. The first 3 cards are free. From the 4th card the fee is {amt}, deducted from your {month} salary.",
         ccFreeNote: "This is your card number {n}. It is free.",
         ccAgree: "I have read and agree to the",
         ccTermsLink: "Terms and Conditions",
         ccOrderNow: "ORDER NOW",
         ccFillAll: "Please fill in every field.",
         ccBusy: "You already have a card request in progress.",
-        ccOrdered: "Your card request was sent. Reference code: {ref}. Your card may be ready in 3-7 business days.",
+        ccOrdered: "Your card request was successful. Reference code: {ref}. Your card will be ready for pickup in 3 to 7 business days. You will receive an activation code in your notifications once your card is ready to be picked up. Thank you!",
         ccRef: "Reference code",
         ccTermsTitle: "Card Terms and Conditions",
         ccT1: "1. Each employee can have only one card. When a new card is ordered, the old card is closed after the new card is activated.",
         ccT2: "2. The first 3 cards are free. From the 4th card there is a fixed fee of $5 for each new card. A rejected request is not counted.",
-        ccT3: "3. The $5 fee is paid to your department. Your request will not continue to HR and Administration until the department has received the money and given you a receipt.",
+        ccT3: "3. The $5 fee is deducted from your salary of the month after your request. By ordering, you agree to this deduction. If your request is rejected, the fee is credited back.",
         ccT4: "4. Your request goes to your department, then HR and Administration. The card may be ready in 3-7 business days. You will be told when it is ready to pick up.",
         ccT5: "5. A new card must be activated with the full card number and your employee-system password before it can be used.",
         ccT6: "6. Keep your card and its 3-digit security code safe and never share them. If the card is lost, close it at once in the Card page.",
@@ -4592,9 +4597,67 @@
         ccOrderNewHint: "Press the (+) button above to order your employee card.",
         ccPlaceOffice: "the Administration office",
         ccInProgress: "Your card request is in progress.",
-        ccNotifOrderTitle: "Card request {ref} sent",
+        ccNotifOrderTitle: "Card Request Successful",
         ccTypeHint: "You can type the name and department in English or Chinese.",
         ccNameDeptErr: "Please fill in the name and the department.",
+        ccFeeNTitle: "Fee & Charge",
+        ccFeeNMsg: "A fee USD {amt} has been deducted for employee card from {month} Salary.",
+        ccRejNTitle: "Card Request Rejected",
+        ccRejNMsg: "Your card request {ref} was rejected.",
+        ccRejFee: " The fee of USD {amt} has been credited back to {month} salary.",
+        ccActNTitle: "EMPOWER CARD {mask}",
+        ccActNMsg: "Your employee card is ready for pickup at {place}. Your activation code is: {code}. Please ensure you activate your card and complete the face-scan before {deadline}.",
+        ccPlaceDept: "the {name}",
+        ccActTitle1: "Enter Card Details",
+        ccActSub1: "Details can be found on your newly received card",
+        ccActNo: "Enter 16 digit card number",
+        ccActCode: "Enter 3 digit security code",
+        ccNext: "NEXT",
+        ccBack: "Back",
+        ccActTitle2: "Confirm Your Identity",
+        ccActSub2: "Enter your password and the activation code you received in your notifications",
+        ccActPw: "Password",
+        ccActCodeA: "Activation code",
+        ccActBad1: "The card number or the security code is not correct.",
+        ccActBad2: "The password or the activation code is not correct.",
+        ccActLocked: "Too many wrong tries. Please try again at {time}, or ask Administration to release it.",
+        ccActExpired: "The activation code has expired. Please ask Administration to send a new code.",
+        ccActNoCode: "Your card is not ready for activation yet. You will receive an activation code in your notifications.",
+        ccActDone: "Your card is now active.",
+        ccFreeze: "Freeze card",
+        ccUnfreeze: "Unfreeze card",
+        ccCloseCard: "Close card",
+        ccShowCode: "Show security code",
+        ccAskFreeze: "Freeze this card? Face attendance will be blocked until you unfreeze it.",
+        ccAskUnfreeze: "Unfreeze this card?",
+        ccAskClose: "Are you sure this card is lost? A closed card can never be opened again.",
+        ccPwTitle: "Enter your password",
+        ccWrongPw: "Wrong password.",
+        ccCodeIs: "Security code",
+        ccHidesIn: "Hides in {n} seconds",
+        ccStFrozen: "Frozen",
+        ccStClosed: "Closed",
+        ccFrozenHint: "This card is frozen. Face attendance is blocked until you unfreeze it.",
+        ccSendCode: "Send new code",
+        ccAskSendCode: "Send a new activation code to the employee? The old code stops working.",
+        ccRelease: "Release lock",
+        ccLockedUntil: "Activation is locked until {time}",
+        ccReleased: "Lock released.",
+        ccFeeList: "Fee list",
+        ccFeeMonth: "Salary month",
+        ccFeeListSub: "Employees whose card fee is deducted from salary in this month. Print it for the accountant.",
+        ccFeeTitle: "Card Fee List",
+        ccPrint: "Print",
+        ccFeeNone: "No card fees in this month.",
+        ccFeeTotal: "Total",
+        ccFeeNo: "No.",
+        ccFeeSalary: "deducted from {month} salary",
+        faceCodeTitle: "Card security code",
+        faceCodeAsk: "Employee: enter the 3-digit security code from your card to turn on face attendance.",
+        faceCodeBad: "The code is not correct.",
+        faceNoActiveCard: "This employee has a card that is not activated yet. The card must be activated first.",
+        ccAskDeptOk: "Approve this card request and send it to HR and Administration?",
+        faVerifyCode: "Verify card code only",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -6019,19 +6082,19 @@
         ccTotal: "សរុប",
         ccFree: "ឥតគិតថ្លៃ",
         ccCardN: "កាតលេខ {n}",
-        ccFeeWarn: "នេះគឺជាកាតទី {n} របស់អ្នក។ កាត ៣ ដំបូងឥតគិតថ្លៃ។ ចាប់ពីកាតទី ៤ មានថ្លៃ {amt}។ សូមបង់ប្រាក់នៅនាយកដ្ឋានរបស់អ្នក។",
+        ccFeeWarn: "នេះគឺជាកាតទី {n} របស់អ្នក។ កាត ៣ ដំបូងឥតគិតថ្លៃ។ ចាប់ពីកាតទី ៤ មានថ្លៃ {amt} ដែលនឹងកាត់ពីប្រាក់ខែ {month} របស់អ្នក។",
         ccFreeNote: "នេះគឺជាកាតទី {n} របស់អ្នក។ ឥតគិតថ្លៃ។",
         ccAgree: "ខ្ញុំបានអាន និងយល់ព្រមតាម",
         ccTermsLink: "លក្ខខណ្ឌ និងកិច្ចព្រមព្រៀង",
         ccOrderNow: "កុម្ម៉ង់ឥឡូវនេះ",
         ccFillAll: "សូមបំពេញគ្រប់ប្រអប់។",
         ccBusy: "អ្នកមានការស្នើសុំកាតកំពុងដំណើរការរួចហើយ។",
-        ccOrdered: "ការស្នើសុំកាតរបស់អ្នកត្រូវបានផ្ញើ។ លេខកូដយោង៖ {ref}។ កាតរបស់អ្នកអាចរួចរាល់ក្នុងរយៈពេល ៣-៧ ថ្ងៃធ្វើការ។",
+        ccOrdered: "ការស្នើសុំកាតរបស់អ្នកបានជោគជ័យ។ លេខកូដយោង៖ {ref}។ កាតរបស់អ្នកនឹងរួចរាល់សម្រាប់មកយកក្នុងរយៈពេល ៣ ដល់ ៧ ថ្ងៃធ្វើការ។ អ្នកនឹងទទួលបានកូដធ្វើឱ្យសកម្មនៅក្នុងការជូនដំណឹង នៅពេលកាតរបស់អ្នករួចរាល់សម្រាប់មកយក។ សូមអរគុណ!",
         ccRef: "លេខកូដយោង",
         ccTermsTitle: "លក្ខខណ្ឌ និងកិច្ចព្រមព្រៀងនៃកាត",
         ccT1: "១. និយោជិតម្នាក់អាចមានកាតតែមួយប៉ុណ្ណោះ។ នៅពេលកុម្ម៉ង់កាតថ្មី កាតចាស់នឹងត្រូវបិទ បន្ទាប់ពីកាតថ្មីត្រូវបានធ្វើឱ្យសកម្ម។",
         ccT2: "២. កាត ៣ ដំបូងឥតគិតថ្លៃ។ ចាប់ពីកាតទី ៤ មានថ្លៃថេរ $5 សម្រាប់កាតថ្មីនីមួយៗ។ ការស្នើសុំដែលត្រូវបានបដិសេធ មិនត្រូវបានរាប់ទេ។",
-        ccT3: "៣. ថ្លៃ $5 ត្រូវបង់ទៅនាយកដ្ឋានរបស់អ្នក។ ការស្នើសុំរបស់អ្នកនឹងមិនបន្តទៅផ្នែកធនធានមនុស្ស និងរដ្ឋបាលទេ រហូតដល់នាយកដ្ឋានទទួលបានប្រាក់ និងឱ្យបង្កាន់ដៃដល់អ្នក។",
+        ccT3: "៣. ថ្លៃ $5 នឹងត្រូវកាត់ពីប្រាក់ខែនៃខែបន្ទាប់ពីការស្នើសុំរបស់អ្នក។ ដោយការកុម្ម៉ង់ អ្នកយល់ព្រមតាមការកាត់ប្រាក់នេះ។ ប្រសិនបើការស្នើសុំត្រូវបានបដិសេធ ថ្លៃនឹងត្រូវបញ្ចូលត្រឡប់មកវិញ។",
         ccT4: "៤. ការស្នើសុំរបស់អ្នកទៅនាយកដ្ឋាន បន្ទាប់មកផ្នែកធនធានមនុស្ស និងរដ្ឋបាល។ កាតអាចរួចរាល់ក្នុងរយៈពេល ៣-៧ ថ្ងៃធ្វើការ។ អ្នកនឹងត្រូវបានជូនដំណឹងនៅពេលកាតរួចរាល់ដើម្បីមកយក។",
         ccT5: "៥. កាតថ្មីត្រូវតែធ្វើឱ្យសកម្មដោយប្រើលេខកាតពេញ និងពាក្យសម្ងាត់ប្រព័ន្ធនិយោជិតរបស់អ្នក មុនពេលប្រើប្រាស់។",
         ccT6: "៦. សូមរក្សាកាត និងលេខកូដសុវត្ថិភាព ៣ ខ្ទង់ឱ្យបានសុវត្ថិភាព ហើយកុំចែករំលែកឱ្យអ្នកដទៃ។ ប្រសិនបើបាត់កាត សូមបិទភ្លាមៗនៅក្នុងទំព័រកាត។",
@@ -6106,9 +6169,67 @@
         ccOrderNewHint: "ចុចប៊ូតុង (+) ខាងលើដើម្បីកុម្ម៉ង់កាតនិយោជិតរបស់អ្នក។",
         ccPlaceOffice: "ការិយាល័យរដ្ឋបាល",
         ccInProgress: "ការស្នើសុំកាតរបស់អ្នកកំពុងដំណើរការ។",
-        ccNotifOrderTitle: "បានផ្ញើការស្នើសុំកាត {ref}",
+        ccNotifOrderTitle: "ការស្នើសុំកាតបានជោគជ័យ",
         ccTypeHint: "អ្នកអាចវាយឈ្មោះ និងនាយកដ្ឋានជាភាសាអង់គ្លេស ឬចិន។",
         ccNameDeptErr: "សូមបំពេញឈ្មោះ និងនាយកដ្ឋាន។",
+        ccFeeNTitle: "ថ្លៃសេវា និងការកាត់ប្រាក់",
+        ccFeeNMsg: "ថ្លៃសេវា USD {amt} សម្រាប់កាតនិយោជិត ត្រូវបានកាត់ចេញពីប្រាក់ខែ {month}។",
+        ccRejNTitle: "ការស្នើសុំកាតត្រូវបានបដិសេធ",
+        ccRejNMsg: "ការស្នើសុំកាត {ref} របស់អ្នកត្រូវបានបដិសេធ។",
+        ccRejFee: " ថ្លៃ USD {amt} ត្រូវបានបញ្ចូលត្រឡប់មកវិញក្នុងប្រាក់ខែ {month}។",
+        ccActNTitle: "EMPOWER CARD {mask}",
+        ccActNMsg: "កាតនិយោជិតរបស់អ្នករួចរាល់សម្រាប់មកយកនៅ {place}។ កូដធ្វើឱ្យសកម្មរបស់អ្នកគឺ៖ {code}។ សូមធ្វើឱ្យកាតសកម្ម និងបញ្ចប់ការស្កេនមុខ មុន {deadline}។",
+        ccPlaceDept: "{name}",
+        ccActTitle1: "បញ្ចូលព័ត៌មានកាត",
+        ccActSub1: "ព័ត៌មានលម្អិតមាននៅលើកាតដែលអ្នកទើបទទួលបាន",
+        ccActNo: "បញ្ចូលលេខកាត ១៦ខ្ទង់",
+        ccActCode: "បញ្ចូលលេខកូដសុវត្ថិភាព ៣ខ្ទង់",
+        ccNext: "បន្ទាប់",
+        ccBack: "ត្រឡប់ក្រោយ",
+        ccActTitle2: "បញ្ជាក់អត្តសញ្ញាណរបស់អ្នក",
+        ccActSub2: "បញ្ចូលពាក្យសម្ងាត់របស់អ្នក និងកូដធ្វើឱ្យសកម្មដែលអ្នកទទួលបានក្នុងការជូនដំណឹង",
+        ccActPw: "ពាក្យសម្ងាត់",
+        ccActCodeA: "កូដធ្វើឱ្យសកម្ម",
+        ccActBad1: "លេខកាត ឬលេខកូដសុវត្ថិភាពមិនត្រឹមត្រូវទេ។",
+        ccActBad2: "ពាក្យសម្ងាត់ ឬកូដធ្វើឱ្យសកម្មមិនត្រឹមត្រូវទេ។",
+        ccActLocked: "ព្យាយាមខុសច្រើនពេក។ សូមព្យាយាមម្តងទៀតនៅម៉ោង {time} ឬសុំរដ្ឋបាលដោះសោ។",
+        ccActExpired: "កូដធ្វើឱ្យសកម្មបានផុតកំណត់។ សូមសុំរដ្ឋបាលផ្ញើកូដថ្មី។",
+        ccActNoCode: "កាតរបស់អ្នកមិនទាន់រួចរាល់សម្រាប់ធ្វើឱ្យសកម្មនៅឡើយទេ។ អ្នកនឹងទទួលបានកូដធ្វើឱ្យសកម្មក្នុងការជូនដំណឹង។",
+        ccActDone: "កាតរបស់អ្នកបានធ្វើឱ្យសកម្មហើយ។",
+        ccFreeze: "បង្កក់កាត",
+        ccUnfreeze: "ឈប់បង្កក់កាត",
+        ccCloseCard: "បិទកាត",
+        ccShowCode: "បង្ហាញលេខកូដសុវត្ថិភាព",
+        ccAskFreeze: "បង្កក់កាតនេះដែរឬទេ? ការស្កេនមុខនឹងត្រូវបានទប់ស្កាត់រហូតដល់អ្នកឈប់បង្កក់។",
+        ccAskUnfreeze: "ឈប់បង្កក់កាតនេះដែរឬទេ?",
+        ccAskClose: "តើអ្នកប្រាកដថាកាតនេះបាត់ឬ? កាតដែលបានបិទមិនអាចបើកម្តងទៀតបានទេ។",
+        ccPwTitle: "បញ្ចូលពាក្យសម្ងាត់របស់អ្នក",
+        ccWrongPw: "ពាក្យសម្ងាត់មិនត្រឹមត្រូវ។",
+        ccCodeIs: "លេខកូដសុវត្ថិភាព",
+        ccHidesIn: "លាក់ក្នុង {n} វិនាទី",
+        ccStFrozen: "បានបង្កក់",
+        ccStClosed: "បានបិទ",
+        ccFrozenHint: "កាតនេះត្រូវបានបង្កក់។ ការស្កេនមុខត្រូវបានទប់ស្កាត់រហូតដល់អ្នកឈប់បង្កក់។",
+        ccSendCode: "ផ្ញើកូដថ្មី",
+        ccAskSendCode: "ផ្ញើកូដធ្វើឱ្យសកម្មថ្មីទៅនិយោជិតដែរឬទេ? កូដចាស់នឹងលែងប្រើបាន។",
+        ccRelease: "ដោះសោ",
+        ccLockedUntil: "ការធ្វើឱ្យសកម្មត្រូវបានចាក់សោរហូតដល់ {time}",
+        ccReleased: "បានដោះសោ។",
+        ccFeeList: "បញ្ជីថ្លៃសេវា",
+        ccFeeMonth: "ខែប្រាក់ខែ",
+        ccFeeListSub: "និយោជិតដែលថ្លៃកាតត្រូវកាត់ពីប្រាក់ខែក្នុងខែនេះ។ បោះពុម្ពជូនគណនេយ្យករ។",
+        ccFeeTitle: "បញ្ជីថ្លៃកាត",
+        ccPrint: "បោះពុម្ព",
+        ccFeeNone: "គ្មានថ្លៃកាតក្នុងខែនេះទេ។",
+        ccFeeTotal: "សរុប",
+        ccFeeNo: "ល.រ",
+        ccFeeSalary: "កាត់ពីប្រាក់ខែ {month}",
+        faceCodeTitle: "លេខកូដសុវត្ថិភាពកាត",
+        faceCodeAsk: "និយោជិត៖ បញ្ចូលលេខកូដសុវត្ថិភាព ៣ខ្ទង់ពីកាតរបស់អ្នក ដើម្បីបើកការស្កេនមុខ។",
+        faceCodeBad: "លេខកូដមិនត្រឹមត្រូវទេ។",
+        faceNoActiveCard: "និយោជិតនេះមានកាតដែលមិនទាន់ធ្វើឱ្យសកម្ម។ ត្រូវធ្វើឱ្យកាតសកម្មជាមុនសិន។",
+        ccAskDeptOk: "អនុម័តការស្នើសុំកាតនេះ ហើយបញ្ជូនទៅផ្នែកធនធានមនុស្ស និងរដ្ឋបាលដែរឬទេ?",
+        faVerifyCode: "ផ្ទៀងផ្ទាត់លេខកូដកាតតែប៉ុណ្ណោះ",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -7495,19 +7616,19 @@
         ccTotal: "合计",
         ccFree: "免费",
         ccCardN: "第 {n} 张卡",
-        ccFeeWarn: "这是您的第 {n} 张卡。前 3 张卡免费，从第 4 张起收费 {amt}。请在您的部门缴费。",
+        ccFeeWarn: "这是您的第 {n} 张卡。前 3 张卡免费，从第 4 张起收费 {amt}，将从您 {month} 的工资中扣除。",
         ccFreeNote: "这是您的第 {n} 张卡，免费。",
         ccAgree: "我已阅读并同意",
         ccTermsLink: "条款与条件",
         ccOrderNow: "立即申请",
         ccFillAll: "请填写所有栏目。",
         ccBusy: "您已有一个正在办理的办卡申请。",
-        ccOrdered: "您的办卡申请已提交。参考编号：{ref}。卡片可能在 3-7 个工作日内准备好。",
+        ccOrdered: "您的办卡申请已成功。参考编号：{ref}。您的卡片将在 3 至 7 个工作日内准备好领取。卡片准备好领取后，您将在通知中收到激活码。谢谢！",
         ccRef: "参考编号",
         ccTermsTitle: "员工卡条款与条件",
         ccT1: "1. 每位员工只能持有一张卡。申请新卡后，旧卡会在新卡激活后关闭。",
         ccT2: "2. 前 3 张卡免费。从第 4 张起，每张新卡收取固定费用 $5。被拒绝的申请不计入。",
-        ccT3: "3. $5 费用请缴给您的部门。部门收到款项并给您收据之前，您的申请不会送到人事和行政。",
+        ccT3: "3. $5 费用将从您申请次月的工资中扣除。提交申请即表示您同意此扣款。如果申请被拒绝，费用将退回。",
         ccT4: "4. 您的申请先到部门，再到人事和行政。卡片可能在 3-7 个工作日内准备好，准备好后会通知您领取。",
         ccT5: "5. 新卡必须使用完整卡号和您的员工系统密码激活后才能使用。",
         ccT6: "6. 请妥善保管您的卡片和 3 位安全码，切勿告诉他人。如果卡片丢失，请立即在卡片页面关闭。",
@@ -7582,9 +7703,67 @@
         ccOrderNewHint: "请点击上方（+）按钮申请您的员工卡。",
         ccPlaceOffice: "行政办公室",
         ccInProgress: "您的办卡申请正在办理中。",
-        ccNotifOrderTitle: "办卡申请 {ref} 已提交",
+        ccNotifOrderTitle: "办卡申请成功",
         ccTypeHint: "姓名和部门可以输入英文或中文。",
         ccNameDeptErr: "请填写姓名和部门。",
+        ccFeeNTitle: "费用与扣款",
+        ccFeeNMsg: "员工卡费用 USD {amt} 已从 {month} 工资中扣除。",
+        ccRejNTitle: "办卡申请已被拒绝",
+        ccRejNMsg: "您的办卡申请 {ref} 已被拒绝。",
+        ccRejFee: " 费用 USD {amt} 已退回到 {month} 工资中。",
+        ccActNTitle: "EMPOWER CARD {mask}",
+        ccActNMsg: "您的员工卡已可在 {place} 领取。您的激活码是：{code}。请在 {deadline} 之前完成卡片激活和人脸扫描。",
+        ccPlaceDept: "{name}",
+        ccActTitle1: "输入卡片信息",
+        ccActSub1: "详细信息可在您新收到的卡片上找到",
+        ccActNo: "输入 16 位卡号",
+        ccActCode: "输入 3 位安全码",
+        ccNext: "下一步",
+        ccBack: "返回",
+        ccActTitle2: "确认您的身份",
+        ccActSub2: "请输入您的密码和您在通知中收到的激活码",
+        ccActPw: "密码",
+        ccActCodeA: "激活码",
+        ccActBad1: "卡号或安全码不正确。",
+        ccActBad2: "密码或激活码不正确。",
+        ccActLocked: "错误次数过多。请在 {time} 后重试，或请行政人员解除锁定。",
+        ccActExpired: "激活码已过期。请联系行政人员重新发送。",
+        ccActNoCode: "您的卡片尚未可以激活。您将在通知中收到激活码。",
+        ccActDone: "您的卡片已激活。",
+        ccFreeze: "冻结卡片",
+        ccUnfreeze: "解冻卡片",
+        ccCloseCard: "关闭卡片",
+        ccShowCode: "显示安全码",
+        ccAskFreeze: "冻结此卡？解冻之前人脸考勤将被阻止。",
+        ccAskUnfreeze: "解冻此卡？",
+        ccAskClose: "您确定此卡已丢失吗？关闭的卡片无法再次打开。",
+        ccPwTitle: "请输入您的密码",
+        ccWrongPw: "密码错误。",
+        ccCodeIs: "安全码",
+        ccHidesIn: "{n} 秒后隐藏",
+        ccStFrozen: "已冻结",
+        ccStClosed: "已关闭",
+        ccFrozenHint: "此卡已冻结。解冻之前人脸考勤将被阻止。",
+        ccSendCode: "重新发送激活码",
+        ccAskSendCode: "向员工发送新的激活码？旧激活码将失效。",
+        ccRelease: "解除锁定",
+        ccLockedUntil: "激活已锁定至 {time}",
+        ccReleased: "已解除锁定。",
+        ccFeeList: "费用清单",
+        ccFeeMonth: "工资月份",
+        ccFeeListSub: "本月从工资中扣除卡费的员工。请打印给会计。",
+        ccFeeTitle: "办卡费清单",
+        ccPrint: "打印",
+        ccFeeNone: "本月没有办卡费。",
+        ccFeeTotal: "合计",
+        ccFeeNo: "序号",
+        ccFeeSalary: "从 {month} 工资扣除",
+        faceCodeTitle: "卡片安全码",
+        faceCodeAsk: "员工：请输入卡片上的 3 位安全码以开启人脸考勤。",
+        faceCodeBad: "代码不正确。",
+        faceNoActiveCard: "该员工的卡片尚未激活，必须先激活。",
+        ccAskDeptOk: "批准此办卡申请并发送给人事和行政？",
+        faVerifyCode: "仅验证卡片安全码",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -15313,6 +15492,27 @@ async function faCaptureAngle(btn) {
 
 function faDescDistance(a, b) { let s = 0; for (let i = 0; i < a.length; i++) { const d = a[i] - b[i]; s += d * d; } return Math.sqrt(s); }
 
+/* employee card: when the employee has an active/frozen card, the 3-digit security code of that card turns face attendance on */
+async function faCardCheck(emp, code) {
+    if (!emp.firebaseKey) return { need: false };
+    let v = {};
+    try { v = (await db.ref('cards').orderByChild('empKey').equalTo(emp.firebaseKey).once('value')).val() || {}; } catch (e) { return { need: false }; }
+    let k = null;
+    Object.keys(v).forEach(function (x) { if (v[x].state === 'active' || v[x].state === 'frozen') k = k || x; });
+    if (!k) return { need: false };
+    let sec = '';
+    try { sec = ((await db.ref('cardSecrets/' + k).once('value')).val() || {}).code || ''; } catch (e) {}
+    return { need: true, ok: !!code && code === sec, card: k, state: v[k].state };
+}
+function faCardGateOn(emp, chk) { return db.ref('cardGate/' + emp.id).update({ ok: true, cardId: chk.card, state: chk.state, at: Date.now() }); }
+async function faVerifyCardCode(btn) {
+    const id = faEl('faEnrollEmpId').value.trim(), emp = employees.find(function (e) { return e.id === id; });
+    if (!emp) { showToast(false, t('faPickEmployee')); return; }
+    const code = (faEl('faEnrollCode').value || '').trim(), chk = await faCardCheck(emp, code);
+    if (!chk.need) { showToast(false, t('faceNoActiveCard')); return; }
+    if (!chk.ok) { showToast(false, t(code ? 'faceCodeBad' : 'faceCodeAsk')); return; }
+    withBusyButton(btn, function () { return faCardGateOn(emp, chk).then(function () { faEl('faEnrollCode').value = ''; showToast(true); }).catch(function () { showToast(false); }); });
+}
 async function faSaveEnrollment(btn) {
     const id = faEl('faEnrollEmpId').value.trim();
     const emp = employees.find(function (e) { return e.id === id; });
@@ -15331,8 +15531,11 @@ async function faSaveEnrollment(btn) {
         const other = faTemplates[clash];
         if (!await showConfirm(fillTemplate(t('faLooksLike'), { name: (other && other.name) || clash, id: clash, target: emp.name }))) return;
     }
+    const code = (faEl('faEnrollCode').value || '').trim(), chk = await faCardCheck(emp, code);
+    if (chk.need && !chk.ok) { showToast(false, t(code ? 'faceCodeBad' : 'faceCodeAsk')); return; }
     withBusyButton(btn, function () {
         return db.ref('faceTemplates/' + id).set({ name: emp.name, descriptors: faCaptured, enrolledAt: Date.now(), count: faCaptured.length }).then(function () {
+            if (chk.need) { faCardGateOn(emp, chk).catch(function () {}); faEl('faEnrollCode').value = ''; }
             showToast(true, t('faEnrollSaved'));
             logActivity('Enroll Face', 'Face Template', id, emp.name, faCaptured.length + ' angles');
             faClearCaptures();
@@ -19185,8 +19388,10 @@ setInterval(function () { try { applySystemLockState(); } catch (e) {} }, 1500);
 /* ===== Card Center - shared by Employee, Department, HR and Administration =====
    cardOrders/<id> = { ref, empKey, empId, empName, dept, deptName, deptGroup, joinDate, phone, email, pickup:'dept'|'office',
      kind:'new'|'replace', seq, fee, at, status:'wait_dept'|'wait_staff'|'issue'|'made'|'ready'|'rejected',
-     sig:{dept,hr,ad}, paid:{amount,by,at}, card:{no,issued,name,deptName}, ver, last:{k,by,at}, seenEmp, seenDept }
+     sig:{dept,hr,ad}, feeMonth:'YYYY-MM', card:{no,issued,name,deptName}, ver, last:{k,by,at}, seenEmp, seenDept }
    cards/<orderId> = { empKey, empId, orderId, no, issued, name, deptName, state:'made'|'ready'|'active'|'frozen'|'closed', at }
+   cardAct/<orderId> = { empKey, code, exp, nid }  (activation code sent in the bell; 72 hours)
+   cardLock/<empKey> = { fails, until }   cardFees/<orderId> = { ref, empId, empName, deptName, deptGroup, amount, month, at }
    cardSecrets/<orderId> = { code }   (only Administration and the card owner can read it) */
 var CC = { store: { emp: {}, staff: {}, dept: {} }, cards: { emp: {}, staff: {} }, mode: '', rows: {}, ctxFn: null, gate: null, after: null, fSearch: '', fStatus: '', fDept: '' };
 var CC_FEE = 5, CC_FREE = 3;
@@ -19206,7 +19411,10 @@ var CC_COL = { wait_dept: '#d97706', wait_staff: '#2563eb', issue: '#7c3aed', ma
 function ccPill(o, staff) { return '<span class="lf-st" style="background:' + (CC_COL[o.status] || '#64748b') + '">' + ccE(staff ? ccStaffStatusText(o) : t(ccStatusKey(o))) + '</span>'; }
 function ccPlace(o) { return o.pickup === 'office' ? t('ccPickOffice') : t('ccPickDept') + (o.deptName ? ' (' + o.deptName + ')' : ''); }
 /* an order that is still going on (the employee cannot start another one) */
-function ccOpen(o) { return o.status === 'wait_dept' || o.status === 'wait_staff' || o.status === 'issue' || o.status === 'made' || o.status === 'ready'; }
+function ccOpen(o) {
+    if (o.status === 'ready') { var c = (CC.cards.emp || {})[o.key]; return !c || c.state === 'ready' || c.state === 'made'; }
+    return o.status === 'wait_dept' || o.status === 'wait_staff' || o.status === 'issue' || o.status === 'made';
+}
 function ccApply(id, paths, lastK, by, extra) {
     var r = CC.rows[id]; if (!r) return Promise.resolve();
     var now = Date.now(), up = {};
@@ -19269,7 +19477,7 @@ function ccDetailHtml(o, staff) {
     var sg = function (s) { return s && s.s === 'approved' ? ccE(s.by || '') + ' · ' + ccDate(s.at) : (s && s.s === 'rejected' ? '<b style="color:#dc2626">' + ccE(t('ccStRejected')) + '</b> ' + ccE(s.by || '') : ccE(t('ccNotYet'))); };
     var h = kv(t('ccRef'), '<b>' + ccE(o.ref) + '</b>') + kv(t('ccFId'), ccE(o.empId)) + kv(t('ccFName'), ccE(o.empName)) + kv(t('ccFDept'), ccE(o.deptName) + (o.deptGroup ? ' / ' + ccE(o.deptGroup) : '')) +
         kv(t('ccFJoin'), ccE(o.joinDate)) + kv(t('ccFPhone'), ccE(o.phone)) + kv(t('ccFEmail'), ccE(o.email)) + kv(t('ccPickAt'), ccE(ccPlace(o))) + kv(t('ccCNo'), ccE(ccFill(t('ccCardN'), { n: o.seq }))) +
-        kv(t('ccFee'), o.fee ? ccE(ccMoney(o.fee)) + ' · ' + (o.paid ? ccE(t('ccFeePaid')) : '<b style="color:#dc2626">' + ccE(t('ccFeeUnpaid')) + '</b>') : ccE(t('ccFree'))) +
+        kv(t('ccFee'), o.fee ? ccE(ccMoney(o.fee)) + ' · ' + ccE(ccFill(t('ccFeeSalary'), { month: ccMonthName(ccFeeMonthOf(o)) })) : ccE(t('ccFree'))) +
         kv(t('ccCStatus'), ccPill(o, staff));
     if (staff || o.sig) h += '<div style="margin-top:8px;font-weight:700;color:#475569">' + ccE(t('ccSigs')) + '</div>' + kv(t('ccSigDept'), sg(o.sig && o.sig.dept)) + kv(t('ccSigHr'), sg(o.sig && o.sig.hr)) + kv(t('ccSigAd'), sg(o.sig && o.sig.ad));
     var rj = o.sig && ((o.sig.dept && o.sig.dept.s === 'rejected' && o.sig.dept) || (o.sig.hr && o.sig.hr.s === 'rejected' && o.sig.hr) || (o.sig.ad && o.sig.ad.s === 'rejected' && o.sig.ad));
@@ -19294,42 +19502,52 @@ function ccFilterList(list) {
     });
 }
 
-/* ---------- fee receipt (printed from this page, no pop-up) ---------- */
-function ccReceiptHtml(o) {
-    var p = o.paid || {};
-    return '<div class="cc-rc" style="width:360px;margin:0 auto;padding:14px;border:1px solid #000;font-size:14px;line-height:1.6">' +
-        '<div style="text-align:center;font-weight:700;font-size:17px;margin-bottom:8px">' + ccE(t('ccRcptTitle')) + '</div>' +
-        '<div class="cc-kv"><span>' + ccE(t('ccRef')) + '</span><b>' + ccE(o.ref) + '</b></div>' +
-        '<div class="cc-kv"><span>' + ccE(t('ccFId')) + '</span><span>' + ccE(o.empId) + '</span></div>' +
-        '<div class="cc-kv"><span>' + ccE(t('ccFName')) + '</span><span>' + ccE(o.empName) + '</span></div>' +
-        '<div class="cc-kv"><span>' + ccE(t('ccFDept')) + '</span><span>' + ccE(o.deptName) + '</span></div>' +
-        '<div class="cc-kv"><span>' + ccE(t('ccCNo')) + '</span><span>' + ccE(ccFill(t('ccCardN'), { n: o.seq })) + '</span></div>' +
-        '<div class="cc-kv"><span>' + ccE(t('ccAmount')) + '</span><b>' + ccE(ccMoney(p.amount || o.fee || 0)) + '</b></div>' +
-        '<div class="cc-kv"><span>' + ccE(t('ccPaidTo')) + '</span><span>' + ccE(p.by || '') + '</span></div>' +
-        '<div class="cc-kv"><span>' + ccE(t('ccPaidAt')) + '</span><span>' + ccE(ccDate(p.at)) + '</span></div></div>';
+/* ---------- months, dates, print (shared) ---------- */
+function ccKh(ts) { return new Date((ts || Date.now()) + 7 * 3600 * 1000); }
+function ccNextMonth(ts) { var d = ccKh(ts), y = d.getUTCFullYear(), m = d.getUTCMonth() + 2; if (m > 12) { m = 1; y++; } return y + '-' + (m < 10 ? '0' : '') + m; }
+function ccThisMonth(ts) { var d = ccKh(ts), m = d.getUTCMonth() + 1; return d.getUTCFullYear() + '-' + (m < 10 ? '0' : '') + m; }
+function ccMonthName(ym) {
+    var p = String(ym || '').split('-'); if (p.length < 2) return ym || '';
+    var loc = { en: 'en-US', km: 'km-KH', zh: 'zh-CN' }[typeof currentLang !== 'undefined' ? currentLang : 'en'] || 'en-US';
+    try { return new Date(Date.UTC(+p[0], +p[1] - 1, 15)).toLocaleDateString(loc, { month: 'long', year: 'numeric', timeZone: 'UTC' }); } catch (e) { return ym; }
 }
-function ccPrintReceipt(id, obj) {
-    var r = obj || CC.rows[id]; if (!r || !r.paid) return;
+function ccMonthOnly(ym) {
+    var p = String(ym || '').split('-'); if (p.length < 2) return ym || '';
+    var loc = { en: 'en-US', km: 'km-KH', zh: 'zh-CN' }[typeof currentLang !== 'undefined' ? currentLang : 'en'] || 'en-US';
+    try { return new Date(Date.UTC(+p[0], +p[1] - 1, 15)).toLocaleDateString(loc, { month: 'long', timeZone: 'UTC' }); } catch (e) { return ym; }
+}
+function ccDateTime(ts) { try { return new Date(ts).toLocaleString('en-GB', { timeZone: 'Asia/Phnom_Penh', hour12: false, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } }
+function ccTimeOnly(ts) { try { return new Date(ts).toLocaleTimeString('en-GB', { timeZone: 'Asia/Phnom_Penh', hour12: false, hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } }
+function ccMask(no) { no = String(no || ''); return no.slice(0, 4) + '********' + no.slice(-4); }
+var CC_ACT_MS = 72 * 3600 * 1000, CC_LOCK_MS = 15 * 60 * 1000, CC_TRIES = 5;
+CC.act = {}; CC.fees = {}; CC.locks = {};
+/* the fee month of an order (older orders without it: the month after they were made) */
+function ccFeeMonthOf(o) { return o.feeMonth || ccNextMonth(o.at); }
+/* print any html from this page, no pop-up window */
+function ccPrintDoc(html, title, size) {
     var old = document.getElementById('ccPrintRoot'); if (old) old.remove();
     var st = document.getElementById('ccPrintCss'); if (st) st.remove();
     st = document.createElement('style'); st.id = 'ccPrintCss';
-    st.textContent = '@page{size:A5 portrait;margin:10mm}@media print{html,body{background:#fff!important;margin:0!important;padding:0!important;height:auto!important;overflow:visible!important}body>*:not(#ccPrintRoot){display:none!important}#ccPrintRoot{display:block!important;position:static!important}}@media screen{#ccPrintRoot{display:none}}';
+    st.textContent = '@page{size:' + (size || 'A4 portrait') + ';margin:12mm}@media print{html,body{background:#fff!important;margin:0!important;padding:0!important;height:auto!important;overflow:visible!important}body>*:not(#ccPrintRoot){display:none!important}#ccPrintRoot{display:block!important;position:static!important}}@media screen{#ccPrintRoot{display:none}}';
     document.head.appendChild(st);
-    var root = document.createElement('div'); root.id = 'ccPrintRoot'; root.innerHTML = ccReceiptHtml(r); document.body.appendChild(root);
-    var oldTitle = document.title; document.title = 'Receipt-' + (r.ref || '');
+    var root = document.createElement('div'); root.id = 'ccPrintRoot'; root.innerHTML = html; document.body.appendChild(root);
+    var oldTitle = document.title; document.title = title || 'Print';
     var done = function () { document.title = oldTitle; var x = document.getElementById('ccPrintRoot'); if (x) x.remove(); var y = document.getElementById('ccPrintCss'); if (y) y.remove(); window.removeEventListener('afterprint', done); };
     window.addEventListener('afterprint', done);
     setTimeout(function () { try { window.print(); } catch (e) { done(); } }, 150);
-}
-function ccReceiptDlg(id, obj) {
-    var r = obj || CC.rows[id]; if (!r || !r.paid) return;
-    lfDlg({ id: 'R', title: t('ccReceipt'), w: 440, z: 6400, html: ccReceiptHtml(r), buttons: [{ t: t('ccClose'), cls: 's' }, { t: t('ccPrintReceipt'), cls: 'g', close: false, fn: function () { ccPrintReceipt(id, r); } }] });
 }
 
 var CC_SVG_ZZ = '<svg viewBox="0 0 90 70" width="90" height="70"><text x="52" y="14" fill="#64748b" font-size="13" font-family="Arial">Z</text><text x="64" y="26" fill="#64748b" font-size="10" font-family="Arial">z</text><rect x="8" y="30" width="62" height="36" rx="6" fill="#e2e8f0" stroke="#94a3b8"/><rect x="8" y="42" width="62" height="6" fill="#123a5c"/><rect x="14" y="54" width="18" height="6" rx="3" fill="#123a5c"/><path d="M26 36q3 2 6 0M46 36q3 2 6 0" stroke="#64748b" fill="none" stroke-width="1.5"/></svg>';
 var CC_SVG_ADD = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="17" height="12" rx="2"/><line x1="2" y1="10" x2="19" y2="10"/><line x1="20" y1="3" x2="20" y2="9"/><line x1="17" y1="6" x2="23" y2="6"/></svg>';
 var CC_SVG_PW = '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 6.5a8 8 0 1 0 11.4 0"/></svg>';
 var CC_SVG_EMPTY = '<svg viewBox="0 0 90 70" width="120" height="90"><rect x="4" y="14" width="68" height="46" rx="8" fill="#e5e7eb"/><rect x="12" y="24" width="10" height="10" rx="2" fill="#fff"/><rect x="12" y="44" width="28" height="3" rx="1.5" fill="#fff"/><circle cx="68" cy="16" r="14" fill="#d1d5db"/><path d="M68 10v12M62 16h12" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>';
+
+/* the bell message the employee gets when a request is rejected (by the department, HR or Administration) */
+function ccRejectNote(id, o, extra) {
+    var fee = o.fee ? ccFill(t('ccRejFee'), { amt: o.fee, month: ccMonthName(ccFeeMonthOf(o)) }) : '';
+    extra['notifications/' + db.ref('notifications').push().key] = { targetId: o.empId, system: 'card', orderId: id, message: t('ccRejNTitle'), description: ccFill(t('ccRejNMsg'), { ref: o.ref }) + fee, relatedRequestKey: null, timestamp: Date.now() };
+    return extra;
+}
 
 /* ===== Card Center: Employee system (Card button + panel + New Card + notices) ===== */
 CC.ctxEmp = function () {
@@ -19343,24 +19561,29 @@ var ccEmpSubId = '', ccEmpSubRef = null, ccEmpCardRef = null;
 function ccEmpOpen() { ccUse('emp'); ccEmpRender(); }
 function ccEmpLatest() { var l = ccList(CC.store.emp); return l[0] || null; }
 function ccEmpCanOrder() { var l = ccList(CC.store.emp); return !l.some(function (o) { return ccOpen(o); }); }
+function ccEmpCard() { var cardOf = null; Object.keys(CC.cards.emp || {}).forEach(function (k) { var x = CC.cards.emp[k]; if (x.state === 'active' || x.state === 'frozen') cardOf = cardOf || Object.assign({ key: k }, x); }); return cardOf; }
 function ccEmpRender() {
     var box = document.getElementById('ccEmpBox'); if (!box) return;
     var c = ccCtx(), list = ccList(CC.store.emp), top = list[0] || null, can = ccEmpCanOrder();
-    var cardOf = null; Object.keys(CC.cards.emp || {}).forEach(function (k) { var x = CC.cards.emp[k]; if (x.state === 'active' || x.state === 'frozen') cardOf = cardOf || x; });
+    var cardOf = ccEmpCard();
     var pend = top && ccOpen(top) ? top : null, h = '';
     if (!pend && !cardOf) {
         /* no card yet: a blue card-shaped "New Card" tile, like the bank app */
         h += '<button type="button" class="cc-tile" onclick="ccNewOpen()"><span class="pl">+</span><span>' + ccE(t('ccNew')) + '</span></button>' +
             '<div class="cc-empty">' + CC_SVG_EMPTY + '<h5>' + ccE(t('ccOrderNewTitle')) + '</h5><p>' + ccE(t('ccOrderNewHint')) + '</p></div>';
     } else if (pend) {
-        /* a card that is not active yet: the real card, blurred and faded, with "tap to activate" on top */
-        var ready = pend.status === 'ready', nm = (pend.card && pend.card.name) || c.empName, dp = (pend.card && pend.card.deptName) || c.group;
-        h += '<div class="cc-pg"><div class="cc-gh' + (ready ? '' : ' off') + '" id="ccGhost"' + (ready ? ' onclick="if (typeof ccActivateOpen === \'function\') ccActivateOpen(\'' + pend.key + '\')"' : '') + '>' +
-            ccCardHtml({ name: nm, dept: dp }) + '<div class="cc-gh-ov">' +
-            (ready ? '<div class="cc-pw">' + CC_SVG_PW + '</div><div class="cc-gt">' + ccE(t('ccTapActivate')) + '</div>' : '<div class="cc-gt" style="font-size:14px">' + ccE(t(ccStatusKey(pend))) + '</div>') + '</div></div>' +
-            '<div class="cc-zz">' + CC_SVG_ZZ + '</div><h5>' + ccE(ready ? t('ccNeedAct') : t(ccStatusKey(pend))) + '</h5><p>' + ccE(ready ? t('ccActHint') : t('ccInProgress')) + '</p></div>';
+        /* a card that is not active yet: the real card, blurred and faded. The button is always there - activation itself checks everything. */
+        var nm = (pend.card && pend.card.name) || c.empName, dp = (pend.card && pend.card.deptName) || c.group;
+        h += '<div class="cc-pg"><div class="cc-gh" id="ccGhost" onclick="ccActivateOpen(\'' + pend.key + '\')">' +
+            ccCardHtml({ name: nm, dept: dp }) + '<div class="cc-gh-ov"><div class="cc-pw">' + CC_SVG_PW + '</div><div class="cc-gt">' + ccE(t('ccTapActivate')) + '</div></div></div>' +
+            '<div class="cc-zz">' + CC_SVG_ZZ + '</div><h5>' + ccE(t('ccNeedAct')) + '</h5><p>' + ccE(t('ccActHint')) + '</p></div>';
     } else {
-        h += '<div class="cc-pg" style="padding-bottom:64px"><div id="ccCardWrap">' + ccCardHtml({ name: (cardOf.name || c.empName), dept: (cardOf.deptName || c.group), state: t('ccStActive') }) + '</div>' +
+        var fr = cardOf.state === 'frozen';
+        h += '<div class="cc-pg" style="padding-bottom:64px"><div id="ccCardWrap"' + (fr ? ' style="opacity:.55;filter:grayscale(.6)"' : '') + '>' + ccCardHtml({ name: (cardOf.name || c.empName), dept: (cardOf.deptName || c.group), no: cardOf.no, shown: true, issued: cardOf.issued, state: fr ? t('ccStFrozen') : t('ccStActive') }) + '</div>' +
+            (fr ? '<p style="margin:10px auto 0">' + ccE(t('ccFrozenHint')) + '</p>' : '') +
+            '<div class="cc-acts"><button type="button" onclick="ccShowCode(\'' + cardOf.key + '\')">' + ccE(t('ccShowCode')) + '</button>' +
+            '<button type="button" onclick="ccFreezeToggle(\'' + cardOf.key + '\')">' + ccE(fr ? t('ccUnfreeze') : t('ccFreeze')) + '</button>' +
+            '<button type="button" class="red" onclick="ccCloseCard(\'' + cardOf.key + '\')">' + ccE(t('ccCloseCard')) + '</button></div>' +
             (can ? '<button type="button" class="cc-fab" title="' + ccE(t('ccReplace')) + '" onclick="ccNewOpen()">' + CC_SVG_ADD + '</button>' : '') + '</div>';
     }
     box.innerHTML = h;
@@ -19376,14 +19599,14 @@ function ccEmpView(id) {
 function ccNewOpen() {
     if (ccGate('new')) return;
     if (!ccEmpCanOrder()) { lfDlg({ title: t('ccTitle'), html: '<p>' + ccE(t('ccBusy')) + '</p>', buttons: [{ t: t('lfOk'), cls: 'g' }] }); return; }
-    var c = ccCtx(), seq = Object.keys(CC.cards.emp || {}).length + 1, fee = ccFeeFor(seq);
+    var c = ccCtx(), seq = Object.keys(CC.cards.emp || {}).length + 1, fee = ccFeeFor(seq), fmo = ccMonthOnly(ccNextMonth());
     var h = '<div class="lf-fg"><label>' + ccE(t('ccFId')) + ' / ' + ccE(t('ccFName')) + '</label><input type="text" value="' + ccE(c.empId + ' - ' + c.empName) + '" disabled></div>' +
         '<div class="lf-fg"><label>' + ccE(t('ccFDept')) + '</label><input type="text" value="' + ccE(c.group) + '" disabled></div>' +
         '<div class="lf-row"><div class="lf-fg"><label>' + ccE(t('ccFJoin')) + '</label><input type="text" id="ccfJoin" value="' + ccE(c.joinDate) + '"></div>' +
         '<div class="lf-fg"><label>' + ccE(t('ccFPhone')) + '</label><input type="tel" id="ccfPhone" value="' + ccE(c.phone) + '"></div></div>' +
         '<div class="lf-fg"><label>' + ccE(t('ccFEmail')) + ' (' + ccE(t('ccOptional')) + ')</label><input type="email" id="ccfEmail" value="' + ccE(c.email) + '"></div>' +
         '<div class="lf-fg"><label>' + ccE(t('ccPickAt')) + '</label><select id="ccfPick"><option value="dept">' + ccE(t('ccPickDept')) + '</option><option value="office">' + ccE(t('ccPickOffice')) + '</option></select></div>' +
-        '<p style="font-size:13px;color:' + (fee ? '#b45309' : '#475569') + ';font-weight:' + (fee ? '700' : '400') + '">' + ccE(fee ? ccFill(t('ccFeeWarn'), { n: seq, amt: ccMoney(fee) }) : ccFill(t('ccFreeNote'), { n: seq })) + '</p>' +
+        '<p style="font-size:13px;color:' + (fee ? '#b45309' : '#475569') + ';font-weight:' + (fee ? '700' : '400') + '">' + ccE(fee ? ccFill(t('ccFeeWarn'), { n: seq, amt: ccMoney(fee), month: fmo }) : ccFill(t('ccFreeNote'), { n: seq })) + '</p>' +
         '<div class="cc-fee"><div><span>' + ccE(t('ccFee')) + '</span><span>' + ccE(fee ? ccMoney(fee) : t('ccFree')) + '</span></div><div class="tot"><span>' + ccE(t('ccTotal')) + '</span><span>' + ccE(fee ? ccMoney(fee) : ccMoney(0)) + '</span></div></div>' +
         '<label class="cc-agree"><input type="checkbox" id="ccfAgree"><span>' + ccE(t('ccAgree')) + ' <a onclick="event.preventDefault();event.stopPropagation();ccTermsOpen()">' + ccE(t('ccTermsLink')) + '</a></span></label>' +
         '<button type="button" class="cc-order" id="ccfOrder" disabled>' + ccE(t('ccOrderNow')) + '</button>';
@@ -19402,11 +19625,12 @@ function ccNewSubmit(seq, fee) {
         if (!dk) { lfDlgClose('E'); lfDlg({ title: t('ccTitle'), html: '<p>' + ccE(t('lfNoDept')) + '</p>', buttons: [{ t: t('lfOk') }] }); return; }
         var now = Date.now(), ref = ccMakeRef();
         var rec = { ref: ref, empKey: c.empKey, empId: c.empId, empName: c.empName, dept: dk.key, deptName: dk.name, deptGroup: c.group, joinDate: join, phone: phone, email: email, pickup: pick,
-            kind: Object.keys(CC.cards.emp || {}).length ? 'replace' : 'new', seq: seq, fee: fee, at: now, status: 'wait_dept', ver: 1, seenEmp: 1, last: { k: 'created', by: c.empName, at: now } };
+            kind: Object.keys(CC.cards.emp || {}).length ? 'replace' : 'new', seq: seq, fee: fee, feeMonth: fee ? ccNextMonth(now) : null, at: now, status: 'wait_dept', ver: 1, seenEmp: 1, last: { k: 'created', by: c.empName, at: now } };
         var okey = db.ref('cardOrders').push().key, up = {};
         up['cardOrders/' + okey] = rec;
-        /* the same message also goes to the employee's notification bell */
-        up['notifications/' + db.ref('notifications').push().key] = { targetId: c.empId, system: 'card', message: ccFill(t('ccNotifOrderTitle'), { ref: ref }), description: ccFill(t('ccOrdered'), { ref: ref }), relatedRequestKey: null, timestamp: now };
+        /* the same messages go to the employee's notification bell */
+        up['notifications/' + db.ref('notifications').push().key] = { targetId: c.empId, system: 'card', orderId: okey, message: t('ccNotifOrderTitle'), description: ccFill(t('ccOrdered'), { ref: ref }), relatedRequestKey: null, timestamp: now };
+        if (fee) up['notifications/' + db.ref('notifications').push().key] = { targetId: c.empId, system: 'card', orderId: okey, message: t('ccFeeNTitle'), description: ccFill(t('ccFeeNMsg'), { amt: fee, month: ccMonthOnly(ccNextMonth(now)) }), relatedRequestKey: null, timestamp: now + 1 };
         db.ref().update(up).then(function () {
             lfDlgClose('E');
             lfDlg({ id: 'N', title: t('ccTitle'), z: 6300, w: 460, html: '<p>' + ccE(ccFill(t('ccOrdered'), { ref: ref })) + '</p>', buttons: [{ t: t('lfOk'), cls: 'g' }] });
@@ -19414,7 +19638,7 @@ function ccNewSubmit(seq, fee) {
     }).catch(function () { if (ob) ob.disabled = false; showToast(false, t('lfSaveErr')); });
 }
 /* ---------- notices: card ready / request rejected (nothing for the middle steps) ---------- */
-var CC_EMP_NOTE = { rejected_dept: 1, rejected_hr: 1, rejected_ad: 1, ready: 1 };
+var CC_EMP_NOTE = { rejected_dept: 1, rejected_hr: 1, rejected_ad: 1 };
 function ccEmpNotice() {
     if (document.getElementById('lfDlgCN') || !sessionStorage.getItem('empLoggedInId')) return;
     var app = document.getElementById('employeeApp'); if (!app || getComputedStyle(app).display === 'none') return;
@@ -19441,9 +19665,145 @@ function ccEmpTick() {
         }
     }
     if (id && !ccEmpCardRef) { var c = ccCtx(); if (c.empKey) { try { ccEmpCardRef = db.ref('cards').orderByChild('empKey').equalTo(c.empKey); ccEmpCardRef.on('value', function (s) { CC.cards.emp = s.val() || {}; ccEmpRender(); }, function () {}); } catch (e) {} } }
-    ccEmpNotice();
+    ccEmpNotice(); ccEmpExpire(id);
+}
+/* the activation message is removed from the bell 72 hours after it was sent */
+var ccExpBusy = {};
+function ccEmpExpire(id) {
+    if (!id || typeof allNotifications === 'undefined') return; var now = Date.now();
+    allNotifications.forEach(function (n) {
+        if (n.system === 'card_act' && n.targetId === id && n.exp && n.exp < now && n.firebaseKey && !ccExpBusy[n.firebaseKey]) { ccExpBusy[n.firebaseKey] = 1; db.ref('notifications/' + n.firebaseKey).remove().catch(function () {}); }
+    });
 }
 setInterval(ccEmpTick, 1500);
+
+/* ======================= Part 3: activate, security code, freeze, close ======================= */
+(function () {
+    var st = document.createElement('style');
+    st.textContent = '.cc-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}.cc-acts button{border:1px solid #123a5c;background:#fff;color:#123a5c;border-radius:999px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}.cc-acts button.red{border-color:#dc2626;color:#dc2626}' +
+        '.cc-ao{position:fixed;inset:0;z-index:7000;background:linear-gradient(180deg,#0a2a5e,#06183a);color:#fff;overflow-y:auto;font-family:Arial,sans-serif}.cc-ao-in{max-width:440px;margin:0 auto;padding:18px 22px 40px;min-height:100%;box-sizing:border-box;display:flex;flex-direction:column}' +
+        '.cc-ao-x{background:none;border:0;color:#fff;font-size:30px;line-height:1;cursor:pointer;align-self:flex-start;padding:0 6px 10px 0}.cc-ao h2{font-size:24px;margin:8px 0 6px}.cc-ao .sub{font-size:14px;color:#b9c8e6;margin:0 0 26px;line-height:1.5}' +
+        '.cc-ao label{display:block;font-size:13px;color:#b9c8e6;margin-top:16px}.cc-ao input{width:100%;box-sizing:border-box;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.55);color:#fff;font-size:20px;letter-spacing:2px;padding:10px 0;outline:none}' +
+        '.cc-ao .err{color:#ffb4b4;font-size:14px;min-height:20px;margin-top:14px}.cc-ao .go{margin-top:auto;padding-top:24px}.cc-ao .go button{width:100%;border:0;border-radius:10px;padding:15px;font-size:16px;font-weight:700;letter-spacing:1px;background:#fff;color:#0a2a5e;cursor:pointer}.cc-ao .go button[disabled]{opacity:.35;cursor:not-allowed}';
+    document.head.appendChild(st);
+})();
+var CC_AO = { id: '', busy: false };
+function ccEmpRec() { var id = sessionStorage.getItem('empLoggedInId'); return (typeof employees !== 'undefined' ? employees : []).filter(function (x) { return x.id === id; })[0] || null; }
+function ccLockRef() { return db.ref('cardLock/' + ccCtx().empKey); }
+function ccAoClose() { var x = document.getElementById('ccActOv'); if (x) x.remove(); CC_AO.id = ''; }
+function ccAoShell(title, sub, body, btn, back) {
+    var x = document.getElementById('ccActOv'); if (!x) { x = document.createElement('div'); x.id = 'ccActOv'; x.className = 'cc-ao'; document.body.appendChild(x); }
+    x.innerHTML = '<div class="cc-ao-in"><button type="button" class="cc-ao-x" id="ccAoX" title="' + ccE(t(back ? 'ccBack' : 'ccClose')) + '">' + (back ? '&#8592;' : '&times;') + '</button><h2>' + ccE(title) + '</h2><p class="sub">' + ccE(sub) + '</p>' + body +
+        '<div class="err" id="ccAoErr"></div><div class="go"><button type="button" id="ccAoGo" disabled>' + ccE(btn) + '</button></div></div>';
+    document.getElementById('ccAoX').onclick = back || ccAoClose;
+    return x;
+}
+function ccAoErr(m) { var e = document.getElementById('ccAoErr'); if (e) e.textContent = m || ''; }
+function ccDigits(el, n, chk) { el.oninput = function () { el.value = el.value.replace(/\D/g, '').slice(0, n); chk(); }; }
+function ccActivateOpen(id) {
+    if (ccGate('activate')) return; ccUse('emp'); CC_AO.id = id; CC_AO.busy = false; ccActStep1();
+}
+function ccActStep1() {
+    ccAoShell(t('ccActTitle1'), t('ccActSub1'), '<label>' + ccE(t('ccActNo')) + '</label><input id="ccAoNo" inputmode="numeric" autocomplete="off"><label>' + ccE(t('ccActCode')) + '</label><input id="ccAoCode" inputmode="numeric" autocomplete="off" type="password" style="max-width:140px">', t('ccNext'));
+    var no = document.getElementById('ccAoNo'), cd = document.getElementById('ccAoCode'), go = document.getElementById('ccAoGo');
+    var chk = function () { go.disabled = !(no.value.length === 16 && cd.value.length === 3); };
+    ccDigits(no, 16, chk); ccDigits(cd, 3, chk);
+    go.onclick = function () { ccActCheck1(no.value, cd.value); };
+    ccLockRef().once('value').then(function (s) { var lk = s.val() || {}; if (lk.until > Date.now()) ccAoErr(ccFill(t('ccActLocked'), { time: ccTimeOnly(lk.until) })); }).catch(function () {});
+}
+/* one wrong try: count it; the 5th wrong try locks activation for 15 minutes */
+function ccActFail(lk, msg) {
+    var f = (lk.fails || 0) + 1, nv = f >= CC_TRIES ? { fails: 0, until: Date.now() + CC_LOCK_MS } : { fails: f, until: 0 };
+    return ccLockRef().set(nv).catch(function () {}).then(function () { ccAoErr(nv.until ? ccFill(t('ccActLocked'), { time: ccTimeOnly(nv.until) }) : msg); CC_AO.busy = false; var g = document.getElementById('ccAoGo'); if (g) g.disabled = false; });
+}
+function ccActLockGate(then) {
+    if (CC_AO.busy) return; CC_AO.busy = true; var g = document.getElementById('ccAoGo'); if (g) g.disabled = true; ccAoErr('');
+    ccLockRef().once('value').then(function (s) {
+        var lk = s.val() || {};
+        if (lk.until > Date.now()) { ccAoErr(ccFill(t('ccActLocked'), { time: ccTimeOnly(lk.until) })); CC_AO.busy = false; if (g) g.disabled = false; return; }
+        then(lk);
+    }).catch(function () { ccAoErr(t('lfSaveErr')); CC_AO.busy = false; if (g) g.disabled = false; });
+}
+function ccActCheck1(no, code) {
+    var id = CC_AO.id;
+    ccActLockGate(function (lk) {
+        var cd = (CC.cards.emp || {})[id];
+        var bad = function () { ccActFail(lk, t('ccActBad1')); };
+        if (!cd || cd.no !== no) return bad();
+        db.ref('cardSecrets/' + id).once('value').then(function (s) {
+            if (((s.val() || {}).code) !== code) return bad();
+            CC_AO.busy = false; CC_AO.ok1 = id; ccActStep2();
+        }).catch(bad);
+    });
+}
+function ccActStep2() {
+    ccAoShell(t('ccActTitle2'), t('ccActSub2'), '<label>' + ccE(t('ccActPw')) + '</label><input id="ccAoPw" type="password" autocomplete="off" style="letter-spacing:1px"><label>' + ccE(t('ccActCodeA')) + '</label><input id="ccAoAc" inputmode="numeric" autocomplete="off" style="max-width:160px">', t('ccNext'), ccActStep1);
+    var pw = document.getElementById('ccAoPw'), ac = document.getElementById('ccAoAc'), go = document.getElementById('ccAoGo');
+    var chk = function () { go.disabled = !(pw.value && ac.value.length === 4); };
+    pw.oninput = chk; ccDigits(ac, 4, chk);
+    go.onclick = function () { ccActCheck2(pw.value, ac.value); };
+}
+function ccActCheck2(pw, code) {
+    var id = CC_AO.id; if (CC_AO.ok1 !== id) { ccActStep1(); return; }
+    ccActLockGate(function (lk) {
+        var e = ccEmpRec(), bad = function () { ccActFail(lk, t('ccActBad2')); }, key = ccCtx().empKey;
+        if (!e || String(pw) !== ccPass(e)) return bad();
+        db.ref('cardAct/' + id).once('value').then(function (s) {
+            var a = s.val(), g = document.getElementById('ccAoGo');
+            var stop = function (m) { ccAoErr(m); CC_AO.busy = false; if (g) g.disabled = false; };
+            if (!a) return stop(t('ccActNoCode'));
+            if (a.exp < Date.now()) return stop(t('ccActExpired'));
+            if (a.code !== code) return bad();
+            var up = {}, now = Date.now();
+            up['cards/' + id + '/state'] = 'active'; up['cards/' + id + '/activatedAt'] = now;
+            Object.keys(CC.cards.emp || {}).forEach(function (k) { var x = CC.cards.emp[k]; if (k !== id && (x.state === 'active' || x.state === 'frozen')) up['cards/' + k + '/state'] = 'closed'; });
+            up['cardGate/' + ccCtx().empId + '/state'] = 'active'; up['cardGate/' + ccCtx().empId + '/cardId'] = id; up['cardGate/' + ccCtx().empId + '/ok'] = false; up['cardGate/' + ccCtx().empId + '/at'] = now;
+            up['cardAct/' + id] = null; if (a.nid) up['notifications/' + a.nid] = null; up['cardLock/' + key] = null;
+            db.ref().update(up).then(function () {
+                CC_AO.busy = false; ccAoClose();
+                lfDlg({ id: 'AD', z: 6400, title: t('ccTitle'), html: '<p>' + ccE(t('ccActDone')) + '</p>', buttons: [{ t: t('lfOk'), cls: 'g' }] });
+            }).catch(function (er) { console.error(er); stop(t('lfSaveErr')); });
+        }).catch(function () { CC_AO.busy = false; ccAoErr(t('ccActNoCode')); var g = document.getElementById('ccAoGo'); if (g) g.disabled = false; });
+    });
+}
+function ccPass(e) { return typeof ecPass === 'function' ? ecPass(e) : String(e.loginPassword || e.id || ''); }
+/* ---------- password check, then the action ---------- */
+function ccAskPw(then) {
+    var h = '<div class="lf-fg"><label>' + ccE(t('ccPwTitle')) + '</label><input type="password" id="ccPwIn" autocomplete="off"></div><div id="ccPwErr" style="color:#dc2626;font-size:13px;min-height:18px"></div>';
+    var go = function () {
+        var v = (document.getElementById('ccPwIn') || {}).value || '', e = ccEmpRec();
+        if (!e || v !== ccPass(e)) { var er = document.getElementById('ccPwErr'); if (er) er.textContent = t('ccWrongPw'); return; }
+        lfDlgClose('PW'); then();
+    };
+    lfDlg({ id: 'PW', z: 6400, w: 360, title: t('ccShowCode'), html: h, buttons: [{ t: t('lfCancel'), cls: 's' }, { t: t('lfOk'), cls: 'g', close: false, fn: go }] });
+    var i = document.getElementById('ccPwIn'); if (i) { i.onkeydown = function (ev) { if (ev.key === 'Enter') go(); }; i.focus(); }
+}
+var ccCodeIv = null;
+function ccShowCode(id) {
+    if (ccGate('showcode')) return;
+    ccAskPw(function () {
+        db.ref('cardSecrets/' + id).once('value').then(function (s) {
+            var code = (s.val() || {}).code || '-', left = 10;
+            lfDlg({ id: 'SC', z: 6500, w: 320, title: t('ccCodeIs'), html: '<div style="font-size:38px;letter-spacing:12px;font-weight:700;text-align:center;color:#123a5c;font-family:monospace">' + ccE(code) + '</div><div id="ccScLeft" style="text-align:center;font-size:13px;color:#64748b;margin-top:10px"></div>', buttons: [{ t: t('ccClose'), cls: 'g', fn: function () { clearInterval(ccCodeIv); } }] });
+            var paint = function () { var e = document.getElementById('ccScLeft'); if (e) e.textContent = ccFill(t('ccHidesIn'), { n: left }); };
+            paint(); clearInterval(ccCodeIv);
+            ccCodeIv = setInterval(function () { left--; if (left <= 0) { clearInterval(ccCodeIv); lfDlgClose('SC'); } else paint(); }, 1000);
+        }).catch(function () { showToast(false, t('lfSaveErr')); });
+    });
+}
+function ccSetState(id, from, to) {
+    var cd = (CC.cards.emp || {})[id]; if (!cd || cd.state !== from) return;
+    var up = {}; up['cards/' + id + '/state'] = to; up['cardGate/' + ccCtx().empId + '/state'] = to;
+    db.ref().update(up).then(function () { showToast(true); }).catch(function () { showToast(false, t('lfSaveErr')); });
+}
+function ccFreezeToggle(id) {
+    if (ccGate('freeze')) return; var cd = (CC.cards.emp || {})[id]; if (!cd) return; var fr = cd.state === 'frozen';
+    lfConfirm(fr ? t('ccAskUnfreeze') : t('ccAskFreeze'), function () { ccSetState(id, fr ? 'frozen' : 'active', fr ? 'active' : 'frozen'); });
+}
+function ccCloseCard(id) {
+    if (ccGate('close')) return; var cd = (CC.cards.emp || {})[id]; if (!cd) return;
+    lfConfirm(t('ccAskClose'), function () { ccSetState(id, cd.state, 'closed'); });
+}
 
 /* ===== Card Center: HR + Administration ===== */
 function ccIsAdmin() { return rqRole() === 'admin'; }
@@ -19475,7 +19835,7 @@ CC.after_staff = function () { ccStaffBadge(); ccCleanup(); var m = document.get
     try { db.ref('cards').on('value', function (s) { CC.cards.staff = s.val() || {}; }, function () {}); } catch (e) {}
 })();
 function openCardCenter() {
-    ccUse('staff'); lfStartCfg();
+    ccUse('staff'); lfStartCfg(); ccActSub();
     var m = document.getElementById('ccModal'); if (!m) return;
     var st = document.getElementById('ccsStatus'), cur = st.value || 'open';
     st.innerHTML = [['open', 'lfSOpen'], ['', 'lfSAll'], ['wait_dept', 'ccStWaitDept'], ['wait_staff', 'ccStWaitStaff'], ['issue', 'ccStIssue'], ['made', 'ccStMade'], ['ready', 'ccStReady'], ['rejected', 'ccStRejected']].map(function (x) { return '<option value="' + x[0] + '">' + ccE(t(x[1])) + '</option>'; }).join('');
@@ -19496,21 +19856,31 @@ function ccStaffRender() {
     if (sf === 'open') list = list.filter(ccStaffTodo); else if (!sf && !q) list = list.filter(function (o) { return o.status !== 'wait_dept'; });
     tb.innerHTML = list.length ? ccRowsHtml(list, { emp: true, dept: true, staff: true }, 'ccStaffOpen') : '<tr><td colspan="7" style="text-align:center;color:#94a3b8;">' + ccE(t('ccNone')) + '</td></tr>';
 }
+function ccActSub() {
+    if (CC.actSub) return; CC.actSub = true;
+    if (ccIsAdmin()) {
+        try { db.ref('cardAct').on('value', function (s) { CC.act = s.val() || {}; }, function () {}); } catch (e) {}
+        try { db.ref('cardLock').on('value', function (s) { CC.locks = s.val() || {}; }, function () {}); } catch (e) {}
+    }
+    try { db.ref('cardFees').on('value', function (s) { CC.fees = s.val() || {}; }, function () {}); } catch (e) {}
+}
 function ccStaffOpen(id) {
-    ccUse('staff'); var o = CC.store.staff[id]; if (!o) return;
-    var adm = ccIsAdmin(), b = [{ t: t('ccClose'), cls: 's' }];
-    if (o.paid) b.push({ t: t('ccReceipt'), cls: 'o', fn: function () { ccReceiptDlg(id); } });
-    var warn = '';
+    ccUse('staff'); ccActSub(); var o = CC.store.staff[id]; if (!o) return;
+    var adm = ccIsAdmin(), b = [{ t: t('ccClose'), cls: 's' }], now = Date.now(), cd = CC.cards.staff[id], info = '';
     if (o.status === 'wait_staff') {
-        if (o.fee && !o.paid) warn = '<p style="background:#fee2e2;border-radius:8px;padding:8px 10px;font-size:13px">' + ccE(t('ccNeedPay')) + '</p>';
-        else {
-            b.push({ t: t('lfReject'), cls: 'r', fn: function () { ccStaffReject(id); } });
-            if (!adm && !(o.sig && o.sig.hr)) b.push({ t: t('ccHrSign'), cls: 'g', fn: function () { ccHrSign(id); } });
-            if (adm) b.push({ t: t('ccAdSign'), cls: 'g', fn: function () { ccAdSign(id); } });
-        }
+        b.push({ t: t('lfReject'), cls: 'r', fn: function () { ccStaffReject(id); } });
+        if (!adm && !(o.sig && o.sig.hr)) b.push({ t: t('ccHrSign'), cls: 'g', fn: function () { ccHrSign(id); } });
+        if (adm) b.push({ t: t('ccAdSign'), cls: 'g', fn: function () { ccAdSign(id); } });
     } else if (adm && o.status === 'issue') b.push({ t: t('ccIssue'), cls: 'g', fn: function () { ccIssueOpen(id); } });
     else if (adm && o.status === 'made') b.push({ t: t('ccCardReady'), cls: 'g', fn: function () { ccReadyBtn(id); } });
-    lfDlg({ id: 'V', title: t('ccTitle') + ' ' + o.ref, w: 540, z: 6200, html: warn + ccDetailHtml(o, true), buttons: b });
+    if (adm && cd && (o.status === 'made' || o.status === 'ready')) b.push({ t: t('ccShowCode'), cls: 'o', close: false, fn: function () { ccAdminCode(id); } });
+    if (adm && o.status === 'ready' && cd && cd.state === 'ready') {
+        var act = CC.act[id];
+        if (!act || act.exp < now) { info += '<p style="background:#fef3c7;border-radius:8px;padding:8px 10px;font-size:13px">' + ccE(t('ccActExpired')) + '</p>'; b.push({ t: t('ccSendCode'), cls: 'g', fn: function () { ccSendNewCode(id); } }); }
+        var lk = CC.locks[o.empKey];
+        if (lk && lk.until > now) { info += '<p style="background:#fee2e2;border-radius:8px;padding:8px 10px;font-size:13px">' + ccE(ccFill(t('ccLockedUntil'), { time: ccTimeOnly(lk.until) })) + '</p>'; b.push({ t: t('ccRelease'), cls: 'r', fn: function () { ccReleaseLock(o.empKey); } }); }
+    }
+    lfDlg({ id: 'V', title: t('ccTitle') + ' ' + o.ref, w: 540, z: 6200, html: info + ccDetailHtml(o, true), buttons: b });
 }
 function ccHrSign(id) {
     if (ccGate('sign')) return;
@@ -19519,14 +19889,16 @@ function ccHrSign(id) {
 function ccAdSign(id) {
     if (ccGate('sign')) return; var o = CC.store.staff[id]; if (!o) return;
     lfConfirm(t('ccAskAd'), function () {
-        var now = Date.now(), p = { status: 'issue', 'sig/ad': { s: 'approved', by: ccWho(), at: now } };
+        var now = Date.now(), p = { status: 'issue', 'sig/ad': { s: 'approved', by: ccWho(), at: now } }, ex = {};
         if (!(o.sig && o.sig.hr)) p['sig/hr'] = { s: 'approved', by: ccWho(), at: now, viaAd: true };
-        ccApply(id, p, 'ad_signed').then(function () { ccIssueOpen(id); });
+        /* the fee list keeps its own copy, so it stays after the order is cleaned up */
+        if (o.fee) ex['cardFees/' + id] = { ref: o.ref, empId: o.empId, empName: o.empName, deptName: o.deptName, deptGroup: o.deptGroup || '', amount: o.fee, month: ccFeeMonthOf(o), at: o.at || now };
+        ccApply(id, p, 'ad_signed', null, ex).then(function () { ccIssueOpen(id); });
     });
 }
 function ccStaffReject(id) {
-    if (ccGate('reject')) return; var who = ccIsAdmin() ? 'ad' : 'hr';
-    lfAsk(t('lfReject'), t('ccRejectPrompt'), function (note) { var p = { status: 'rejected' }; p['sig/' + who] = { s: 'rejected', by: ccWho(), at: Date.now(), note: note.trim() }; ccApply(id, p, 'rejected_' + who); });
+    if (ccGate('reject')) return; var who = ccIsAdmin() ? 'ad' : 'hr', o = CC.store.staff[id]; if (!o) return;
+    lfAsk(t('lfReject'), t('ccRejectPrompt'), function (note) { var p = { status: 'rejected' }; p['sig/' + who] = { s: 'rejected', by: ccWho(), at: Date.now(), note: note.trim() }; ccApply(id, p, 'rejected_' + who, null, ccRejectNote(id, o, {})); });
 }
 /* ---------- the card form (Administration) ---------- */
 function ccIdParts(o) {
@@ -19562,17 +19934,73 @@ function ccIssueSave(id) {
     extra['cardSecrets/' + id] = { code: code };
     ccApply(id, { status: 'made', card: card }, 'issued', null, extra).then(function () { lfDlgClose('I'); lfDlgClose('V'); });
 }
+/* a new 4-digit activation code + the bell message with the masked card number (valid 72 hours) */
+function ccActPush(id, o, extra) {
+    var cd = CC.cards.staff[id] || {}, now = Date.now(), exp = now + CC_ACT_MS, buf = new Uint32Array(1);
+    try { crypto.getRandomValues(buf); } catch (e) { buf[0] = Math.floor(Math.random() * 4294967295); }
+    var code = ('000' + (buf[0] % 10000)).slice(-4), old = CC.act[id];
+    if (old && old.nid) extra['notifications/' + old.nid] = null;
+    var nid = db.ref('notifications').push().key, place = o.pickup === 'office' ? t('ccPlaceOffice') : (o.deptName || '');
+    extra['notifications/' + nid] = { targetId: o.empId, system: 'card_act', orderId: id, exp: exp, message: ccFill(t('ccActNTitle'), { mask: ccMask(cd.no) }),
+        description: ccFill(t('ccActNMsg'), { place: place, code: code, deadline: ccDateTime(exp) }), relatedRequestKey: null, timestamp: now };
+    extra['cardAct/' + id] = { empKey: o.empKey, code: code, exp: exp, nid: nid };
+    return extra;
+}
 function ccReadyBtn(id) {
-    if (ccGate('ready')) return;
+    if (ccGate('ready')) return; ccActSub();
     lfConfirm(t('ccAskReady'), function () {
-        var o = CC.store.staff[id] || {}, extra = {}; extra['cards/' + id + '/state'] = 'ready';
-        /* the same pick-up message as "Notify: Employee Card Ready", so it also shows in the employee's notification bell */
-        var place = o.pickup === 'office' ? t('ccPlaceOffice') : (o.deptName || '');
-        extra['notifications/' + db.ref('notifications').push().key] = { targetId: o.empId, message: fillTemplate(t('notifCardReadyTitle'), { id: o.empId }),
-            description: fillTemplate(t('notifCardReadyMsg'), { name: o.empName, department: place, deadline: formatOneMonthDeadline() }), cardNumber: null, relatedRequestKey: null, timestamp: Date.now() };
+        var o = CC.store.staff[id] || {}, extra = {}; if (!CC.cards.staff[id]) { showToast(false, t('lfSaveErr')); return; }
+        extra['cards/' + id + '/state'] = 'ready';
+        ccActPush(id, o, extra);
         ccApply(id, { status: 'ready' }, 'ready', null, extra);
     });
 }
+function ccSendNewCode(id) {
+    if (ccGate('ready')) return;
+    lfConfirm(t('ccAskSendCode'), function () {
+        var o = CC.store.staff[id] || {}; if (!CC.cards.staff[id]) return;
+        ccApply(id, {}, 'newcode', null, ccActPush(id, o, {}));
+    });
+}
+function ccReleaseLock(empKey) {
+    if (ccGate('ready')) return;
+    db.ref('cardLock/' + empKey).remove().then(function () { showToast(true); lfDlgClose('V'); }).catch(function () { showToast(false, t('lfSaveErr')); });
+}
+function ccAdminCode(id) {
+    db.ref('cardSecrets/' + id).once('value').then(function (s) {
+        var c = (s.val() || {}).code || '-';
+        lfDlg({ id: 'SC', z: 6500, w: 320, title: t('ccCodeIs'), html: '<div style="font-size:36px;letter-spacing:10px;font-weight:700;text-align:center;color:#123a5c;font-family:monospace">' + ccE(c) + '</div>', buttons: [{ t: t('ccClose'), cls: 'g' }] });
+    }).catch(function () { showToast(false, t('lfSaveErr')); });
+}
+/* ---------- Fee list (for the accountant) ---------- */
+function ccFeeItems(m) {
+    var map = {};
+    Object.keys(CC.fees || {}).forEach(function (k) { var f = CC.fees[k]; if (f && f.month === m) map[k] = f; });
+    Object.keys(CC.store.staff).forEach(function (k) {
+        var o = CC.store.staff[k]; if (!o.fee || o.status === 'rejected' || ccFeeMonthOf(o) !== m) return;
+        map[k] = { ref: o.ref, empId: o.empId, empName: o.empName, deptName: o.deptName, deptGroup: o.deptGroup || '', amount: o.fee, month: m, at: o.at || 0 };
+    });
+    return Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) { return (a.at || 0) - (b.at || 0); });
+}
+function ccFeeTableHtml(m, forPrint) {
+    var items = ccFeeItems(m), tot = 0, th = 'style="border:1px solid #94a3b8;padding:6px 8px;text-align:left;background:#f1f5f9"', td = 'style="border:1px solid #94a3b8;padding:6px 8px"';
+    var rows = items.map(function (f, i) { tot += +f.amount || 0; return '<tr><td ' + td + '>' + (i + 1) + '</td><td ' + td + '>' + ccE(f.empId) + '</td><td ' + td + '>' + ccE(f.empName) + '</td><td ' + td + '>' + ccE(f.deptName) + (f.deptGroup ? ' / ' + ccE(f.deptGroup) : '') + '</td><td ' + td + '>' + ccE(f.ref) + '</td><td ' + td + ' align="right">' + ccE(ccMoney(f.amount)) + '</td></tr>'; }).join('');
+    if (!items.length) return '<p style="color:#64748b;text-align:center">' + ccE(t('ccFeeNone')) + '</p>';
+    return (forPrint ? '<div style="font-family:Arial,sans-serif;color:#000"><h2 style="margin:0 0 4px">' + ccE(t('ccFeeTitle')) + '</h2><div style="margin-bottom:10px">' + ccE(ccFill(t('ccFeeSalary'), { month: ccMonthName(m) })) + '</div>' : '') +
+        '<table style="border-collapse:collapse;width:100%;font-size:13px"><thead><tr><th ' + th + '>' + ccE(t('ccFeeNo')) + '</th><th ' + th + '>' + ccE(t('ccFId')) + '</th><th ' + th + '>' + ccE(t('ccFName')) + '</th><th ' + th + '>' + ccE(t('ccFDept')) + '</th><th ' + th + '>' + ccE(t('ccRef')) + '</th><th ' + th + ' align="right">' + ccE(t('ccFee')) + '</th></tr></thead><tbody>' + rows +
+        '<tr><td colspan="5" ' + td + ' align="right"><b>' + ccE(t('ccFeeTotal')) + '</b></td><td ' + td + ' align="right"><b>' + ccE(ccMoney(tot)) + '</b></td></tr></tbody></table>' + (forPrint ? '</div>' : '');
+}
+function ccFeeOpen() {
+    if (ccGate('feelist')) return; ccActSub();
+    var cur = ccNextMonth(), d = ccKh(), y = d.getUTCFullYear(), mo = d.getUTCMonth() + 1, opts = '';
+    for (var i = -8; i <= 2; i++) { var yy = y, mm = mo + i; while (mm < 1) { mm += 12; yy--; } while (mm > 12) { mm -= 12; yy++; } var v = yy + '-' + (mm < 10 ? '0' : '') + mm; opts += '<option value="' + v + '"' + (v === cur ? ' selected' : '') + '>' + ccE(ccMonthName(v)) + '</option>'; }
+    var h = '<p style="font-size:13px;color:#64748b;margin:0 0 8px">' + ccE(t('ccFeeListSub')) + '</p><div class="lf-fg"><label>' + ccE(t('ccFeeMonth')) + '</label><select id="ccFeeMo">' + opts + '</select></div><div id="ccFeeBody" style="overflow-x:auto"></div>';
+    lfDlg({ id: 'F', title: t('ccFeeList'), w: 680, z: 6200, html: h, buttons: [{ t: t('ccClose'), cls: 's' }, { t: t('ccPrint'), cls: 'g', close: false, fn: function () { var m = document.getElementById('ccFeeMo').value; ccPrintDoc(ccFeeTableHtml(m, true), t('ccFeeTitle') + ' ' + m); } }] });
+    var sel = document.getElementById('ccFeeMo'), body = document.getElementById('ccFeeBody');
+    var draw = function () { body.innerHTML = ccFeeTableHtml(sel.value, false); };
+    sel.onchange = draw; draw();
+}
+
 
 /* v7.56: long tables show 20 rows per page with page numbers (1 2 3 ...).
    Works on top of the existing renderers and search boxes: rows hidden by a search stay hidden,
