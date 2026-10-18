@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="robots" content="noindex">
 <title>Attendance Face Scan</title>
 <!-- Face Attendance - employee scan page (v1, ships with system.html v6.98).
      Employees open this page on their phone; it goes straight to a face scan with no buttons. It
@@ -549,7 +549,7 @@ const TR = {
   onTime:'On time', late:'Late: {min} minutes', ot:'Overtime: {h} hour(s)', recorded:'Recorded', where:'Location', at:'Time',
   r_tooEarly:'Too early. Check-in opens at {at}.', r_closed:'Scanning is closed for your shift. Please go to the office so an admin can record it for you.',
   r_restTime:'It is your break time, so scans are not recorded now. If you need to request leave, scan again at {at}.', r_noWindow:'This is not a valid scan time. The next scan window starts at {at}.',
-  r_dayOff:'Today is your rest day. This scan was ignored.', r_noShift:'No shift is assigned to you for today. Please contact the office.',
+  r_cardFrozen:'Your employee card is frozen, so face attendance is blocked. Please unfreeze your card, or make up your attendance at the office.', r_cardClosed:'Your employee card is closed, so face attendance is blocked. Please order a new card and activate it, or make up your attendance at the office.', r_cardNoCode:'Face attendance is not turned on for your current card yet. Please visit the office and enter the 3-digit security code of your card.', r_dayOff:'Today is your rest day. This scan was ignored.', r_noShift:'No shift is assigned to you for today. Please contact the office.',
   r_alreadyCheckedIn:'You already checked in at {at}.', r_alreadyCheckedOut:'You already checked out at {at}.', r_alreadyLeave:'You already requested leave at {at}.',
   saveFailed:'Could not save your scan. Please try again.', again:'Scan again', tryAgain:'Try again', close:'Close'
  },
@@ -564,7 +564,7 @@ const TR = {
   onTime:'ទាន់ពេល', late:'យឺត៖ {min} នាទី', ot:'ម៉ោងបន្ថែម៖ {h} ម៉ោង', recorded:'បានកត់ត្រា', where:'ទីតាំង', at:'ម៉ោង',
   r_tooEarly:'ឆាប់ពេក។ ការស្កេនចូលបើកនៅម៉ោង {at}។', r_closed:'ការស្កេនបានបិទសម្រាប់វេនរបស់អ្នក។ សូមទៅការិយាល័យដើម្បីឱ្យអ្នកគ្រប់គ្រងកត់ត្រាជូន។',
   r_restTime:'ឥឡូវជាពេលសម្រាក ដូច្នេះការស្កេនមិនត្រូវបានកត់ត្រាទេ។ ប្រសិនបើអ្នកចង់សុំច្បាប់ សូមស្កេនម្តងទៀតនៅម៉ោង {at}។', r_noWindow:'នេះមិនមែនជាម៉ោងស្កេនត្រឹមត្រូវទេ។ ម៉ោងស្កេនបន្ទាប់ចាប់ផ្តើមនៅម៉ោង {at}។',
-  r_dayOff:'ថ្ងៃនេះជាថ្ងៃឈប់សម្រាករបស់អ្នក។ ការស្កេននេះត្រូវបានមិនអើពើ។', r_noShift:'មិនមានវេនសម្រាប់អ្នកនៅថ្ងៃនេះទេ។ សូមទាក់ទងការិយាល័យ។',
+  r_cardFrozen:'កាតនិយោជិតរបស់អ្នកត្រូវបានបង្កក់ ដូច្នេះការស្កេនមុខត្រូវបានទប់ស្កាត់។ សូមឈប់បង្កក់កាត ឬមកបំពេញវត្តមាននៅការិយាល័យ។', r_cardClosed:'កាតនិយោជិតរបស់អ្នកត្រូវបានបិទ ដូច្នេះការស្កេនមុខត្រូវបានទប់ស្កាត់។ សូមកុម្ម៉ង់កាតថ្មី ហើយធ្វើឱ្យសកម្ម ឬមកបំពេញវត្តមាននៅការិយាល័យ។', r_cardNoCode:'ការស្កេនមុខមិនទាន់បើកសម្រាប់កាតបច្ចុប្បន្នរបស់អ្នកទេ។ សូមមកការិយាល័យ ហើយបញ្ចូលលេខកូដសុវត្ថិភាព ៣ខ្ទង់នៃកាតរបស់អ្នក។', r_dayOff:'ថ្ងៃនេះជាថ្ងៃឈប់សម្រាករបស់អ្នក។ ការស្កេននេះត្រូវបានមិនអើពើ។', r_noShift:'មិនមានវេនសម្រាប់អ្នកនៅថ្ងៃនេះទេ។ សូមទាក់ទងការិយាល័យ។',
   r_alreadyCheckedIn:'អ្នកបានចូលធ្វើការរួចហើយនៅម៉ោង {at}។', r_alreadyCheckedOut:'អ្នកបានចេញពីធ្វើការរួចហើយនៅម៉ោង {at}។', r_alreadyLeave:'អ្នកបានស្នើសុំច្បាប់រួចហើយនៅម៉ោង {at}។',
   saveFailed:'មិនអាចរក្សាទុកការស្កេនបានទេ។ សូមសាកល្បងម្តងទៀត។', again:'ស្កេនម្តងទៀត', tryAgain:'សាកល្បងម្តងទៀត', close:'បិទ'
  },
@@ -579,7 +579,7 @@ const TR = {
   onTime:'准时', late:'迟到：{min}分钟', ot:'加班：{h}小时', recorded:'已记录', where:'位置', at:'时间',
   r_tooEarly:'太早了。上班打卡将于 {at} 开放。', r_closed:'您的班次打卡已关闭。请到办公室，由管理员为您补录。',
   r_restTime:'现在是您的休息时间，打卡不会被记录。如需请假，请在 {at} 再次打卡。', r_noWindow:'现在不是有效的打卡时间。下一个打卡时段从 {at} 开始。',
-  r_dayOff:'今天是您的休息日，本次打卡已忽略。', r_noShift:'今天没有为您安排班次。请联系办公室。',
+  r_cardFrozen:'您的员工卡已冻结，人脸考勤被阻止。请解冻卡片，或到办公室补考勤。', r_cardClosed:'您的员工卡已关闭，人脸考勤被阻止。请申请并激活新卡，或到办公室补考勤。', r_cardNoCode:'您当前的卡片尚未开启人脸考勤。请到办公室输入卡片上的 3 位安全码。', r_dayOff:'今天是您的休息日，本次打卡已忽略。', r_noShift:'今天没有为您安排班次。请联系办公室。',
   r_alreadyCheckedIn:'您已在 {at} 上班打卡。', r_alreadyCheckedOut:'您已在 {at} 下班打卡。', r_alreadyLeave:'您已在 {at} 提交了请假申请。',
   saveFailed:'无法保存打卡。请重试。', again:'再次打卡', tryAgain:'重试', close:'关闭'
  }
@@ -836,6 +836,13 @@ async function processScan(m) {
   setStatus('processing');
   try {
     const photo = capturePhoto();
+    /* employee card: a frozen or closed card, or a new card whose code was not entered yet, blocks face attendance */
+    let gate = null;
+    try { gate = (await db.ref('cardGate/' + m.id).once('value')).val(); } catch (e) {}
+    if (gate) {
+      const gc = gate.state === 'frozen' ? 'cardFrozen' : (gate.state === 'closed' ? 'cardClosed' : (gate.ok ? '' : 'cardNoCode'));
+      if (gc) return showResult({ type: 'reject', code: gc, params: {}, name: m.name, id: m.id, photo: photo, time: '' });
+    }
     await offsetReady;
     const when = nowMs();
     const loc = faLocal(when, settings.tzOffsetMinutes);
@@ -926,7 +933,7 @@ function renderResult(r) {
       (r.photo ? '<img alt="" src="' + r.photo + '">' : '') +
       '<div class="small">' + escapeHtml(tr('where')) + ': ' + escapeHtml(r.address || (r.lat.toFixed(5) + ', ' + r.lng.toFixed(5))) + '</div>';
   } else {
-    const soft = (r.code === 'dayOff' || r.code === 'restTime' || r.code === 'noWindow' || r.code === 'tooEarly' || r.code === 'repeat' || r.code.indexOf('already') === 0);
+    const soft = (r.code === 'cardNoCode' || r.code === 'dayOff' || r.code === 'restTime' || r.code === 'noWindow' || r.code === 'tooEarly' || r.code === 'repeat' || r.code.indexOf('already') === 0);
     el.className = 'result ' + (soft ? 'warn' : 'bad');
     html = '<div class="big">' + (soft ? '!' : '&#10007;') + '</div><div class="who">' + escapeHtml(r.name) + ' (' + escapeHtml(r.id) + ')</div>' +
       '<div class="line">' + escapeHtml(r.code === 'saveFailed' ? tr('saveFailed') : tr('r_' + r.code, r.params)) + '</div>';
