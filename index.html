@@ -4593,6 +4593,9 @@
         ccOrderNewHint: "Press the (+) button above to order your employee card.",
         ccPlaceOffice: "the Administration office",
         ccInProgress: "Your card request is in progress.",
+        ccNotifOrderTitle: "Card request {ref} sent",
+        ccTypeHint: "You can type the name and department in English or Chinese.",
+        ccNameDeptErr: "Please fill in the name and the department.",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -6104,6 +6107,9 @@
         ccOrderNewHint: "ចុចប៊ូតុង (+) ខាងលើដើម្បីកុម្ម៉ង់កាតនិយោជិតរបស់អ្នក។",
         ccPlaceOffice: "ការិយាល័យរដ្ឋបាល",
         ccInProgress: "ការស្នើសុំកាតរបស់អ្នកកំពុងដំណើរការ។",
+        ccNotifOrderTitle: "បានផ្ញើការស្នើសុំកាត {ref}",
+        ccTypeHint: "អ្នកអាចវាយឈ្មោះ និងនាយកដ្ឋានជាភាសាអង់គ្លេស ឬចិន។",
+        ccNameDeptErr: "សូមបំពេញឈ្មោះ និងនាយកដ្ឋាន។",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -7577,6 +7583,9 @@
         ccOrderNewHint: "请点击上方（+）按钮申请您的员工卡。",
         ccPlaceOffice: "行政办公室",
         ccInProgress: "您的办卡申请正在办理中。",
+        ccNotifOrderTitle: "办卡申请 {ref} 已提交",
+        ccTypeHint: "姓名和部门可以输入英文或中文。",
+        ccNameDeptErr: "请填写姓名和部门。",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -19221,20 +19230,22 @@ var CC_CSS = '.cc-card{position:relative;width:100%;max-width:380px;aspect-ratio
     '.cc-no{font-size:clamp(15px,5vw,21px);letter-spacing:2px;font-weight:700;margin-top:14px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);font-family:"Courier New",monospace;position:relative}' +
     '.cc-bot{position:absolute;left:20px;right:20px;bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px}' +
     '.cc-nm{font-size:14px;font-weight:700;color:#fff;letter-spacing:.5px;text-transform:uppercase}.cc-sub{font-size:10px;color:#d4af37;letter-spacing:.6px}' +
-    '.cc-state{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(212,175,55,.16);border:1px solid rgba(212,175,55,.6);color:#f6e7b4}' +
+    '.cc-state{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:#123a5c;border:1px solid #d4af37;color:#f6e7b4}' +
     '.cc-add{position:absolute;right:12px;top:12px;width:38px;height:38px;border-radius:50%;border:0;background:#dc2626;color:#fff;font-size:24px;line-height:1;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.4);z-index:2}' +
     '.cc-box{padding:8px 0}.cc-tc{max-height:55vh;overflow-y:auto;font-size:14px;line-height:1.55;color:#0f172a}.cc-tc p{margin:8px 0}' +
     '.cc-kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #e2e8f0;font-size:14px}.cc-kv span:first-child{color:#64748b}' +
     '.cc-fee{border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:10px 0;margin:10px 0}.cc-fee div{display:flex;justify-content:space-between;font-size:15px;color:#123a5c;padding:3px 0}.cc-fee .tot{font-size:20px;font-weight:700}' +
     '.cc-agree{display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0;font-size:14px}.cc-agree input{width:20px;height:20px}.cc-agree a{color:#123a5c;text-decoration:underline;cursor:pointer}' +
     '.cc-order{display:block;width:100%;border:0;border-radius:10px;padding:14px;font-size:16px;font-weight:700;letter-spacing:1px;color:#fff;background:#123a5c;cursor:pointer}.cc-order[disabled]{background:#999;cursor:not-allowed}' +
-    '.cc-pg{background:linear-gradient(180deg,#1b3a57,#122a42);border-radius:16px;padding:18px 14px 70px;position:relative;min-height:330px;color:#fff;text-align:center}' +
-    '.cc-ghost{position:relative;max-width:380px;margin:0 auto;border-radius:16px;background:rgba(160,160,160,.55);aspect-ratio:1.586;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}' +
-    '.cc-ghost.off{cursor:default}.cc-pw{width:62px;height:62px;border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center}.cc-gt{font-size:12px;color:#fff}' +
-    '.cc-zz{margin:28px auto 6px;width:90px}.cc-pg h5{margin:6px 0 4px;font-size:16px;font-weight:600;color:#fff}.cc-pg p{margin:0 auto;max-width:300px;font-size:13px;color:#cbd5e1;line-height:1.5}' +
-    '.cc-fab{position:absolute;right:14px;bottom:14px;width:52px;height:52px;border-radius:50%;border:0;background:#e5685f;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,.35)}' +
-    '.cc-tile{background:#285b82;border-radius:18px;min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;cursor:pointer;border:0;width:100%;font-size:17px}.cc-tile .pl{width:62px;height:62px;border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:200;line-height:1}' +
-    '.cc-empty{text-align:center;padding:36px 10px;color:#6b7280}.cc-empty h5{font-size:18px;font-weight:600;margin:12px 0 6px;color:#6b7280}.cc-empty p{font-size:13px;color:#9ca3af;margin:0 auto;max-width:260px}' +
+    '.cc-pg{position:relative;padding:6px 0 10px;text-align:center}' +
+    '.cc-gh{position:relative;max-width:380px;margin:0 auto;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 8px 20px rgba(5,13,30,.25)}.cc-gh.off{cursor:default}' +
+    '.cc-gh .cc-card{filter:blur(1.6px) grayscale(.5);opacity:.6;box-shadow:none}' +
+    '.cc-gh-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(110,115,125,.5);color:#fff;padding:0 16px}' +
+    '.cc-pw{width:62px;height:62px;border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center}.cc-gt{font-size:13px;color:#fff;text-align:center}' +
+    '.cc-zz{margin:22px auto 4px;width:90px}.cc-pg h5{margin:6px 0 4px;font-size:17px;font-weight:700;color:#123a5c}.cc-pg p{margin:0 auto;max-width:300px;font-size:13px;color:#64748b;line-height:1.5}' +
+    '.cc-fab{position:absolute;right:6px;bottom:6px;width:52px;height:52px;border-radius:50%;border:0;background:#e5685f;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,.3)}' +
+    '.cc-tile{background:#285b82;border-radius:18px;aspect-ratio:1.586;max-width:380px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;cursor:pointer;border:0;width:100%;font-size:17px}.cc-tile .pl{width:62px;height:62px;border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:200;line-height:1}' +
+    '.cc-empty{text-align:center;padding:30px 10px;color:#6b7280}.cc-empty h5{font-size:18px;font-weight:600;margin:12px 0 6px;color:#6b7280}.cc-empty p{font-size:13px;color:#9ca3af;margin:0 auto;max-width:260px}' +
     '@media print{.cc-rc{font-family:Arial,sans-serif;color:#000}}';
 (function () { var st = document.createElement('style'); st.textContent = CC_CSS; document.head.appendChild(st); })();
 /* o: { no, name, dept, issued, state:'' text, logo } - the number is hidden until the card is activated (Part 3) */
@@ -19316,7 +19327,7 @@ function ccReceiptDlg(id, obj) {
     lfDlg({ id: 'R', title: t('ccReceipt'), w: 440, z: 6400, html: ccReceiptHtml(r), buttons: [{ t: t('ccClose'), cls: 's' }, { t: t('ccPrintReceipt'), cls: 'g', close: false, fn: function () { ccPrintReceipt(id, r); } }] });
 }
 
-var CC_SVG_ZZ = '<svg viewBox="0 0 90 70" width="90" height="70"><text x="52" y="14" fill="#fff" font-size="13" font-family="Arial">Z</text><text x="64" y="26" fill="#fff" font-size="10" font-family="Arial">z</text><rect x="8" y="30" width="62" height="36" rx="6" fill="#f1f5f9"/><rect x="8" y="42" width="62" height="6" fill="#1b3a57"/><rect x="14" y="54" width="18" height="6" rx="3" fill="#1b3a57"/><path d="M26 36q3 2 6 0M46 36q3 2 6 0" stroke="#64748b" fill="none" stroke-width="1.5"/></svg>';
+var CC_SVG_ZZ = '<svg viewBox="0 0 90 70" width="90" height="70"><text x="52" y="14" fill="#64748b" font-size="13" font-family="Arial">Z</text><text x="64" y="26" fill="#64748b" font-size="10" font-family="Arial">z</text><rect x="8" y="30" width="62" height="36" rx="6" fill="#e2e8f0" stroke="#94a3b8"/><rect x="8" y="42" width="62" height="6" fill="#123a5c"/><rect x="14" y="54" width="18" height="6" rx="3" fill="#123a5c"/><path d="M26 36q3 2 6 0M46 36q3 2 6 0" stroke="#64748b" fill="none" stroke-width="1.5"/></svg>';
 var CC_SVG_ADD = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="17" height="12" rx="2"/><line x1="2" y1="10" x2="19" y2="10"/><line x1="20" y1="3" x2="20" y2="9"/><line x1="17" y1="6" x2="23" y2="6"/></svg>';
 var CC_SVG_PW = '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 6.5a8 8 0 1 0 11.4 0"/></svg>';
 var CC_SVG_EMPTY = '<svg viewBox="0 0 90 70" width="120" height="90"><rect x="4" y="14" width="68" height="46" rx="8" fill="#e5e7eb"/><rect x="12" y="24" width="10" height="10" rx="2" fill="#fff"/><rect x="12" y="44" width="28" height="3" rx="1.5" fill="#fff"/><circle cx="68" cy="16" r="14" fill="#d1d5db"/><path d="M68 10v12M62 16h12" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>';
@@ -19339,24 +19350,22 @@ function ccEmpRender() {
     var cardOf = null; Object.keys(CC.cards.emp || {}).forEach(function (k) { var x = CC.cards.emp[k]; if (x.state === 'active' || x.state === 'frozen') cardOf = cardOf || x; });
     var pend = top && ccOpen(top) ? top : null, h = '';
     if (!pend && !cardOf) {
-        /* no card yet: a blue "New Card" tile, like the bank app */
+        /* no card yet: a blue card-shaped "New Card" tile, like the bank app */
         h += '<button type="button" class="cc-tile" onclick="ccNewOpen()"><span class="pl">+</span><span>' + ccE(t('ccNew')) + '</span></button>' +
             '<div class="cc-empty">' + CC_SVG_EMPTY + '<h5>' + ccE(t('ccOrderNewTitle')) + '</h5><p>' + ccE(t('ccOrderNewHint')) + '</p></div>';
     } else if (pend) {
-        /* a card that is not active yet: dark page, faded card, "requires activation" */
-        var ready = pend.status === 'ready';
-        h += '<div class="cc-pg"><div class="cc-ghost' + (ready ? '' : ' off') + '" id="ccGhost"' + (ready ? ' onclick="ccActivateOpen && ccActivateOpen(\'' + pend.key + '\')"' : '') + '>' +
-            (ready ? '<div class="cc-pw">' + CC_SVG_PW + '</div><div class="cc-gt">' + ccE(t('ccTapActivate')) + '</div>' : '<div class="cc-gt" style="padding:0 16px;font-size:14px">' + ccE(t(ccStatusKey(pend))) + '</div>') + '</div>' +
+        /* a card that is not active yet: the real card, blurred and faded, with "tap to activate" on top */
+        var ready = pend.status === 'ready', nm = (pend.card && pend.card.name) || c.empName, dp = (pend.card && pend.card.deptName) || c.group;
+        h += '<div class="cc-pg"><div class="cc-gh' + (ready ? '' : ' off') + '" id="ccGhost"' + (ready ? ' onclick="if (typeof ccActivateOpen === \'function\') ccActivateOpen(\'' + pend.key + '\')"' : '') + '>' +
+            ccCardHtml({ name: nm, dept: dp }) + '<div class="cc-gh-ov">' +
+            (ready ? '<div class="cc-pw">' + CC_SVG_PW + '</div><div class="cc-gt">' + ccE(t('ccTapActivate')) + '</div>' : '<div class="cc-gt" style="font-size:14px">' + ccE(t(ccStatusKey(pend))) + '</div>') + '</div></div>' +
             '<div class="cc-zz">' + CC_SVG_ZZ + '</div><h5>' + ccE(ready ? t('ccNeedAct') : t(ccStatusKey(pend))) + '</h5><p>' + ccE(ready ? t('ccActHint') : t('ccInProgress')) + '</p></div>';
     } else {
-        h += '<div class="cc-pg" style="padding-bottom:70px"><div id="ccCardWrap">' + ccCardHtml({ name: c.empName, dept: c.group, state: t('ccStActive') }) + '</div>' +
+        h += '<div class="cc-pg" style="padding-bottom:64px"><div id="ccCardWrap">' + ccCardHtml({ name: (cardOf.name || c.empName), dept: (cardOf.deptName || c.group), state: t('ccStActive') }) + '</div>' +
             (can ? '<button type="button" class="cc-fab" title="' + ccE(t('ccReplace')) + '" onclick="ccNewOpen()">' + CC_SVG_ADD + '</button>' : '') + '</div>';
     }
-    if (list.length) {
-        h += '<h4 style="margin:14px 0 6px">' + ccE(t('ccMyOrders')) + '</h4><div class="table-responsive"><table class="master-tbl"><thead><tr><th></th><th>' + ccE(t('ccCRef')) + '</th><th>' + ccE(t('ccCDate')) + '</th><th>' + ccE(t('ccCNo')) + '</th><th>' + ccE(t('ccCPick')) + '</th><th>' + ccE(t('ccCStatus')) + '</th></tr></thead><tbody>' + ccRowsHtml(list, { emp: false }, 'ccEmpView') + '</tbody></table></div>';
-    }
     box.innerHTML = h;
-    var w = box.querySelector('.cc-pg, .cc-tile'); /* swipe right = order a new card (when allowed) */
+    var w = box.querySelector('.cc-pg'); /* swipe right = order a new card (when allowed) */
     if (w && can && cardOf) { var x0 = null; w.ontouchstart = function (ev) { x0 = ev.touches[0].clientX; }; w.ontouchend = function (ev) { if (x0 !== null && ev.changedTouches[0].clientX - x0 > 70) ccNewOpen(); x0 = null; }; }
 }
 CC.after_emp = function () { ccEmpRender(); ccEmpNotice(); };
@@ -19368,7 +19377,7 @@ function ccEmpView(id) {
 function ccNewOpen() {
     if (ccGate('new')) return;
     if (!ccEmpCanOrder()) { lfDlg({ title: t('ccTitle'), html: '<p>' + ccE(t('ccBusy')) + '</p>', buttons: [{ t: t('lfOk'), cls: 'g' }] }); return; }
-    var c = ccCtx(), seq = ccList(CC.store.emp).filter(function (o) { return o.status !== 'rejected'; }).length + 1, fee = ccFeeFor(seq);
+    var c = ccCtx(), seq = Object.keys(CC.cards.emp || {}).length + 1, fee = ccFeeFor(seq);
     var h = '<div class="lf-fg"><label>' + ccE(t('ccFId')) + ' / ' + ccE(t('ccFName')) + '</label><input type="text" value="' + ccE(c.empId + ' - ' + c.empName) + '" disabled></div>' +
         '<div class="lf-fg"><label>' + ccE(t('ccFDept')) + '</label><input type="text" value="' + ccE(c.group) + '" disabled></div>' +
         '<div class="lf-row"><div class="lf-fg"><label>' + ccE(t('ccFJoin')) + '</label><input type="text" id="ccfJoin" value="' + ccE(c.joinDate) + '"></div>' +
@@ -19395,7 +19404,11 @@ function ccNewSubmit(seq, fee) {
         var now = Date.now(), ref = ccMakeRef();
         var rec = { ref: ref, empKey: c.empKey, empId: c.empId, empName: c.empName, dept: dk.key, deptName: dk.name, deptGroup: c.group, joinDate: join, phone: phone, email: email, pickup: pick,
             kind: Object.keys(CC.cards.emp || {}).length ? 'replace' : 'new', seq: seq, fee: fee, at: now, status: 'wait_dept', ver: 1, seenEmp: 1, last: { k: 'created', by: c.empName, at: now } };
-        db.ref('cardOrders').push(rec).then(function () {
+        var okey = db.ref('cardOrders').push().key, up = {};
+        up['cardOrders/' + okey] = rec;
+        /* the same message also goes to the employee's notification bell */
+        up['notifications/' + db.ref('notifications').push().key] = { targetId: c.empId, system: 'card', message: ccFill(t('ccNotifOrderTitle'), { ref: ref }), description: ccFill(t('ccOrdered'), { ref: ref }), relatedRequestKey: null, timestamp: now };
+        db.ref().update(up).then(function () {
             lfDlgClose('E');
             lfDlg({ id: 'N', title: t('ccTitle'), z: 6300, w: 460, html: '<p>' + ccE(ccFill(t('ccOrdered'), { ref: ref })) + '</p>', buttons: [{ t: t('lfOk'), cls: 'g' }] });
         }).catch(function (e) { console.error(e); if (ob) ob.disabled = false; showToast(false, t('lfSaveErr')); });
@@ -19445,7 +19458,19 @@ function ccStaffBadge() {
 }
 CC.ctxStaff = function () { return { role: rqRole(), name: rqWho() }; };
 CC.gateStaff = function (act) { return typeof mtGate === 'function' && mtGate('cardcenter', act); };
-CC.after_staff = function () { ccStaffBadge(); var m = document.getElementById('ccModal'); if (m && m.style.display === 'flex') ccStaffRender(); };
+/* finished requests are removed 30 days after they finished: rejected ones, and ready ones whose card is already activated/closed. Issued cards themselves stay. */
+var CC_KEEP_MS = 30 * 24 * 3600 * 1000, ccCleanBusy = false;
+function ccCleanup() {
+    if (ccCleanBusy) return; var now = Date.now(), up = {}, n = 0;
+    Object.keys(CC.store.staff).forEach(function (k) {
+        var o = CC.store.staff[k], cd = CC.cards.staff[k];
+        var done = o.status === 'rejected' || (o.status === 'ready' && cd && cd.state !== 'ready' && cd.state !== 'made');
+        if (done && o.last && o.last.at && now - o.last.at > CC_KEEP_MS) { up['cardOrders/' + k] = null; n++; }
+    });
+    if (!n) return; ccCleanBusy = true;
+    db.ref().update(up).catch(function () {}).then(function () { ccCleanBusy = false; });
+}
+CC.after_staff = function () { ccStaffBadge(); ccCleanup(); var m = document.getElementById('ccModal'); if (m && m.style.display === 'flex') ccStaffRender(); };
 (function () {
     try { db.ref('cardOrders').on('value', function (s) { ccFeed('staff', s.val() || {}); }, function () {}); } catch (e) {}
     try { db.ref('cards').on('value', function (s) { CC.cards.staff = s.val() || {}; }, function () {}); } catch (e) {}
@@ -19518,8 +19543,9 @@ function ccIssueOpen(id) {
         '<input type="text" value="' + ccE(p.suffix) + '" disabled style="flex:0 0 ' + Math.max(80, p.suffix.length * 14 + 24) + 'px;letter-spacing:2px;background:#f1f5f9"></div></div>' +
         '<div class="lf-row"><div class="lf-fg"><label>' + ccE(t('ccIssueDate')) + '</label><input type="date" id="ccgDate" value="' + ccTodayKh() + '"></div>' +
         '<div class="lf-fg"><label>' + ccE(t('ccSecCode')) + '</label><input type="text" id="ccgCode" inputmode="numeric" maxlength="3" style="letter-spacing:4px"></div></div>' +
-        '<div class="lf-row"><div class="lf-fg"><label>' + ccE(t('ccFName')) + '</label><input type="text" value="' + ccE(o.empName) + '" disabled></div>' +
-        '<div class="lf-fg"><label>' + ccE(t('ccFDept')) + '</label><input type="text" value="' + ccE(o.deptName) + '" disabled></div></div>';
+        '<div class="lf-row"><div class="lf-fg"><label>' + ccE(t('ccFName')) + '</label><input type="text" id="ccgName" value="' + ccE(o.empName) + '"></div>' +
+        '<div class="lf-fg"><label>' + ccE(t('ccFDept')) + '</label><input type="text" id="ccgDept" value="' + ccE(o.deptName) + '"></div></div>' +
+        '<p style="font-size:12px;color:#64748b">' + ccE(t('ccTypeHint')) + '</p>';
     lfDlg({ id: 'I', title: t('ccCardForm') + ' ' + o.ref, w: 520, z: 6300, html: h, buttons: [{ t: t('lfCancel'), cls: 's' }, { t: t('ccDone'), cls: 'g', close: false, fn: function () { ccIssueSave(id); } }] });
     var a = document.getElementById('ccgPre'); if (a) a.oninput = function () { a.value = a.value.replace(/\D/g, ''); };
     var c = document.getElementById('ccgCode'); c.oninput = function () { c.value = c.value.replace(/\D/g, ''); };
@@ -19529,9 +19555,11 @@ function ccIssueSave(id) {
     var p = ccIdParts(o), pre = ((document.getElementById('ccgPre') || {}).value || ''), no = pre + p.suffix, code = (document.getElementById('ccgCode').value || ''), date = document.getElementById('ccgDate').value || ccTodayKh();
     if (!/^\d{16}$/.test(no) || pre.length !== p.pre) { showToast(false, t('ccIdErr')); return; }
     if (!/^\d{3}$/.test(code)) { showToast(false, t('ccCodeErr')); return; }
-    var card = { no: no, issued: date, name: o.empName, deptName: o.deptName };
+    var cname = (document.getElementById('ccgName').value || '').trim(), cdept = (document.getElementById('ccgDept').value || '').trim();
+    if (!cname || !cdept) { showToast(false, t('ccNameDeptErr')); return; }
+    var card = { no: no, issued: date, name: cname, deptName: cdept };
     var extra = {};
-    extra['cards/' + id] = { empKey: o.empKey, empId: o.empId, orderId: id, no: no, issued: date, name: o.empName, deptName: o.deptName, state: 'made', at: Date.now() };
+    extra['cards/' + id] = { empKey: o.empKey, empId: o.empId, orderId: id, no: no, issued: date, name: cname, deptName: cdept, state: 'made', at: Date.now() };
     extra['cardSecrets/' + id] = { code: code };
     ccApply(id, { status: 'made', card: card }, 'issued', null, extra).then(function () { lfDlgClose('I'); lfDlgClose('V'); });
 }
