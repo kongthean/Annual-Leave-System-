@@ -626,7 +626,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.59</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.60</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2791,7 +2791,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.59
+     HR & Administration System Version 7.60
  </div>
 </div>
 
@@ -2946,6 +2946,8 @@
         <p style="font-size:12px; color:#64748b; margin-bottom:10px;" data-i18n="ccStaffSub"></p>
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; align-items:center;">
             <button type="button" id="ccFeeBtn" onclick="ccFeeOpen()" style="padding:6px 14px; border:0; border-radius:8px; background:#123a5c; color:#fff; font-weight:700; cursor:pointer;" data-i18n="ccFeeList">Fee list</button>
+            <button type="button" id="ccStyBtn" onclick="ccStyOpen()" style="padding:6px 14px; border:0; border-radius:8px; background:#a98233; color:#fff; font-weight:700; cursor:pointer; display:none;" data-i18n="ccStyBtn">Card colours</button>
+            <button type="button" id="ccCardsBtn" onclick="ccCardsOpen()" style="padding:6px 14px; border:0; border-radius:8px; background:#475569; color:#fff; font-weight:700; cursor:pointer; display:none;" data-i18n="ccCardsBtn">Issued cards</button>
             <input type="text" id="ccsSearch" oninput="ccStaffRender()" data-i18n-ph="ccSearch" placeholder="Reference / ID / Name" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px; min-width:200px;">
             <select id="ccsDept" onchange="ccStaffRender()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
             <select id="ccsStatus" onchange="ccStaffRender()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
@@ -4661,6 +4663,41 @@
         faVerifyCode: "Verify card code only",
         ccBackText: "This card is the property of the company. If found, please return it to the office. Use of this card follows the company terms and conditions.",
         ccActBtn: "ACTIVATE",
+        ccSty_pearl: "Pearl White",
+        ccSty_silver: "Platinum Silver",
+        ccSty_navy: "Midnight Navy & Gold",
+        ccSty_champagne: "Champagne Gold",
+        ccSty_emerald: "Emerald & Gold",
+        ccSty_ice: "Ice Blue Frost",
+        ccEmpIdL: "EMPLOYEE ID",
+        ccCardNoL: "CARD NUMBER",
+        ccSecL: "SECURITY CODE",
+        ccStyle: "Card colour",
+        ccPhoto: "Photo",
+        ccPickColour: "Choose your card colour (slide and tap)",
+        ccNoPhoto: "No photo",
+        ccUpPhoto: "Upload photo",
+        ccPhotoHint: "Use a clear photo of your face, looking straight ahead.",
+        ccPhotoErr: "This photo could not be read. Please choose another one.",
+        ccPhotoNeed: "Please upload your photo first.",
+        ccTapFlip: "Tap the card to turn it over.",
+        ccRemove: "Remove card",
+        ccAskRemove: "Remove this card from the system? The employee can then order again and it counts as the first card (no fee). Fees already listed stay in the Fee list.",
+        ccCardsTitle: "Issued cards",
+        ccCardsBtn: "Issued cards",
+        ccStyBtn: "Card colours",
+        ccStyTitle: "Card colours",
+        ccStySub: "Switch colours on or off for employees, or add a new colour. Cards already issued keep their colour.",
+        ccStyOn: "On",
+        ccStyDel: "Delete",
+        ccStyAdd: "Add a new colour",
+        ccStyName: "Colour name",
+        ccStyC1: "Main colour",
+        ccStyC2: "Second colour",
+        ccStyAc: "Accent colour",
+        ccStyAddBtn: "Add colour",
+        ccStyAskDel: "Delete this colour? Cards already issued keep it.",
+        ccStyNeedName: "Please type a name for the colour.",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -6235,6 +6272,41 @@
         faVerifyCode: "ផ្ទៀងផ្ទាត់លេខកូដកាតតែប៉ុណ្ណោះ",
         ccBackText: "កាតនេះជាកម្មសិទ្ធិរបស់ក្រុមហ៊ុន។ ប្រសិនបើរកឃើញ សូមប្រគល់មកការិយាល័យវិញ។ ការប្រើប្រាស់កាតនេះគឺស្របតាមលក្ខខណ្ឌរបស់ក្រុមហ៊ុន។",
         ccActBtn: "ធ្វើឱ្យសកម្ម",
+        ccSty_pearl: "ស មុក្តា",
+        ccSty_silver: "ប្រាក់ផ្លាទីន",
+        ccSty_navy: "ខៀវងងឹត និងមាស",
+        ccSty_champagne: "មាសសំប៉ាញ",
+        ccSty_emerald: "បៃតងត្បូងមរកត និងមាស",
+        ccSty_ice: "ខៀវទឹកកក",
+        ccEmpIdL: "អត្តលេខនិយោជិត",
+        ccCardNoL: "លេខកាត",
+        ccSecL: "លេខកូដសុវត្ថិភាព",
+        ccStyle: "ពណ៌កាត",
+        ccPhoto: "រូបថត",
+        ccPickColour: "ជ្រើសរើសពណ៌កាតរបស់អ្នក (អូស ហើយចុច)",
+        ccNoPhoto: "គ្មានរូបថត",
+        ccUpPhoto: "ផ្ទុកឡើងរូបថត",
+        ccPhotoHint: "សូមប្រើរូបថតមុខច្បាស់ ក្រឡេកមើលត្រង់។",
+        ccPhotoErr: "មិនអាចអានរូបថតនេះបានទេ។ សូមជ្រើសរើសរូបផ្សេង។",
+        ccPhotoNeed: "សូមផ្ទុកឡើងរូបថតរបស់អ្នកជាមុនសិន។",
+        ccTapFlip: "ចុចលើកាតដើម្បីបង្វិលមើលខាងក្រោយ។",
+        ccRemove: "លុបកាត",
+        ccAskRemove: "លុបកាតនេះចេញពីប្រព័ន្ធឬទេ? បន្ទាប់មកនិយោជិតអាចកុម្ម៉ង់ម្តងទៀត ហើយរាប់ជាកាតទី១ (គ្មានថ្លៃសេវា)។ ថ្លៃសេវាដែលបានកត់ត្រារួចនៅតែមានក្នុងបញ្ជីថ្លៃសេវា។",
+        ccCardsTitle: "កាតដែលបានចេញ",
+        ccCardsBtn: "កាតដែលបានចេញ",
+        ccStyBtn: "ពណ៌កាត",
+        ccStyTitle: "ពណ៌កាត",
+        ccStySub: "បើក ឬបិទពណ៌សម្រាប់និយោជិត ឬបន្ថែមពណ៌ថ្មី។ កាតដែលបានចេញរួចរក្សាពណ៌ដដែល។",
+        ccStyOn: "បើក",
+        ccStyDel: "លុប",
+        ccStyAdd: "បន្ថែមពណ៌ថ្មី",
+        ccStyName: "ឈ្មោះពណ៌",
+        ccStyC1: "ពណ៌មេ",
+        ccStyC2: "ពណ៌ទី២",
+        ccStyAc: "ពណ៌លម្អ",
+        ccStyAddBtn: "បន្ថែមពណ៌",
+        ccStyAskDel: "លុបពណ៌នេះឬទេ? កាតដែលបានចេញរួចរក្សាពណ៌ដដែល។",
+        ccStyNeedName: "សូមបញ្ចូលឈ្មោះសម្រាប់ពណ៌។",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -7771,6 +7843,41 @@
         faVerifyCode: "仅验证卡片安全码",
         ccBackText: "本卡为公司财产。如拾获请交回办公室。使用本卡须遵守公司条款与条件。",
         ccActBtn: "激活",
+        ccSty_pearl: "珍珠白",
+        ccSty_silver: "铂金银",
+        ccSty_navy: "午夜蓝金",
+        ccSty_champagne: "香槟金",
+        ccSty_emerald: "祖母绿金",
+        ccSty_ice: "冰蓝",
+        ccEmpIdL: "员工编号",
+        ccCardNoL: "卡号",
+        ccSecL: "安全码",
+        ccStyle: "卡片颜色",
+        ccPhoto: "照片",
+        ccPickColour: "选择卡片颜色（滑动并点击）",
+        ccNoPhoto: "无照片",
+        ccUpPhoto: "上传照片",
+        ccPhotoHint: "请使用清晰的正面照片。",
+        ccPhotoErr: "无法读取此照片，请选择其他照片。",
+        ccPhotoNeed: "请先上传您的照片。",
+        ccTapFlip: "点击卡片可翻转。",
+        ccRemove: "删除卡片",
+        ccAskRemove: "从系统中删除此卡片？员工可以重新申请，并按第一张卡计算（免费）。已列入费用清单的费用仍会保留。",
+        ccCardsTitle: "已发卡片",
+        ccCardsBtn: "已发卡片",
+        ccStyBtn: "卡片颜色",
+        ccStyTitle: "卡片颜色",
+        ccStySub: "为员工开启或关闭颜色，或添加新颜色。已发卡片保持原颜色。",
+        ccStyOn: "开启",
+        ccStyDel: "删除",
+        ccStyAdd: "添加新颜色",
+        ccStyName: "颜色名称",
+        ccStyC1: "主色",
+        ccStyC2: "副色",
+        ccStyAc: "点缀色",
+        ccStyAddBtn: "添加颜色",
+        ccStyAskDel: "删除此颜色？已发卡片仍保留该颜色。",
+        ccStyNeedName: "请输入颜色名称。",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -19435,24 +19542,38 @@ function ccUse(mode) { CC.mode = mode; CC.rows = CC.store[mode] || {}; }
 function ccFeed(mode, map) { CC.store[mode] = map || {}; if (CC.mode === mode) CC.rows = CC.store[mode]; if (CC['after_' + mode]) CC['after_' + mode](); }
 
 /* ---------- the card picture (dark navy + gold) ---------- */
-var CC_CSS = '.cc-card{position:relative;width:100%;max-width:380px;aspect-ratio:1.586;border-radius:18px;padding:18px 20px;box-sizing:border-box;color:#f6e7b4;background:radial-gradient(120% 140% at 85% -10%,#24406e 0%,#0b1d3a 48%,#050d1e 100%);box-shadow:0 12px 30px rgba(5,13,30,.45),inset 0 0 0 1px rgba(212,175,55,.45);font-family:Arial,sans-serif;overflow:hidden;margin:0 auto}' +
-    '.cc-card:before{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;border:1px solid rgba(212,175,55,.28);box-shadow:0 0 0 22px rgba(212,175,55,.05),0 0 0 48px rgba(212,175,55,.04)}' +
-    '.cc-top{display:flex;justify-content:space-between;align-items:flex-start;min-height:34px;position:relative}' +
-    '.cc-logo{height:30px;max-width:110px;object-fit:contain;display:block}.cc-brand{font-size:11px;letter-spacing:2px;color:#d4af37;font-weight:700;text-transform:uppercase}' +
-    '.cc-chip{width:44px;height:33px;border-radius:7px;background:linear-gradient(135deg,#f3dc8a,#b8902a 55%,#e9cf7c);margin-top:14px;position:relative;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}' +
-    '.cc-chip:after{content:"";position:absolute;inset:6px 9px;border:1px solid rgba(0,0,0,.28);border-radius:3px}' +
-    '.cc-no{font-size:clamp(15px,5vw,21px);letter-spacing:2px;font-weight:700;margin-top:14px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);font-family:"Courier New",monospace;position:relative}' +
-    '.cc-bot{position:absolute;left:20px;right:20px;bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px}' +
-    '.cc-nm{font-size:14px;font-weight:700;color:#fff;letter-spacing:.5px;text-transform:uppercase}.cc-sub{font-size:10px;color:#d4af37;letter-spacing:.6px}' +
+var CC_CSS = '.cc-card{position:relative;width:240px;height:381px;border-radius:20px;box-sizing:border-box;color:var(--tx,#fff);background:linear-gradient(160deg,var(--c1,#16305e) 0%,var(--c2,#050d1e) 100%);box-shadow:0 12px 30px rgba(5,13,30,.35),inset 0 0 0 1px var(--ac,#d4af37);font-family:Arial,sans-serif;overflow:hidden;margin:0 auto;text-align:center}' +
+    '.cc-card:before{content:"";position:absolute;right:-70px;top:-70px;width:230px;height:230px;border-radius:50%;background:var(--ac,#d4af37);opacity:.10}' +
+    '.cc-card:after{content:"";position:absolute;left:-60px;bottom:-60px;width:160px;height:160px;border-radius:50%;border:1px solid var(--ac,#d4af37);opacity:.25}' +
+    '.cc-slot{position:absolute;left:50%;top:11px;width:46px;height:8px;margin-left:-23px;border-radius:5px;background:rgba(0,0,0,.28);box-shadow:inset 0 1px 2px rgba(0,0,0,.4)}' +
+    '.cc-top{position:absolute;left:0;right:0;top:28px;height:30px;display:flex;justify-content:center;align-items:center}' +
+    '.cc-logo{height:28px;max-width:130px;object-fit:contain;display:block}.cc-brand{font-size:11px;letter-spacing:3px;color:var(--ac,#d4af37);font-weight:700;text-transform:uppercase}' +
+    '.cc-ph{position:absolute;left:50%;top:70px;width:136px;height:170px;margin-left:-68px;border-radius:14px;border:3px solid var(--ac,#d4af37);background:var(--pb,rgba(255,255,255,.12));overflow:hidden;box-sizing:border-box;color:var(--ac,#d4af37)}' +
+    '.cc-ph img{width:100%;height:100%;object-fit:cover;display:block}.cc-ph svg{width:100%;height:100%;display:block}' +
+    '.cc-nm{position:absolute;left:10px;right:10px;top:254px;font-size:16px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--tx,#fff);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.cc-sub{position:absolute;left:10px;right:10px;top:276px;font-size:10px;letter-spacing:.8px;color:var(--sb,#d4af37);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.cc-ln{position:absolute;left:50%;top:298px;width:40px;height:2px;margin-left:-20px;background:var(--ac,#d4af37);opacity:.8}' +
+    '.cc-idl{position:absolute;left:0;right:0;top:310px;font-size:8px;letter-spacing:3px;color:var(--sb,#d4af37);font-weight:700}' +
+    '.cc-id{position:absolute;left:0;right:0;top:323px;font-size:28px;letter-spacing:5px;font-weight:700;color:var(--tx,#fff);font-family:"Courier New",monospace}' +
+    '.cc-chip{position:absolute;left:50%;top:44px;width:54px;height:41px;margin-left:-27px;border-radius:8px;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 50%,rgba(0,0,0,.22)),var(--ac,#d4af37);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}' +
+    '.cc-chip:after{content:"";position:absolute;inset:7px 11px;border:1px solid rgba(0,0,0,.28);border-radius:3px}' +
+    '.cc-bl{position:absolute;left:0;right:0;top:112px;font-size:8px;letter-spacing:3px;color:var(--sb,#d4af37);font-weight:700}' +
+    '.cc-bno{position:absolute;left:0;right:0;top:126px;font-size:16px;letter-spacing:1.5px;font-weight:700;font-family:"Courier New",monospace;color:var(--tx,#fff);white-space:nowrap}.cc-bno.pop{animation:ccPop .16s ease-out}' +
+    '.cc-bsl{position:absolute;left:0;right:0;top:170px;font-size:8px;letter-spacing:3px;color:var(--sb,#d4af37);font-weight:700}' +
+    '.cc-bcode{position:absolute;left:50%;top:184px;width:84px;height:38px;margin-left:-42px;line-height:38px;background:#fff;color:#0b1d3a;font:700 22px "Courier New",monospace;letter-spacing:4px;border-radius:6px;box-shadow:0 0 0 2px var(--ac,#d4af37),0 0 16px var(--ac,#d4af37);transition:box-shadow .2s}.cc-bcode.hot{box-shadow:0 0 0 3px var(--ac,#d4af37),0 0 26px var(--ac,#d4af37)}' +
+    '.cc-bt{position:absolute;left:20px;right:20px;top:252px;font-size:8px;line-height:1.5;color:var(--sb,#d4af37);opacity:.9}' +
+    '.cc-bars{position:absolute;left:30px;right:30px;bottom:22px;height:30px;border-radius:3px;background:repeating-linear-gradient(90deg,var(--tx,#fff) 0 2px,transparent 2px 4px,var(--tx,#fff) 4px 5px,transparent 5px 8px,var(--tx,#fff) 8px 11px,transparent 11px 13px);opacity:.55}' +
     '.cc-state{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:#123a5c;border:1px solid #d4af37;color:#f6e7b4}' +
     '.cc-add{position:absolute;right:12px;top:12px;width:38px;height:38px;border-radius:50%;border:0;background:#dc2626;color:#fff;font-size:24px;line-height:1;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.4);z-index:2}' +
+    '.cc-flip{width:240px;height:381px;margin:0 auto;perspective:1000px}.cc-flip-in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.3,.7,.2,1)}.cc-flip.back .cc-flip-in{transform:rotateY(180deg)}.cc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}.cc-face.bk{transform:rotateY(180deg)}' +
+    '.cc-mini{width:120px;height:191px;position:relative;flex:0 0 auto}.cc-mini .cc-card{position:absolute;left:0;top:0;transform:scale(.5);transform-origin:0 0;margin:0}' +
     '.cc-box{padding:8px 0}.cc-tc{max-height:55vh;overflow-y:auto;font-size:14px;line-height:1.55;color:#0f172a}.cc-tc p{margin:8px 0}' +
     '.cc-kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #e2e8f0;font-size:14px}.cc-kv span:first-child{color:#64748b}' +
     '.cc-fee{border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:10px 0;margin:10px 0}.cc-fee div{display:flex;justify-content:space-between;font-size:15px;color:#123a5c;padding:3px 0}.cc-fee .tot{font-size:20px;font-weight:700}' +
     '.cc-agree{display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0;font-size:14px}.cc-agree input{width:20px;height:20px}.cc-agree a{color:#123a5c;text-decoration:underline;cursor:pointer}' +
     '.cc-order{display:block;width:100%;border:0;border-radius:10px;padding:14px;font-size:16px;font-weight:700;letter-spacing:1px;color:#fff;background:#123a5c;cursor:pointer}.cc-order[disabled]{background:#999;cursor:not-allowed}' +
     '.cc-pg{position:relative;padding:6px 0 10px;text-align:center}' +
-    '.cc-gh{position:relative;max-width:380px;margin:0 auto;border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:0 8px 20px rgba(5,13,30,.25)}.cc-gh.off{cursor:default}' +
+    '.cc-gh{position:relative;width:240px;margin:0 auto;border-radius:20px;overflow:hidden;cursor:pointer;box-shadow:0 8px 20px rgba(5,13,30,.25)}.cc-gh.off{cursor:default}' +
     '.cc-gh .cc-card{filter:blur(1.6px) grayscale(.5);opacity:.6;box-shadow:none}' +
     '.cc-gh-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(110,115,125,.5);color:#fff;padding:0 16px}' +
     '.cc-pw{width:62px;height:62px;border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center}.cc-gt{font-size:13px;color:#fff;text-align:center}' +
@@ -19462,13 +19583,87 @@ var CC_CSS = '.cc-card{position:relative;width:100%;max-width:380px;aspect-ratio
     '.cc-empty{text-align:center;padding:30px 10px;color:#6b7280}.cc-empty h5{font-size:18px;font-weight:600;margin:12px 0 6px;color:#6b7280}.cc-empty p{font-size:13px;color:#9ca3af;margin:0 auto;max-width:260px}' +
     '@media print{.cc-rc{font-family:Arial,sans-serif;color:#000}}';
 (function () { var st = document.createElement('style'); st.textContent = CC_CSS; document.head.appendChild(st); })();
-/* o: { no, name, dept, issued, state:'' text, logo } - the number is hidden until the card is activated (Part 3) */
+/* ---------- card colours (styles) ----------
+   cardStyles/<id> = built-in: { on:false }  |  custom: { custom:1, name, c1, c2, ac, on }   (Administration writes, everyone signed in reads)
+   an order and its card keep a copy of the colours: sty = { id, name, c1, c2, ac, tx, sb, pb } */
+var CC_STY = [
+    { id: 'pearl', c1: '#ffffff', c2: '#e9e4da', ac: '#9aa3b2', tx: '#1d2540', sb: '#6b7280', pb: '#dfe4ec' },
+    { id: 'silver', c1: '#f3f4f6', c2: '#b4bbc8', ac: '#7f8a9c', tx: '#1d2540', sb: '#4b5568', pb: '#e6e9ef' },
+    { id: 'navy', c1: '#16305e', c2: '#050d1e', ac: '#d4af37', tx: '#ffffff', sb: '#d4af37', pb: '#13284f' },
+    { id: 'champagne', c1: '#f5e4bd', c2: '#d2b072', ac: '#a98233', tx: '#3a2a08', sb: '#6d531a', pb: '#f5e5be' },
+    { id: 'emerald', c1: '#1d6b57', c2: '#082a22', ac: '#d4af37', tx: '#ffffff', sb: '#d4af37', pb: '#0f4a3b' },
+    { id: 'ice', c1: '#ffffff', c2: '#b9d2f0', ac: '#7ea4d4', tx: '#1b3a66', sb: '#4a6a99', pb: '#e3edf9' }
+];
+CC.styles = {};
+function ccHexLum(h) { h = String(h || '#000').replace('#', ''); if (h.length === 3) h = h.replace(/(.)/g, '$1$1'); var r = parseInt(h.substr(0, 2), 16) || 0, g = parseInt(h.substr(2, 2), 16) || 0, b = parseInt(h.substr(4, 2), 16) || 0; return (0.299 * r + 0.587 * g + 0.114 * b) / 255; }
+function ccStyFromCustom(id, x) {
+    var dark = (ccHexLum(x.c1) + ccHexLum(x.c2)) / 2 < 0.5;
+    return { id: id, name: x.name || '', c1: x.c1, c2: x.c2, ac: x.ac, tx: dark ? '#ffffff' : '#1d2540', sb: x.ac, pb: dark ? 'rgba(255,255,255,.14)' : 'rgba(0,0,0,.07)', custom: 1 };
+}
+/* every style (built-in + custom), with on/off */
+function ccStyAll() {
+    var out = CC_STY.map(function (b) { var o = CC.styles[b.id]; return Object.assign({ on: !(o && o.on === false) }, b); });
+    Object.keys(CC.styles || {}).forEach(function (k) { var x = CC.styles[k]; if (x && x.custom && x.c1 && x.c2 && x.ac) out.push(Object.assign({ on: x.on !== false, at: x.at || 0 }, ccStyFromCustom(k, x))); });
+    return out;
+}
+function ccStyOn() { return ccStyAll().filter(function (s) { return s.on; }); }
+function ccStyName(s) { s = s || {}; for (var i = 0; i < CC_STY.length; i++) if (CC_STY[i].id === s.id) return t('ccSty_' + s.id); return s.name || ''; }
+function ccStyCopy(s) { return { id: s.id, name: s.custom ? (s.name || '') : '', c1: s.c1, c2: s.c2, ac: s.ac, tx: s.tx, sb: s.sb, pb: s.pb }; }
+function ccStyVars(s) { s = s && s.c1 ? s : CC_STY[2]; return '--c1:' + s.c1 + ';--c2:' + s.c2 + ';--ac:' + s.ac + ';--tx:' + s.tx + ';--sb:' + s.sb + ';--pb:' + s.pb; }
+(function () {
+    try { if (typeof db !== 'undefined') db.ref('cardStyles').on('value', function (s) { CC.styles = s.val() || {}; if (typeof CC.onStyles === 'function') CC.onStyles(); }, function () {}); } catch (e) {}
+})();
+
+/* ---------- employee photo (kept in cardPhotos/<order id> = { empKey, d:'data:image/jpeg...' }) ---------- */
+CC.photos = {}; CC.phReq = {};
+var CC_SVG_PHOTO = '<svg viewBox="0 0 100 124" preserveAspectRatio="xMidYMid slice"><circle cx="50" cy="46" r="21" fill="currentColor"/><path d="M8 124c0-30 18-44 42-44s42 14 42 44z" fill="currentColor"/></svg>';
+function ccPhGet(id, cb) {
+    if (!id) return; if (CC.photos[id]) { if (cb) cb(CC.photos[id]); return; }
+    if (CC.phReq[id]) return; CC.phReq[id] = 1;
+    try { db.ref('cardPhotos/' + id + '/d').once('value').then(function (s) { var v = s.val(); if (v) { CC.photos[id] = v; if (cb) cb(v); } else CC.phReq[id] = 0; }).catch(function () { CC.phReq[id] = 0; }); } catch (e) { CC.phReq[id] = 0; }
+}
+/* a small picture inside any dialog: it loads the photo itself the first time it appears */
+var CC_GIF = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+function ccPhImg(id, w, h) { return '<img src="' + (CC.photos[id] || CC_GIF) + '" data-ph="' + ccE(id) + '" onload="ccPhLoad(this)" style="width:' + w + 'px;height:' + h + 'px;object-fit:cover;border-radius:10px;border:2px solid #cbd5e1;background:#f1f5f9" alt="">'; }
+function ccPhLoad(im) { var id = im.getAttribute('data-ph'); if (!id || im.src.indexOf('data:image/jpeg') === 0) return; ccPhGet(id, function (v) { im.src = v; }); }
+/* the picked file is cropped to 4:5 and made small (about 20 KB) */
+function ccPhResize(file, cb) {
+    var rd = new FileReader();
+    rd.onload = function () {
+        var im = new Image();
+        im.onload = function () {
+            var W = 272, H = 340, c = document.createElement('canvas'); c.width = W; c.height = H; var x = c.getContext('2d');
+            var r = Math.max(W / im.width, H / im.height), w = im.width * r, h = im.height * r;
+            x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); x.drawImage(im, (W - w) / 2, (H - h) / 2, w, h);
+            cb(c.toDataURL('image/jpeg', 0.78));
+        };
+        im.onerror = function () { cb(''); };
+        im.src = rd.result;
+    };
+    rd.onerror = function () { cb(''); };
+    rd.readAsDataURL(file);
+}
+
+/* ---------- the card picture: vertical, photo + name + department + employee ID. The chip is on the back. ----------
+   o: { name, dept, id (employee ID), photo (data url), sty, no (16 digits), shown, code, state:'' text } */
+function ccLogoHtml(o) { return (typeof LF !== 'undefined' && LF.cfg && LF.cfg.logo) ? '<img class="cc-logo" src="' + ccE(LF.cfg.logo) + '" alt="">' : '<span class="cc-brand">' + ccE(o.brand || '') + '</span>'; }
 function ccCardHtml(o) {
-    var logo = (typeof LF !== 'undefined' && LF.cfg && LF.cfg.logo) ? '<img class="cc-logo" src="' + ccE(LF.cfg.logo) + '" alt="">' : '<span class="cc-brand">' + ccE(o.brand || '') + '</span>';
-    var no = o.shown && o.no ? String(o.no).replace(/(\d{4})(?=\d)/g, '$1 ') : '•••• •••• •••• ••••';
-    return '<div class="cc-card">' + (o.addBtn ? '<button type="button" class="cc-add" title="' + ccE(t('ccReplace')) + '" onclick="ccNewOpen()">+</button>' : '') +
-        '<div class="cc-top">' + logo + '</div><div class="cc-chip"></div><div class="cc-no">' + no + '</div>' +
-        '<div class="cc-bot"><div><div class="cc-nm">' + ccE(o.name || '') + '</div><div class="cc-sub">' + ccE(o.dept || '') + (o.issued ? ' · ' + ccE(o.issued) : '') + '</div></div></div></div>' +
+    return '<div class="cc-card" style="' + ccStyVars(o.sty) + '"><div class="cc-slot"></div>' + (o.addBtn ? '<button type="button" class="cc-add" title="' + ccE(t('ccReplace')) + '" onclick="ccNewOpen()">+</button>' : '') +
+        '<div class="cc-top">' + ccLogoHtml(o) + '</div><div class="cc-ph">' + (o.photo ? '<img src="' + o.photo + '" alt="">' : CC_SVG_PHOTO) + '</div>' +
+        '<div class="cc-nm">' + ccE(o.name || '') + '</div><div class="cc-sub">' + ccE(o.dept || '') + '</div><div class="cc-ln"></div>' +
+        '<div class="cc-idl">' + ccE(t('ccEmpIdL')) + '</div><div class="cc-id">' + ccE(o.id || '') + '</div></div>' +
+        (o.state ? '<div style="text-align:center"><span class="cc-state">' + ccE(o.state) + '</span></div>' : '');
+}
+function ccCardBackHtml(o) {
+    var no = o.shown && o.no ? String(o.no).slice(0, 4) + ' •••• •••• ' + String(o.no).slice(-4) : '•••• •••• •••• ••••';
+    return '<div class="cc-card" style="' + ccStyVars(o.sty) + '"><div class="cc-slot"></div><div class="cc-chip"></div>' +
+        '<div class="cc-bl">' + ccE(t('ccCardNoL')) + '</div><div class="cc-bno">' + no + '</div>' +
+        '<div class="cc-bsl">' + ccE(t('ccSecL')) + '</div><div class="cc-bcode">' + ccE(o.code || '•••') + '</div>' +
+        '<div class="cc-bt">' + ccE(t('ccBackText')) + '</div><div class="cc-bars"></div></div>';
+}
+/* front + back that turn over; flip: tap to turn (or the page turns it by code) */
+function ccFlipHtml(o, tap, idAttr) {
+    return '<div class="cc-flip"' + (idAttr ? ' id="' + idAttr + '"' : '') + (tap ? ' onclick="this.classList.toggle(\'back\')" style="cursor:pointer"' : '') + '><div class="cc-flip-in"><div class="cc-face">' + ccCardHtml(o) + '</div><div class="cc-face bk">' + ccCardBackHtml(o) + '</div></div></div>' +
         (o.state ? '<div style="text-align:center"><span class="cc-state">' + ccE(o.state) + '</span></div>' : '');
 }
 
@@ -19485,7 +19680,7 @@ function ccDetailHtml(o, staff) {
     var h = kv(t('ccRef'), '<b>' + ccE(o.ref) + '</b>') + kv(t('ccFId'), ccE(o.empId)) + kv(t('ccFName'), ccE(o.empName)) + kv(t('ccFDept'), ccE(o.deptName) + (o.deptGroup ? ' / ' + ccE(o.deptGroup) : '')) +
         kv(t('ccFJoin'), ccE(o.joinDate)) + kv(t('ccFPhone'), ccE(o.phone)) + kv(t('ccFEmail'), ccE(o.email)) + kv(t('ccPickAt'), ccE(ccPlace(o))) + kv(t('ccCNo'), ccE(ccFill(t('ccCardN'), { n: o.seq }))) +
         kv(t('ccFee'), o.fee ? ccE(ccMoney(o.fee)) + ' · ' + ccE(ccFill(t('ccFeeSalary'), { month: ccMonthName(ccFeeMonthOf(o)) })) : ccE(t('ccFree'))) +
-        kv(t('ccCStatus'), ccPill(o, staff));
+        kv(t('ccCStatus'), ccPill(o, staff)) + (o.sty ? kv(t('ccStyle'), ccE(ccStyName(o.sty))) : '') + (o.key ? kv(t('ccPhoto'), ccPhImg(o.key, 70, 88)) : '');
     if (staff || o.sig) h += '<div style="margin-top:8px;font-weight:700;color:#475569">' + ccE(t('ccSigs')) + '</div>' + kv(t('ccSigDept'), sg(o.sig && o.sig.dept)) + kv(t('ccSigHr'), sg(o.sig && o.sig.hr)) + kv(t('ccSigAd'), sg(o.sig && o.sig.ad));
     var rj = o.sig && ((o.sig.dept && o.sig.dept.s === 'rejected' && o.sig.dept) || (o.sig.hr && o.sig.hr.s === 'rejected' && o.sig.hr) || (o.sig.ad && o.sig.ad.s === 'rejected' && o.sig.ad));
     if (rj && rj.note) h += kv(t('ccReason'), ccE(rj.note));
@@ -19569,6 +19764,16 @@ function ccEmpOpen() { ccUse('emp'); ccEmpRender(); }
 function ccEmpLatest() { var l = ccList(CC.store.emp); return l[0] || null; }
 function ccEmpCanOrder() { var l = ccList(CC.store.emp); return !l.some(function (o) { return ccOpen(o); }); }
 function ccEmpCard() { var cardOf = null; Object.keys(CC.cards.emp || {}).forEach(function (k) { var x = CC.cards.emp[k]; if (x.state === 'active' || x.state === 'frozen') cardOf = cardOf || Object.assign({ key: k }, x); }); return cardOf; }
+/* what the card shows for one order / card of this employee */
+function ccEmpCardData(id) {
+    var rec = (CC.cards.emp || {})[id] || {}, od = (CC.store.emp || {})[id] || {}, c = ccCtx();
+    if (!CC.photos[id]) ccPhGet(id, function () { ccEmpPhotoFill(id); });
+    return { name: rec.name || (od.card && od.card.name) || c.empName, dept: rec.deptName || (od.card && od.card.deptName) || c.group, id: c.empId, photo: CC.photos[id] || '', sty: rec.sty || od.sty || null, no: rec.no, shown: true };
+}
+function ccEmpPhotoFill(id) {
+    var v = CC.photos[id]; if (!v) return;
+    if (document.getElementById('ccActOv')) { var a = document.querySelectorAll('#ccActOv .cc-ph'); for (var i = 0; i < a.length; i++) a[i].innerHTML = '<img src="' + v + '" alt="">'; } else ccEmpRender();
+}
 function ccEmpRender() {
     var box = document.getElementById('ccEmpBox'); if (!box) return;
     if (document.getElementById('ccActOv')) return; /* activation is open: do not redraw it */
@@ -19581,13 +19786,12 @@ function ccEmpRender() {
             '<div class="cc-empty">' + CC_SVG_EMPTY + '<h5>' + ccE(t('ccOrderNewTitle')) + '</h5><p>' + ccE(t('ccOrderNewHint')) + '</p></div>';
     } else if (pend) {
         /* a card that is not active yet: the real card, blurred and faded. The button is always there - activation itself checks everything. */
-        var nm = (pend.card && pend.card.name) || c.empName, dp = (pend.card && pend.card.deptName) || c.group;
         h += '<div class="cc-pg"><div class="cc-gh" id="ccGhost" onclick="ccActivateOpen(\'' + pend.key + '\')">' +
-            ccCardHtml({ name: nm, dept: dp }) + '<div class="cc-gh-ov"><div class="cc-pw">' + CC_SVG_PW + '</div><div class="cc-gt">' + ccE(t('ccTapActivate')) + '</div></div></div>' +
+            ccCardHtml(Object.assign(ccEmpCardData(pend.key), { shown: false })) + '<div class="cc-gh-ov"><div class="cc-pw">' + CC_SVG_PW + '</div><div class="cc-gt">' + ccE(t('ccTapActivate')) + '</div></div></div>' +
             '<div class="cc-zz">' + CC_SVG_ZZ + '</div><h5>' + ccE(t('ccNeedAct')) + '</h5><p>' + ccE(t('ccActHint')) + '</p></div>';
     } else {
         var fr = cardOf.state === 'frozen';
-        h += '<div class="cc-pg" style="padding-bottom:64px"><div id="ccCardWrap"' + (fr ? ' style="opacity:.55;filter:grayscale(.6)"' : '') + '>' + ccCardHtml({ name: (cardOf.name || c.empName), dept: (cardOf.deptName || c.group), no: cardOf.no, shown: true, issued: cardOf.issued, state: fr ? t('ccStFrozen') : t('ccStActive') }) + '</div>' +
+        h += '<div class="cc-pg" style="padding-bottom:64px"><div id="ccCardWrap"' + (fr ? ' style="opacity:.55;filter:grayscale(.6)"' : '') + '>' + ccFlipHtml(Object.assign(ccEmpCardData(cardOf.key), { state: fr ? t('ccStFrozen') : t('ccStActive') }), true) + '</div><p style="margin:8px auto 0;font-size:11px">' + ccE(t('ccTapFlip')) + '</p>' +
             (fr ? '<p style="margin:10px auto 0">' + ccE(t('ccFrozenHint')) + '</p>' : '') +
             '<div class="cc-acts"><button type="button" onclick="ccShowCode(\'' + cardOf.key + '\')">' + ccE(t('ccShowCode')) + '</button>' +
             '<button type="button" onclick="ccFreezeToggle(\'' + cardOf.key + '\')">' + ccE(fr ? t('ccUnfreeze') : t('ccFreeze')) + '</button>' +
@@ -19608,7 +19812,11 @@ function ccNewOpen() {
     if (ccGate('new')) return;
     if (!ccEmpCanOrder()) { lfDlg({ title: t('ccTitle'), html: '<p>' + ccE(t('ccBusy')) + '</p>', buttons: [{ t: t('lfOk'), cls: 'g' }] }); return; }
     var c = ccCtx(), seq = Object.keys(CC.cards.emp || {}).length + 1, fee = ccFeeFor(seq), fmo = ccMonthOnly(ccNextMonth());
-    var h = '<div class="lf-fg"><label>' + ccE(t('ccFId')) + ' / ' + ccE(t('ccFName')) + '</label><input type="text" value="' + ccE(c.empId + ' - ' + c.empName) + '" disabled></div>' +
+    var on0 = ccStyOn(); CC_NEW = { sty: (on0[0] || CC_STY[2]).id, photo: '' };
+    var h = '<div class="lf-fg"><label>' + ccE(t('ccPickColour')) + '</label><div class="cc-slw"><button type="button" class="cc-sa" onclick="ccSlideBy(-1)">&#8249;</button><div class="cc-sl" id="ccSl"></div><button type="button" class="cc-sa" onclick="ccSlideBy(1)">&#8250;</button></div><div id="ccSlName" style="text-align:center;font-size:13px;font-weight:700;color:#123a5c"></div></div>' +
+        '<div class="lf-fg"><label>' + ccE(t('ccPhoto')) + '</label><div style="display:flex;gap:12px;align-items:center"><div id="ccfPhBox" style="width:68px;height:85px;border-radius:10px;border:2px dashed #94a3b8;background:#f1f5f9;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#94a3b8;font-size:11px;text-align:center">' + ccE(t('ccNoPhoto')) + '</div>' +
+        '<div><button type="button" class="cc-up" id="ccfPhBtn">' + ccE(t('ccUpPhoto')) + '</button><input type="file" accept="image/*" id="ccfPhIn" style="display:none"><div style="font-size:12px;color:#64748b;margin-top:6px;max-width:230px">' + ccE(t('ccPhotoHint')) + '</div></div></div></div>' +
+        '<div class="lf-fg"><label>' + ccE(t('ccFId')) + ' / ' + ccE(t('ccFName')) + '</label><input type="text" value="' + ccE(c.empId + ' - ' + c.empName) + '" disabled></div>' +
         '<div class="lf-fg"><label>' + ccE(t('ccFDept')) + '</label><input type="text" value="' + ccE(c.group) + '" disabled></div>' +
         '<div class="lf-row"><div class="lf-fg"><label>' + ccE(t('ccFJoin')) + '</label><input type="text" id="ccfJoin" value="' + ccE(c.joinDate) + '"></div>' +
         '<div class="lf-fg"><label>' + ccE(t('ccFPhone')) + '</label><input type="tel" id="ccfPhone" value="' + ccE(c.phone) + '"></div></div>' +
@@ -19621,21 +19829,49 @@ function ccNewOpen() {
     lfDlg({ id: 'E', title: t('ccNew'), w: 480, z: 6100, html: h, buttons: [{ t: t('lfCancel'), cls: 's' }] });
     var ag = document.getElementById('ccfAgree'), ob = document.getElementById('ccfOrder');
     ag.onchange = function () { ob.disabled = !ag.checked; };
+    ccNewSlide(true);
+    var pin = document.getElementById('ccfPhIn'); document.getElementById('ccfPhBtn').onclick = function () { pin.click(); };
+    pin.onchange = function () {
+        var f = pin.files && pin.files[0]; if (!f) return;
+        ccPhResize(f, function (d) {
+            if (!d) { showToast(false, t('ccPhotoErr')); return; }
+            CC_NEW.photo = d; var bx = document.getElementById('ccfPhBox'); if (bx) { bx.style.border = '2px solid #16a34a'; bx.innerHTML = '<img src="' + d + '" style="width:100%;height:100%;object-fit:cover" alt="">'; }
+            ccNewSlide(false);
+        });
+    };
     ob.onclick = function () { ccNewSubmit(seq, fee); };
 }
+var CC_NEW = { sty: '', photo: '' };
+/* the colour slider: every colour the administration has switched on, each drawn with this employee's own photo and name */
+function ccNewSlide(first) {
+    var box = document.getElementById('ccSl'); if (!box) return; var c = ccCtx(), keep = box.scrollLeft;
+    var list = ccStyOn(); if (!list.length) list = [CC_STY[2]];
+    if (!list.some(function (s) { return s.id === CC_NEW.sty; })) CC_NEW.sty = list[0].id;
+    box.innerHTML = list.map(function (s) {
+        return '<div class="cc-pick' + (s.id === CC_NEW.sty ? ' sel' : '') + '" data-id="' + ccE(s.id) + '" onclick="ccNewPick(\'' + ccE(s.id) + '\')"><div class="cc-mini">' + ccCardHtml({ name: c.empName, dept: c.group, id: c.empId, photo: CC_NEW.photo, sty: s }) + '</div></div>';
+    }).join('');
+    box.scrollLeft = keep; ccNewSlideName();
+    if (first) { var sel = box.querySelector('.cc-pick.sel'); if (sel) box.scrollLeft = Math.max(0, sel.offsetLeft - 60); }
+}
+function ccNewSlideName() { var n = document.getElementById('ccSlName'); if (!n) return; var s = ccStyAll().filter(function (x) { return x.id === CC_NEW.sty; })[0] || CC_STY[2]; n.textContent = ccStyName(s); }
+function ccNewPick(id) { CC_NEW.sty = id; var box = document.getElementById('ccSl'); if (!box) return; [].forEach.call(box.querySelectorAll('.cc-pick'), function (p) { p.classList.toggle('sel', p.getAttribute('data-id') === id); }); ccNewSlideName(); }
+function ccSlideBy(d) { var b = document.getElementById('ccSl'); if (b) b.scrollBy({ left: d * 140, behavior: 'smooth' }); }
 function ccNewSubmit(seq, fee) {
     if (ccGate('new')) return;
     var g = function (id) { return ((document.getElementById(id) || {}).value || '').trim(); };
     var c = ccCtx(), join = g('ccfJoin'), phone = g('ccfPhone'), email = g('ccfEmail'), pick = g('ccfPick');
     if (!join || !phone || !pick) { showToast(false, t('ccFillAll')); return; }
+    if (!CC_NEW.photo) { showToast(false, t('ccPhotoNeed')); return; }
     var ob = document.getElementById('ccfOrder'); if (ob) ob.disabled = true;
     lfFindDept(c.group).then(function (dk) {
         if (!dk) { lfDlgClose('E'); lfDlg({ title: t('ccTitle'), html: '<p>' + ccE(t('lfNoDept')) + '</p>', buttons: [{ t: t('lfOk') }] }); return; }
         var now = Date.now(), ref = ccMakeRef();
         var rec = { ref: ref, empKey: c.empKey, empId: c.empId, empName: c.empName, dept: dk.key, deptName: dk.name, deptGroup: c.group, joinDate: join, phone: phone, email: email, pickup: pick,
-            kind: Object.keys(CC.cards.emp || {}).length ? 'replace' : 'new', seq: seq, fee: fee, feeMonth: fee ? ccNextMonth(now) : null, at: now, status: 'wait_dept', ver: 1, seenEmp: 1, last: { k: 'created', by: c.empName, at: now } };
+            kind: Object.keys(CC.cards.emp || {}).length ? 'replace' : 'new', sty: ccStyCopy(ccStyAll().filter(function (x) { return x.id === CC_NEW.sty; })[0] || CC_STY[2]), seq: seq, fee: fee, feeMonth: fee ? ccNextMonth(now) : null, at: now, status: 'wait_dept', ver: 1, seenEmp: 1, last: { k: 'created', by: c.empName, at: now } };
         var okey = db.ref('cardOrders').push().key, up = {};
         up['cardOrders/' + okey] = rec;
+        up['cardPhotos/' + okey] = { empKey: c.empKey, d: CC_NEW.photo, at: now };
+        CC.photos[okey] = CC_NEW.photo;
         /* the same messages go to the employee's notification bell */
         up['notifications/' + db.ref('notifications').push().key] = { targetId: c.empId, system: 'card', orderId: okey, message: t('ccNotifOrderTitle'), description: ccFill(t('ccOrdered'), { ref: ref }), relatedRequestKey: null, timestamp: now };
         if (fee) up['notifications/' + db.ref('notifications').push().key] = { targetId: c.empId, system: 'card', orderId: okey, message: t('ccFeeNTitle'), description: ccFill(t('ccFeeNMsg'), { amt: fee, month: ccMonthOnly(ccNextMonth(now)) }), relatedRequestKey: null, timestamp: now + 1 };
@@ -19688,15 +19924,14 @@ setInterval(ccEmpTick, 1500);
 /* ======================= Part 3: activate, security code, freeze, close ======================= */
 (function () {
     var st = document.createElement('style');
-    st.textContent = '.cc-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}.cc-acts button{border:1px solid #123a5c;background:#fff;color:#123a5c;border-radius:999px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}.cc-acts button.red{border-color:#dc2626;color:#dc2626}' +
+    st.textContent = '.cc-slw{display:flex;align-items:center;gap:4px}.cc-sl{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:8px 2px 10px;flex:1;-webkit-overflow-scrolling:touch}.cc-pick{flex:0 0 auto;scroll-snap-align:center;cursor:pointer;border:3px solid transparent;border-radius:18px;padding:4px;background:#fff}.cc-pick.sel{border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.2)}.cc-sa{border:0;background:#e2e8f0;color:#123a5c;border-radius:50%;width:30px;height:30px;font-size:22px;line-height:1;cursor:pointer;flex:0 0 auto}.cc-up{border:1px solid #123a5c;background:#fff;color:#123a5c;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer}' +
+        '.cc-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}.cc-acts button{border:1px solid #123a5c;background:#fff;color:#123a5c;border-radius:999px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}.cc-acts button.red{border-color:#dc2626;color:#dc2626}' +
         '.cc-ao{position:relative;max-width:440px;margin:6px auto;border-radius:22px;background:linear-gradient(180deg,#0a2a5e,#06183a);color:#fff;overflow:hidden;font-family:Arial,sans-serif;box-shadow:0 10px 30px rgba(5,13,30,.35)}.cc-ao-in{max-width:440px;margin:0 auto;padding:14px 20px 26px;min-height:0;box-sizing:border-box;display:flex;flex-direction:column}' +
         '.cc-ao-x{background:none;border:0;color:#fff;font-size:30px;line-height:1;cursor:pointer;align-self:flex-start;padding:0 6px 10px 0}.cc-ao h2{font-size:24px;margin:8px 0 6px}.cc-ao .sub{font-size:14px;color:#b9c8e6;margin:0 0 26px;line-height:1.5}' +
         '.cc-ao label{display:block;font-size:13px;color:#b9c8e6;margin-top:16px}.cc-ao input{width:100%;box-sizing:border-box;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.55);color:#fff;font-size:20px;letter-spacing:2px;padding:10px 0;outline:none}' +
-        '.cc-ao-card{position:relative;max-width:300px;margin:4px auto 20px;animation:ccIn .7s cubic-bezier(.2,.8,.2,1);perspective:800px}.cc-ao-card .cc-card{box-shadow:0 16px 40px rgba(0,0,0,.55),0 0 0 1px rgba(212,175,55,.6),0 0 30px rgba(212,175,55,.15)}.cc-ao-card .cc-no{font-size:19px;transition:color .2s}.cc-no.pop{animation:ccPop .16s ease-out}' +
-        '.cc-flip{perspective:1000px}.cc-flip-in{position:relative;width:100%;aspect-ratio:1.586;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.3,.7,.2,1)}.cc-flip.back .cc-flip-in{transform:rotateY(180deg)}.cc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}.cc-face.bk{transform:rotateY(180deg)}.cc-face .cc-card{height:100%;aspect-ratio:auto;max-width:none}' +
-        '.cc-back{padding:0!important}.cc-mag{height:36px;background:#000;margin-top:24px}.cc-sigrow{display:flex;gap:8px;margin:14px 18px 0;align-items:center}.cc-sig{flex:1;height:34px;border-radius:3px;background:repeating-linear-gradient(135deg,#e9e3cc,#e9e3cc 4px,#d9d1b0 4px,#d9d1b0 8px)}.cc-bcode{min-width:62px;height:34px;line-height:34px;text-align:center;background:#fff;color:#0b1d3a;font:700 19px "Courier New",monospace;letter-spacing:3px;border-radius:4px;box-shadow:0 0 0 2px #d4af37,0 0 16px rgba(212,175,55,.7)}.cc-bt{position:absolute;left:18px;right:18px;bottom:12px;font-size:8px;line-height:1.4;color:#b9c8e6}' +
+        '.cc-ao-card{position:relative;width:240px;margin:4px auto 20px;animation:ccIn .7s cubic-bezier(.2,.8,.2,1)}.cc-ao-card .cc-card{box-shadow:0 16px 40px rgba(0,0,0,.55),0 0 30px rgba(255,255,255,.08)}' +
         '.cc-gh.lift .cc-gh-ov{opacity:0;transition:opacity .25s}.cc-gh.lift .cc-card{filter:none;opacity:1;transition:all .3s}.cc-gh.lift{transform:translateY(-8px) scale(1.02);transition:transform .3s}' +
-        '.cc-ao-ck{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(5,13,30,.55);border-radius:18px}.cc-ao-card.ok .cc-ao-ck{display:flex;animation:ccCk .5s ease-out}.cc-ao-card.ok .cc-card{animation:ccGlow 1.2s ease-in-out}' +
+        '.cc-ao-ck{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(5,13,30,.55);border-radius:20px}.cc-ao-card.ok .cc-ao-ck{display:flex;animation:ccCk .5s ease-out}.cc-ao-card.ok .cc-card{animation:ccGlow 1.2s ease-in-out}' +
         '.cc-ao-step.fwd{animation:ccFwd .38s cubic-bezier(.2,.8,.2,1)}.cc-ao-step.bk{animation:ccBk .38s cubic-bezier(.2,.8,.2,1)}' +
         '@keyframes ccIn{from{opacity:0;transform:translateY(-50px) rotateX(40deg) scale(.88)}to{opacity:1;transform:none}}@keyframes ccPop{0%{transform:scale(1.06)}100%{transform:scale(1)}}@keyframes ccFwd{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}@keyframes ccBk{from{opacity:0;transform:translateX(-60px)}to{opacity:1;transform:none}}' +
         '@keyframes ccCk{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}@keyframes ccGlow{0%,100%{filter:none}50%{filter:drop-shadow(0 0 22px #d4af37) brightness(1.15)}}' +
@@ -19708,18 +19943,18 @@ function ccEmpRec() { var id = sessionStorage.getItem('empLoggedInId'); return (
 function ccLockRef() { return db.ref('cardLock/' + ccCtx().empKey); }
 function ccAoClose() { var x = document.getElementById('ccActOv'); if (x) x.remove(); CC_AO.id = ''; ccEmpRender(); }
 function ccAoCardInit() {
-    var rec = (CC.cards.emp || {})[CC_AO.id] || {}, c = ccCtx(), box = document.getElementById('ccAoCardBox'); if (!box) return;
-    box.innerHTML = '<div class="cc-ao-card" id="ccAoCard"><div class="cc-flip" id="ccAoFlip"><div class="cc-flip-in"><div class="cc-face">' + ccCardHtml({ name: rec.name || c.empName, dept: rec.deptName || c.group }) + '</div>' +
-        '<div class="cc-face bk"><div class="cc-card cc-back"><div class="cc-mag"></div><div class="cc-sigrow"><div class="cc-sig"></div><div class="cc-bcode" id="ccAoBCode">•••</div></div><div class="cc-bt">' + ccE(t('ccBackText')) + '</div></div></div></div></div>' +
+    var box = document.getElementById('ccAoCardBox'); if (!box) return; var d = ccEmpCardData(CC_AO.id);
+    box.innerHTML = '<div class="cc-ao-card" id="ccAoCard">' + ccFlipHtml(Object.assign(d, { shown: false }), false, 'ccAoFlip') +
         '<div class="cc-ao-ck"><svg viewBox="0 0 52 52" width="64" height="64"><circle cx="26" cy="26" r="24" fill="none" stroke="#d4af37" stroke-width="3"/><path d="M14 27l8 8 16-18" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>';
     ccAoCardNo('', false);
 }
-/* the card turns over to show the back while the 3-digit code is typed */
+/* the card turns over: back = card number + security code (typed live), front = photo, name, ID */
 function ccAoFlip(back) { var f = document.getElementById('ccAoFlip'); if (f) f.classList.toggle('back', !!back); }
-function ccAoBack(v) { var e = document.getElementById('ccAoBCode'); if (e) e.textContent = (v + '•••').slice(0, 3); }
-/* the card on top shows what is typed: digits appear on the card one by one; on screen 2 only the last 4 stay */
+function ccAoBack(v) { var e = document.getElementById('ccAoCard'); e = e && e.querySelector('.cc-bcode'); if (e) e.textContent = (v + '•••').slice(0, 3); }
+function ccAoHot(on) { var e = document.querySelector('#ccAoCard .cc-bcode'); if (e) e.classList.toggle('hot', !!on); }
+/* the digits appear on the back of the card one by one; on screen 2 only the last 4 stay */
 function ccAoCardNo(d, mask) {
-    var el = document.querySelector('#ccAoCardBox .cc-face .cc-no'); if (!el) return; var s = '', l4 = String(CC_AO.no || '').slice(-4);
+    var el = document.querySelector('#ccAoCardBox .cc-bno'); if (!el) return; var s = '', l4 = String(CC_AO.no || '').slice(-4);
     for (var i = 0; i < 16; i++) { s += mask ? (i >= 12 && l4.length === 4 ? l4.charAt(i - 12) : '•') : (i < d.length ? d.charAt(i) : '•'); if (i % 4 === 3 && i < 15) s += ' '; }
     el.textContent = s; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
 }
@@ -19742,8 +19977,8 @@ function ccActStep1() {
     ccAoShell(t('ccActTitle1'), t('ccActSub1'), '<label>' + ccE(t('ccActNo')) + '</label><input id="ccAoNo" inputmode="numeric" autocomplete="off"><label>' + ccE(t('ccActCode')) + '</label><input id="ccAoCode" inputmode="numeric" autocomplete="off" type="password" style="max-width:140px">', t('ccNext'), null, 1);
     var no = document.getElementById('ccAoNo'), cd = document.getElementById('ccAoCode'), go = document.getElementById('ccAoGo');
     var chk = function () { go.disabled = !(no.value.length === 16 && cd.value.length === 3); };
-    ccDigits(no, 16, function () { chk(); ccAoCardNo(no.value, false); }); ccDigits(cd, 3, function () { chk(); ccAoBack(cd.value); }); ccAoCardNo(no.value, false); ccAoFlip(false);
-    cd.onfocus = function () { ccAoFlip(true); }; no.onfocus = function () { ccAoFlip(false); };
+    ccDigits(no, 16, function () { chk(); ccAoCardNo(no.value, false); }); ccDigits(cd, 3, function () { chk(); ccAoBack(cd.value); }); ccAoCardNo(no.value, false);
+    cd.onfocus = function () { ccAoHot(true); }; cd.onblur = function () { ccAoHot(false); }; setTimeout(function () { if (document.getElementById('ccAoNo')) ccAoFlip(true); }, 350);
     go.onclick = function () { ccActCheck1(no.value, cd.value); };
     ccLockRef().once('value').then(function (s) { var lk = s.val() || {}; if (lk.until > Date.now()) ccAoErr(ccFill(t('ccActLocked'), { time: ccTimeOnly(lk.until) })); }).catch(function () {});
 }
@@ -19861,7 +20096,7 @@ function ccCleanup() {
     Object.keys(CC.store.staff).forEach(function (k) {
         var o = CC.store.staff[k], cd = CC.cards.staff[k];
         var done = o.status === 'rejected' || (o.status === 'ready' && cd && cd.state !== 'ready' && cd.state !== 'made');
-        if (done && o.last && o.last.at && now - o.last.at > CC_KEEP_MS) { up['cardOrders/' + k] = null; n++; }
+        if (done && o.last && o.last.at && now - o.last.at > CC_KEEP_MS) { up['cardOrders/' + k] = null; if (o.status === 'rejected') up['cardPhotos/' + k] = null; n++; }
     });
     if (!n) return; ccCleanBusy = true;
     db.ref().update(up).catch(function () {}).then(function () { ccCleanBusy = false; });
@@ -19878,6 +20113,7 @@ function openCardCenter() {
     st.innerHTML = [['open', 'lfSOpen'], ['', 'lfSAll'], ['wait_dept', 'ccStWaitDept'], ['wait_staff', 'ccStWaitStaff'], ['issue', 'ccStIssue'], ['made', 'ccStMade'], ['ready', 'ccStReady'], ['rejected', 'ccStRejected']].map(function (x) { return '<option value="' + x[0] + '">' + ccE(t(x[1])) + '</option>'; }).join('');
     st.value = cur;
     document.getElementById('ccsSearch').placeholder = t('ccSearch');
+    var adm = ccIsAdmin(); ['ccCardsBtn', 'ccStyBtn'].forEach(function (i) { var b = document.getElementById(i); if (b) b.style.display = adm ? '' : 'none'; });
     m.style.display = 'flex'; ccStaffRender();
 }
 function closeCardCenter() { document.getElementById('ccModal').style.display = 'none'; }
@@ -19917,6 +20153,7 @@ function ccStaffOpen(id) {
         var lk = CC.locks[o.empKey];
         if (lk && lk.until > now) { info += '<p style="background:#fee2e2;border-radius:8px;padding:8px 10px;font-size:13px">' + ccE(ccFill(t('ccLockedUntil'), { time: ccTimeOnly(lk.until) })) + '</p>'; b.push({ t: t('ccRelease'), cls: 'r', fn: function () { ccReleaseLock(o.empKey); } }); }
     }
+    if (adm && (cd || o.status === 'rejected' || o.status === 'issue')) b.splice(1, 0, { t: t('ccRemove'), cls: 'r', fn: function () { ccRemoveCard(id); } });
     lfDlg({ id: 'V', title: t('ccTitle') + ' ' + o.ref, w: 540, z: 6200, html: info + ccDetailHtml(o, true), buttons: b });
 }
 function ccHrSign(id) {
@@ -19967,7 +20204,7 @@ function ccIssueSave(id) {
     if (!cname || !cdept) { showToast(false, t('ccNameDeptErr')); return; }
     var card = { no: no, issued: date, name: cname, deptName: cdept };
     var extra = {};
-    extra['cards/' + id] = { empKey: o.empKey, empId: o.empId, orderId: id, no: no, issued: date, name: cname, deptName: cdept, state: 'made', at: Date.now() };
+    extra['cards/' + id] = { empKey: o.empKey, empId: o.empId, orderId: id, no: no, issued: date, name: cname, deptName: cdept, state: 'made', sty: o.sty || null, at: Date.now() };
     extra['cardSecrets/' + id] = { code: code };
     ccApply(id, { status: 'made', card: card }, 'issued', null, extra).then(function () { lfDlgClose('I'); lfDlgClose('V'); });
 }
@@ -20038,6 +20275,69 @@ function ccFeeOpen() {
     sel.onchange = draw; draw();
 }
 
+
+/* ---------- Administration removes an old card: the employee's next card counts as the first again ---------- */
+function ccRemoveCard(id) {
+    if (!ccIsAdmin() || ccGate('remove')) return;
+    var cd = CC.cards.staff[id], od = CC.store.staff[id] || {}, empKey = (cd && cd.empKey) || od.empKey, empId = (cd && cd.empId) || od.empId;
+    lfConfirm(t('ccAskRemove'), function () {
+        var up = {}, act = CC.act[id];
+        up['cardOrders/' + id] = null; up['cards/' + id] = null; up['cardSecrets/' + id] = null; up['cardAct/' + id] = null; up['cardPhotos/' + id] = null;
+        if (act && act.nid) up['notifications/' + act.nid] = null;
+        var other = Object.keys(CC.cards.staff).some(function (k) { var x = CC.cards.staff[k]; return k !== id && x.empKey === empKey && (x.state === 'active' || x.state === 'frozen'); });
+        if (!other && empId) { ['state', 'cardId', 'at', 'ok'].forEach(function (f) { up['cardGate/' + empId + '/' + f] = null; }); }
+        if (empKey) up['cardLock/' + empKey] = null;
+        db.ref().update(up).then(function () { showToast(true); lfDlgClose('V'); ccCardsDraw(); }).catch(function (er) { console.error(er); showToast(false, t('lfSaveErr')); });
+    });
+}
+/* ---------- Issued cards list (Administration) ---------- */
+function ccCardsOpen() {
+    if (!ccIsAdmin() || ccGate('cards')) return; ccActSub();
+    var h = '<div class="lf-fg"><input type="text" id="ccCdQ" placeholder="' + ccE(t('ccSearch')) + '" style="width:100%"></div><div id="ccCdBody" style="overflow-x:auto;max-height:55vh;overflow-y:auto"></div>';
+    lfDlg({ id: 'CL', title: t('ccCardsTitle'), w: 760, z: 6200, html: h, buttons: [{ t: t('ccClose'), cls: 's' }] });
+    var q = document.getElementById('ccCdQ'); q.oninput = ccCardsDraw; ccCardsDraw();
+}
+function ccCardsDraw() {
+    var b = document.getElementById('ccCdBody'); if (!b) return; var q = ((document.getElementById('ccCdQ') || {}).value || '').trim().toLowerCase();
+    var st = { made: 'ccStMade', ready: 'ccStReady', active: 'ccStActive', frozen: 'ccStFrozen', closed: 'ccStClosed' };
+    var rows = Object.keys(CC.cards.staff).map(function (k) { return Object.assign({ key: k }, CC.cards.staff[k]); }).filter(function (c) { return !q || (String(c.empId || '') + ' ' + (c.name || '')).toLowerCase().indexOf(q) >= 0; }).sort(function (a, b2) { return (b2.at || 0) - (a.at || 0); });
+    if (!rows.length) { b.innerHTML = '<p style="text-align:center;color:#94a3b8">' + ccE(t('ccNone')) + '</p>'; return; }
+    b.innerHTML = '<table class="master-tbl" style="width:100%"><thead><tr><th>' + ccE(t('ccFId')) + '</th><th>' + ccE(t('ccFName')) + '</th><th>' + ccE(t('ccCNo')) + '</th><th>' + ccE(t('ccStyle')) + '</th><th>' + ccE(t('ccCStatus')) + '</th><th></th></tr></thead><tbody>' + rows.map(function (c) {
+        return '<tr><td><b>' + ccE(c.empId) + '</b></td><td>' + ccE(c.name) + '</td><td style="white-space:nowrap">' + ccE(ccMask(c.no)) + '</td><td>' + ccE(c.sty ? ccStyName(c.sty) : '-') + '</td><td>' + ccE(t(st[c.state] || 'ccStMade')) + '</td><td><button type="button" class="lf-b" style="padding:5px 10px;font-size:12px;background:#dc2626;color:#fff" onclick="ccRemoveCard(\'' + c.key + '\')">' + ccE(t('ccRemove')) + '</button></td></tr>';
+    }).join('') + '</tbody></table>';
+}
+/* ---------- Card colours (Administration): switch on / off, add new ---------- */
+var CC_ST_NEW = { name: '', c1: '#1e3a8a', c2: '#0b1220', ac: '#d4af37' };
+function ccStyOpen() {
+    if (!ccIsAdmin() || ccGate('colours')) return;
+    lfDlg({ id: 'ST', title: t('ccStyTitle'), w: 640, z: 6200, html: '<p style="font-size:13px;color:#64748b;margin:0 0 8px">' + ccE(t('ccStySub')) + '</p><div id="ccStBody"></div>', buttons: [{ t: t('ccClose'), cls: 's' }] });
+    CC.onStyles = ccStyDraw; ccStyDraw();
+}
+function ccStyDraw() {
+    var b = document.getElementById('ccStBody'); if (!b) { CC.onStyles = null; return; }
+    var keepName = (document.getElementById('ccStName') || {}).value;
+    var h = '<div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">' + ccStyAll().map(function (s) {
+        return '<div style="width:130px;text-align:center;opacity:' + (s.on ? 1 : .5) + '"><div class="cc-mini" style="margin:0 auto">' + ccCardHtml({ name: 'NAME', dept: ccStyName(s), id: '200001', sty: s }) + '</div>' +
+            '<div style="font-weight:700;font-size:13px;margin-top:6px;color:#123a5c">' + ccE(ccStyName(s)) + '</div>' +
+            '<div style="font-size:13px;display:flex;gap:6px;align-items:center;justify-content:center;margin-top:4px"><input type="checkbox" style="width:auto;margin:0" ' + (s.on ? 'checked ' : '') + 'onchange="ccStyToggle(\'' + ccE(s.id) + '\',this.checked)"><span>' + ccE(t('ccStyOn')) + '</span></div>' +
+            (s.custom ? '<button type="button" style="margin-top:4px;border:0;background:none;color:#dc2626;cursor:pointer;font-size:12px;text-decoration:underline" onclick="ccStyDel(\'' + ccE(s.id) + '\')">' + ccE(t('ccStyDel')) + '</button>' : '') + '</div>';
+    }).join('') + '</div>' +
+        '<div style="border-top:1px solid #e2e8f0;margin-top:16px;padding-top:12px"><div style="font-weight:700;color:#123a5c;margin-bottom:8px">' + ccE(t('ccStyAdd')) + '</div>' +
+        '<div class="lf-fg"><label>' + ccE(t('ccStyName')) + '</label><input type="text" id="ccStName" maxlength="24" value="' + ccE(CC_ST_NEW.name) + '"></div>' +
+        '<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center"><label style="font-size:13px">' + ccE(t('ccStyC1')) + '<br><input type="color" id="ccStC1" value="' + CC_ST_NEW.c1 + '"></label><label style="font-size:13px">' + ccE(t('ccStyC2')) + '<br><input type="color" id="ccStC2" value="' + CC_ST_NEW.c2 + '"></label><label style="font-size:13px">' + ccE(t('ccStyAc')) + '<br><input type="color" id="ccStAc" value="' + CC_ST_NEW.ac + '"></label>' +
+        '<div class="cc-mini" id="ccStPrev"></div></div>' +
+        '<button type="button" class="cc-up" style="margin-top:10px" onclick="ccStyAddNew()">' + ccE(t('ccStyAddBtn')) + '</button></div>';
+    b.innerHTML = h; ccStyPrev();
+    ['ccStName', 'ccStC1', 'ccStC2', 'ccStAc'].forEach(function (i) { var el = document.getElementById(i); el.oninput = function () { CC_ST_NEW = { name: document.getElementById('ccStName').value, c1: document.getElementById('ccStC1').value, c2: document.getElementById('ccStC2').value, ac: document.getElementById('ccStAc').value }; ccStyPrev(); }; });
+}
+function ccStyPrev() { var p = document.getElementById('ccStPrev'); if (p) p.innerHTML = ccCardHtml({ name: 'NAME', dept: CC_ST_NEW.name || '-', id: '200001', sty: ccStyFromCustom('x', CC_ST_NEW) }); }
+function ccStyToggle(id, on) { db.ref('cardStyles/' + id + '/on').set(!!on).then(function () { showToast(true); }).catch(function () { showToast(false, t('lfSaveErr')); }); }
+function ccStyDel(id) { lfConfirm(t('ccStyAskDel'), function () { db.ref('cardStyles/' + id).remove().then(function () { showToast(true); }).catch(function () { showToast(false, t('lfSaveErr')); }); }); }
+function ccStyAddNew() {
+    var n = (CC_ST_NEW.name || '').trim(); if (!n) { showToast(false, t('ccStyNeedName')); return; }
+    var id = 'c' + Date.now().toString(36);
+    db.ref('cardStyles/' + id).set({ custom: 1, name: n, c1: CC_ST_NEW.c1, c2: CC_ST_NEW.c2, ac: CC_ST_NEW.ac, on: true, at: Date.now() }).then(function () { CC_ST_NEW.name = ''; showToast(true); }).catch(function () { showToast(false, t('lfSaveErr')); });
+}
 
 /* v7.56: long tables show 20 rows per page with page numbers (1 2 3 ...).
    Works on top of the existing renderers and search boxes: rows hidden by a search stay hidden,
