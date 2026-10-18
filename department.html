@@ -3,6 +3,7 @@
 <head>
  <meta charset="UTF-8">
  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+ <meta name="color-scheme" content="only light">
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
  <title>Administration – Log in</title>
  <!-- XLSX Library for Exporting to Excel -->
@@ -4658,6 +4659,8 @@
         faceNoActiveCard: "This employee has a card that is not activated yet. The card must be activated first.",
         ccAskDeptOk: "Approve this card request and send it to HR and Administration?",
         faVerifyCode: "Verify card code only",
+        ccBackText: "This card is the property of the company. If found, please return it to the office. Use of this card follows the company terms and conditions.",
+        ccActBtn: "ACTIVATE",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -6230,6 +6233,8 @@
         faceNoActiveCard: "និយោជិតនេះមានកាតដែលមិនទាន់ធ្វើឱ្យសកម្ម។ ត្រូវធ្វើឱ្យកាតសកម្មជាមុនសិន។",
         ccAskDeptOk: "អនុម័តការស្នើសុំកាតនេះ ហើយបញ្ជូនទៅផ្នែកធនធានមនុស្ស និងរដ្ឋបាលដែរឬទេ?",
         faVerifyCode: "ផ្ទៀងផ្ទាត់លេខកូដកាតតែប៉ុណ្ណោះ",
+        ccBackText: "កាតនេះជាកម្មសិទ្ធិរបស់ក្រុមហ៊ុន។ ប្រសិនបើរកឃើញ សូមប្រគល់មកការិយាល័យវិញ។ ការប្រើប្រាស់កាតនេះគឺស្របតាមលក្ខខណ្ឌរបស់ក្រុមហ៊ុន។",
+        ccActBtn: "ធ្វើឱ្យសកម្ម",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -7764,6 +7769,8 @@
         faceNoActiveCard: "该员工的卡片尚未激活，必须先激活。",
         ccAskDeptOk: "批准此办卡申请并发送给人事和行政？",
         faVerifyCode: "仅验证卡片安全码",
+        ccBackText: "本卡为公司财产。如拾获请交回办公室。使用本卡须遵守公司条款与条件。",
+        ccActBtn: "激活",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -19564,6 +19571,7 @@ function ccEmpCanOrder() { var l = ccList(CC.store.emp); return !l.some(function
 function ccEmpCard() { var cardOf = null; Object.keys(CC.cards.emp || {}).forEach(function (k) { var x = CC.cards.emp[k]; if (x.state === 'active' || x.state === 'frozen') cardOf = cardOf || Object.assign({ key: k }, x); }); return cardOf; }
 function ccEmpRender() {
     var box = document.getElementById('ccEmpBox'); if (!box) return;
+    if (document.getElementById('ccActOv')) return; /* activation is open: do not redraw it */
     var c = ccCtx(), list = ccList(CC.store.emp), top = list[0] || null, can = ccEmpCanOrder();
     var cardOf = ccEmpCard();
     var pend = top && ccOpen(top) ? top : null, h = '';
@@ -19681,33 +19689,61 @@ setInterval(ccEmpTick, 1500);
 (function () {
     var st = document.createElement('style');
     st.textContent = '.cc-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}.cc-acts button{border:1px solid #123a5c;background:#fff;color:#123a5c;border-radius:999px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}.cc-acts button.red{border-color:#dc2626;color:#dc2626}' +
-        '.cc-ao{position:fixed;inset:0;z-index:7000;background:linear-gradient(180deg,#0a2a5e,#06183a);color:#fff;overflow-y:auto;font-family:Arial,sans-serif}.cc-ao-in{max-width:440px;margin:0 auto;padding:18px 22px 40px;min-height:100%;box-sizing:border-box;display:flex;flex-direction:column}' +
+        '.cc-ao{position:relative;max-width:440px;margin:6px auto;border-radius:22px;background:linear-gradient(180deg,#0a2a5e,#06183a);color:#fff;overflow:hidden;font-family:Arial,sans-serif;box-shadow:0 10px 30px rgba(5,13,30,.35)}.cc-ao-in{max-width:440px;margin:0 auto;padding:14px 20px 26px;min-height:0;box-sizing:border-box;display:flex;flex-direction:column}' +
         '.cc-ao-x{background:none;border:0;color:#fff;font-size:30px;line-height:1;cursor:pointer;align-self:flex-start;padding:0 6px 10px 0}.cc-ao h2{font-size:24px;margin:8px 0 6px}.cc-ao .sub{font-size:14px;color:#b9c8e6;margin:0 0 26px;line-height:1.5}' +
         '.cc-ao label{display:block;font-size:13px;color:#b9c8e6;margin-top:16px}.cc-ao input{width:100%;box-sizing:border-box;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.55);color:#fff;font-size:20px;letter-spacing:2px;padding:10px 0;outline:none}' +
+        '.cc-ao-card{position:relative;max-width:300px;margin:4px auto 20px;animation:ccIn .7s cubic-bezier(.2,.8,.2,1);perspective:800px}.cc-ao-card .cc-card{box-shadow:0 16px 40px rgba(0,0,0,.55),0 0 0 1px rgba(212,175,55,.6),0 0 30px rgba(212,175,55,.15)}.cc-ao-card .cc-no{font-size:19px;transition:color .2s}.cc-no.pop{animation:ccPop .16s ease-out}' +
+        '.cc-flip{perspective:1000px}.cc-flip-in{position:relative;width:100%;aspect-ratio:1.586;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.3,.7,.2,1)}.cc-flip.back .cc-flip-in{transform:rotateY(180deg)}.cc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}.cc-face.bk{transform:rotateY(180deg)}.cc-face .cc-card{height:100%;aspect-ratio:auto;max-width:none}' +
+        '.cc-back{padding:0!important}.cc-mag{height:36px;background:#000;margin-top:24px}.cc-sigrow{display:flex;gap:8px;margin:14px 18px 0;align-items:center}.cc-sig{flex:1;height:34px;border-radius:3px;background:repeating-linear-gradient(135deg,#e9e3cc,#e9e3cc 4px,#d9d1b0 4px,#d9d1b0 8px)}.cc-bcode{min-width:62px;height:34px;line-height:34px;text-align:center;background:#fff;color:#0b1d3a;font:700 19px "Courier New",monospace;letter-spacing:3px;border-radius:4px;box-shadow:0 0 0 2px #d4af37,0 0 16px rgba(212,175,55,.7)}.cc-bt{position:absolute;left:18px;right:18px;bottom:12px;font-size:8px;line-height:1.4;color:#b9c8e6}' +
+        '.cc-gh.lift .cc-gh-ov{opacity:0;transition:opacity .25s}.cc-gh.lift .cc-card{filter:none;opacity:1;transition:all .3s}.cc-gh.lift{transform:translateY(-8px) scale(1.02);transition:transform .3s}' +
+        '.cc-ao-ck{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(5,13,30,.55);border-radius:18px}.cc-ao-card.ok .cc-ao-ck{display:flex;animation:ccCk .5s ease-out}.cc-ao-card.ok .cc-card{animation:ccGlow 1.2s ease-in-out}' +
+        '.cc-ao-step.fwd{animation:ccFwd .38s cubic-bezier(.2,.8,.2,1)}.cc-ao-step.bk{animation:ccBk .38s cubic-bezier(.2,.8,.2,1)}' +
+        '@keyframes ccIn{from{opacity:0;transform:translateY(-50px) rotateX(40deg) scale(.88)}to{opacity:1;transform:none}}@keyframes ccPop{0%{transform:scale(1.06)}100%{transform:scale(1)}}@keyframes ccFwd{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}@keyframes ccBk{from{opacity:0;transform:translateX(-60px)}to{opacity:1;transform:none}}' +
+        '@keyframes ccCk{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}@keyframes ccGlow{0%,100%{filter:none}50%{filter:drop-shadow(0 0 22px #d4af37) brightness(1.15)}}' +
         '.cc-ao .err{color:#ffb4b4;font-size:14px;min-height:20px;margin-top:14px}.cc-ao .go{margin-top:auto;padding-top:24px}.cc-ao .go button{width:100%;border:0;border-radius:10px;padding:15px;font-size:16px;font-weight:700;letter-spacing:1px;background:#fff;color:#0a2a5e;cursor:pointer}.cc-ao .go button[disabled]{opacity:.35;cursor:not-allowed}';
     document.head.appendChild(st);
 })();
 var CC_AO = { id: '', busy: false };
 function ccEmpRec() { var id = sessionStorage.getItem('empLoggedInId'); return (typeof employees !== 'undefined' ? employees : []).filter(function (x) { return x.id === id; })[0] || null; }
 function ccLockRef() { return db.ref('cardLock/' + ccCtx().empKey); }
-function ccAoClose() { var x = document.getElementById('ccActOv'); if (x) x.remove(); CC_AO.id = ''; }
-function ccAoShell(title, sub, body, btn, back) {
-    var x = document.getElementById('ccActOv'); if (!x) { x = document.createElement('div'); x.id = 'ccActOv'; x.className = 'cc-ao'; document.body.appendChild(x); }
-    x.innerHTML = '<div class="cc-ao-in"><button type="button" class="cc-ao-x" id="ccAoX" title="' + ccE(t(back ? 'ccBack' : 'ccClose')) + '">' + (back ? '&#8592;' : '&times;') + '</button><h2>' + ccE(title) + '</h2><p class="sub">' + ccE(sub) + '</p>' + body +
-        '<div class="err" id="ccAoErr"></div><div class="go"><button type="button" id="ccAoGo" disabled>' + ccE(btn) + '</button></div></div>';
-    document.getElementById('ccAoX').onclick = back || ccAoClose;
+function ccAoClose() { var x = document.getElementById('ccActOv'); if (x) x.remove(); CC_AO.id = ''; ccEmpRender(); }
+function ccAoCardInit() {
+    var rec = (CC.cards.emp || {})[CC_AO.id] || {}, c = ccCtx(), box = document.getElementById('ccAoCardBox'); if (!box) return;
+    box.innerHTML = '<div class="cc-ao-card" id="ccAoCard"><div class="cc-flip" id="ccAoFlip"><div class="cc-flip-in"><div class="cc-face">' + ccCardHtml({ name: rec.name || c.empName, dept: rec.deptName || c.group }) + '</div>' +
+        '<div class="cc-face bk"><div class="cc-card cc-back"><div class="cc-mag"></div><div class="cc-sigrow"><div class="cc-sig"></div><div class="cc-bcode" id="ccAoBCode">•••</div></div><div class="cc-bt">' + ccE(t('ccBackText')) + '</div></div></div></div></div>' +
+        '<div class="cc-ao-ck"><svg viewBox="0 0 52 52" width="64" height="64"><circle cx="26" cy="26" r="24" fill="none" stroke="#d4af37" stroke-width="3"/><path d="M14 27l8 8 16-18" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>';
+    ccAoCardNo('', false);
+}
+/* the card turns over to show the back while the 3-digit code is typed */
+function ccAoFlip(back) { var f = document.getElementById('ccAoFlip'); if (f) f.classList.toggle('back', !!back); }
+function ccAoBack(v) { var e = document.getElementById('ccAoBCode'); if (e) e.textContent = (v + '•••').slice(0, 3); }
+/* the card on top shows what is typed: digits appear on the card one by one; on screen 2 only the last 4 stay */
+function ccAoCardNo(d, mask) {
+    var el = document.querySelector('#ccAoCardBox .cc-face .cc-no'); if (!el) return; var s = '', l4 = String(CC_AO.no || '').slice(-4);
+    for (var i = 0; i < 16; i++) { s += mask ? (i >= 12 && l4.length === 4 ? l4.charAt(i - 12) : '•') : (i < d.length ? d.charAt(i) : '•'); if (i % 4 === 3 && i < 15) s += ' '; }
+    el.textContent = s; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+}
+function ccAoShell(title, sub, body, btn, back, step) {
+    var x = document.getElementById('ccActOv');
+    if (!x) { x = document.createElement('div'); x.id = 'ccActOv'; x.className = 'cc-ao'; x.innerHTML = '<div class="cc-ao-in"><button type="button" class="cc-ao-x" id="ccAoX"></button><div id="ccAoCardBox"></div><div id="ccAoBody"></div></div>'; var hb = document.getElementById('ccEmpBox'); hb.innerHTML = ''; hb.appendChild(x); ccAoCardInit(); }
+    var xb = document.getElementById('ccAoX'); xb.innerHTML = back ? '&#8592;' : '&times;'; xb.title = t(back ? 'ccBack' : 'ccClose'); xb.onclick = back || ccAoClose;
+    var bd = document.getElementById('ccAoBody'); bd.className = 'cc-ao-step ' + (step === 2 ? 'fwd' : 'bk');
+    bd.innerHTML = '<h2>' + ccE(title) + '</h2><p class="sub">' + ccE(sub) + '</p>' + body + '<div class="err" id="ccAoErr"></div><div class="go"><button type="button" id="ccAoGo" disabled>' + ccE(btn) + '</button></div>';
     return x;
 }
 function ccAoErr(m) { var e = document.getElementById('ccAoErr'); if (e) e.textContent = m || ''; }
 function ccDigits(el, n, chk) { el.oninput = function () { el.value = el.value.replace(/\D/g, '').slice(0, n); chk(); }; }
 function ccActivateOpen(id) {
-    if (ccGate('activate')) return; ccUse('emp'); CC_AO.id = id; CC_AO.busy = false; ccActStep1();
+    if (ccGate('activate')) return; ccUse('emp'); CC_AO.id = id; CC_AO.busy = false; CC_AO.no = '';
+    var g = document.getElementById('ccGhost'); if (g) g.classList.add('lift');
+    setTimeout(function () { if (CC_AO.id === id) ccActStep1(); }, 300);
 }
 function ccActStep1() {
-    ccAoShell(t('ccActTitle1'), t('ccActSub1'), '<label>' + ccE(t('ccActNo')) + '</label><input id="ccAoNo" inputmode="numeric" autocomplete="off"><label>' + ccE(t('ccActCode')) + '</label><input id="ccAoCode" inputmode="numeric" autocomplete="off" type="password" style="max-width:140px">', t('ccNext'));
+    ccAoShell(t('ccActTitle1'), t('ccActSub1'), '<label>' + ccE(t('ccActNo')) + '</label><input id="ccAoNo" inputmode="numeric" autocomplete="off"><label>' + ccE(t('ccActCode')) + '</label><input id="ccAoCode" inputmode="numeric" autocomplete="off" type="password" style="max-width:140px">', t('ccNext'), null, 1);
     var no = document.getElementById('ccAoNo'), cd = document.getElementById('ccAoCode'), go = document.getElementById('ccAoGo');
     var chk = function () { go.disabled = !(no.value.length === 16 && cd.value.length === 3); };
-    ccDigits(no, 16, chk); ccDigits(cd, 3, chk);
+    ccDigits(no, 16, function () { chk(); ccAoCardNo(no.value, false); }); ccDigits(cd, 3, function () { chk(); ccAoBack(cd.value); }); ccAoCardNo(no.value, false); ccAoFlip(false);
+    cd.onfocus = function () { ccAoFlip(true); }; no.onfocus = function () { ccAoFlip(false); };
     go.onclick = function () { ccActCheck1(no.value, cd.value); };
     ccLockRef().once('value').then(function (s) { var lk = s.val() || {}; if (lk.until > Date.now()) ccAoErr(ccFill(t('ccActLocked'), { time: ccTimeOnly(lk.until) })); }).catch(function () {});
 }
@@ -19732,12 +19768,13 @@ function ccActCheck1(no, code) {
         if (!cd || cd.no !== no) return bad();
         db.ref('cardSecrets/' + id).once('value').then(function (s) {
             if (((s.val() || {}).code) !== code) return bad();
-            CC_AO.busy = false; CC_AO.ok1 = id; ccActStep2();
+            CC_AO.busy = false; CC_AO.ok1 = id; CC_AO.no = no; ccActStep2();
         }).catch(bad);
     });
 }
 function ccActStep2() {
-    ccAoShell(t('ccActTitle2'), t('ccActSub2'), '<label>' + ccE(t('ccActPw')) + '</label><input id="ccAoPw" type="password" autocomplete="off" style="letter-spacing:1px"><label>' + ccE(t('ccActCodeA')) + '</label><input id="ccAoAc" inputmode="numeric" autocomplete="off" style="max-width:160px">', t('ccNext'), ccActStep1);
+    ccAoShell(t('ccActTitle2'), t('ccActSub2'), '<label>' + ccE(t('ccActPw')) + '</label><input id="ccAoPw" type="password" autocomplete="off" style="letter-spacing:1px"><label>' + ccE(t('ccActCodeA')) + '</label><input id="ccAoAc" inputmode="numeric" autocomplete="off" style="max-width:160px">', t('ccActBtn'), function () { ccAoCardNo(CC_AO.no || '', false); ccActStep1(); }, 2);
+    ccAoFlip(false); ccAoCardNo('', true);
     var pw = document.getElementById('ccAoPw'), ac = document.getElementById('ccAoAc'), go = document.getElementById('ccAoGo');
     var chk = function () { go.disabled = !(pw.value && ac.value.length === 4); };
     pw.oninput = chk; ccDigits(ac, 4, chk);
@@ -19760,8 +19797,8 @@ function ccActCheck2(pw, code) {
             up['cardGate/' + ccCtx().empId + '/state'] = 'active'; up['cardGate/' + ccCtx().empId + '/cardId'] = id; up['cardGate/' + ccCtx().empId + '/ok'] = false; up['cardGate/' + ccCtx().empId + '/at'] = now;
             up['cardAct/' + id] = null; if (a.nid) up['notifications/' + a.nid] = null; up['cardLock/' + key] = null;
             db.ref().update(up).then(function () {
-                CC_AO.busy = false; ccAoClose();
-                lfDlg({ id: 'AD', z: 6400, title: t('ccTitle'), html: '<p>' + ccE(t('ccActDone')) + '</p>', buttons: [{ t: t('lfOk'), cls: 'g' }] });
+                CC_AO.busy = false; var cdx = document.getElementById('ccAoCard'); if (cdx) cdx.classList.add('ok');
+                setTimeout(function () { ccAoClose(); lfDlg({ id: 'AD', z: 6400, title: t('ccTitle'), html: '<p>' + ccE(t('ccActDone')) + '</p>', buttons: [{ t: t('lfOk'), cls: 'g' }] }); }, 1300);
             }).catch(function (er) { console.error(er); stop(t('lfSaveErr')); });
         }).catch(function () { CC_AO.busy = false; ccAoErr(t('ccActNoCode')); var g = document.getElementById('ccAoGo'); if (g) g.disabled = false; });
     });
