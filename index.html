@@ -576,6 +576,20 @@
     .office-ribbon .ribbon-placeholder-note { font-size:11px; color:#6b7280; padding:8px 10px; font-style:italic; }
     #docGridEditorContainer .jexcel_toolbar, #docWordEditorContent .ck-toolbar { display:none !important; }
  </style>
+<style id="gradBtn">
+.quick-btn{background:linear-gradient(135deg,#2b6ea8 0%,#0a2740 100%);box-shadow:0 5px 14px rgba(10,39,64,.28)}
+.quick-btn.green{background:linear-gradient(135deg,#34d399 0%,#047857 100%);box-shadow:0 5px 14px rgba(4,120,87,.3)}
+.quick-btn.slate{background:linear-gradient(135deg,#7b8aa0 0%,#1e293b 100%);box-shadow:0 5px 14px rgba(30,41,59,.3)}
+.quick-btn.purple{background:linear-gradient(135deg,#a78bfa 0%,#5b21b6 100%);box-shadow:0 5px 14px rgba(91,33,182,.3)}
+.quick-btn.teal{background:linear-gradient(135deg,#2dd4bf 0%,#115e59 100%);box-shadow:0 5px 14px rgba(17,94,89,.3)}
+.quick-btn.amber{background:linear-gradient(135deg,#fbbf24 0%,#b45309 100%);box-shadow:0 5px 14px rgba(180,83,9,.3)}
+.quick-btn.indigo{background:linear-gradient(135deg,#818cf8 0%,#3730a3 100%);box-shadow:0 5px 14px rgba(55,48,163,.3)}
+.quick-btn.cyan{background:linear-gradient(135deg,#22d3ee 0%,#155e75 100%);box-shadow:0 5px 14px rgba(21,94,117,.3)}
+.quick-btn.rose{background:linear-gradient(135deg,#fb7185 0%,#9f1239 100%);box-shadow:0 5px 14px rgba(159,18,57,.3)}
+.quick-btn.brown{background:linear-gradient(135deg,#a8a29e 0%,#44403c 100%);box-shadow:0 5px 14px rgba(68,64,60,.3)}
+.btn-submit{background:linear-gradient(135deg,#2b6ea8 0%,#0a2740 100%)!important}
+.cc-vb.on,.cc-tb.on{background:linear-gradient(135deg,#2b6ea8 0%,#0a2740 100%)!important}
+</style>
 </head>
 <body>
 
@@ -2959,9 +2973,9 @@
         <div id="ccViewSet" style="display:none;">
             <p style="font-size:12px; color:#64748b; margin-bottom:12px;" data-i18n="ccSetSub"></p>
             <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                <button type="button" id="ccFeeBtn" onclick="ccFeeOpen()" class="cc-sb" style="background:#123a5c;" data-i18n="ccFeeList">Fee list</button>
-                <button type="button" id="ccStyBtn" onclick="ccStyOpen()" class="cc-sb" style="background:#a98233; display:none;" data-i18n="ccStyBtn">Card colours</button>
-                <button type="button" id="ccCardsBtn" onclick="ccCardsOpen()" class="cc-sb" style="background:#475569; display:none;" data-i18n="ccCardsBtn">Issued cards</button>
+                <button type="button" id="ccFeeBtn" onclick="ccFeeOpen()" class="cc-sb" style="background:linear-gradient(135deg,#2b6ea8,#0a2740);" data-i18n="ccFeeList">Fee list</button>
+                <button type="button" id="ccStyBtn" onclick="ccStyOpen()" class="cc-sb" style="background:linear-gradient(135deg,#e0b84e,#8a6420); display:none;" data-i18n="ccStyBtn">Card colours</button>
+                <button type="button" id="ccCardsBtn" onclick="ccCardsOpen()" class="cc-sb" style="background:linear-gradient(135deg,#7b8aa0,#1e293b); display:none;" data-i18n="ccCardsBtn">Issued cards</button>
             </div>
         </div>
     </div>
@@ -4506,7 +4520,7 @@
         ccMyOrders: "My card requests",
         ccStWaitDept: "Department Sign",
         ccStWaitStaff: "HR / Administration Sign",
-        ccStIssue: "Approved",
+        ccStIssue: "Card Issuing",
         ccStReady: "Ready to Pick Up",
         ccStRejected: "Rejected",
         ccStActive: "Active",
@@ -4568,17 +4582,17 @@
         ccAskHr: "Sign as HR and keep it for Administration?",
         ccAskAd: "Approve this card request? After this you can fill in the card form.",
         ccNeedPay: "The $5 fee is not confirmed yet. The department must receive the money and sign first.",
-        ccIssue: "Fill the card form",
+        ccIssue: "Issue card",
         ccCardForm: "Card form",
         ccCardId: "Card ID (16 digits)",
         ccIssueDate: "Issue date",
         ccSecCode: "Security code (3 digits)",
-        ccDone: "Done",
+        ccDone: "Card issued",
         ccIdErr: "The card ID must have 16 digits and end with the employee ID.",
         ccCodeErr: "The security code must be 3 digits.",
-        ccCardReady: "Card Ready",
-        ccAskReady: "Tell the employee that the card is ready to pick up?",
-        ccStMade: "Card Issuing",
+        ccCardReady: "Ready to pick up",
+        ccAskReady: "Tell the employee that the card is ready to pick up? The employee will get the notification now.",
+        ccStMade: "Ready to Pick Up",
         ccSaved: "Saved.",
         ccCDate: "Date",
         ccCEmp: "Employee",
@@ -6129,7 +6143,7 @@
         ccMyOrders: "ការស្នើសុំកាតរបស់ខ្ញុំ",
         ccStWaitDept: "ចុះហត្ថលេខាដោយនាយកដ្ឋាន",
         ccStWaitStaff: "ចុះហត្ថលេខាដោយធនធានមនុស្ស / រដ្ឋបាល",
-        ccStIssue: "បានអនុម័ត",
+        ccStIssue: "កំពុងចេញកាត",
         ccStReady: "រួចរាល់សម្រាប់ទទួល",
         ccStRejected: "បានបដិសេធ",
         ccStActive: "កំពុងប្រើ",
@@ -6191,17 +6205,17 @@
         ccAskHr: "ចុះហត្ថលេខាជាផ្នែកធនធានមនុស្ស ហើយបន្តទៅរដ្ឋបាលដែរឬទេ?",
         ccAskAd: "អនុម័តការស្នើសុំកាតនេះដែរឬទេ? បន្ទាប់មកអ្នកអាចបំពេញទម្រង់កាត។",
         ccNeedPay: "ថ្លៃ $5 មិនទាន់បានបញ្ជាក់នៅឡើយទេ។ នាយកដ្ឋានត្រូវទទួលប្រាក់ និងចុះហត្ថលេខាជាមុនសិន។",
-        ccIssue: "បំពេញទម្រង់កាត",
+        ccIssue: "ចេញកាត",
         ccCardForm: "ទម្រង់កាត",
         ccCardId: "លេខកាត (១៦ខ្ទង់)",
         ccIssueDate: "ថ្ងៃចេញកាត",
         ccSecCode: "លេខកូដសុវត្ថិភាព (៣ខ្ទង់)",
-        ccDone: "រួចរាល់",
+        ccDone: "បានចេញកាត",
         ccIdErr: "លេខកាតត្រូវមាន ១៦ខ្ទង់ ហើយបញ្ចប់ដោយអត្តលេខនិយោជិត។",
         ccCodeErr: "លេខកូដសុវត្ថិភាពត្រូវមាន ៣ខ្ទង់។",
-        ccCardReady: "កាតរួចរាល់",
-        ccAskReady: "ជូនដំណឹងដល់និយោជិតថាកាតរួចរាល់ដើម្បីមកយកដែរឬទេ?",
-        ccStMade: "កំពុងចេញកាត",
+        ccCardReady: "រួចរាល់ដើម្បីមកយក",
+        ccAskReady: "ជូនដំណឹងដល់និយោជិតថាកាតរួចរាល់ដើម្បីមកយកដែរឬទេ? និយោជិតនឹងទទួលបានការជូនដំណឹងឥឡូវនេះ។",
+        ccStMade: "រួចរាល់សម្រាប់ទទួល",
         ccSaved: "បានរក្សាទុក។",
         ccCDate: "កាលបរិច្ឆេទ",
         ccCEmp: "និយោជិត",
@@ -7714,7 +7728,7 @@
         ccMyOrders: "我的办卡申请",
         ccStWaitDept: "部门签字",
         ccStWaitStaff: "人事 / 行政签字",
-        ccStIssue: "已批准",
+        ccStIssue: "制卡中",
         ccStReady: "可领取",
         ccStRejected: "已拒绝",
         ccStActive: "已激活",
@@ -7776,17 +7790,17 @@
         ccAskHr: "以人事身份签名并交给行政？",
         ccAskAd: "批准此办卡申请？之后可以填写卡片表格。",
         ccNeedPay: "$5 费用尚未确认。部门必须先收款并签名。",
-        ccIssue: "填写卡片表格",
+        ccIssue: "发卡",
         ccCardForm: "卡片表格",
         ccCardId: "卡号（16位）",
         ccIssueDate: "发卡日期",
         ccSecCode: "安全码（3位）",
-        ccDone: "完成",
+        ccDone: "已发卡",
         ccIdErr: "卡号必须为 16 位，并以员工工号结尾。",
         ccCodeErr: "安全码必须为 3 位数字。",
-        ccCardReady: "卡片已就绪",
-        ccAskReady: "通知员工卡片已准备好可以领取？",
-        ccStMade: "制卡中",
+        ccCardReady: "可领取",
+        ccAskReady: "通知员工卡片已准备好可以领取？员工将立即收到通知。",
+        ccStMade: "可领取",
         ccSaved: "已保存。",
         ccCDate: "日期",
         ccCEmp: "员工",
@@ -19572,13 +19586,12 @@ function ccFeeFor(seq) { return seq > CC_FREE ? CC_FEE : 0; }
 function ccMakeRef() { var a = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789', s = 'CC-'; for (var i = 0; i < 6; i++) s += a.charAt(Math.floor(Math.random() * a.length)); return s; }
 function ccList(map) { return Object.keys(map || {}).map(function (k) { return Object.assign({ key: k }, map[k]); }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); }); }
 function ccDate(ts) { if (!ts) return ''; try { return new Date(ts).toLocaleDateString('en-GB', { timeZone: 'Asia/Phnom_Penh' }); } catch (e) { return ''; } }
-function ccStatusKey(o) { return { wait_dept: 'ccStWaitDept', wait_staff: 'ccStWaitStaff', issue: 'ccStIssue', made: 'ccStIssue', ready: 'ccStReady', rejected: 'ccStRejected' }[o.status] || 'ccStWaitDept'; }
+function ccStatusKey(o) { return { wait_dept: 'ccStWaitDept', wait_staff: 'ccStWaitStaff', issue: 'ccStIssue', made: 'ccStReady', ready: 'ccStReady', rejected: 'ccStRejected' }[o.status] || 'ccStWaitDept'; }
 function ccStaffStatusText(o) {
     if (o.status === 'wait_staff') return o.sig && o.sig.hr ? t('ccStAdSign') : t('ccStHrSign');
-    if (o.status === 'ready' && o.pickedAt) return t('ccStPicked');
-    return o.status === 'made' ? t('ccStMade') : t(ccStatusKey(o));
+    return t(ccStatusKey(o));
 }
-var CC_COL = { wait_dept: '#d97706', wait_staff: '#2563eb', issue: '#7c3aed', made: '#7c3aed', ready: '#16a34a', rejected: '#dc2626' };
+var CC_COL = { wait_dept: '#d97706', wait_staff: '#2563eb', issue: '#7c3aed', made: '#0891b2', ready: '#16a34a', rejected: '#dc2626' };
 function ccPill(o, staff) { return '<span class="lf-st" style="background:' + (CC_COL[o.status] || '#64748b') + '">' + ccE(staff ? ccStaffStatusText(o) : t(ccStatusKey(o))) + '</span>'; }
 function ccPlace(o) { return o.pickup === 'office' ? t('ccPickOffice') : t('ccPickDept') + (o.deptName ? ' (' + o.deptName + ')' : ''); }
 /* an order that is still going on (the employee cannot start another one) */
@@ -20148,12 +20161,12 @@ function ccCloseCard(id) {
 /* ===== Card Center: HR + Administration ===== */
 function ccIsAdmin() { return rqRole() === 'admin'; }
 function ccStaffTodo(o) {
-    if (ccReadyOpen(o)) return true;
+    if (ccReadyOpen(o)) return ccIsAdmin();
     if (ccIsAdmin()) return o.status === 'wait_staff' || o.status === 'issue' || o.status === 'made';
     return o.status === 'wait_staff' && !(o.sig && o.sig.hr);
 }
-/* a ready card that nobody has marked as picked up yet */
-function ccReadyOpen(o) { var c = CC.cards.staff[o.key]; return o.status === 'ready' && !o.pickedAt && (!c || c.state === 'ready' || c.state === 'made'); }
+/* a card that is made but the employee has not been told yet (Administration still has to press Ready to pick up) */
+function ccReadyOpen(o) { return o.status === 'made'; }
 /* the tracking buttons of Card Request: each shows a red number while something waits there */
 var CC_TABS = [
     { k: 'todo', t: 'ccTabTodo', f: ccStaffTodo, bd: 1 },
@@ -20161,9 +20174,9 @@ var CC_TABS = [
     { k: 'dept', t: 'ccStWaitDept', f: function (o) { return o.status === 'wait_dept'; }, bd: 1 },
     { k: 'hr', t: 'ccStHrSign', f: function (o) { return o.status === 'wait_staff' && !(o.sig && o.sig.hr); }, bd: 1 },
     { k: 'ad', t: 'ccStAdSign', f: function (o) { return o.status === 'wait_staff' && !!(o.sig && o.sig.hr); }, bd: 1 },
-    { k: 'appr', t: 'ccTabAppr', f: function (o) { return o.status === 'issue'; }, bd: 1 },
-    { k: 'iss', t: 'ccStMade', f: function (o) { return o.status === 'made'; }, bd: 1 },
-    { k: 'ready', t: 'ccStReady', f: function (o) { return o.status === 'ready'; }, bd: 1, bf: ccReadyOpen },
+    { k: 'appr', t: 'ccTabAppr', f: function (o) { return !!(o.sig && o.sig.ad && o.sig.ad.s === 'approved'); } },
+    { k: 'iss', t: 'ccStIssue', f: function (o) { return o.status === 'issue'; }, bd: 1 },
+    { k: 'ready', t: 'ccStReady', f: function (o) { return o.status === 'made' || o.status === 'ready'; }, bd: 1, bf: ccReadyOpen },
     { k: 'rej', t: 'ccStRejected', f: function (o) { return o.status === 'rejected'; } }
 ];
 CC.tab = 'todo';
@@ -20243,7 +20256,6 @@ function ccStaffOpen(id) {
         if (adm) b.push({ t: t('ccAdSign'), cls: 'g', fn: function () { ccAdSign(id); } });
     } else if (adm && o.status === 'issue') b.push({ t: t('ccIssue'), cls: 'g', fn: function () { ccIssueOpen(id); } });
     else if (adm && o.status === 'made') b.push({ t: t('ccCardReady'), cls: 'g', fn: function () { ccReadyBtn(id); } });
-    if (o.status === 'ready' && !o.pickedAt) b.push({ t: t('ccPicked'), cls: 'g', fn: function () { ccPickedUp(id); } });
     if (adm && cd && (o.status === 'made' || o.status === 'ready')) b.push({ t: t('ccShowCode'), cls: 'o', close: false, fn: function () { ccAdminCode(id); } });
     if (adm && o.status === 'ready' && cd && cd.state === 'ready') {
         var act = CC.act[id];
