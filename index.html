@@ -627,7 +627,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.60</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.61</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -2792,7 +2792,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.60
+     HR & Administration System Version 7.61
  </div>
 </div>
 
@@ -2944,16 +2944,26 @@
             <h4 data-i18n="ccCenter">Card Center</h4>
             <button class="modal-close" onclick="closeCardCenter()">&times;</button>
         </div>
-        <p style="font-size:12px; color:#64748b; margin-bottom:10px;" data-i18n="ccStaffSub"></p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+            <button type="button" id="ccVReq" class="cc-vb on" onclick="ccView('req')"><span data-i18n="ccReqBtn">Card Request</span> <span id="ccReqBadge" class="cc-bd" style="display:none;">0</span></button>
+            <button type="button" id="ccVSet" class="cc-vb" onclick="ccView('set')" data-i18n="ccSetBtn">Card Setting</button>
+        </div>
+        <div id="ccViewReq">
+        <div id="ccTabs" class="cc-tabs"></div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; align-items:center;">
-            <button type="button" id="ccFeeBtn" onclick="ccFeeOpen()" style="padding:6px 14px; border:0; border-radius:8px; background:#123a5c; color:#fff; font-weight:700; cursor:pointer;" data-i18n="ccFeeList">Fee list</button>
-            <button type="button" id="ccStyBtn" onclick="ccStyOpen()" style="padding:6px 14px; border:0; border-radius:8px; background:#a98233; color:#fff; font-weight:700; cursor:pointer; display:none;" data-i18n="ccStyBtn">Card colours</button>
-            <button type="button" id="ccCardsBtn" onclick="ccCardsOpen()" style="padding:6px 14px; border:0; border-radius:8px; background:#475569; color:#fff; font-weight:700; cursor:pointer; display:none;" data-i18n="ccCardsBtn">Issued cards</button>
             <input type="text" id="ccsSearch" oninput="ccStaffRender()" data-i18n-ph="ccSearch" placeholder="Reference / ID / Name" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px; min-width:200px;">
             <select id="ccsDept" onchange="ccStaffRender()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
-            <select id="ccsStatus" onchange="ccStaffRender()" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
         </div>
         <div class="table-responsive"><table class="master-tbl" id="ccsTable"><thead><tr><th></th><th data-i18n="ccCRef">Reference</th><th data-i18n="ccCDate">Date</th><th data-i18n="ccCEmp">Employee</th><th data-i18n="ccCNo">Card #</th><th data-i18n="ccCPick">Pick-up</th><th data-i18n="ccCStatus">Status</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <div id="ccViewSet" style="display:none;">
+            <p style="font-size:12px; color:#64748b; margin-bottom:12px;" data-i18n="ccSetSub"></p>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <button type="button" id="ccFeeBtn" onclick="ccFeeOpen()" class="cc-sb" style="background:#123a5c;" data-i18n="ccFeeList">Fee list</button>
+                <button type="button" id="ccStyBtn" onclick="ccStyOpen()" class="cc-sb" style="background:#a98233; display:none;" data-i18n="ccStyBtn">Card colours</button>
+                <button type="button" id="ccCardsBtn" onclick="ccCardsOpen()" class="cc-sb" style="background:#475569; display:none;" data-i18n="ccCardsBtn">Issued cards</button>
+            </div>
+        </div>
     </div>
 </div>
 <div class="modal" id="deptReqView" style="z-index:3000;">
@@ -4494,10 +4504,10 @@
         ccSub: "Order and follow your employee card here.",
         ccNoCard: "You do not have a card yet. Tap \"New Card\" to order one.",
         ccMyOrders: "My card requests",
-        ccStWaitDept: "Waiting for your department",
-        ccStWaitStaff: "Waiting for HR / Administration",
-        ccStIssue: "Approved - card is being prepared",
-        ccStReady: "Ready - please pick it up",
+        ccStWaitDept: "Department Sign",
+        ccStWaitStaff: "HR / Administration Sign",
+        ccStIssue: "Approved",
+        ccStReady: "Ready to Pick Up",
         ccStRejected: "Rejected",
         ccStActive: "Active",
         ccNeedAct: "Card requires activation",
@@ -4568,7 +4578,7 @@
         ccCodeErr: "The security code must be 3 digits.",
         ccCardReady: "Card Ready",
         ccAskReady: "Tell the employee that the card is ready to pick up?",
-        ccStMade: "Card made - not ready yet",
+        ccStMade: "Card Issuing",
         ccSaved: "Saved.",
         ccCDate: "Date",
         ccCEmp: "Employee",
@@ -4699,6 +4709,20 @@
         ccStyAddBtn: "Add colour",
         ccStyAskDel: "Delete this colour? Cards already issued keep it.",
         ccStyNeedName: "Please type a name for the colour.",
+        ccStHrSign: "HR Sign",
+        ccStAdSign: "Administration Sign",
+        ccStPicked: "Picked up",
+        ccTabTodo: "Need Action",
+        ccTabAll: "All",
+        ccTabAppr: "Approval",
+        ccReqBtn: "Card Request",
+        ccSetBtn: "Card Setting",
+        ccSetSub: "Fee list, card colours and issued cards.",
+        ccPicked: "Picked up",
+        ccPickedL: "Marked picked up by",
+        ccAskPicked: "Mark this card as picked up?",
+        ccUnfreezeTap: "Tap the icon to unfreeze card",
+        ccCodeHint: "Tap the white box to show the code",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -6103,10 +6127,10 @@
         ccSub: "កុម្ម៉ង់ និងតាមដានកាតនិយោជិតរបស់អ្នកនៅទីនេះ។",
         ccNoCard: "អ្នកមិនទាន់មានកាតនៅឡើយទេ។ សូមចុច \"កាតថ្មី\" ដើម្បីកុម្ម៉ង់។",
         ccMyOrders: "ការស្នើសុំកាតរបស់ខ្ញុំ",
-        ccStWaitDept: "កំពុងរង់ចាំនាយកដ្ឋានរបស់អ្នក",
-        ccStWaitStaff: "កំពុងរង់ចាំផ្នែកធនធានមនុស្ស / រដ្ឋបាល",
-        ccStIssue: "បានអនុម័ត - កំពុងរៀបចំកាត",
-        ccStReady: "រួចរាល់ - សូមមកយក",
+        ccStWaitDept: "ចុះហត្ថលេខាដោយនាយកដ្ឋាន",
+        ccStWaitStaff: "ចុះហត្ថលេខាដោយធនធានមនុស្ស / រដ្ឋបាល",
+        ccStIssue: "បានអនុម័ត",
+        ccStReady: "រួចរាល់សម្រាប់ទទួល",
         ccStRejected: "បានបដិសេធ",
         ccStActive: "កំពុងប្រើ",
         ccNeedAct: "កាតត្រូវការធ្វើឱ្យសកម្ម",
@@ -6177,7 +6201,7 @@
         ccCodeErr: "លេខកូដសុវត្ថិភាពត្រូវមាន ៣ខ្ទង់។",
         ccCardReady: "កាតរួចរាល់",
         ccAskReady: "ជូនដំណឹងដល់និយោជិតថាកាតរួចរាល់ដើម្បីមកយកដែរឬទេ?",
-        ccStMade: "បានធ្វើកាត - មិនទាន់រួចរាល់",
+        ccStMade: "កំពុងចេញកាត",
         ccSaved: "បានរក្សាទុក។",
         ccCDate: "កាលបរិច្ឆេទ",
         ccCEmp: "និយោជិត",
@@ -6308,6 +6332,20 @@
         ccStyAddBtn: "បន្ថែមពណ៌",
         ccStyAskDel: "លុបពណ៌នេះឬទេ? កាតដែលបានចេញរួចរក្សាពណ៌ដដែល។",
         ccStyNeedName: "សូមបញ្ចូលឈ្មោះសម្រាប់ពណ៌។",
+        ccStHrSign: "ចុះហត្ថលេខាដោយធនធានមនុស្ស",
+        ccStAdSign: "ចុះហត្ថលេខាដោយរដ្ឋបាល",
+        ccStPicked: "បានទទួលកាត",
+        ccTabTodo: "ត្រូវធ្វើសកម្មភាព",
+        ccTabAll: "ទាំងអស់",
+        ccTabAppr: "ការអនុម័ត",
+        ccReqBtn: "សំណើកាត",
+        ccSetBtn: "ការកំណត់កាត",
+        ccSetSub: "បញ្ជីថ្លៃសេវា ពណ៌កាត និងកាតដែលបានចេញ។",
+        ccPicked: "បានទទួលកាត",
+        ccPickedL: "កត់ត្រាការទទួលដោយ",
+        ccAskPicked: "សម្គាល់កាតនេះថាបានទទួលរួចដែរឬទេ?",
+        ccUnfreezeTap: "ចុចរូបតំណាងដើម្បីឈប់បង្កក់កាត",
+        ccCodeHint: "ចុចលើប្រអប់ពណ៌ស ដើម្បីបង្ហាញលេខកូដ",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -7674,10 +7712,10 @@
         ccSub: "在此申请并跟踪您的员工卡。",
         ccNoCard: "您还没有卡片。请点击“新卡”进行申请。",
         ccMyOrders: "我的办卡申请",
-        ccStWaitDept: "等待部门审批",
-        ccStWaitStaff: "等待人事 / 行政审批",
-        ccStIssue: "已批准 - 正在制卡",
-        ccStReady: "已就绪 - 请领取",
+        ccStWaitDept: "部门签字",
+        ccStWaitStaff: "人事 / 行政签字",
+        ccStIssue: "已批准",
+        ccStReady: "可领取",
         ccStRejected: "已拒绝",
         ccStActive: "已激活",
         ccNeedAct: "卡片需要激活",
@@ -7748,7 +7786,7 @@
         ccCodeErr: "安全码必须为 3 位数字。",
         ccCardReady: "卡片已就绪",
         ccAskReady: "通知员工卡片已准备好可以领取？",
-        ccStMade: "卡已制作 - 尚未就绪",
+        ccStMade: "制卡中",
         ccSaved: "已保存。",
         ccCDate: "日期",
         ccCEmp: "员工",
@@ -7879,6 +7917,20 @@
         ccStyAddBtn: "添加颜色",
         ccStyAskDel: "删除此颜色？已发卡片仍保留该颜色。",
         ccStyNeedName: "请输入颜色名称。",
+        ccStHrSign: "人事签字",
+        ccStAdSign: "行政签字",
+        ccStPicked: "已领取",
+        ccTabTodo: "待处理",
+        ccTabAll: "全部",
+        ccTabAppr: "批准",
+        ccReqBtn: "办卡申请",
+        ccSetBtn: "卡片设置",
+        ccSetSub: "费用清单、卡片颜色和已发卡片。",
+        ccPicked: "已领取",
+        ccPickedL: "领取登记人",
+        ccAskPicked: "将此卡标记为已领取？",
+        ccUnfreezeTap: "点击图标解冻卡片",
+        ccCodeHint: "点击白色框显示安全码",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -19521,7 +19573,11 @@ function ccMakeRef() { var a = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789', s = 'CC-'; for
 function ccList(map) { return Object.keys(map || {}).map(function (k) { return Object.assign({ key: k }, map[k]); }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); }); }
 function ccDate(ts) { if (!ts) return ''; try { return new Date(ts).toLocaleDateString('en-GB', { timeZone: 'Asia/Phnom_Penh' }); } catch (e) { return ''; } }
 function ccStatusKey(o) { return { wait_dept: 'ccStWaitDept', wait_staff: 'ccStWaitStaff', issue: 'ccStIssue', made: 'ccStIssue', ready: 'ccStReady', rejected: 'ccStRejected' }[o.status] || 'ccStWaitDept'; }
-function ccStaffStatusText(o) { return o.status === 'made' ? t('ccStMade') : t(ccStatusKey(o)); }
+function ccStaffStatusText(o) {
+    if (o.status === 'wait_staff') return o.sig && o.sig.hr ? t('ccStAdSign') : t('ccStHrSign');
+    if (o.status === 'ready' && o.pickedAt) return t('ccStPicked');
+    return o.status === 'made' ? t('ccStMade') : t(ccStatusKey(o));
+}
 var CC_COL = { wait_dept: '#d97706', wait_staff: '#2563eb', issue: '#7c3aed', made: '#7c3aed', ready: '#16a34a', rejected: '#dc2626' };
 function ccPill(o, staff) { return '<span class="lf-st" style="background:' + (CC_COL[o.status] || '#64748b') + '">' + ccE(staff ? ccStaffStatusText(o) : t(ccStatusKey(o))) + '</span>'; }
 function ccPlace(o) { return o.pickup === 'office' ? t('ccPickOffice') : t('ccPickDept') + (o.deptName ? ' (' + o.deptName + ')' : ''); }
@@ -19567,6 +19623,10 @@ var CC_CSS = '.cc-card{position:relative;width:240px;height:381px;border-radius:
     '.cc-state{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:#123a5c;border:1px solid #d4af37;color:#f6e7b4}' +
     '.cc-add{position:absolute;right:12px;top:12px;width:38px;height:38px;border-radius:50%;border:0;background:#dc2626;color:#fff;font-size:24px;line-height:1;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.4);z-index:2}' +
     '.cc-flip{width:240px;height:381px;margin:0 auto;perspective:1000px}.cc-flip-in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.3,.7,.2,1)}.cc-flip.back .cc-flip-in{transform:rotateY(180deg)}.cc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}.cc-face.bk{transform:rotateY(180deg)}' +
+    '.cc-vb{border:0;border-radius:10px;padding:10px 20px;font-size:15px;font-weight:700;background:#e2e8f0;color:#123a5c;cursor:pointer}.cc-vb.on{background:#123a5c;color:#fff}.cc-sb{border:0;border-radius:12px;padding:18px 26px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;min-width:170px}' +
+    '.cc-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.cc-tb{border:1px solid #cbd5e1;background:#fff;color:#123a5c;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px}.cc-tb.on{background:#123a5c;border-color:#123a5c;color:#fff}' +
+    '.cc-bd{display:inline-block;min-width:18px;height:18px;line-height:18px;padding:0 5px;border-radius:9px;background:#dc2626;color:#fff;font-size:11px;font-weight:700;text-align:center;box-sizing:border-box}' +
+    '.cc-frz{position:absolute;left:0;top:0;width:240px;height:381px;border-radius:20px;background:rgba(214,78,70,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#fff;z-index:3;font-size:13px;padding:0 20px;box-sizing:border-box;text-align:center}.cc-frz .ic{width:78px;height:78px;border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer}.cc-frz .ic:active{background:rgba(255,255,255,.2)}' +
     '.cc-mini{width:120px;height:191px;position:relative;flex:0 0 auto}.cc-mini .cc-card{position:absolute;left:0;top:0;transform:scale(.5);transform-origin:0 0;margin:0}' +
     '.cc-box{padding:8px 0}.cc-tc{max-height:55vh;overflow-y:auto;font-size:14px;line-height:1.55;color:#0f172a}.cc-tc p{margin:8px 0}' +
     '.cc-kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #e2e8f0;font-size:14px}.cc-kv span:first-child{color:#64748b}' +
@@ -19656,10 +19716,10 @@ function ccCardHtml(o) {
         (o.state ? '<div style="text-align:center"><span class="cc-state">' + ccE(o.state) + '</span></div>' : '');
 }
 function ccCardBackHtml(o) {
-    var no = o.shown && o.no ? String(o.no).slice(0, 4) + ' •••• •••• ' + String(o.no).slice(-4) : '•••• •••• •••• ••••';
+    var no = o.shown && o.no ? String(o.no).replace(/(\d{4})(?=\d)/g, '$1 ') : '•••• •••• •••• ••••';
     return '<div class="cc-card" style="' + ccStyVars(o.sty) + '"><div class="cc-slot"></div><div class="cc-chip"></div>' +
         '<div class="cc-bl">' + ccE(t('ccCardNoL')) + '</div><div class="cc-bno">' + no + '</div>' +
-        '<div class="cc-bsl">' + ccE(t('ccSecL')) + '</div><div class="cc-bcode">' + ccE(o.code || '•••') + '</div>' +
+        '<div class="cc-bsl">' + ccE(t('ccSecL')) + '</div><div class="cc-bcode"' + (o.cid ? ' title="' + ccE(t('ccShowCode')) + '" style="cursor:pointer" onclick="event.stopPropagation();ccShowCode(\'' + ccE(o.cid) + '\')"' : '') + '>' + ccE(o.code || '•••') + '</div>' +
         '<div class="cc-bt">' + ccE(t('ccBackText')) + '</div><div class="cc-bars"></div></div>';
 }
 /* front + back that turn over; flip: tap to turn (or the page turns it by code) */
@@ -19681,7 +19741,7 @@ function ccDetailHtml(o, staff) {
     var h = kv(t('ccRef'), '<b>' + ccE(o.ref) + '</b>') + kv(t('ccFId'), ccE(o.empId)) + kv(t('ccFName'), ccE(o.empName)) + kv(t('ccFDept'), ccE(o.deptName) + (o.deptGroup ? ' / ' + ccE(o.deptGroup) : '')) +
         kv(t('ccFJoin'), ccE(o.joinDate)) + kv(t('ccFPhone'), ccE(o.phone)) + kv(t('ccFEmail'), ccE(o.email)) + kv(t('ccPickAt'), ccE(ccPlace(o))) + kv(t('ccCNo'), ccE(ccFill(t('ccCardN'), { n: o.seq }))) +
         kv(t('ccFee'), o.fee ? ccE(ccMoney(o.fee)) + ' · ' + ccE(ccFill(t('ccFeeSalary'), { month: ccMonthName(ccFeeMonthOf(o)) })) : ccE(t('ccFree'))) +
-        kv(t('ccCStatus'), ccPill(o, staff)) + (o.sty ? kv(t('ccStyle'), ccE(ccStyName(o.sty))) : '') + (o.key ? kv(t('ccPhoto'), ccPhImg(o.key, 70, 88)) : '');
+        kv(t('ccCStatus'), ccPill(o, staff)) + (o.pickedAt ? kv(t('ccPickedL'), ccE(o.pickedBy || '') + ' · ' + ccDate(o.pickedAt)) : '') + (o.sty ? kv(t('ccStyle'), ccE(ccStyName(o.sty))) : '') + (o.key ? kv(t('ccPhoto'), ccPhImg(o.key, 70, 88)) : '');
     if (staff || o.sig) h += '<div style="margin-top:8px;font-weight:700;color:#475569">' + ccE(t('ccSigs')) + '</div>' + kv(t('ccSigDept'), sg(o.sig && o.sig.dept)) + kv(t('ccSigHr'), sg(o.sig && o.sig.hr)) + kv(t('ccSigAd'), sg(o.sig && o.sig.ad));
     var rj = o.sig && ((o.sig.dept && o.sig.dept.s === 'rejected' && o.sig.dept) || (o.sig.hr && o.sig.hr.s === 'rejected' && o.sig.hr) || (o.sig.ad && o.sig.ad.s === 'rejected' && o.sig.ad));
     if (rj && rj.note) h += kv(t('ccReason'), ccE(rj.note));
@@ -19742,6 +19802,7 @@ function ccPrintDoc(html, title, size) {
 
 var CC_SVG_ZZ = '<svg viewBox="0 0 90 70" width="90" height="70"><text x="52" y="14" fill="#64748b" font-size="13" font-family="Arial">Z</text><text x="64" y="26" fill="#64748b" font-size="10" font-family="Arial">z</text><rect x="8" y="30" width="62" height="36" rx="6" fill="#e2e8f0" stroke="#94a3b8"/><rect x="8" y="42" width="62" height="6" fill="#123a5c"/><rect x="14" y="54" width="18" height="6" rx="3" fill="#123a5c"/><path d="M26 36q3 2 6 0M46 36q3 2 6 0" stroke="#64748b" fill="none" stroke-width="1.5"/></svg>';
 var CC_SVG_ADD = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="17" height="12" rx="2"/><line x1="2" y1="10" x2="19" y2="10"/><line x1="20" y1="3" x2="20" y2="9"/><line x1="17" y1="6" x2="23" y2="6"/></svg>';
+var CC_SVG_SNOW = '<svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"/><path d="M9.5 3.8L12 6l2.5-2.2M9.5 20.2L12 18l2.5 2.2M2.8 10.4l3.2.3-.9-3.1M21.2 13.6l-3.2-.3.9 3.1M5.1 16.9l.9-3.1-3.2.3M18.9 7.1l-.9 3.1 3.2-.3"/></svg>';
 var CC_SVG_PW = '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 6.5a8 8 0 1 0 11.4 0"/></svg>';
 var CC_SVG_EMPTY = '<svg viewBox="0 0 90 70" width="120" height="90"><rect x="4" y="14" width="68" height="46" rx="8" fill="#e5e7eb"/><rect x="12" y="24" width="10" height="10" rx="2" fill="#fff"/><rect x="12" y="44" width="28" height="3" rx="1.5" fill="#fff"/><circle cx="68" cy="16" r="14" fill="#d1d5db"/><path d="M68 10v12M62 16h12" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>';
 
@@ -19792,14 +19853,16 @@ function ccEmpRender() {
             '<div class="cc-zz">' + CC_SVG_ZZ + '</div><h5>' + ccE(t('ccNeedAct')) + '</h5><p>' + ccE(t('ccActHint')) + '</p></div>';
     } else {
         var fr = cardOf.state === 'frozen';
-        h += '<div class="cc-pg" style="padding-bottom:64px"><div id="ccCardWrap"' + (fr ? ' style="opacity:.55;filter:grayscale(.6)"' : '') + '>' + ccFlipHtml(Object.assign(ccEmpCardData(cardOf.key), { state: fr ? t('ccStFrozen') : t('ccStActive') }), true) + '</div><p style="margin:8px auto 0;font-size:11px">' + ccE(t('ccTapFlip')) + '</p>' +
-            (fr ? '<p style="margin:10px auto 0">' + ccE(t('ccFrozenHint')) + '</p>' : '') +
-            '<div class="cc-acts"><button type="button" onclick="ccShowCode(\'' + cardOf.key + '\')">' + ccE(t('ccShowCode')) + '</button>' +
+        h += '<div class="cc-pg" style="padding-bottom:64px"><div id="ccCardWrap" style="position:relative;width:240px;margin:0 auto">' + ccFlipHtml(Object.assign(ccEmpCardData(cardOf.key), { cid: cardOf.key, state: fr ? t('ccStFrozen') : t('ccStActive') }), !fr) +
+            (fr ? '<div class="cc-frz"><div class="ic" onclick="ccFreezeToggle(\'' + cardOf.key + '\')">' + CC_SVG_SNOW + '</div><div>' + ccE(t('ccUnfreezeTap')) + '</div></div>' : '') + '</div>' +
+            '<div id="ccCodeLeft" style="font-size:12px;color:#64748b;min-height:16px;margin-top:6px"></div>' +
+            (fr ? '' : '<p style="margin:2px auto 0;font-size:11px">' + ccE(t('ccTapFlip')) + ' ' + ccE(t('ccCodeHint')) + '</p>') +
+            '<div class="cc-acts">' + (fr ? '' : '<button type="button" onclick="ccShowCode(\'' + cardOf.key + '\')">' + ccE(t('ccShowCode')) + '</button>') +
             '<button type="button" onclick="ccFreezeToggle(\'' + cardOf.key + '\')">' + ccE(fr ? t('ccUnfreeze') : t('ccFreeze')) + '</button>' +
             '<button type="button" class="red" onclick="ccCloseCard(\'' + cardOf.key + '\')">' + ccE(t('ccCloseCard')) + '</button></div>' +
             (can ? '<button type="button" class="cc-fab" title="' + ccE(t('ccReplace')) + '" onclick="ccNewOpen()">' + CC_SVG_ADD + '</button>' : '') + '</div>';
     }
-    box.innerHTML = h;
+    box.innerHTML = h; ccCodePaint();
     var w = box.querySelector('.cc-pg'); /* swipe right = order a new card (when allowed) */
     if (w && can && cardOf) { var x0 = null; w.ontouchstart = function (ev) { x0 = ev.touches[0].clientX; }; w.ontouchend = function (ev) { if (x0 !== null && ev.changedTouches[0].clientX - x0 > 70) ccNewOpen(); x0 = null; }; }
 }
@@ -20041,28 +20104,32 @@ function ccActCheck2(pw, code) {
 }
 function ccPass(e) { return typeof ecPass === 'function' ? ecPass(e) : String(e.loginPassword || e.id || ''); }
 /* ---------- password check, then the action ---------- */
-function ccAskPw(then) {
+function ccAskPw(then, title) {
     var h = '<div class="lf-fg"><label>' + ccE(t('ccPwTitle')) + '</label><input type="password" id="ccPwIn" autocomplete="off"></div><div id="ccPwErr" style="color:#dc2626;font-size:13px;min-height:18px"></div>';
     var go = function () {
         var v = (document.getElementById('ccPwIn') || {}).value || '', e = ccEmpRec();
         if (!e || v !== ccPass(e)) { var er = document.getElementById('ccPwErr'); if (er) er.textContent = t('ccWrongPw'); return; }
         lfDlgClose('PW'); then();
     };
-    lfDlg({ id: 'PW', z: 6400, w: 360, title: t('ccShowCode'), html: h, buttons: [{ t: t('lfCancel'), cls: 's' }, { t: t('lfOk'), cls: 'g', close: false, fn: go }] });
+    lfDlg({ id: 'PW', z: 6400, w: 360, title: title || t('ccShowCode'), html: h, buttons: [{ t: t('lfCancel'), cls: 's' }, { t: t('lfOk'), cls: 'g', close: false, fn: go }] });
     var i = document.getElementById('ccPwIn'); if (i) { i.onkeydown = function (ev) { if (ev.key === 'Enter') go(); }; i.focus(); }
 }
-var ccCodeIv = null;
+/* the security code shows on the white box of the card itself (no pop-up); it hides again after 10 seconds */
+var ccCodeIv = null; CC.codeShown = null;
+function ccCodePaint() {
+    var w = document.getElementById('ccCardWrap'), cs = CC.codeShown; if (!w) return;
+    var bx = w.querySelector('.cc-bcode'), lf = document.getElementById('ccCodeLeft'); if (!bx) return;
+    if (cs) { bx.textContent = cs.code; bx.classList.add('hot'); var f = w.querySelector('.cc-flip'); if (f) f.classList.add('back'); if (lf) lf.textContent = ccFill(t('ccHidesIn'), { n: cs.left }); }
+    else { bx.textContent = '•••'; bx.classList.remove('hot'); if (lf) lf.textContent = ''; }
+}
 function ccShowCode(id) {
-    if (ccGate('showcode')) return;
+    if (ccGate('showcode')) return; var cd = (CC.cards.emp || {})[id]; if (!cd || cd.state !== 'active') return;
     ccAskPw(function () {
         db.ref('cardSecrets/' + id).once('value').then(function (s) {
-            var code = (s.val() || {}).code || '-', left = 10;
-            lfDlg({ id: 'SC', z: 6500, w: 320, title: t('ccCodeIs'), html: '<div style="font-size:38px;letter-spacing:12px;font-weight:700;text-align:center;color:#123a5c;font-family:monospace">' + ccE(code) + '</div><div id="ccScLeft" style="text-align:center;font-size:13px;color:#64748b;margin-top:10px"></div>', buttons: [{ t: t('ccClose'), cls: 'g', fn: function () { clearInterval(ccCodeIv); } }] });
-            var paint = function () { var e = document.getElementById('ccScLeft'); if (e) e.textContent = ccFill(t('ccHidesIn'), { n: left }); };
-            paint(); clearInterval(ccCodeIv);
-            ccCodeIv = setInterval(function () { left--; if (left <= 0) { clearInterval(ccCodeIv); lfDlgClose('SC'); } else paint(); }, 1000);
+            clearInterval(ccCodeIv); CC.codeShown = { id: id, code: (s.val() || {}).code || '-', left: 10 }; ccCodePaint();
+            ccCodeIv = setInterval(function () { if (!CC.codeShown) { clearInterval(ccCodeIv); return; } CC.codeShown.left--; if (CC.codeShown.left <= 0) { clearInterval(ccCodeIv); CC.codeShown = null; } ccCodePaint(); }, 1000);
         }).catch(function () { showToast(false, t('lfSaveErr')); });
-    });
+    }, t('ccShowCode'));
 }
 function ccSetState(id, from, to) {
     var cd = (CC.cards.emp || {})[id]; if (!cd || cd.state !== from) return;
@@ -20071,7 +20138,7 @@ function ccSetState(id, from, to) {
 }
 function ccFreezeToggle(id) {
     if (ccGate('freeze')) return; var cd = (CC.cards.emp || {})[id]; if (!cd) return; var fr = cd.state === 'frozen';
-    lfConfirm(fr ? t('ccAskUnfreeze') : t('ccAskFreeze'), function () { ccSetState(id, fr ? 'frozen' : 'active', fr ? 'active' : 'frozen'); });
+    ccAskPw(function () { ccSetState(id, fr ? 'frozen' : 'active', fr ? 'active' : 'frozen'); }, fr ? t('ccUnfreeze') : t('ccFreeze'));
 }
 function ccCloseCard(id) {
     if (ccGate('close')) return; var cd = (CC.cards.emp || {})[id]; if (!cd) return;
@@ -20081,12 +20148,44 @@ function ccCloseCard(id) {
 /* ===== Card Center: HR + Administration ===== */
 function ccIsAdmin() { return rqRole() === 'admin'; }
 function ccStaffTodo(o) {
+    if (ccReadyOpen(o)) return true;
     if (ccIsAdmin()) return o.status === 'wait_staff' || o.status === 'issue' || o.status === 'made';
     return o.status === 'wait_staff' && !(o.sig && o.sig.hr);
 }
+/* a ready card that nobody has marked as picked up yet */
+function ccReadyOpen(o) { var c = CC.cards.staff[o.key]; return o.status === 'ready' && !o.pickedAt && (!c || c.state === 'ready' || c.state === 'made'); }
+/* the tracking buttons of Card Request: each shows a red number while something waits there */
+var CC_TABS = [
+    { k: 'todo', t: 'ccTabTodo', f: ccStaffTodo, bd: 1 },
+    { k: 'all', t: 'ccTabAll', f: function () { return true; } },
+    { k: 'dept', t: 'ccStWaitDept', f: function (o) { return o.status === 'wait_dept'; }, bd: 1 },
+    { k: 'hr', t: 'ccStHrSign', f: function (o) { return o.status === 'wait_staff' && !(o.sig && o.sig.hr); }, bd: 1 },
+    { k: 'ad', t: 'ccStAdSign', f: function (o) { return o.status === 'wait_staff' && !!(o.sig && o.sig.hr); }, bd: 1 },
+    { k: 'appr', t: 'ccTabAppr', f: function (o) { return o.status === 'issue'; }, bd: 1 },
+    { k: 'iss', t: 'ccStMade', f: function (o) { return o.status === 'made'; }, bd: 1 },
+    { k: 'ready', t: 'ccStReady', f: function (o) { return o.status === 'ready'; }, bd: 1, bf: ccReadyOpen },
+    { k: 'rej', t: 'ccStRejected', f: function (o) { return o.status === 'rejected'; } }
+];
+CC.tab = 'todo';
+function ccTabCount(tb) { var f = tb.bf || tb.f; return Object.keys(CC.store.staff).filter(function (k) { var o = CC.store.staff[k]; o.key = k; return f(o); }).length; }
+function ccTabsDraw() {
+    var box = document.getElementById('ccTabs'); if (!box) return;
+    box.innerHTML = CC_TABS.map(function (tb) {
+        var n = tb.bd ? ccTabCount(tb) : 0;
+        return '<button type="button" class="cc-tb' + (CC.tab === tb.k ? ' on' : '') + '" onclick="ccTabGo(\'' + tb.k + '\')">' + ccE(t(tb.t)) + (n ? ' <span class="cc-bd">' + n + '</span>' : '') + '</button>';
+    }).join('');
+}
+function ccTabGo(k) { CC.tab = k; ccStaffRender(); }
+function ccView(v) {
+    var r = document.getElementById('ccViewReq'), s = document.getElementById('ccViewSet'); if (!r || !s) return;
+    r.style.display = v === 'req' ? '' : 'none'; s.style.display = v === 'set' ? '' : 'none';
+    document.getElementById('ccVReq').classList.toggle('on', v === 'req'); document.getElementById('ccVSet').classList.toggle('on', v === 'set');
+}
+
 function ccStaffBadge() {
-    var n = Object.keys(CC.store.staff).filter(function (k) { return ccStaffTodo(CC.store.staff[k]); }).length, el = document.getElementById('ccStaffBadge');
+    var n = Object.keys(CC.store.staff).filter(function (k) { var o = CC.store.staff[k]; o.key = k; return ccStaffTodo(o); }).length, el = document.getElementById('ccStaffBadge');
     if (el) { el.style.display = n ? 'inline-block' : 'none'; el.innerText = n; }
+    var rb = document.getElementById('ccReqBadge'); if (rb) { rb.style.display = n ? 'inline-block' : 'none'; rb.innerText = n; }
 }
 CC.ctxStaff = function () { return { role: rqRole(), name: rqWho() }; };
 CC.gateStaff = function (act) { return typeof mtGate === 'function' && mtGate('cardcenter', act); };
@@ -20110,24 +20209,21 @@ CC.after_staff = function () { ccStaffBadge(); ccCleanup(); var m = document.get
 function openCardCenter() {
     ccUse('staff'); lfStartCfg(); ccActSub();
     var m = document.getElementById('ccModal'); if (!m) return;
-    var st = document.getElementById('ccsStatus'), cur = st.value || 'open';
-    st.innerHTML = [['open', 'lfSOpen'], ['', 'lfSAll'], ['wait_dept', 'ccStWaitDept'], ['wait_staff', 'ccStWaitStaff'], ['issue', 'ccStIssue'], ['made', 'ccStMade'], ['ready', 'ccStReady'], ['rejected', 'ccStRejected']].map(function (x) { return '<option value="' + x[0] + '">' + ccE(t(x[1])) + '</option>'; }).join('');
-    st.value = cur;
     document.getElementById('ccsSearch').placeholder = t('ccSearch');
     var adm = ccIsAdmin(); ['ccCardsBtn', 'ccStyBtn'].forEach(function (i) { var b = document.getElementById(i); if (b) b.style.display = adm ? '' : 'none'; });
-    m.style.display = 'flex'; ccStaffRender();
+    ccView('req'); m.style.display = 'flex'; ccStaffRender();
 }
 function closeCardCenter() { document.getElementById('ccModal').style.display = 'none'; }
 function ccStaffRender() {
     ccUse('staff');
     var tb = document.querySelector('#ccsTable tbody'); if (!tb) return;
+    ccTabsDraw();
     var dd = document.getElementById('ccsDept'), dc = dd.value, seen = {}, opts = '<option value="">' + ccE(t('ccAllDept')) + '</option>';
     ccList(CC.store.staff).forEach(function (o) { if (o.dept && !seen[o.dept]) { seen[o.dept] = 1; opts += '<option value="' + ccE(o.dept) + '">' + ccE(o.deptName) + '</option>'; } });
     dd.innerHTML = opts; dd.value = dc;
-    var sf = document.getElementById('ccsStatus').value, q = (document.getElementById('ccsSearch').value || '').trim();
-    CC.fSearch = q; CC.fDept = dd.value; CC.fStatus = sf === 'open' ? '' : sf;
-    var list = ccFilterList(ccList(CC.store.staff));
-    if (sf === 'open') list = list.filter(ccStaffTodo); else if (!sf && !q) list = list.filter(function (o) { return o.status !== 'wait_dept'; });
+    CC.fSearch = (document.getElementById('ccsSearch').value || '').trim(); CC.fDept = dd.value; CC.fStatus = '';
+    var tab = CC_TABS.filter(function (x) { return x.k === CC.tab; })[0] || CC_TABS[0];
+    var list = ccFilterList(ccList(CC.store.staff)).filter(tab.f);
     tb.innerHTML = list.length ? ccRowsHtml(list, { emp: true, dept: true, staff: true }, 'ccStaffOpen') : '<tr><td colspan="7" style="text-align:center;color:#94a3b8;">' + ccE(t('ccNone')) + '</td></tr>';
 }
 function ccActSub() {
@@ -20147,6 +20243,7 @@ function ccStaffOpen(id) {
         if (adm) b.push({ t: t('ccAdSign'), cls: 'g', fn: function () { ccAdSign(id); } });
     } else if (adm && o.status === 'issue') b.push({ t: t('ccIssue'), cls: 'g', fn: function () { ccIssueOpen(id); } });
     else if (adm && o.status === 'made') b.push({ t: t('ccCardReady'), cls: 'g', fn: function () { ccReadyBtn(id); } });
+    if (o.status === 'ready' && !o.pickedAt) b.push({ t: t('ccPicked'), cls: 'g', fn: function () { ccPickedUp(id); } });
     if (adm && cd && (o.status === 'made' || o.status === 'ready')) b.push({ t: t('ccShowCode'), cls: 'o', close: false, fn: function () { ccAdminCode(id); } });
     if (adm && o.status === 'ready' && cd && cd.state === 'ready') {
         var act = CC.act[id];
@@ -20338,6 +20435,11 @@ function ccStyAddNew() {
     var n = (CC_ST_NEW.name || '').trim(); if (!n) { showToast(false, t('ccStyNeedName')); return; }
     var id = 'c' + Date.now().toString(36);
     db.ref('cardStyles/' + id).set({ custom: 1, name: n, c1: CC_ST_NEW.c1, c2: CC_ST_NEW.c2, ac: CC_ST_NEW.ac, on: true, at: Date.now() }).then(function () { CC_ST_NEW.name = ''; showToast(true); }).catch(function () { showToast(false, t('lfSaveErr')); });
+}
+
+function ccPickedUp(id) {
+    if (ccGate('pickup')) return;
+    lfConfirm(t('ccAskPicked'), function () { ccApply(id, { pickedAt: Date.now(), pickedBy: ccWho() }, 'picked'); });
 }
 
 /* v7.56: long tables show 20 rows per page with page numbers (1 2 3 ...).
