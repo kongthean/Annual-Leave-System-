@@ -655,7 +655,7 @@
      </div>
  </div>
 
- <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.61</div>
+ <div style="text-align:center; font-size:10px; color:#94a3b8; padding:10px;">System Version 7.64</div>
 </div>
 
 <!-- EMPLOYEE SELF-SERVICE SYSTEM (default landing view) -->
@@ -1395,6 +1395,7 @@
         <select id="msDept" onchange="msPick(this.value)" style="padding:7px 10px; border:1px solid #cbd5e1; border-radius:8px; min-width:220px;"></select>
         <select id="msGroup" onchange="msRenderTable()" style="padding:7px 10px; border:1px solid #cbd5e1; border-radius:8px;"></select>
         <input type="text" id="msSearch" oninput="msRenderTable()" placeholder="ID / Name" style="padding:7px 10px; border:1px solid #cbd5e1; border-radius:8px;">
+        <select id="msBalFilter" onchange="msRenderTable()" style="padding:7px 10px; border:1px solid #cbd5e1; border-radius:8px;"><option value="" data-i18n="balFilterAll">All balances</option><option value="c" data-i18n="balFilterCarried">Has carried forward</option><option value="x" data-i18n="balFilterExceeded">Has exceeded hours</option><option value="cx" data-i18n="balFilterEither">Carried forward or exceeded</option></select><select id="msYrFilter" onchange="msRenderTable()" style="padding:7px 10px; border:1px solid #cbd5e1; border-radius:8px;"><option value="" data-i18n="yrFilterAll">All year ranges</option></select>
         <button type="button" class="quick-btn green" style="width:auto; min-width:auto; min-height:auto; padding:7px 14px; font-size:12px;" onclick="msExport()" data-i18n="btnExport">Export to Excel (.xlsx)</button>
         <span id="msInfo" style="font-size:12px; color:#64748b;"></span>
     </div>
@@ -1430,6 +1431,7 @@
      <div class="search-bar-wrapper">
          <label style="margin:0; font-weight:bold; color:#0f172a;" data-i18n="lblSearch">Search Employee:</label>
          <input type="text" id="masterSearchInput" onkeyup="filterMasterTable()" placeholder="Enter ID or Name...">
+         <select id="masterBalFilter" onchange="filterMasterTable()" style="padding:7px 10px; border:1px solid #cbd5e1; border-radius:8px;"><option value="" data-i18n="balFilterAll">All balances</option><option value="c" data-i18n="balFilterCarried">Has carried forward</option><option value="x" data-i18n="balFilterExceeded">Has exceeded hours</option><option value="cx" data-i18n="balFilterEither">Carried forward or exceeded</option></select><select id="masterYrFilter" onchange="filterMasterTable()" style="padding:7px 10px; border:1px solid #cbd5e1; border-radius:8px;"><option value="" data-i18n="yrFilterAll">All year ranges</option></select>
      </div>
  
      <div class="table-responsive">
@@ -2191,6 +2193,10 @@
                  <label data-i18n="shiftCalMonthLabel">Month</label>
                  <input type="month" id="shiftCalMonth" onchange="renderShiftCalendarTable()">
              </div>
+             <div class="form-group" style="margin-bottom:0; min-width:150px;">
+                 <label data-i18n="shiftDayLabel">Day</label>
+                 <select id="shiftCalDay" onchange="renderShiftCalendarTable()"></select>
+             </div>
              <div class="form-group" style="margin-bottom:0; min-width:200px; flex:1;">
                  <label data-i18n="lblSearch">Search Employee:</label>
                  <input type="text" id="shiftCalSearchInput" onkeyup="renderShiftCalendarTable()" placeholder="Enter ID or Name...">
@@ -2820,7 +2826,7 @@
 </div>
 
  <div style="text-align:center; font-size:10px; color:#94a3b8; margin-top:18px; padding:6px 0;">
-     HR & Administration System Version 7.61
+     HR & Administration System Version 7.64
  </div>
 </div>
 
@@ -4751,6 +4757,13 @@
         ccAskPicked: "Mark this card as picked up?",
         ccUnfreezeTap: "Tap the icon to unfreeze card",
         ccCodeHint: "Tap the white box to show the code",
+        shiftDayLabel: "Day",
+        shiftAllDays: "All days",
+        balFilterAll: "All balances",
+        balFilterCarried: "Has carried forward",
+        balFilterExceeded: "Has exceeded hours",
+        balFilterEither: "Carried forward or exceeded",
+        yrFilterAll: "All year ranges",
         mtA_master_view: "View details",
         mtA_master_edit: "Edit",
         mtA_master_delete: "Delete",
@@ -6374,6 +6387,13 @@
         ccAskPicked: "សម្គាល់កាតនេះថាបានទទួលរួចដែរឬទេ?",
         ccUnfreezeTap: "ចុចរូបតំណាងដើម្បីឈប់បង្កក់កាត",
         ccCodeHint: "ចុចលើប្រអប់ពណ៌ស ដើម្បីបង្ហាញលេខកូដ",
+        shiftDayLabel: "ថ្ងៃ",
+        shiftAllDays: "គ្រប់ថ្ងៃ",
+        balFilterAll: "សមតុល្យទាំងអស់",
+        balFilterCarried: "មានសមតុល្យយកមកបន្ត",
+        balFilterExceeded: "មានម៉ោងលើស",
+        balFilterEither: "មានសមតុល្យយកមកបន្ត ឬម៉ោងលើស",
+        yrFilterAll: "គ្រប់ឆ្នាំ",
         mtA_master_view: "មើលព័ត៌មានលម្អិត",
         mtA_master_edit: "កែប្រែ",
         mtA_master_delete: "លុប",
@@ -7959,6 +7979,13 @@
         ccAskPicked: "将此卡标记为已领取？",
         ccUnfreezeTap: "点击图标解冻卡片",
         ccCodeHint: "点击白色框显示安全码",
+        shiftDayLabel: "日期",
+        shiftAllDays: "全部日期",
+        balFilterAll: "全部余额",
+        balFilterCarried: "有结转余额",
+        balFilterExceeded: "有超出小时",
+        balFilterEither: "有结转或超出",
+        yrFilterAll: "全部年度",
         mtA_master_view: "查看详情",
         mtA_master_edit: "编辑",
         mtA_master_delete: "删除",
@@ -10208,16 +10235,34 @@ async function deleteAnnouncement(firebaseKey, btnEl) {
      filterEmployeeTable();
  }
  
- function filterMasterTable() {
-     const input = document.getElementById('masterSearchInput').value.toLowerCase();
-     document.querySelectorAll('#masterTable tbody tr').forEach(row => {
-         const id = row.cells[1].innerText.toLowerCase();
-         const name = row.cells[2].innerText.toLowerCase();
-         row.style.display = (id.includes(input) || name.includes(input)) ? '' : 'none';
-     });
- }
- 
- function filterMonthlyTable() {
+ function balOk(f, carried, exceeded) {
+    if (!f) return true;
+    const c = (parseFloat(carried) || 0) > 0, x = (parseFloat(exceeded) || 0) > 0;
+    return f === 'c' ? c : f === 'x' ? x : (c || x);
+}
+function filterMasterTable() {
+    const input = document.getElementById('masterSearchInput').value.toLowerCase();
+    const bf = (document.getElementById('masterBalFilter') || {}).value || '';
+    const ths = Array.prototype.map.call(document.querySelectorAll('#masterTable thead th'), th => th.getAttribute('data-i18n'));
+    const ci = ths.indexOf('tblCarried'), xi = ths.indexOf('tblExceeded'), yi = ths.indexOf('tblYearRange');
+    const ysel = document.getElementById('masterYrFilter');
+    if (ysel && yi >= 0) {
+        const set = {}; document.querySelectorAll('#masterTable tbody tr').forEach(r => { if (r.cells.length > yi) { const v = r.cells[yi].innerText.trim(); if (v && v !== '-') set[v] = 1; } });
+        const keys = Object.keys(set).sort(), sig = keys.join('|');
+        if (ysel.getAttribute('data-sig') !== sig) { const cur = ysel.value; ysel.innerHTML = '<option value="">' + t('yrFilterAll') + '</option>' + keys.map(k => '<option value="' + k.replace(/"/g, '&quot;') + '">' + k + '</option>').join(''); ysel.setAttribute('data-sig', sig); ysel.value = keys.indexOf(cur) >= 0 ? cur : ''; }
+    }
+    const yf = ysel ? ysel.value : '';
+    document.querySelectorAll('#masterTable tbody tr').forEach(row => {
+        if (row.cells.length < 3) return;
+        const id = row.cells[1].innerText.toLowerCase();
+        const name = row.cells[2].innerText.toLowerCase();
+        let ok = id.includes(input) || name.includes(input);
+        if (ok && bf) ok = ci >= 0 && xi >= 0 && row.cells.length > Math.max(ci, xi) && balOk(bf, row.cells[ci].innerText, row.cells[xi].innerText);
+        if (ok && yf) ok = yi >= 0 && row.cells.length > yi && row.cells[yi].innerText.trim() === yf;
+        row.style.display = ok ? '' : 'none';
+    });
+}
+function filterMonthlyTable() {
      const input = document.getElementById('monthlySearchInput').value.toLowerCase();
      document.querySelectorAll('#monthlyReportTable tbody tr').forEach(row => {
          const id = row.cells[1].innerText.toLowerCase();
@@ -10817,6 +10862,17 @@ function filterMakeupTable() {
      const year = parseInt(parts[0], 10);
      const month = parseInt(parts[1], 10);
      const daysInMonth = new Date(year, month, 0).getDate();
+     /* the Day box: All days, or one day - then only that day's column is drawn (every employee row stays) */
+     const daySelEl = document.getElementById('shiftCalDay');
+     if (daySelEl && daySelEl.getAttribute('data-m') !== monthVal) {
+         const keepDay = parseInt(daySelEl.value, 10) || 0;
+         let opts = '<option value="">' + t('shiftAllDays') + '</option>';
+         for (let dd = 1; dd <= daysInMonth; dd++) opts += '<option value="' + dd + '">' + dd + ' - ' + t('shiftDow' + WEEKDAY_ABBR[new Date(year, month - 1, dd).getDay()][0].toUpperCase() + WEEKDAY_ABBR[new Date(year, month - 1, dd).getDay()].slice(1)) + '</option>';
+         daySelEl.innerHTML = opts; daySelEl.setAttribute('data-m', monthVal);
+         daySelEl.value = (keepDay >= 1 && keepDay <= daysInMonth) ? String(keepDay) : '';
+     }
+     const onlyDay = daySelEl ? (parseInt(daySelEl.value, 10) || 0) : 0;
+     const dFrom = onlyDay || 1, dTo = onlyDay || daysInMonth;
 
      const searchTerm = (document.getElementById('shiftCalSearchInput') ? document.getElementById('shiftCalSearchInput').value : '').toLowerCase();
      const rows = employees
@@ -10833,7 +10889,7 @@ function filterMakeupTable() {
 
      let headRow1 = '<tr><th rowspan="2" data-i18n="tblId">ID</th><th rowspan="2" data-i18n="tblName">Name</th>';
      let headRow2 = '<tr>';
-     for (let d = 1; d <= daysInMonth; d++) {
+     for (let d = dFrom; d <= dTo; d++) {
          const dow = new Date(year, month - 1, d).getDay();
          const isSun = dow === 0;
          headRow1 += '<th style="' + (isSun ? 'background:#cbd5e1;' : '') + '">' + d + '</th>';
@@ -10844,13 +10900,13 @@ function filterMakeupTable() {
      thead.innerHTML = headRow1 + headRow2;
 
      if (rows.length === 0) {
-         tbody.innerHTML = '<tr><td colspan="' + (daysInMonth + 2) + '" style="text-align:center; color:#94a3b8;">-</td></tr>';
+         tbody.innerHTML = '<tr><td colspan="' + (dTo - dFrom + 3) + '" style="text-align:center; color:#94a3b8;">-</td></tr>';
          return;
      }
 
      tbody.innerHTML = rows.map(emp => {
          let cells = '<td><b>' + emp.id + '</b></td><td style="text-align:left; white-space:nowrap;">' + emp.name + '</td>';
-         for (let d = 1; d <= daysInMonth; d++) {
+         for (let d = dFrom; d <= dTo; d++) {
              const dateStr = year + '-' + String(month).padStart(2, '0') + '-' + String(d).padStart(2, '0');
              const dow = new Date(year, month - 1, d).getDay();
              const s = shiftByKey[emp.id + '|' + dateStr];
@@ -18528,10 +18584,18 @@ function msRenderTable() {
     const q = (document.getElementById('msSearch').value || '').toLowerCase(), g = document.getElementById('msGroup').value, now = new Date();
     const list = msDeptEmps().sort(function (a, b) { return String(a.id).localeCompare(String(b.id), undefined, { numeric: true }); });
     msEmps = list;
+    function msYr(e0, nw) { try { const m = msMerge(e0); if (!m._has) return ''; return m.yearRange || computeLeaveCycle(m.joinDate, nw).yearRangeStr || ''; } catch (er) { return ''; } }
+    const ysel = document.getElementById('msYrFilter');
+    if (ysel) { const set = {}; list.forEach(function (x) { const v = msYr(x, now); if (v) set[v] = 1; }); const keys = Object.keys(set).sort(), sig = keys.join('|');
+        if (ysel.getAttribute('data-sig') !== sig) { const cur = ysel.value; ysel.innerHTML = '<option value="">' + t('yrFilterAll') + '</option>' + keys.map(function (k) { return '<option value="' + k + '">' + k + '</option>'; }).join(''); ysel.setAttribute('data-sig', sig); ysel.value = keys.indexOf(cur) >= 0 ? cur : ''; } }
+    const yf = ysel ? ysel.value : '';
     let html = '', n = 0;
     list.forEach(function (e0, idx) {
         if (g && e0.department !== g) return;
         if (q && String(e0.id || '').toLowerCase().indexOf(q) < 0 && String(e0.name || '').toLowerCase().indexOf(q) < 0) return;
+        const bf = (document.getElementById('msBalFilter') || {}).value || '';
+        if (yf && msYr(e0, now) !== yf) return;
+        if (bf) { const m0 = msMerge(e0); if (!m0._has || !balOk(bf, m0.carried, m0.exceeded)) return; }
         n++;
         const e = msMerge(e0);
         if (!e._has) { html += '<tr><td></td><td><b>' + dgEsc(e.id) + '</b></td><td>' + dgEsc(e.name) + '</td><td>' + dgEsc(e.department || '-') + '</td><td colspan="23" style="color:#b45309;">' + dgEsc(t('msNotStarted')) + '</td></tr>'; return; }
