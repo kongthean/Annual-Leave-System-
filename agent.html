@@ -33,16 +33,34 @@ h3{margin:0 0 10px;font-size:15px}
 #login .logo{font-size:22px;font-weight:800;text-align:center;margin-bottom:2px;color:#0b1d3a}
 #login .role{text-align:center;color:#64748b;margin-bottom:18px;font-weight:600}
 .err{color:#dc2626;font-size:13px;margin:8px 0;min-height:18px}
-header.top{position:sticky;top:0;z-index:20;padding:10px 14px;display:flex;align-items:center;gap:10px}
+div.sticky{position:sticky;top:0;z-index:30}
+header.top{padding:10px 14px;display:flex;align-items:center;gap:10px}
 header.top .ttl{font-weight:800;font-size:16px;flex:1;min-width:0}
 header.top .ttl small{display:block;font-weight:500;opacity:.8;font-size:11px}
 header.top select{width:auto;padding:5px 8px;font-size:12px;border-radius:8px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35)}
 header.top select option{color:#0f172a}
 .ib{position:relative;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px}
 .badge{position:absolute;top:-6px;right:-6px;background:#dc2626;color:#fff;border-radius:10px;min-width:18px;height:18px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px}
-nav.tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 14px;background:#fff;box-shadow:0 1px 4px rgba(15,23,42,.08);position:sticky;top:54px;z-index:19}
-nav.tabs button{flex:0 0 auto;border:0;background:#e2e8f0;color:#334155;padding:9px 14px;border-radius:20px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+nav.tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 14px;background:#fff;box-shadow:0 1px 4px rgba(15,23,42,.08)}
+nav.tabs button{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;border:0;background:#e2e8f0;color:#334155;padding:10px 16px;border-radius:22px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}
+nav.tabs button svg{width:18px;height:18px}
 nav.tabs button.on{background:linear-gradient(135deg,#0b1d3a 0%,#24406e 100%);color:#fff}
+nav.bnav{display:none}
+.quick{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.quick button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:84px;border:0;border-radius:14px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 12px rgba(15,23,42,.2)}
+.quick button svg{width:28px;height:28px}
+.btn.big{min-height:50px;font-size:16px;border-radius:12px}
+@media(max-width:760px){
+ nav.tabs{display:none}
+ nav.bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fff;border-top:1px solid #e2e8f0;box-shadow:0 -2px 10px rgba(15,23,42,.1);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+ nav.bnav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:#64748b;font-size:10px;font-weight:700;padding:6px 2px;border-radius:10px;cursor:pointer}
+ nav.bnav button svg{width:24px;height:24px}
+ nav.bnav button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ nav.bnav button.on{color:#0b1d3a;background:#e8eef8}
+ body{padding-bottom:78px}
+ main{padding:10px}
+ .toast{bottom:90px}
+}
 main{max-width:980px;margin:0 auto;padding:14px}
 .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:14px}
 .stat{border-radius:12px;padding:12px;color:#fff;cursor:pointer}
@@ -108,6 +126,7 @@ table.tb td{padding:8px;border-bottom:1px solid #eef2f7;vertical-align:middle}
  </div>
 </div>
 <div id="app" class="hide">
+ <div class="sticky">
  <header class="top grad">
   <div class="ttl"><span id="hTitle"></span><small id="hSub"></small></div>
   <select id="hlang"><option value="en">EN</option><option value="km">ខ្មែរ</option><option value="zh">中文</option></select>
@@ -115,6 +134,8 @@ table.tb td{padding:8px;border-bottom:1px solid #eef2f7;vertical-align:middle}
   <button class="ib" id="menuBtn">&#9776;</button>
  </header>
  <nav class="tabs" id="tabs"></nav>
+ </div>
+ <nav class="bnav" id="bnav"></nav>
  <main id="view"></main>
 </div>
 <div id="dlgHost"></div>
@@ -183,10 +204,11 @@ if (typeof module !== 'undefined') module.exports = QRMAKE;
 var L = {
 en: {
  appName:'Cambodia Insight Express', roleExpress:'Administration', roleAgent:'Branch Agent', username:'Username', password:'Password', login:'Log in', logout:'Log out', loggingIn:'Logging in...',
+ fee:'Fee', paid:'Paid', unpaid:'Pay at destination', staffLbl:'Staff', prefix:'Tracking prefix', prefixHint:'2-5 letters or numbers used at the start of tracking numbers, e.g. PP. You can change it any time.', prefixUsed:'This prefix is used by another branch.', codeHint2:'2-5 letters or numbers. You choose it now and cannot change it later.', scanAuto:'Automatic (recommended)', scanAutoHelp:'The system decides: Shipping from, Transit at or Arrival at, depending on your branch.', alreadyDest:'Already at the destination. Choose Out for delivery or Customer received.', alreadyShipped:'Already shipped from this branch', phoneOnly:'Phone number', changeUser:'Change my username', newUser:'New username', userDone:'Username changed.', menuHome:'Home', quick:'Quick actions', delivered2:'Delivered',
  errLogin:'Wrong username or password.', errNoAccess:'This account cannot use this page.', errOff:'This account is turned off. Please contact Administration.', errSetup:'This page is not connected to its database yet.', errNet:'Network problem. Please try again.',
  navDash:'Dashboard', navNew:'New shipment', navShip:'Shipments', navScan:'Scan', navBranches:'Branches', navStaff:'Staff',
  incoming:'Incoming to my branch', waitLong:'Waiting more than 3 days', total:'Total', recent:'Recent shipments', none:'Nothing here yet.', all:'All', search:'Search number, name or phone', loadMore:'Show more',
- sReceived:'Received', sTransit:'On the way', sArrived:'Arrived', sOut:'Out for delivery', sDelivered:'Delivered', sProblem:'Problem / Returned',
+ sPosted:'Posting at', sShipping:'Shipping from', sTransit:'Transit at', sArrived:'Arrival at', sOut:'Out for delivery', sDelivered:'Customer received', sProblem:'Problem / Returned',
  from:'From', to:'To', fromBranch:'From branch', toBranch:'To branch', senderName:'Sender name', senderPhone:'Sender phone', receiverName:'Receiver name', receiverPhone:'Receiver phone',
  goodsType:'Type of goods', gDoc:'Documents', gParcel:'Parcel', gFragile:'Fragile', gOther:'Other', goodsDesc:'Description', qty:'Pieces', kg:'Weight (kg)', price:'Price', cod:'Cash on delivery', note:'Note', optional:'optional',
  create:'Create shipment', creating:'Creating...', needAll:'Please fill the required fields.', needBranch:'Please choose the destination branch.', sameBranch:'From and To must be different.',
@@ -203,10 +225,11 @@ en: {
 },
 km: {
  appName:'Cambodia Insight Express', roleExpress:'រដ្ឋបាល', roleAgent:'ភ្នាក់ងារសាខា', username:'ឈ្មោះអ្នកប្រើ', password:'ពាក្យសម្ងាត់', login:'ចូលប្រើ', logout:'ចាកចេញ', loggingIn:'កំពុងចូល...',
+ fee:'ថ្លៃសេវា', paid:'បានបង់', unpaid:'បង់នៅទីដល់', staffLbl:'បុគ្គលិក', prefix:'អក្សរនាំមុខលេខតាមដាន', prefixHint:'អក្សរ ឬលេខ ២-៥ តួ ដាក់នៅដើមលេខតាមដាន ឧ. PP។ អាចប្តូរបានគ្រប់ពេល។', prefixUsed:'អក្សរនាំមុខនេះត្រូវបានប្រើដោយសាខាផ្សេង។', codeHint2:'អក្សរ ឬលេខ ២-៥ តួ។ អ្នកជ្រើសរើសឥឡូវ ហើយមិនអាចប្តូរក្រោយបានទេ។', scanAuto:'ស្វ័យប្រវត្តិ (ណែនាំ)', scanAutoHelp:'ប្រព័ន្ធសម្រេចចិត្ត៖ ចេញដំណើរពី ឆ្លងកាត់នៅ ឬមកដល់នៅ តាមសាខារបស់អ្នក។', alreadyDest:'នៅទីដល់រួចហើយ។ សូមជ្រើសរើស កំពុងដឹកជូន ឬ អតិថិជនបានទទួល។', alreadyShipped:'បានចេញពីសាខានេះរួចហើយ', phoneOnly:'លេខទូរស័ព្ទ', changeUser:'ប្តូរឈ្មោះអ្នកប្រើរបស់ខ្ញុំ', newUser:'ឈ្មោះអ្នកប្រើថ្មី', userDone:'បានប្តូរឈ្មោះអ្នកប្រើ។', menuHome:'ទំព័រដើម', quick:'សកម្មភាពរហ័ស', delivered2:'បានប្រគល់',
  errLogin:'ឈ្មោះអ្នកប្រើ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។', errNoAccess:'គណនីនេះមិនអាចប្រើទំព័រនេះបានទេ។', errOff:'គណនីនេះត្រូវបានបិទ។ សូមទាក់ទងរដ្ឋបាល។', errSetup:'ទំព័រនេះមិនទាន់ភ្ជាប់ទៅមូលដ្ឋានទិន្នន័យនៅឡើយទេ។', errNet:'បញ្ហាបណ្តាញ។ សូមព្យាយាមម្តងទៀត។',
  navDash:'ផ្ទាំងគ្រប់គ្រង', navNew:'ដឹកជញ្ជូនថ្មី', navShip:'ការដឹកជញ្ជូន', navScan:'ស្កេន', navBranches:'សាខា', navStaff:'បុគ្គលិក',
  incoming:'ទំនិញចូលមកសាខាខ្ញុំ', waitLong:'រង់ចាំលើសពី ៣ ថ្ងៃ', total:'សរុប', recent:'ការដឹកជញ្ជូនថ្មីៗ', none:'មិនទាន់មានទិន្នន័យ។', all:'ទាំងអស់', search:'ស្វែងរកលេខ ឈ្មោះ ឬទូរស័ព្ទ', loadMore:'បង្ហាញបន្ថែម',
- sReceived:'បានទទួល', sTransit:'កំពុងធ្វើដំណើរ', sArrived:'បានមកដល់', sOut:'កំពុងដឹកជូន', sDelivered:'បានប្រគល់', sProblem:'បញ្ហា / ត្រឡប់មកវិញ',
+ sPosted:'ទទួលផ្ញើនៅ', sShipping:'ចេញដំណើរពី', sTransit:'ឆ្លងកាត់នៅ', sArrived:'មកដល់នៅ', sOut:'កំពុងដឹកជូន', sDelivered:'អតិថិជនបានទទួល', sProblem:'បញ្ហា / ត្រឡប់មកវិញ',
  from:'ពី', to:'ទៅ', fromBranch:'ពីសាខា', toBranch:'ទៅសាខា', senderName:'ឈ្មោះអ្នកផ្ញើ', senderPhone:'ទូរស័ព្ទអ្នកផ្ញើ', receiverName:'ឈ្មោះអ្នកទទួល', receiverPhone:'ទូរស័ព្ទអ្នកទទួល',
  goodsType:'ប្រភេទទំនិញ', gDoc:'ឯកសារ', gParcel:'កញ្ចប់', gFragile:'ងាយបែក', gOther:'ផ្សេងៗ', goodsDesc:'ការពិពណ៌នា', qty:'ចំនួនកញ្ចប់', kg:'ទម្ងន់ (គីឡូ)', price:'តម្លៃ', cod:'ទូទាត់ពេលទទួល', note:'កំណត់ចំណាំ', optional:'ស្រេចចិត្ត',
  create:'បង្កើតការដឹកជញ្ជូន', creating:'កំពុងបង្កើត...', needAll:'សូមបំពេញព័ត៌មានដែលចាំបាច់។', needBranch:'សូមជ្រើសរើសសាខាទទួល។', sameBranch:'សាខាផ្ញើ និងទទួលត្រូវខុសគ្នា។',
@@ -223,10 +246,11 @@ km: {
 },
 zh: {
  appName:'Cambodia Insight Express', roleExpress:'总部管理', roleAgent:'分支网点', username:'用户名', password:'密码', login:'登录', logout:'退出', loggingIn:'登录中...',
+ fee:'运费', paid:'已付', unpaid:'到付', staffLbl:'经办人', prefix:'单号前缀', prefixHint:'2-5位字母或数字，用于单号开头，例如 PP。可随时修改。', prefixUsed:'此前缀已被其他网点使用。', codeHint2:'2-5位字母或数字，现在设定，之后不能修改。', scanAuto:'自动(推荐)', scanAutoHelp:'系统根据你所在网点自动判断：从此发出、中转经过或到达网点。', alreadyDest:'已在目的网点。请选择派送中或客户已签收。', alreadyShipped:'已从本网点发出', phoneOnly:'电话号码', changeUser:'修改我的用户名', newUser:'新用户名', userDone:'用户名已修改。', menuHome:'首页', quick:'快捷操作', delivered2:'已签收',
  errLogin:'用户名或密码错误。', errNoAccess:'此账号不能使用本页面。', errOff:'此账号已停用，请联系总部。', errSetup:'本页面尚未连接数据库。', errNet:'网络问题，请重试。',
  navDash:'首页', navNew:'新建运单', navShip:'运单', navScan:'扫码', navBranches:'网点', navStaff:'员工',
  incoming:'到达本网点', waitLong:'超过3天未完成', total:'总数', recent:'最近运单', none:'暂无数据。', all:'全部', search:'搜索单号、姓名或电话', loadMore:'显示更多',
- sReceived:'已收件', sTransit:'运输中', sArrived:'已到达', sOut:'派送中', sDelivered:'已签收', sProblem:'异常 / 退回',
+ sPosted:'寄件网点收件', sShipping:'从此发出', sTransit:'中转经过', sArrived:'到达网点', sOut:'派送中', sDelivered:'客户已签收', sProblem:'异常 / 退回',
  from:'发自', to:'寄往', fromBranch:'发出网点', toBranch:'到达网点', senderName:'寄件人', senderPhone:'寄件人电话', receiverName:'收件人', receiverPhone:'收件人电话',
  goodsType:'货物类型', gDoc:'文件', gParcel:'包裹', gFragile:'易碎品', gOther:'其他', goodsDesc:'说明', qty:'件数', kg:'重量(公斤)', price:'价格', cod:'货到付款', note:'备注', optional:'可选',
  create:'创建运单', creating:'创建中...', needAll:'请填写必填项。', needBranch:'请选择到达网点。', sameBranch:'发出和到达网点不能相同。',
@@ -243,16 +267,16 @@ zh: {
 }};
 
 var MAILD = 'express.cambodiainsight.net', TRACK_URL = 'https://cambodiainsight.net/tracking', COMPANY = 'Cambodia Insight Express';
-var ST = ['received', 'transit', 'arrived', 'out', 'delivered', 'problem'];
-var SC = { received: '#2563eb', transit: '#7c3aed', arrived: '#0d9488', out: '#d97706', delivered: '#16a34a', problem: '#dc2626' };
-var SK = { received: 'sReceived', transit: 'sTransit', arrived: 'sArrived', out: 'sOut', delivered: 'sDelivered', problem: 'sProblem' };
+var ST = ['posted', 'shipping', 'transit', 'arrived', 'out', 'delivered', 'problem'];
+var SC = { posted: '#2563eb', shipping: '#4f46e5', transit: '#7c3aed', arrived: '#0d9488', out: '#d97706', delivered: '#16a34a', problem: '#dc2626' };
+var SK = { posted: 'sPosted', shipping: 'sShipping', transit: 'sTransit', arrived: 'sArrived', out: 'sOut', delivered: 'sDelivered', problem: 'sProblem' };
 var LANG = 'en'; try { LANG = localStorage.getItem('xpLang') || 'en'; } catch (e) {} if (!L[LANG]) LANG = 'en';
 function t(k, v) { var s = (L[LANG] && L[LANG][k]) || L.en[k] || k; if (v) for (var x in v) s = s.replace('{' + x + '}', v[x]); return s; }
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function $(id) { return document.getElementById(id); }
 function fmtDT(ts) { if (!ts) return ''; try { return new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Phnom_Penh', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(ts)); } catch (e) { return new Date(ts).toISOString(); } }
 function ymd(ts) { var p = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Phnom_Penh', year: '2-digit', month: '2-digit', day: '2-digit' }).formatToParts(new Date(ts || Date.now())), o = {}; p.forEach(function (x) { o[x.type] = x.value; }); return o.year + o.month + o.day; }
-function stBadge(s) { return '<span class="st" style="background:' + (SC[s] || '#64748b') + '">' + esc(t(SK[s] || 'sReceived')) + '</span>'; }
+function stBadge(s) { return '<span class="st" style="background:' + (SC[s] || '#64748b') + '">' + esc(t(SK[s] || 'sPosted')) + '</span>'; }
 function toast(msg, ok) { var d = document.createElement('div'); d.className = 'toast ' + (ok === false ? 'bad' : 'ok'); d.textContent = msg; document.body.appendChild(d); setTimeout(function () { d.remove(); }, 2600); }
 function beep(good) { try { var A = window.AudioContext || window.webkitAudioContext, c = new A(), o = c.createOscillator(), g = c.createGain(); o.frequency.value = good ? 880 : 220; g.gain.value = .15; o.connect(g); g.connect(c.destination); o.start(); setTimeout(function () { o.stop(); c.close(); }, good ? 120 : 350); } catch (e) {} }
 /* in-page dialogs */
@@ -290,7 +314,7 @@ function doLogin() {
     .catch(function (e) { fail(e && (e.code === 'auth/network-request-failed') ? t('errNet') : t('errLogin')); });
 }
 function logout() { stopAll(); if (auth) auth.signOut(); }
-function stopAll() { listeners.forEach(function (l) { try { l[0].off('value', l[1]); } catch (e) {} }); listeners = []; me = null; rows = []; inbox = {}; branches = {}; staffCache = null; }
+function stopAll() { listeners.forEach(function (l) { try { l[0].off('value', l[1]); } catch (e) {} }); listeners = []; me = null; tab = 'dash'; scanLog = []; lastCode = ''; var vw = document.getElementById('view'); if (vw) vw.innerHTML = ''; rows = []; inbox = {}; branches = {}; staffCache = null; }
 function listen(ref, fn) { var h = ref.on('value', fn, function () {}); listeners.push([ref, h]); }
 
 function boot() {
@@ -314,11 +338,11 @@ function boot() {
 function startData() {
   listen(db.ref('branches'), function (s) {
     branches = s.val() || {};
-    if (isAdmin() && !Object.keys(branches).length) { db.ref('branches/HO').set({ code: 'HO', name: 'Head Office', address: '', phone: '', active: true, at: Date.now() }).then(function () { toast(t('hoCreated')); }); }
+    if (isAdmin() && !Object.keys(branches).length) { db.ref('branches/HO').set({ code: 'HO', prefix: 'HO', name: 'Head Office', address: '', phone: '', active: true, at: Date.now() }).then(function () { toast(t('hoCreated')); }); }
     renderTop(); renderView();
   });
   if (isAdmin()) listen(db.ref('shipments').orderByChild('created').limitToLast(1500), function (s) {
-    var o = s.val() || {}; rows = Object.keys(o).map(function (k) { var r = o[k]; return { no: k, from: r.from, to: r.to, fromName: r.fromName, toName: r.toName, status: r.status, created: r.created, updated: r.updated || r.created, rn: r.rcv && r.rcv.n, rp: r.rcv && r.rcv.p, sn: r.sender && r.sender.n, sp: r.sender && r.sender.p, gt: r.goods && r.goods.type }; }); rows.sort(function (a, b) { return b.created - a.created; }); renderView();
+    var o = s.val() || {}; rows = Object.keys(o).map(function (k) { var r = o[k]; return { no: k, from: r.from, to: r.to, fromName: r.fromName, toName: r.toName, status: r.status, created: r.created, updated: r.updated || r.created, rp: r.rcv && r.rcv.p, sp: r.sender && r.sender.p, gt: r.goods && r.goods.type }; }); rows.sort(function (a, b) { return b.created - a.created; }); renderView();
   });
   else listen(db.ref('branchIdx/' + me.branch), function (s) {
     var o = s.val() || {}; rows = Object.keys(o).map(function (k) { var r = o[k]; r.no = k; r.updated = r.updated || r.created; return r; }); rows.sort(function (a, b) { return b.created - a.created; }); renderView();
@@ -328,8 +352,19 @@ function startData() {
 
 /* ---------- top / tabs ---------- */
 function renderTop() { if (!me) return; $('hTitle').textContent = COMPANY; $('hSub').textContent = me.name + ' · ' + (isAdmin() ? t('roleExpress') : bName(me.branch)); }
+var ICON = {
+  dash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>',
+  new: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></svg>',
+  ship: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>',
+  scan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M4 12h16"/></svg>',
+  branches: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6M9 10h.01M15 10h.01"/></svg>',
+  staff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M17 4.5a3.5 3.5 0 0 1 0 7M21.5 20c0-2.6-1.5-4.6-3.7-5.5"/></svg>' };
 function tabsList() { var a = [['dash', 'navDash'], ['new', 'navNew'], ['ship', 'navShip'], ['scan', 'navScan']]; if (isAdmin()) a.push(['branches', 'navBranches'], ['staff', 'navStaff']); return a; }
-function renderTabs() { $('tabs').innerHTML = tabsList().map(function (x) { return '<button class="' + (tab === x[0] ? 'on' : '') + '" onclick="go(\'' + x[0] + '\')">' + esc(t(x[1])) + '</button>'; }).join(''); }
+function renderTabs() {
+  var l = tabsList();
+  $('tabs').innerHTML = l.map(function (x) { return '<button class="' + (tab === x[0] ? 'on' : '') + '" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('');
+  $('bnav').innerHTML = l.map(function (x) { return '<button class="' + (tab === x[0] ? 'on' : '') + '" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('');
+}
 function go(k) { if (tab === 'scan' && k !== 'scan') stopScan(); tab = k; renderTabs(); renderView(); window.scrollTo(0, 0); }
 function renderView() {
   if (!me) return; renderTabs();
@@ -343,11 +378,16 @@ function renderView() {
 }
 
 /* ---------- dashboard ---------- */
-function myIncoming(r) { return r.to === me.branch && (r.status === 'received' || r.status === 'transit'); }
+function myIncoming(r) { return r.to === me.branch && (r.status === 'posted' || r.status === 'shipping' || r.status === 'transit'); }
+function quickHtml() {
+  var q = [['new', 'navNew', '#064e3b,#15906b'], ['scan', 'navScan', '#25206b,#5b57d1'], ['ship', 'navShip', '#0b1d3a,#24406e']];
+  if (isAdmin()) q.push(['branches', 'navBranches', '#0b4a47,#1b968c'], ['staff', 'navStaff', '#7c3aed,#a78bfa']);
+  return '<div class="quick">' + q.map(function (x) { var c = x[2].split(','); return '<button style="background:linear-gradient(135deg,' + c[0] + ' 0%,' + c[1] + ' 100%)" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('') + '</div>';
+}
 function dashHtml() {
   var cnt = {}; ST.forEach(function (s) { cnt[s] = 0; }); rows.forEach(function (r) { cnt[r.status] = (cnt[r.status] || 0) + 1; });
   var inc = rows.filter(myIncoming).length, old = rows.filter(function (r) { return r.status !== 'delivered' && Date.now() - r.created > 3 * 864e5; }).length;
-  var h = '<div class="stats">' + '<div class="stat grad" onclick="gotoShip(\'\',\'in\')"><b>' + inc + '</b><span>' + esc(t('incoming')) + '</span></div>';
+  var h = quickHtml() + '<div class="stats">' + '<div class="stat grad" onclick="gotoShip(\'\',\'in\')"><b>' + inc + '</b><span>' + esc(t('incoming')) + '</span></div>';
   ST.forEach(function (s) { h += '<div class="stat" style="background:' + SC[s] + '" onclick="gotoShip(\'' + s + '\')"><b>' + cnt[s] + '</b><span>' + esc(t(SK[s])) + '</span></div>'; });
   h += '<div class="stat" style="background:#475569" onclick="gotoShip(\'\')"><b>' + rows.length + '</b><span>' + esc(t('total')) + '</span></div>';
   h += '<div class="stat" style="background:#b45309" onclick="gotoShip(\'old\')"><b>' + old + '</b><span>' + esc(t('waitLong')) + '</span></div></div>';
@@ -356,7 +396,7 @@ function dashHtml() {
   return h;
 }
 function gotoShip(s, dir) { shipFilter = { q: '', s: (s === 'old' ? '' : s), b: '', dir: dir || '', old: s === 'old' }; shipLimit = 25; go('ship'); }
-function rowHtml(r) { return '<div class="row" onclick="openShip(\'' + esc(r.no) + '\')"><div class="main"><div class="no">' + esc(r.no) + '</div><div class="sub">' + esc(r.fromName || bName(r.from)) + ' → ' + esc(r.toName || bName(r.to)) + ' · ' + esc(r.rn || '') + '</div><div class="sub">' + esc(fmtDT(r.updated)) + '</div></div>' + stBadge(r.status) + '</div>'; }
+function rowHtml(r) { return '<div class="row" onclick="openShip(\'' + esc(r.no) + '\')"><div class="main"><div class="no">' + esc(r.no) + '</div><div class="sub">' + esc(r.fromName || bName(r.from)) + ' → ' + esc(r.toName || bName(r.to)) + ' · ' + esc(r.rp || '') + '</div><div class="sub">' + esc(fmtDT(r.updated)) + '</div></div>' + stBadge(r.status) + '</div>'; }
 
 /* ---------- shipments list ---------- */
 function filteredRows() {
@@ -367,7 +407,7 @@ function filteredRows() {
     if (f.b && r.from !== f.b && r.to !== f.b) return false;
     if (f.dir === 'in' && !myIncoming(r)) return false;
     if (f.dir === 'out' && r.from !== me.branch) return false;
-    if (q && (r.no + ' ' + (r.rn || '') + ' ' + (r.rp || '') + ' ' + (r.sn || '') + ' ' + (r.sp || '')).toLowerCase().indexOf(q) < 0) return false;
+    if (q && (r.no + ' ' + (r.rp || '') + ' ' + (r.sp || '')).toLowerCase().indexOf(q) < 0) return false;
     return true;
   });
 }
@@ -392,41 +432,42 @@ function showShip(r) {
   var hs = histList(r), g = r.goods || {};
   var h = '<h2>' + esc(r.no) + ' ' + stBadge(r.status) + '</h2>';
   h += '<div class="card" style="box-shadow:none;border:1px solid #e2e8f0;padding:12px"><div><b>' + esc(r.fromName) + ' → ' + esc(r.toName) + '</b></div>';
-  h += '<div class="muted">' + esc(t('sender')) + ': ' + esc((r.sender || {}).n) + ' ' + esc((r.sender || {}).p) + '</div><div class="muted">' + esc(t('receiver')) + ': ' + esc((r.rcv || {}).n) + ' ' + esc((r.rcv || {}).p) + '</div>';
+  h += '<div class="muted">' + esc(t('sender')) + ': ' + esc((r.sender || {}).p) + '</div><div class="muted">' + esc(t('receiver')) + ': ' + esc((r.rcv || {}).p) + '</div>';
   h += '<div class="muted">' + esc(t('goods')) + ': ' + esc(t({ doc: 'gDoc', parcel: 'gParcel', fragile: 'gFragile', other: 'gOther' }[g.type] || 'gOther')) + (g.desc ? ' - ' + esc(g.desc) : '') + ' · ' + esc(g.qty || 1) + (g.kg ? ' · ' + esc(g.kg) + ' kg' : '') + '</div>';
-  if (r.price) h += '<div class="muted">' + esc(t('price')) + ': ' + esc(r.price) + '</div>'; if (r.cod) h += '<div class="muted">' + esc(t('cod')) + ': ' + esc(r.cod) + '</div>'; if (r.note) h += '<div class="muted">' + esc(t('note')) + ': ' + esc(r.note) + '</div>';
+  if (r.price) h += '<div class="muted">' + esc(t('fee')) + ': ' + esc(r.price) + ' (' + esc(r.paid ? t('paid') : t('unpaid')) + ')</div>'; if (r.cod) h += '<div class="muted">' + esc(t('cod')) + ': ' + esc(r.cod) + '</div>'; if (r.note) h += '<div class="muted">' + esc(t('note')) + ': ' + esc(r.note) + '</div>';
   h += '<div class="muted">' + esc(t('created_by')) + ': ' + esc(r.createdByName || '') + ' · ' + esc(fmtDT(r.created)) + '</div></div>';
-  h += '<h3>' + esc(t('history')) + '</h3><div class="tl">' + hs.map(function (x) { return '<div class="it" style="--c:' + (SC[x.s] || '#64748b') + '"><b>' + esc(t(SK[x.s])) + '</b><div class="muted">' + esc(fmtDT(x.at)) + (x.place ? ' · ' + esc(x.place) : '') + (x.byName ? ' · ' + esc(x.byName) : '') + '</div>' + (x.note ? '<div style="font-size:13px">' + esc(x.note) + '</div>' : '') + '</div>'; }).join('') + '</div>';
+  h += '<h3>' + esc(t('history')) + '</h3><div class="tl">' + hs.map(function (x) { return '<div class="it" style="--c:' + (SC[x.s] || '#64748b') + '"><b>' + esc(t(SK[x.s])) + (x.place ? ' ' + esc(x.place) : '') + '</b><div class="muted">' + esc(fmtDT(x.at)) + (x.byName ? ' · ' + esc(x.byName) : '') + '</div>' + (x.note ? '<div style="font-size:13px">' + esc(x.note) + '</div>' : '') + '</div>'; }).join('') + '</div>';
   window.__ship = r;
   h += '<div class="acts"><button class="btn" onclick="statusDlg()">' + esc(t('updateStatus')) + '</button><button class="btn green" onclick="labelDlg(window.__ship)">' + esc(t('printLabel')) + '</button><button class="btn gray" onclick="closeDlg()">' + esc(t('close')) + '</button></div>';
   dlg(h);
 }
-/* which statuses may this user set */
+/* which statuses may this user set by hand (the dialog) */
 function allowedStatuses(r) {
   if (isAdmin()) return ST.slice();
-  var a = [];
-  if (me.branch === r.from) a = a.concat(['received', 'transit']);
-  if (me.branch === r.to) a = a.concat(['arrived', 'out', 'delivered']);
-  a.push('problem'); return a.filter(function (s, i) { return a.indexOf(s) === i; });
+  if (me.branch === r.to) return ['arrived', 'out', 'delivered', 'problem'];
+  if (me.branch === r.from) return ['posted', 'shipping', 'problem'];
+  return ['transit', 'shipping', 'problem'];
 }
-function nextOf(s) { var o = ['received', 'transit', 'arrived', 'out', 'delivered']; var i = o.indexOf(s); return i >= 0 && i < o.length - 1 ? o[i + 1] : s; }
+function nextOf(s) { var o = ['posted', 'shipping', 'arrived', 'out', 'delivered']; var i = o.indexOf(s); return i >= 0 && i < o.length - 1 ? o[i + 1] : s; }
 function statusDlg() {
   var r = window.__ship, al = allowedStatuses(r), def = al.indexOf(nextOf(r.status)) >= 0 ? nextOf(r.status) : al[0];
   dlg('<h2>' + esc(t('updateStatus')) + '</h2><div class="fg"><label>' + esc(t('newStatus')) + '</label><select id="usS">' + al.map(function (s) { return '<option value="' + s + '"' + (s === def ? ' selected' : '') + '>' + esc(t(SK[s])) + '</option>'; }).join('') + '</select></div><div class="fg"><label>' + esc(t('note')) + ' (' + esc(t('optional')) + ')</label><textarea id="usN"></textarea></div><div class="acts"><button class="btn gray" onclick="showShip(window.__ship)">' + esc(t('cancel')) + '</button><button class="btn" id="usGo">' + esc(t('save')) + '</button></div>');
   $('usGo').onclick = function () { var s = $('usS').value, n = $('usN').value.trim(); $('usGo').disabled = true; applyStatus(r, s, n).then(function () { closeDlg(); toast(t('saved')); }).catch(function () { $('usGo').disabled = false; toast(t('failed'), false); }); };
 }
 /* the one function that changes a status (used by the dialog and by scanning) */
+function idxOf(r, status, now) { return { from: r.from, to: r.to, fromName: r.fromName, toName: r.toName, status: status, created: r.created, updated: now, rp: (r.rcv && r.rcv.p) || r.rp || '', sp: (r.sender && r.sender.p) || r.sp || '', gt: (r.goods && r.goods.type) || r.gt || 'parcel' }; }
 function applyStatus(r, status, note) {
   var now = Date.now(), no = r.no, place = bName(me.branch), hk = db.ref().push().key, up = {};
   var fromC = r.from, toC = r.to;
   up['shipments/' + no + '/status'] = status; up['shipments/' + no + '/updated'] = now;
-  up['shipments/' + no + '/hist/' + hk] = { s: status, at: now, by: me.uid, byName: me.name, place: place, note: note || null };
+  up['shipments/' + no + '/hist/' + hk] = { s: status, at: now, by: me.uid, byName: me.name, br: me.branch, place: place, note: note || null };
   up['track/' + no + '/status'] = status; up['track/' + no + '/updated'] = now;
   up['track/' + no + '/hist/' + hk] = { s: status, at: now, place: place, note: note || null };
-  [fromC, toC].filter(function (c, i, a) { return c && a.indexOf(c) === i; }).forEach(function (c) { up['branchIdx/' + c + '/' + no + '/status'] = status; up['branchIdx/' + c + '/' + no + '/updated'] = now; });
-  var note2 = { no: no, s: status, from: r.fromName, to: r.toName, at: now, seen: false };
-  if (status === 'transit') up['inbox/' + toC + '/' + no + '-' + status] = Object.assign({ k: 'transit' }, note2);
-  else if (status !== 'received') up['inbox/' + fromC + '/' + no + '-' + status] = Object.assign({ k: 'status' }, note2);
+  var idx = idxOf(r, status, now);
+  [fromC, toC, me.branch].filter(function (c, i, a) { return c && a.indexOf(c) === i; }).forEach(function (c) { up['branchIdx/' + c + '/' + no] = idx; });
+  var note2 = { no: no, s: status, from: r.fromName, to: r.toName, at: now, seen: false, by: place };
+  if ((status === 'transit' || status === 'shipping') && toC !== me.branch) up['inbox/' + toC + '/' + no + '-' + status + '-' + me.branch] = Object.assign({ k: status }, note2);
+  else if (status !== 'posted' && status !== 'transit' && status !== 'shipping' && fromC !== me.branch) up['inbox/' + fromC + '/' + no + '-' + status] = Object.assign({ k: 'status' }, note2);
   return db.ref().update(up);
 }
 
@@ -437,48 +478,48 @@ function newHtml() {
   var h = '<div class="card"><h2>' + esc(t('navNew')) + '</h2><form id="nfForm" onsubmit="return false">';
   h += '<div class="grid2"><div class="fg"><label>' + esc(t('fromBranch')) + '</label>' + (isAdmin() ? '<select id="nfFrom" onchange="nfFromChange()">' + branchOpts(fromSel) + '</select>' : '<select id="nfFrom" disabled><option value="' + esc(me.branch) + '">' + esc(bName(me.branch)) + '</option></select>') + '</div>';
   h += '<div class="fg"><label>' + esc(t('toBranch')) + ' *</label><select id="nfTo"><option value="">--</option>' + branchOpts('', fromSel) + '</select></div></div>';
-  h += '<div class="grid2"><div class="fg"><label>' + esc(t('senderName')) + ' *</label><input id="nfSn"></div><div class="fg"><label>' + esc(t('senderPhone')) + ' *</label><input id="nfSp" type="tel"></div>';
-  h += '<div class="fg"><label>' + esc(t('receiverName')) + ' *</label><input id="nfRn"></div><div class="fg"><label>' + esc(t('receiverPhone')) + ' *</label><input id="nfRp" type="tel"></div></div>';
+  h += '<div class="grid2"><div class="fg"><label>' + esc(t('senderPhone')) + ' *</label><input id="nfSp" type="tel" inputmode="tel"></div><div class="fg"><label>' + esc(t('receiverPhone')) + ' *</label><input id="nfRp" type="tel" inputmode="tel"></div></div>';
   h += '<div class="grid2"><div class="fg"><label>' + esc(t('goodsType')) + '</label><select id="nfGt"><option value="doc">' + esc(t('gDoc')) + '</option><option value="parcel">' + esc(t('gParcel')) + '</option><option value="fragile">' + esc(t('gFragile')) + '</option><option value="other">' + esc(t('gOther')) + '</option></select></div><div class="fg"><label>' + esc(t('goodsDesc')) + ' (' + esc(t('optional')) + ')</label><input id="nfGd"></div>';
-  h += '<div class="fg"><label>' + esc(t('qty')) + '</label><input id="nfQ" type="number" min="1" value="1"></div><div class="fg"><label>' + esc(t('kg')) + ' (' + esc(t('optional')) + ')</label><input id="nfKg" type="number" min="0" step="0.1"></div>';
-  h += '<div class="fg"><label>' + esc(t('price')) + ' (' + esc(t('optional')) + ')</label><input id="nfPr"></div><div class="fg"><label>' + esc(t('cod')) + ' (' + esc(t('optional')) + ')</label><input id="nfCod"></div></div>';
-  h += '<div class="fg"><label>' + esc(t('note')) + ' (' + esc(t('optional')) + ')</label><textarea id="nfNote"></textarea></div><div class="err" id="nfErr"></div><button class="btn" id="nfGo" style="width:100%">' + esc(t('create')) + '</button></form></div>';
+  h += '<div class="fg"><label>' + esc(t('qty')) + '</label><input id="nfQ" type="number" inputmode="numeric" min="1" value="1"></div><div class="fg"><label>' + esc(t('kg')) + ' (' + esc(t('optional')) + ')</label><input id="nfKg" type="number" inputmode="decimal" min="0" step="0.1"></div>';
+  h += '<div class="fg"><label>' + esc(t('fee')) + ' (' + esc(t('optional')) + ')</label><input id="nfPr" inputmode="decimal"></div><div class="fg"><label>&nbsp;</label><select id="nfPaid"><option value="1">' + esc(t('paid')) + '</option><option value="0">' + esc(t('unpaid')) + '</option></select></div>';
+  h += '<div class="fg"><label>' + esc(t('cod')) + ' (' + esc(t('optional')) + ')</label><input id="nfCod" inputmode="decimal"></div></div>';
+  h += '<div class="fg"><label>' + esc(t('note')) + ' (' + esc(t('optional')) + ')</label><textarea id="nfNote"></textarea></div><div class="err" id="nfErr"></div><button class="btn big" id="nfGo" style="width:100%">' + esc(t('create')) + '</button></form></div>';
   return h;
 }
 function nfFromChange() { var f = $('nfFrom').value, cur = $('nfTo').value; $('nfTo').innerHTML = '<option value="">--</option>' + branchOpts('', f); if (cur && cur !== f) $('nfTo').value = cur; }
 document.addEventListener('click', function (e) { if (e.target && e.target.id === 'nfGo') createShipment(); });
 function genNo(from) {
-  var key = from + '-' + ymd();
+  var pre = ((branches[from] || {}).prefix || from).toUpperCase(), key = pre + '-' + ymd();
   return db.ref('counters/' + key).transaction(function (n) { return (n || 0) + 1; }).then(function (r) { var n = r.snapshot.val(); return key + '-' + ('000' + n).slice(-4); });
 }
 function createShipment() {
   var g = function (id) { return ($(id) || {}).value || ''; }, err = $('nfErr'); err.textContent = '';
-  var from = isAdmin() ? g('nfFrom') : me.branch, to = g('nfTo'), sn = g('nfSn').trim(), sp = g('nfSp').trim(), rn = g('nfRn').trim(), rp = g('nfRp').trim();
+  var from = isAdmin() ? g('nfFrom') : me.branch, to = g('nfTo'), sp = g('nfSp').trim(), rp = g('nfRp').trim();
   if (!to) { err.textContent = t('needBranch'); return; } if (to === from) { err.textContent = t('sameBranch'); return; }
-  if (!sn || !sp || !rn || !rp) { err.textContent = t('needAll'); return; }
+  if (!sp || !rp) { err.textContent = t('needAll'); return; }
   $('nfGo').disabled = true; $('nfGo').textContent = t('creating');
   var now = Date.now(), fromName = bName(from), toName = bName(to);
   genNo(from).then(function (no) {
     var hk = db.ref().push().key;
-    var rec = { no: no, from: from, to: to, fromName: fromName, toName: toName, status: 'received', created: now, updated: now, createdBy: me.uid, createdByName: me.name,
-      sender: { n: sn, p: sp }, rcv: { n: rn, p: rp }, goods: { type: g('nfGt'), desc: g('nfGd').trim() || null, qty: parseInt(g('nfQ'), 10) || 1, kg: g('nfKg') || null }, price: g('nfPr').trim() || null, cod: g('nfCod').trim() || null, note: g('nfNote').trim() || null,
+    var rec = { no: no, from: from, to: to, fromName: fromName, toName: toName, status: 'posted', created: now, updated: now, createdBy: me.uid, createdByName: me.name,
+      sender: { p: sp }, rcv: { p: rp }, goods: { type: g('nfGt'), desc: g('nfGd').trim() || null, qty: parseInt(g('nfQ'), 10) || 1, kg: g('nfKg') || null }, price: g('nfPr').trim() || null, paid: g('nfPaid') === '1', cod: g('nfCod').trim() || null, note: g('nfNote').trim() || null,
       hist: {} };
-    rec.hist[hk] = { s: 'received', at: now, by: me.uid, byName: me.name, place: fromName };
-    var idx = { from: from, to: to, fromName: fromName, toName: toName, status: 'received', created: now, updated: now, rn: rn, rp: rp, sn: sn, sp: sp, gt: g('nfGt') };
+    rec.hist[hk] = { s: 'posted', at: now, by: me.uid, byName: me.name, br: from, place: fromName };
+    var idx = idxOf(rec, 'posted', now);
     var up = {}; up['shipments/' + no] = rec;
-    up['track/' + no] = { from: fromName, to: toName, status: 'received', created: now, updated: now, hist: { [hk]: { s: 'received', at: now, place: fromName } } };
+    up['track/' + no] = { from: fromName, to: toName, status: 'posted', created: now, updated: now, hist: { [hk]: { s: 'posted', at: now, place: fromName } } };
     up['branchIdx/' + from + '/' + no] = idx; up['branchIdx/' + to + '/' + no] = idx;
-    up['inbox/' + to + '/' + no + '-new'] = { k: 'new', no: no, s: 'received', from: fromName, to: toName, at: now, seen: false };
+    up['inbox/' + to + '/' + no + '-new'] = { k: 'new', no: no, s: 'posted', from: fromName, to: toName, at: now, seen: false };
     return db.ref().update(up).then(function () { return rec; });
   }).then(function (rec) { toast(t('created')); $('view').innerHTML = newHtml(); window.__ship = rec; labelDlg(rec, true); })
-    .catch(function () { var b = $('nfGo'); if (b) { b.disabled = false; b.textContent = t('create'); } toast(t('failed'), false); });
+    .catch(function (e) { var b = $('nfGo'); if (b) { b.disabled = false; b.textContent = t('create'); } toast(t('failed'), false); });
 }
 
 /* ---------- label ---------- */
 function labelHtml(r, copy) {
   var url = TRACK_URL + '?no=' + encodeURIComponent(r.no), g = r.goods || {}, gl = t({ doc: 'gDoc', parcel: 'gParcel', fragile: 'gFragile', other: 'gOther' }[g.type] || 'gOther');
   return '<div class="lab"><div class="h"><span>' + esc(COMPANY) + '</span><span class="c">' + esc(copy) + '</span></div><div class="qrw"><div style="flex:0 0 120px">' + QRMAKE.svg(url, 120) + '</div><div><div class="muted" style="color:#000">' + esc(t('tracking')) + '</div><div class="no">' + esc(r.no) + '</div><div class="muted" style="color:#000">' + esc(fmtDT(r.created)) + '</div></div></div>' +
-    '<div class="rt">' + esc(r.fromName) + ' → ' + esc(r.toName) + '</div><table><tr><td>' + esc(t('sender')) + '</td><td>' + esc((r.sender || {}).n) + ' ' + esc((r.sender || {}).p) + '</td></tr><tr><td>' + esc(t('receiver')) + '</td><td>' + esc((r.rcv || {}).n) + ' ' + esc((r.rcv || {}).p) + '</td></tr><tr><td>' + esc(t('goods')) + '</td><td>' + esc(gl) + (g.desc ? ' - ' + esc(g.desc) : '') + ' · ' + esc(g.qty || 1) + (g.kg ? ' · ' + esc(g.kg) + ' kg' : '') + '</td></tr>' + (r.cod ? '<tr><td>' + esc(t('cod')) + '</td><td><b>' + esc(r.cod) + '</b></td></tr>' : '') + '</table><div style="margin-top:6px;font-size:10px">' + esc(t('trackAt')) + ': ' + esc(TRACK_URL.replace('https://', '')) + '</div></div>';
+    '<div class="rt">' + esc(r.fromName) + ' → ' + esc(r.toName) + '</div><table><tr><td>' + esc(t('sender')) + '</td><td><b>' + esc((r.sender || {}).p) + '</b></td></tr><tr><td>' + esc(t('receiver')) + '</td><td><b>' + esc((r.rcv || {}).p) + '</b></td></tr><tr><td>' + esc(t('goods')) + '</td><td>' + esc(gl) + (g.desc ? ' - ' + esc(g.desc) : '') + ' · ' + esc(g.qty || 1) + (g.kg ? ' · ' + esc(g.kg) + ' kg' : '') + '</td></tr>' + (r.price ? '<tr><td>' + esc(t('fee')) + '</td><td><b>' + esc(r.price) + ' (' + esc(r.paid ? t('paid') : t('unpaid')) + ')</b></td></tr>' : '') + (r.cod ? '<tr><td>' + esc(t('cod')) + '</td><td><b>' + esc(r.cod) + '</b></td></tr>' : '') + '<tr><td>' + esc(t('staffLbl')) + '</td><td>' + esc(r.createdByName || '') + '</td></tr></table><div style="margin-top:6px;font-size:10px">' + esc(t('trackAt')) + ': ' + esc(TRACK_URL.replace('https://', '')) + '</div></div>';
 }
 function labelDlg(r, created) {
   window.__ship = r;
@@ -487,11 +528,11 @@ function labelDlg(r, created) {
 }
 
 /* ---------- scan ---------- */
-var scanner = null, scanLog = [], scanBusy = false, lastCode = '', lastAt = 0;
+var scanner = null, scanLog = [], lastCode = '', lastAt = 0;
 function scanHtml() {
-  var all = isAdmin() ? ST : ['received', 'transit', 'arrived', 'out', 'delivered', 'problem'];
-  return '<div class="card"><h2>' + esc(t('scanTitle')) + '</h2><div class="muted" style="margin-bottom:10px">' + esc(t('scanHelp')) + '</div><div class="fg"><label>' + esc(t('scanAction')) + '</label><select id="scAct">' + all.map(function (s) { return '<option value="' + s + '">' + esc(t(SK[s])) + '</option>'; }).join('') + '</select></div>' +
-    '<button class="btn" id="scBtn" onclick="toggleScan()">' + esc(t('scanStart')) + '</button><div id="reader"></div><div class="fg" style="margin-top:12px"><label>' + esc(t('scanManual')) + '</label><div style="display:flex;gap:8px"><input id="scNo" placeholder="PP-261021-0001" autocapitalize="characters"><button class="btn" style="flex:0 0 auto" onclick="scanManual()">' + esc(t('add')) + '</button></div></div>' +
+  var modes = ['auto', 'out', 'delivered', 'problem'];
+  return '<div class="card"><h2>' + esc(t('scanTitle')) + '</h2><div class="muted" style="margin-bottom:10px">' + esc(t('scanHelp')) + '</div><div class="fg"><label>' + esc(t('scanAction')) + '</label><select id="scAct">' + modes.map(function (s) { return '<option value="' + s + '">' + esc(s === 'auto' ? t('scanAuto') : t(SK[s])) + '</option>'; }).join('') + '</select><div class="muted" style="margin-top:4px">' + esc(t('scanAutoHelp')) + '</div></div>' +
+    '<button class="btn big" id="scBtn" onclick="toggleScan()" style="width:100%">' + esc(t('scanStart')) + '</button><div id="reader"></div><div class="fg" style="margin-top:12px"><label>' + esc(t('scanManual')) + '</label><div style="display:flex;gap:8px"><input id="scNo" placeholder="PP-261021-0001" autocapitalize="characters"><button class="btn" style="flex:0 0 auto" onclick="scanManual()">' + esc(t('add')) + '</button></div></div>' +
     '<div class="sc-log" id="scLog">' + scanLogHtml() + '</div></div>';
 }
 function scanLogHtml() { return scanLog.slice(0, 40).map(function (l) { return '<div class="' + l.c + '">' + esc(l.m) + '</div>'; }).join(''); }
@@ -505,23 +546,38 @@ function startScan() {
   } catch (e) { scanner = null; logScan('y', t('noCamera')); }
 }
 function stopScan() { if (!scanner) return; var s = scanner; scanner = null; try { s.stop().then(function () { s.clear(); }).catch(function () {}); } catch (e) {} var b = $('scBtn'); if (b) b.textContent = t('scanStart'); }
+/* what should this scan do? returns {s: newStatus} or {warn: text} */
+function decideScan(r, mode) {
+  var b = me.branch, st = r.status;
+  if (mode !== 'auto') {
+    if (st === mode) return { warn: t('sAlready') + ' (' + t(SK[mode]) + ')' };
+    if (!isAdmin() && allowedStatuses(r).indexOf(mode) < 0) return { warn: t('wrongBranch') + ' (' + r.fromName + ' → ' + r.toName + ')' };
+    return { s: mode };
+  }
+  if (st === 'delivered') return { warn: t('sAlready') + ' (' + t(SK.delivered) + ')' };
+  if (b === r.to) return (st === 'posted' || st === 'shipping' || st === 'transit' || st === 'problem') ? { s: 'arrived' } : { warn: t('alreadyDest') };
+  var last = histList(r).filter(function (h) { return h.br === b; })[0];
+  if (last && last.s === 'shipping' && st !== 'problem') return { warn: t('alreadyShipped') };
+  if (b === r.from) return { s: 'shipping' };
+  return (last && last.s === 'transit') ? { s: 'shipping' } : { s: 'transit' };
+}
 function handleCode(txt) {
   var no = parseNo(txt), now = Date.now();
   if (!no) { beep(false); logScan('r', t('unknownCode') + ': ' + String(txt).slice(0, 30)); return; }
   if (no === lastCode && now - lastAt < 4000) return; lastCode = no; lastAt = now;
-  var action = ($('scAct') || {}).value || 'received';
+  var mode = ($('scAct') || {}).value || 'auto';
   db.ref('shipments/' + no).once('value').then(function (s) {
     var r = s.val(); if (!r) { beep(false); logScan('r', no + ' · ' + t('notFound')); return; } r.no = no;
-    if (r.status === action) { beep(false); logScan('y', no + ' · ' + t('sAlready') + ' (' + t(SK[action]) + ')'); return; }
-    if (allowedStatuses(r).indexOf(action) < 0) { beep(false); logScan('r', no + ' · ' + t('wrongBranch') + ' (' + r.fromName + ' → ' + r.toName + ')'); return; }
-    return applyStatus(r, action, null).then(function () { beep(true); logScan('g', no + ' · ' + t(SK[action]) + ' ✓ (' + r.fromName + ' → ' + r.toName + ')'); });
+    var d = decideScan(r, mode);
+    if (d.warn) { beep(false); logScan('y', no + ' · ' + d.warn); return; }
+    return applyStatus(r, d.s, null).then(function () { beep(true); logScan('g', no + ' · ' + t(SK[d.s]) + ' ' + bName(me.branch) + ' ✓ (' + r.fromName + ' → ' + r.toName + ')'); });
   }).catch(function () { beep(false); logScan('r', no + ' · ' + t('notFound')); });
 }
 
 /* ---------- bell ---------- */
 function inboxList() { return Object.keys(inbox).map(function (k) { var x = inbox[k]; x.__k = k; return x; }).sort(function (a, b) { return b.at - a.at; }); }
 function renderBell() { var n = inboxList().filter(function (x) { return !x.seen; }).length, b = $('bellN'); if (!b) return; b.textContent = n; b.classList.toggle('hide', !n); }
-function bellText(x) { if (x.k === 'new') return t('newGoods'); if (x.k === 'transit') return t('onWay'); return t(SK[x.s] || 'sReceived'); }
+function bellText(x) { if (x.k === 'new') return t('newGoods'); if (x.k === 'transit' || x.k === 'shipping') return t('onWay'); return t(SK[x.s] || 'sPosted') + (x.by ? ' ' + x.by : ''); }
 function openBell() {
   var l = inboxList().slice(0, 30);
   dlg('<h2>' + esc(t('bell')) + '</h2>' + (l.length ? l.map(function (x) { return '<div class="nl ' + (x.seen ? '' : 'un') + '" onclick="openNote(\'' + esc(x.__k) + '\')"><b>' + esc(bellText(x)) + '</b> · ' + esc(x.no) + '<div class="muted">' + esc(x.from) + ' → ' + esc(x.to) + ' · ' + esc(fmtDT(x.at)) + '</div></div>'; }).join('') : '<div class="muted">' + esc(t('noNotes')) + '</div>') + '<div class="acts"><button class="btn gray" onclick="closeDlg()">' + esc(t('close')) + '</button></div>');
@@ -529,7 +585,7 @@ function openBell() {
 function openNote(k) { var x = inbox[k]; if (x && !x.seen) db.ref('inbox/' + me.branch + '/' + k + '/seen').set(true); if (x) openShip(x.no); }
 
 /* ---------- menu / password ---------- */
-function openMenu() { dlg('<h2>' + esc(me.name) + '</h2><div class="muted" style="margin-bottom:10px">' + esc(me.username) + '</div><div class="acts" style="flex-direction:column"><button class="btn gray" onclick="pwDlg()">' + esc(t('changePw')) + '</button><button class="btn red" onclick="closeDlg();logout()">' + esc(t('logout')) + '</button><button class="btn gray" onclick="closeDlg()">' + esc(t('close')) + '</button></div>'); }
+function openMenu() { dlg('<h2>' + esc(me.name) + '</h2><div class="muted" style="margin-bottom:10px">' + esc(me.username) + '</div><div class="acts" style="flex-direction:column">' + (isAdmin() ? '<button class="btn gray" onclick="userDlg()">' + esc(t('changeUser')) + '</button>' : '') + '<button class="btn gray" onclick="pwDlg()">' + esc(t('changePw')) + '</button><button class="btn red" onclick="closeDlg();logout()">' + esc(t('logout')) + '</button><button class="btn gray" onclick="closeDlg()">' + esc(t('close')) + '</button></div>'); }
 function pwDlg() {
   dlg('<h2>' + esc(t('changePw')) + '</h2><div class="fg"><label>' + esc(t('oldPw')) + '</label><input id="pwO" type="password"></div><div class="fg"><label>' + esc(t('newPw')) + '</label><input id="pwN" type="password"><div class="muted">' + esc(t('pwHint')) + '</div></div><div class="err" id="pwE"></div><div class="acts"><button class="btn gray" onclick="closeDlg()">' + esc(t('cancel')) + '</button><button class="btn" id="pwGo">' + esc(t('save')) + '</button></div>');
   $('pwGo').onclick = function () {
@@ -539,19 +595,36 @@ function pwDlg() {
   };
 }
 
+function userDlg() {
+  dlg('<h2>' + esc(t('changeUser')) + '</h2><div class="muted" style="margin-bottom:8px">' + esc(me.username) + '</div><div class="fg"><label>' + esc(t('newUser')) + '</label><input id="unN" autocapitalize="none" autocorrect="off" spellcheck="false"><div class="muted">' + esc(t('userHint')) + '</div></div><div class="err" id="unE"></div><div class="acts"><button class="btn gray" onclick="closeDlg()">' + esc(t('cancel')) + '</button><button class="btn" id="unGo">' + esc(t('save')) + '</button></div>');
+  $('unGo').onclick = function () {
+    var n = $('unN').value.trim().toLowerCase(); if (!/^[a-z0-9_]{3,20}$/.test(n)) { $('unE').textContent = t('userHint'); return; }
+    $('unGo').disabled = true;
+    db.ref('login/' + n).once('value').then(function (sn) {
+      var cur = sn.val(); if (cur && cur.e !== me.email) { $('unGo').disabled = false; $('unE').textContent = t('userUsed'); return; }
+      var up = {}; up['login/' + n] = { e: me.email }; up['staff/' + me.uid + '/username'] = n; if (me.username && me.username !== n && me.username !== 'admin') up['login/' + me.username] = null;
+      return db.ref().update(up).then(function () { me.username = n; closeDlg(); renderTop(); toast(t('userDone')); });
+    }).catch(function () { $('unGo').disabled = false; $('unE').textContent = t('failed'); });
+  };
+}
+
 /* ---------- branches (admin) ---------- */
 function branchesHtml() {
   var l = Object.keys(branches).sort().map(function (c) { return branches[c]; });
-  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">' + esc(t('branches')) + '</h2><button class="btn small" onclick="branchDlg()">+ ' + esc(t('addBranch')) + '</button></div><table class="tb"><tr><th>' + esc(t('code')) + '</th><th>' + esc(t('name')) + '</th><th>' + esc(t('phone')) + '</th><th></th></tr>' + l.map(function (b) { return '<tr><td><b>' + esc(b.code) + '</b></td><td>' + esc(b.name) + '<div class="muted">' + esc(b.address || '') + '</div></td><td>' + esc(b.phone || '') + '</td><td style="white-space:nowrap"><button class="btn small gray" onclick="branchDlg(\'' + esc(b.code) + '\')">' + esc(t('edit')) + '</button> <button class="btn small ' + (b.active === false ? 'green' : 'red') + '" onclick="branchToggle(\'' + esc(b.code) + '\')">' + esc(b.active === false ? t('turnOn') : t('turnOff')) + '</button></td></tr>'; }).join('') + '</table></div>';
+  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">' + esc(t('branches')) + '</h2><button class="btn small" onclick="branchDlg()">+ ' + esc(t('addBranch')) + '</button></div><table class="tb"><tr><th>' + esc(t('code')) + '</th><th>' + esc(t('name')) + '</th><th></th></tr>' + l.map(function (b) { return '<tr><td><b>' + esc(b.prefix || b.code) + '</b><div class="muted">' + esc(b.code) + '</div></td><td>' + esc(b.name) + '<div class="muted">' + esc(b.phone || '') + ' ' + esc(b.address || '') + '</div>' + (b.active === false ? '<div class="muted" style="color:#b91c1c">' + esc(t('off')) + '</div>' : '') + '</td><td style="white-space:nowrap"><button class="btn small gray" onclick="branchDlg(\'' + esc(b.code) + '\')">' + esc(t('edit')) + '</button> <button class="btn small ' + (b.active === false ? 'green' : 'red') + '" onclick="branchToggle(\'' + esc(b.code) + '\')">' + esc(b.active === false ? t('turnOn') : t('turnOff')) + '</button></td></tr>'; }).join('') + '</table></div>';
 }
 function branchDlg(code) {
   var b = code ? branches[code] : null;
-  dlg('<h2>' + esc(b ? t('editBranch') : t('addBranch')) + '</h2><div class="fg"><label>' + esc(t('code')) + '</label><input id="bgC" maxlength="4" value="' + esc(b ? b.code : '') + '"' + (b ? ' disabled' : '') + ' style="text-transform:uppercase"><div class="muted">' + esc(t('codeHint')) + '</div></div><div class="fg"><label>' + esc(t('name')) + '</label><input id="bgN" value="' + esc(b ? b.name : '') + '"></div><div class="fg"><label>' + esc(t('address')) + '</label><input id="bgA" value="' + esc(b ? b.address || '' : '') + '"></div><div class="fg"><label>' + esc(t('phone')) + '</label><input id="bgP" value="' + esc(b ? b.phone || '' : '') + '"></div><div class="err" id="bgE"></div><div class="acts"><button class="btn gray" onclick="closeDlg()">' + esc(t('cancel')) + '</button><button class="btn" id="bgGo">' + esc(t('save')) + '</button></div>');
+  dlg('<h2>' + esc(b ? t('editBranch') : t('addBranch')) + '</h2><div class="fg"><label>' + esc(t('name')) + '</label><input id="bgN" value="' + esc(b ? b.name : '') + '"></div>' +
+    (b ? '' : '<div class="fg"><label>' + esc(t('code')) + '</label><input id="bgC" maxlength="5" autocapitalize="characters" style="text-transform:uppercase"><div class="muted">' + esc(t('codeHint2')) + '</div></div>') +
+    '<div class="fg"><label>' + esc(t('prefix')) + '</label><input id="bgX" maxlength="5" autocapitalize="characters" style="text-transform:uppercase" value="' + esc(b ? b.prefix || b.code : '') + '"><div class="muted">' + esc(t('prefixHint')) + '</div></div><div class="fg"><label>' + esc(t('address')) + '</label><input id="bgA" value="' + esc(b ? b.address || '' : '') + '"></div><div class="fg"><label>' + esc(t('phone')) + '</label><input id="bgP" value="' + esc(b ? b.phone || '' : '') + '"></div><div class="err" id="bgE"></div><div class="acts"><button class="btn gray" onclick="closeDlg()">' + esc(t('cancel')) + '</button><button class="btn" id="bgGo">' + esc(t('save')) + '</button></div>');
   $('bgGo').onclick = function () {
-    var c = (b ? b.code : $('bgC').value.trim().toUpperCase()), n = $('bgN').value.trim();
-    if (!/^[A-Z0-9]{2,4}$/.test(c) || !n) { $('bgE').textContent = t('needAll'); return; }
+    var c = (b ? b.code : $('bgC').value.trim().toUpperCase()), n = $('bgN').value.trim(), x = ($('bgX').value.trim().toUpperCase()) || c;
+    if (!/^[A-Z0-9]{2,5}$/.test(c) || !n) { $('bgE').textContent = t('needAll'); return; }
+    if (!/^[A-Z0-9]{2,5}$/.test(x)) { $('bgE').textContent = t('prefixHint'); return; }
     if (!b && branches[c]) { $('bgE').textContent = t('codeUsed'); return; }
-    var rec = { code: c, name: n, address: $('bgA').value.trim(), phone: $('bgP').value.trim(), active: b ? b.active !== false : true, at: b ? b.at || Date.now() : Date.now() };
+    if (Object.keys(branches).some(function (k) { return k !== c && ((branches[k].prefix || k) === x); })) { $('bgE').textContent = t('prefixUsed'); return; }
+    var rec = { code: c, prefix: x, name: n, address: $('bgA').value.trim(), phone: $('bgP').value.trim(), active: b ? b.active !== false : true, at: b ? b.at || Date.now() : Date.now() };
     $('bgGo').disabled = true; db.ref('branches/' + c).set(rec).then(function () { closeDlg(); toast(t('saved')); }).catch(function () { $('bgGo').disabled = false; toast(t('failed'), false); });
   };
 }
