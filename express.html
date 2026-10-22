@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="only light">
-<title>Agent - Cambodia Insight Express</title>
+<title>Express - Cambodia Insight</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -203,8 +203,10 @@ label.chk{display:flex;gap:8px;align-items:center;font-weight:700;font-size:14px
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-var LEAF=window.L; var PAGE="agent"; var FBCFG={"apiKey": "AIzaSyCSf1S0LwPx-u88Ck9pmXKnEZGy-GmkVwM", "authDomain": "express-cambodiainsight.firebaseapp.com", "databaseURL": "https://express-cambodiainsight-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "express-cambodiainsight", "storageBucket": "express-cambodiainsight.firebasestorage.app", "messagingSenderId": "686232697697", "appId": "1:686232697697:web:331abc71da33c4e1b32320"};
+var LEAF=window.L; var PAGE="express"; var FBCFG={"apiKey": "AIzaSyCSf1S0LwPx-u88Ck9pmXKnEZGy-GmkVwM", "authDomain": "express-cambodiainsight.firebaseapp.com", "databaseURL": "https://express-cambodiainsight-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "express-cambodiainsight", "storageBucket": "express-cambodiainsight.firebasestorage.app", "messagingSenderId": "686232697697", "appId": "1:686232697697:web:331abc71da33c4e1b32320"};
 /* Small QR code maker (byte mode, error level M, versions 1-10). Returns an SVG string. */
 var QRMAKE = (function () {
   var ECC = [10, 16, 26, 18, 24, 16, 18, 22, 22, 26], BLK = [1, 1, 2, 2, 4, 4, 4, 4, 5, 5];
