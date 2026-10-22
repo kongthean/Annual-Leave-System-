@@ -34,8 +34,9 @@ h3{margin:0 0 10px;font-size:15px}
 #login .role{text-align:center;color:#64748b;margin-bottom:18px;font-weight:600}
 .err{color:#dc2626;font-size:13px;margin:8px 0;min-height:18px}
 div.sticky{position:sticky;top:0;z-index:30}
-header.top{padding:10px 14px;display:flex;align-items:center;gap:10px}
-header.top .ttl{font-weight:800;font-size:16px;flex:1;min-width:0}
+header.top{padding:10px 14px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+header.top .hr{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+header.top .ttl{font-weight:800;font-size:16px;min-width:0;text-align:center}
 header.top .ttl small{display:block;font-weight:500;opacity:.8;font-size:11px}
 header.top select{width:auto;padding:5px 8px;font-size:12px;border-radius:8px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35)}
 header.top select option{color:#0f172a}
@@ -128,10 +129,11 @@ table.tb td{padding:8px;border-bottom:1px solid #eef2f7;vertical-align:middle}
 <div id="app" class="hide">
  <div class="sticky">
  <header class="top grad">
+  <div class="hl"></div>
   <div class="ttl"><span id="hTitle"></span><small id="hSub"></small></div>
-  <select id="hlang"><option value="en">EN</option><option value="km">ខ្មែរ</option><option value="zh">中文</option></select>
+  <div class="hr"><select id="hlang"><option value="en">EN</option><option value="km">ខ្មែរ</option><option value="zh">中文</option></select>
   <button class="ib" id="bellBtn" title="Notifications">&#128276;<span class="badge hide" id="bellN">0</span></button>
-  <button class="ib" id="menuBtn">&#9776;</button>
+  <button class="ib" id="menuBtn">&#9776;</button></div>
  </header>
  <nav class="tabs" id="tabs"></nav>
  </div>
@@ -206,7 +208,7 @@ en: {
  appName:'Cambodia Insight Express', roleExpress:'Administration', roleAgent:'Branch Agent', username:'Username', password:'Password', login:'Log in', logout:'Log out', loggingIn:'Logging in...',
  fee:'Fee', paid:'Paid', unpaid:'Pay at destination', staffLbl:'Staff', prefix:'Tracking prefix', prefixHint:'2-5 letters or numbers used at the start of tracking numbers, e.g. PP. You can change it any time.', prefixUsed:'This prefix is used by another branch.', codeHint2:'2-5 letters or numbers. You choose it now and cannot change it later.', scanAuto:'Automatic (recommended)', scanAutoHelp:'The system decides: Shipping from, Transit at or Arrival at, depending on your branch.', alreadyDest:'Already at the destination. Choose Out for delivery or Customer received.', alreadyShipped:'Already shipped from this branch', phoneOnly:'Phone number', changeUser:'Change my username', newUser:'New username', userDone:'Username changed.', menuHome:'Home', quick:'Quick actions', delivered2:'Delivered',
  errLogin:'Wrong username or password.', errNoAccess:'This account cannot use this page.', errOff:'This account is turned off. Please contact Administration.', errSetup:'This page is not connected to its database yet.', errNet:'Network problem. Please try again.',
- navDash:'Dashboard', navNew:'New shipment', navShip:'Shipments', navScan:'Scan', navBranches:'Branches', navStaff:'Staff',
+ navHome:'Home', navDash:'Dashboard', navNew:'New shipment', navShip:'Shipments', navScan:'Scan', navBranches:'Branches', navStaff:'Staff',
  incoming:'Incoming to my branch', waitLong:'Waiting more than 3 days', total:'Total', recent:'Recent shipments', none:'Nothing here yet.', all:'All', search:'Search number, name or phone', loadMore:'Show more',
  sPosted:'Posting at', sShipping:'Shipping from', sTransit:'Transit at', sArrived:'Arrival at', sOut:'Out for delivery', sDelivered:'Customer received', sProblem:'Problem / Returned',
  from:'From', to:'To', fromBranch:'From branch', toBranch:'To branch', senderName:'Sender name', senderPhone:'Sender phone', receiverName:'Receiver name', receiverPhone:'Receiver phone',
@@ -227,7 +229,7 @@ km: {
  appName:'Cambodia Insight Express', roleExpress:'រដ្ឋបាល', roleAgent:'ភ្នាក់ងារសាខា', username:'ឈ្មោះអ្នកប្រើ', password:'ពាក្យសម្ងាត់', login:'ចូលប្រើ', logout:'ចាកចេញ', loggingIn:'កំពុងចូល...',
  fee:'ថ្លៃសេវា', paid:'បានបង់', unpaid:'បង់នៅទីដល់', staffLbl:'បុគ្គលិក', prefix:'អក្សរនាំមុខលេខតាមដាន', prefixHint:'អក្សរ ឬលេខ ២-៥ តួ ដាក់នៅដើមលេខតាមដាន ឧ. PP។ អាចប្តូរបានគ្រប់ពេល។', prefixUsed:'អក្សរនាំមុខនេះត្រូវបានប្រើដោយសាខាផ្សេង។', codeHint2:'អក្សរ ឬលេខ ២-៥ តួ។ អ្នកជ្រើសរើសឥឡូវ ហើយមិនអាចប្តូរក្រោយបានទេ។', scanAuto:'ស្វ័យប្រវត្តិ (ណែនាំ)', scanAutoHelp:'ប្រព័ន្ធសម្រេចចិត្ត៖ ចេញដំណើរពី ឆ្លងកាត់នៅ ឬមកដល់នៅ តាមសាខារបស់អ្នក។', alreadyDest:'នៅទីដល់រួចហើយ។ សូមជ្រើសរើស កំពុងដឹកជូន ឬ អតិថិជនបានទទួល។', alreadyShipped:'បានចេញពីសាខានេះរួចហើយ', phoneOnly:'លេខទូរស័ព្ទ', changeUser:'ប្តូរឈ្មោះអ្នកប្រើរបស់ខ្ញុំ', newUser:'ឈ្មោះអ្នកប្រើថ្មី', userDone:'បានប្តូរឈ្មោះអ្នកប្រើ។', menuHome:'ទំព័រដើម', quick:'សកម្មភាពរហ័ស', delivered2:'បានប្រគល់',
  errLogin:'ឈ្មោះអ្នកប្រើ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។', errNoAccess:'គណនីនេះមិនអាចប្រើទំព័រនេះបានទេ។', errOff:'គណនីនេះត្រូវបានបិទ។ សូមទាក់ទងរដ្ឋបាល។', errSetup:'ទំព័រនេះមិនទាន់ភ្ជាប់ទៅមូលដ្ឋានទិន្នន័យនៅឡើយទេ។', errNet:'បញ្ហាបណ្តាញ។ សូមព្យាយាមម្តងទៀត។',
- navDash:'ផ្ទាំងគ្រប់គ្រង', navNew:'ដឹកជញ្ជូនថ្មី', navShip:'ការដឹកជញ្ជូន', navScan:'ស្កេន', navBranches:'សាខា', navStaff:'បុគ្គលិក',
+ navHome:'ទំព័រដើម', navDash:'ផ្ទាំងគ្រប់គ្រង', navNew:'ដឹកជញ្ជូនថ្មី', navShip:'ការដឹកជញ្ជូន', navScan:'ស្កេន', navBranches:'សាខា', navStaff:'បុគ្គលិក',
  incoming:'ទំនិញចូលមកសាខាខ្ញុំ', waitLong:'រង់ចាំលើសពី ៣ ថ្ងៃ', total:'សរុប', recent:'ការដឹកជញ្ជូនថ្មីៗ', none:'មិនទាន់មានទិន្នន័យ។', all:'ទាំងអស់', search:'ស្វែងរកលេខ ឈ្មោះ ឬទូរស័ព្ទ', loadMore:'បង្ហាញបន្ថែម',
  sPosted:'ទទួលផ្ញើនៅ', sShipping:'ចេញដំណើរពី', sTransit:'ឆ្លងកាត់នៅ', sArrived:'មកដល់នៅ', sOut:'កំពុងដឹកជូន', sDelivered:'អតិថិជនបានទទួល', sProblem:'បញ្ហា / ត្រឡប់មកវិញ',
  from:'ពី', to:'ទៅ', fromBranch:'ពីសាខា', toBranch:'ទៅសាខា', senderName:'ឈ្មោះអ្នកផ្ញើ', senderPhone:'ទូរស័ព្ទអ្នកផ្ញើ', receiverName:'ឈ្មោះអ្នកទទួល', receiverPhone:'ទូរស័ព្ទអ្នកទទួល',
@@ -248,7 +250,7 @@ zh: {
  appName:'Cambodia Insight Express', roleExpress:'总部管理', roleAgent:'分支网点', username:'用户名', password:'密码', login:'登录', logout:'退出', loggingIn:'登录中...',
  fee:'运费', paid:'已付', unpaid:'到付', staffLbl:'经办人', prefix:'单号前缀', prefixHint:'2-5位字母或数字，用于单号开头，例如 PP。可随时修改。', prefixUsed:'此前缀已被其他网点使用。', codeHint2:'2-5位字母或数字，现在设定，之后不能修改。', scanAuto:'自动(推荐)', scanAutoHelp:'系统根据你所在网点自动判断：从此发出、中转经过或到达网点。', alreadyDest:'已在目的网点。请选择派送中或客户已签收。', alreadyShipped:'已从本网点发出', phoneOnly:'电话号码', changeUser:'修改我的用户名', newUser:'新用户名', userDone:'用户名已修改。', menuHome:'首页', quick:'快捷操作', delivered2:'已签收',
  errLogin:'用户名或密码错误。', errNoAccess:'此账号不能使用本页面。', errOff:'此账号已停用，请联系总部。', errSetup:'本页面尚未连接数据库。', errNet:'网络问题，请重试。',
- navDash:'首页', navNew:'新建运单', navShip:'运单', navScan:'扫码', navBranches:'网点', navStaff:'员工',
+ navHome:'主页', navDash:'数据看板', navNew:'新建运单', navShip:'运单', navScan:'扫码', navBranches:'网点', navStaff:'员工',
  incoming:'到达本网点', waitLong:'超过3天未完成', total:'总数', recent:'最近运单', none:'暂无数据。', all:'全部', search:'搜索单号、姓名或电话', loadMore:'显示更多',
  sPosted:'寄件网点收件', sShipping:'从此发出', sTransit:'中转经过', sArrived:'到达网点', sOut:'派送中', sDelivered:'客户已签收', sProblem:'异常 / 退回',
  from:'发自', to:'寄往', fromBranch:'发出网点', toBranch:'到达网点', senderName:'寄件人', senderPhone:'寄件人电话', receiverName:'收件人', receiverPhone:'收件人电话',
@@ -356,10 +358,11 @@ var ICON = {
   dash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>',
   new: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></svg>',
   ship: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>',
+  stats: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
   scan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M4 12h16"/></svg>',
   branches: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6M9 10h.01M15 10h.01"/></svg>',
   staff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M17 4.5a3.5 3.5 0 0 1 0 7M21.5 20c0-2.6-1.5-4.6-3.7-5.5"/></svg>' };
-function tabsList() { var a = [['dash', 'navDash'], ['new', 'navNew'], ['ship', 'navShip'], ['scan', 'navScan']]; if (isAdmin()) a.push(['branches', 'navBranches'], ['staff', 'navStaff']); return a; }
+function tabsList() { var a = [['dash', 'navHome'], ['stats', 'navDash'], ['new', 'navNew'], ['ship', 'navShip'], ['scan', 'navScan']]; if (isAdmin()) a.push(['branches', 'navBranches'], ['staff', 'navStaff']); return a; }
 function renderTabs() {
   var l = tabsList();
   $('tabs').innerHTML = l.map(function (x) { return '<button class="' + (tab === x[0] ? 'on' : '') + '" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('');
@@ -369,7 +372,8 @@ function go(k) { if (tab === 'scan' && k !== 'scan') stopScan(); tab = k; render
 function renderView() {
   if (!me) return; renderTabs();
   var v = $('view');
-  if (tab === 'dash') v.innerHTML = dashHtml();
+  if (tab === 'dash') v.innerHTML = homeHtml();
+  else if (tab === 'stats') v.innerHTML = dashHtml();
   else if (tab === 'new') { if (!$('nfForm')) v.innerHTML = newHtml(); else return; }
   else if (tab === 'ship') { var keep = document.activeElement && document.activeElement.id === 'fq'; v.innerHTML = shipHtml(); if (keep) { var q = $('fq'); q.focus(); q.setSelectionRange(q.value.length, q.value.length); } }
   else if (tab === 'scan') { if (!$('scAct')) v.innerHTML = scanHtml(); else return; }
@@ -384,15 +388,19 @@ function quickHtml() {
   if (isAdmin()) q.push(['branches', 'navBranches', '#0b4a47,#1b968c'], ['staff', 'navStaff', '#7c3aed,#a78bfa']);
   return '<div class="quick">' + q.map(function (x) { var c = x[2].split(','); return '<button style="background:linear-gradient(135deg,' + c[0] + ' 0%,' + c[1] + ' 100%)" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('') + '</div>';
 }
+function homeHtml() {
+  var h = quickHtml();
+  if (isAdmin() && !Object.keys(branches).length) h = '<div class="card">' + esc(t('setupHint')) + '</div>' + h;
+  return h;
+}
 function dashHtml() {
   var cnt = {}; ST.forEach(function (s) { cnt[s] = 0; }); rows.forEach(function (r) { cnt[r.status] = (cnt[r.status] || 0) + 1; });
   var inc = rows.filter(myIncoming).length, old = rows.filter(function (r) { return r.status !== 'delivered' && Date.now() - r.created > 3 * 864e5; }).length;
-  var h = quickHtml() + '<div class="stats">' + '<div class="stat grad" onclick="gotoShip(\'\',\'in\')"><b>' + inc + '</b><span>' + esc(t('incoming')) + '</span></div>';
+  var h = '<div class="stats">' + '<div class="stat grad" onclick="gotoShip(\'\',\'in\')"><b>' + inc + '</b><span>' + esc(t('incoming')) + '</span></div>';
   ST.forEach(function (s) { h += '<div class="stat" style="background:' + SC[s] + '" onclick="gotoShip(\'' + s + '\')"><b>' + cnt[s] + '</b><span>' + esc(t(SK[s])) + '</span></div>'; });
   h += '<div class="stat" style="background:#475569" onclick="gotoShip(\'\')"><b>' + rows.length + '</b><span>' + esc(t('total')) + '</span></div>';
   h += '<div class="stat" style="background:#b45309" onclick="gotoShip(\'old\')"><b>' + old + '</b><span>' + esc(t('waitLong')) + '</span></div></div>';
   h += '<div class="card"><h3>' + esc(t('recent')) + '</h3>' + (rows.length ? rows.slice(0, 8).map(rowHtml).join('') : '<div class="muted">' + esc(t('none')) + '</div>') + '</div>';
-  if (isAdmin() && !Object.keys(branches).length) h = '<div class="card">' + esc(t('setupHint')) + '</div>' + h;
   return h;
 }
 function gotoShip(s, dir) { shipFilter = { q: '', s: (s === 'old' ? '' : s), b: '', dir: dir || '', old: s === 'old' }; shipLimit = 25; go('ship'); }
