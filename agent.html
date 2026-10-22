@@ -405,16 +405,17 @@ function cleanupOld() {
   var cut = Date.now() - 30 * 864e5, old = rows.filter(function (r) { return r.status === 'delivered' && (r.updated || r.created) < cut; }).slice(0, 60);
   if (!old.length) return;
   var codes0 = Object.keys(branches);
-  Promise.all(codes0.map(function (c) { return db.ref('inbox/' + c).once('value').then(function (x) { return [c, x.val() || {}]; }); })).then(function (arr) {
+  Promise.all(old.map(function (r) { return db.ref('shipments/' + r.no).once('value').then(function (x) { r.__full = x.val() || {}; }).catch(function () { r.__full = {}; }); })).then(function () { return Promise.all(codes0.map(function (c) { return db.ref('inbox/' + c).once('value').then(function (x) { return [c, x.val() || {}]; }); })).then(function (arr) {
     var ib = {}; arr.forEach(function (x) { ib[x[0]] = x[1]; });
     var up = {}, codes = codes0;
     old.forEach(function (r) {
       up['shipments/' + r.no] = null; up['track/' + r.no] = null;
       codes.forEach(function (c) { up['branchIdx/' + c + '/' + r.no] = null; });
+      [normPhone(((r.__full || {}).sender || {}).p), normPhone(((r.__full || {}).rcv || {}).p)].forEach(function (p) { if (!p) return; up['custIdx/' + p + '/' + r.no] = null; ['posted', 'new', 'arrived', 'received'].forEach(function (k) { up['custNote/' + p + '/' + r.no + '-' + k] = null; }); });
       Object.keys(ib).forEach(function (bc) { Object.keys(ib[bc] || {}).forEach(function (k) { if (k.indexOf(r.no + '-') === 0) up['inbox/' + bc + '/' + k] = null; }); });
     });
     return db.ref().update(up).then(function () { toast(t('cleaned', { n: old.length })); });
-  }).catch(function () {});
+  }); }).catch(function () {});
 }
 var prices = {};
 function startData() {
@@ -555,6 +556,17 @@ function statusDlg() {
 }
 /* the one function that changes a status (used by the dialog and by scanning) */
 function idxOf(r, status, now) { return { from: r.from, to: r.to, fromName: r.fromName, toName: r.toName, status: status, created: r.created, updated: now, rp: (r.rcv && r.rcv.p) || r.rp || '', sp: (r.sender && r.sender.p) || r.sp || '', gt: (r.goods && r.goods.type) || r.gt || 'parcel' }; }
+
+/* ---------- customer accounts: parcel list + news per phone number ---------- */
+function normPhone(p) { var d = String(p || '').replace(/[^0-9]/g, ''); if (d.indexOf('00855') === 0) d = d.slice(5); else if (d.indexOf('855') === 0 && d.length >= 11) d = d.slice(3); if (!d) return ''; if (d.charAt(0) !== '0') d = '0' + d; return /^0[0-9]{7,10}$/.test(d) ? d : ''; }
+function custIdxUp(up, r, status, now) {
+  var s = normPhone((r.sender || {}).p), q = normPhone((r.rcv || {}).p);
+  [[s, 's'], [q, 'r']].forEach(function (x) { if (!x[0]) return; up['custIdx/' + x[0] + '/' + r.no] = { no: r.no, from: r.fromName, to: r.toName, st: status, c: r.created || now, u: now, role: (s && s === q) ? 'sr' : x[1] }; });
+}
+function custNoteUp(up, r, kind, who, now) {
+  var p = normPhone(((who === 's' ? r.sender : r.rcv) || {}).p); if (!p) return;
+  up['custNote/' + p + '/' + r.no + '-' + kind] = { k: kind, no: r.no, from: r.fromName, to: r.toName, at: now, seen: false };
+}
 function applyStatus(r, status, note) {
   var now = Date.now(), no = r.no, place = bName(me.branch), hk = db.ref().push().key, up = {};
   var fromC = r.from, toC = r.to;
@@ -562,6 +574,7 @@ function applyStatus(r, status, note) {
   up['shipments/' + no + '/hist/' + hk] = { s: status, at: now, by: me.uid, byName: me.name, br: me.branch, place: place, note: note || null };
   up['track/' + no + '/status'] = status; up['track/' + no + '/updated'] = now;
   up['track/' + no + '/hist/' + hk] = { s: status, at: now, place: place, note: note || null };
+  if (r.sender) { custIdxUp(up, r, status, now); if (status === 'arrived') custNoteUp(up, r, 'arrived', 'r', now); if (status === 'delivered') custNoteUp(up, r, 'received', 's', now); }
   var idx = idxOf(r, status, now);
   [fromC, toC, me.branch].filter(function (c, i, a) { return c && a.indexOf(c) === i; }).forEach(function (c) { up['branchIdx/' + c + '/' + no] = idx; });
   var note2 = { no: no, s: status, from: r.fromName, to: r.toName, at: now, seen: false, by: place };
@@ -657,7 +670,7 @@ function createShipment() {
       hist: {} };
     rec.hist[hk] = { s: 'posted', at: now, by: me.uid, byName: me.name, br: from, place: fromName };
     var idx = idxOf(rec, 'posted', now);
-    var up = {}; up['shipments/' + no] = rec;
+    var up = {}; up['shipments/' + no] = rec; custIdxUp(up, rec, 'posted', now); custNoteUp(up, rec, 'posted', 's', now); custNoteUp(up, rec, 'new', 'r', now);
     up['track/' + no] = { from: fromName, to: toName, status: 'posted', created: now, updated: now, hist: { [hk]: { s: 'posted', at: now, place: fromName } } };
     up['branchIdx/' + from + '/' + no] = idx; up['branchIdx/' + to + '/' + no] = idx;
     up['inbox/' + to + '/' + no + '-new'] = { k: 'new', no: no, s: 'posted', from: fromName, to: toName, at: now, seen: false };
@@ -789,7 +802,7 @@ function callRes(ev) { var r = window.__scr; pop('ask', '...', ''); applyEvent(r
 function destSave() {
   var r = window.__scr, nc = ($('pkDest') || {}).value; if (!nc) return; var nn = bName(nc), now = Date.now(), up = {}, old = r.toName;
   up['shipments/' + r.no + '/to'] = nc; up['shipments/' + r.no + '/toName'] = nn; up['track/' + r.no + '/to'] = nn;
-  var r2 = JSON.parse(JSON.stringify(r)); r2.to = nc; r2.toName = nn; var idx = idxOf(r2, r.status, now);
+  var r2 = JSON.parse(JSON.stringify(r)); r2.to = nc; r2.toName = nn; var idx = idxOf(r2, r.status, now); custIdxUp(up, r2, r.status, now);
   if (r.to !== r.from) up['branchIdx/' + r.to + '/' + r.no] = null;
   [r.from, nc, me.branch].filter(function (c, i, x) { return c && x.indexOf(c) === i; }).forEach(function (c) { up['branchIdx/' + c + '/' + r.no] = idx; });
   up['inbox/' + nc + '/' + r.no + '-new'] = { k: 'new', no: r.no, s: r.status, from: r.fromName, to: nn, at: now, seen: false };
