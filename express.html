@@ -63,9 +63,11 @@ body{padding-bottom:78px}
  nav.bnav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:#64748b;font-size:10px;font-weight:700;padding:6px 2px;border-radius:10px;cursor:pointer}
  nav.bnav button:not(.xtra){display:flex}
  nav.bnav button svg{width:24px;height:24px}
- nav.bnav button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ nav.bnav button span{display:none}
+ nav.bnav button{padding:10px 2px}
+ nav.bnav button svg{width:28px;height:28px}
  nav.bnav button.on{color:#0b1d3a;background:#e8eef8}
- body{padding-bottom:78px}
+ body{padding-bottom:66px}
  main{padding:10px}
  .toast{bottom:90px}
 }
@@ -137,12 +139,36 @@ table.tb td{padding:8px;border-bottom:1px solid #eef2f7;vertical-align:middle}
 .lab .brs{display:flex;gap:10px;margin-top:6px;font-size:10px}.lab .brs>div{flex:1}
 .lab .terms{margin-top:6px;border-top:1px dashed #000;padding-top:4px;font-size:9px}.lab .terms ol{margin:3px 0 0 14px;padding:0}.lab .terms li{margin-bottom:2px}
 .lab .trk{margin-top:4px;font-size:9px;text-align:center}
+.ib svg{width:20px;height:20px;display:block}
+.quick button svg{width:30px;height:30px;padding:11px;box-sizing:content-box;background:rgba(255,255,255,.2);border-radius:50%}
+.quick button{gap:8px}
+.stat{position:relative;overflow:hidden}
+.stat .sti{position:absolute;right:8px;top:8px;opacity:.3}.stat .sti svg{width:30px;height:30px}
+.st .si svg{width:12px;height:12px;vertical-align:-2px;margin-right:4px}
+.ric{flex:0 0 38px;width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff}.ric svg{width:20px;height:20px}
+.bp{position:relative}.bplist{max-height:220px;overflow:auto;border:1px solid #cbd5e1;border-radius:10px;margin-top:4px;background:#fff;text-align:left}
+.bpi{padding:10px 12px;border-bottom:1px solid #eef2f7;cursor:pointer}.bpi:last-child{border-bottom:0}.bpi:hover,.bpi:active{background:#eef2f7}.bpi b{display:block;font-size:14px}.bpi span{font-size:12px;color:#64748b}
+label.chk{display:flex;gap:8px;align-items:center;font-weight:700;font-size:14px}label.chk input{width:auto}
+.blist table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}.blist th,.blist td{border:1px solid #000;padding:5px 7px;text-align:left;vertical-align:top}.blist h2{margin:0 0 4px}
+
+.mapbox{height:230px;border-radius:12px;overflow:hidden;border:1px solid #cbd5e1;background:#e2e8f0}
+.grp{border:1px solid #e2e8f0;border-radius:12px;margin-bottom:8px;overflow:hidden}
+.grp-h{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#f8fafc;cursor:pointer;font-size:15px}
+.grp-h .gic{width:14px;color:#64748b}.grp-h b{flex:1}.grp-h .cnt{background:#0b1d3a;color:#fff;border-radius:12px;padding:2px 9px;font-size:12px;font-weight:700}
+.grp table{margin:0}.pinok{font-size:13px}
 @media print{
  body>*:not(#printArea){display:none!important}
  body{background:#fff}
  #printArea{display:block!important}
- #printArea .lab{max-width:none;width:100%;page-break-inside:avoid;margin:0 0 10mm}
- @page{size:A4;margin:10mm}
+ #printArea{display:flex!important;flex-wrap:wrap;gap:5mm;align-items:flex-start}
+ #printArea .lab{max-width:none;width:94mm;margin:0;padding:2.5mm;font-size:8pt;border-width:1.5px;page-break-inside:avoid}
+ #printArea .lab .co{font-size:10pt}#printArea .lab .cok{font-size:8pt}#printArea .lab .no{font-size:12pt}#printArea .lab .rt{font-size:10pt;margin:2px 0}
+ #printArea .lab .e{font-size:6pt}#printArea .lab .c{font-size:7pt}
+ #printArea .lab .qrbox{flex:0 0 27mm}#printArea .lab .qrbox svg{width:26mm;height:26mm}#printArea .lab .qrw{gap:3mm}
+ #printArea .lab table.rcpt td{padding:1px 3px}
+ #printArea .lab .brs{font-size:7pt}#printArea .lab .terms{font-size:6pt;margin-top:3px;padding-top:2px}#printArea .lab .terms ol{margin-left:10px}#printArea .lab .trk{font-size:6.5pt;margin-top:2px}
+ #printArea .blist{width:100%}
+ @page{size:A4 portrait;margin:8mm}
 }
 </style>
 </head>
@@ -163,8 +189,8 @@ table.tb td{padding:8px;border-bottom:1px solid #eef2f7;vertical-align:middle}
  <header class="top grad">
   <div class="ttl"><span id="hTitle"></span><small id="hSub"></small></div>
   <div class="hr"><select id="hlang"><option value="en">EN</option><option value="km">ខ្មែរ</option><option value="zh">中文</option></select>
-  <button class="ib" id="bellBtn" title="Notifications">&#128276;<span class="badge hide" id="bellN">0</span></button>
-  <button class="ib" id="menuBtn">&#9776;</button></div>
+  <button class="ib" id="bellBtn" title="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="badge hide" id="bellN">0</span></button>
+  <button class="ib" id="menuBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></div>
  </header>
  <nav class="tabs" id="tabs"></nav>
  </div>
@@ -177,8 +203,10 @@ table.tb td{padding:8px;border-bottom:1px solid #eef2f7;vertical-align:middle}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-var PAGE="express"; var FBCFG={"apiKey": "AIzaSyCSf1S0LwPx-u88Ck9pmXKnEZGy-GmkVwM", "authDomain": "express-cambodiainsight.firebaseapp.com", "databaseURL": "https://express-cambodiainsight-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "express-cambodiainsight", "storageBucket": "express-cambodiainsight.firebasestorage.app", "messagingSenderId": "686232697697", "appId": "1:686232697697:web:331abc71da33c4e1b32320"};
+var LEAF=window.L; var PAGE="express"; var FBCFG={"apiKey": "AIzaSyCSf1S0LwPx-u88Ck9pmXKnEZGy-GmkVwM", "authDomain": "express-cambodiainsight.firebaseapp.com", "databaseURL": "https://express-cambodiainsight-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "express-cambodiainsight", "storageBucket": "express-cambodiainsight.firebasestorage.app", "messagingSenderId": "686232697697", "appId": "1:686232697697:web:331abc71da33c4e1b32320"};
 /* Small QR code maker (byte mode, error level M, versions 1-10). Returns an SVG string. */
 var QRMAKE = (function () {
   var ECC = [10, 16, 26, 18, 24, 16, 18, 22, 22, 26], BLK = [1, 1, 2, 2, 4, 4, 4, 4, 5, 5];
@@ -241,7 +269,7 @@ en: {
  errLogin:'Wrong username or password.', errNoAccess:'This account cannot use this page.', errOff:'This account is turned off. Please contact Administration.', errSetup:'This page is not connected to its database yet.', errNet:'Network problem. Please try again.',
  navHome:'Home', navDash:'Dashboard', navNew:'New shipment', navShip:'Shipments', navScan:'Scan', navBranches:'Branches', navStaff:'Staff',
  incoming:'Incoming to my branch', waitLong:'Waiting more than 3 days', total:'Total', recent:'Recent shipments', none:'Nothing here yet.', all:'All', search:'Search number, name or phone', loadMore:'Show more',
- sPosted:'Posting at', sShipping:'Shipping from', sTransit:'Transit at', sArrived:'Arrival at', sOut:'Out for delivery', sDelivered:'Customer received', sProblem:'Problem / Returned', sReturned:'Returned', scanPick:'Choose what you want to scan', scanPickHint:'Tap a button above. The camera opens right away.', scM_ship:'Scan for Shipping', scM_transit:'Scan for Transit', scM_arrive:'Scan for Arrival', scM_contact:'Scan for Contact Customer', scM_recv:'Scan for Customer Received', scM_return:'Scan for Return', scM_dest:'Scan for Change Destination', scanChange:'Change scan type', popOk:'OK', callQ:'Did the customer pick up the call?', callYes:'Yes, picked up', callNo:'No, did not pick up', evCallOk:'Customer picked up the call', evCallNo:'Customer did not pick up the call', evDest:'Destination changed', destTitle:'Change destination', destNew:'New destination', destSave:'Save new destination', currency:'Currency',
+ sPosted:'Posting at', sShipping:'Shipping from', sTransit:'Transit at', sArrived:'Arrival at', sOut:'Out for delivery', sDelivered:'Customer received', sProblem:'Problem / Returned', groupLbl:'Group (province / city)', otherGroup:'Other (type a name)', noGroup:'No group', mapSet:'Map set', mapSection:'Map location (customers can find this branch)', useLoc:'Use my current location', clearLoc:'Clear location', lat:'Latitude', lng:'Longitude', tapMap:'Tap the map to place the pin, or drag the pin.', mapOffline:'The map could not load. You can still type the latitude and longitude.', branchNameUsed:'A branch with this name already exists.', nameUsed:'A staff member with this name already exists.', cantDelAdmin:'Administration accounts cannot be deleted.', searchBranches:'Search branches...', locFail:'Could not get your location.', badLoc:'Enter both latitude and longitude correctly.', del:'Delete', deleted:'Deleted', cantDelHO:'Head Office cannot be deleted.', cantDelSelf:'You cannot delete your own account.', branchHasShip:'This branch has shipments, so it cannot be deleted. Turn it off instead.', branchHasStaff:'This branch still has staff accounts. Delete or move them first.', delBranchQ:'Delete branch {n}? This cannot be undone.', delStaffQ:'Delete account {n}? This person will no longer be able to log in. This cannot be undone.', searchBranch:'Search branch name...', autoHint:'Code and prefix are made automatically from the name. You can change them.', phoneLines:'Phone numbers (up to 6)', phoneN:'Phone {n}', printBranchList:'Print branch list', blHelp:'Prints every branch with its phone numbers, address and agent usernames.', blNewPw:'Also create new passwords for all agents', blNewPwWarn:'Old agent passwords will stop working. The new ones are printed on the list only once.', blNoPw:'Passwords are not stored, so write them in by hand', blBranch:'Branch', blPhone:'Phone', working:'Please wait...', cleaned:'Removed {n} delivered shipments older than 30 days', sReturned:'Returned', scanPick:'Choose what you want to scan', scanPickHint:'Tap a button above. The camera opens right away.', scM_ship:'Scan for Shipping', scM_transit:'Scan for Transit', scM_arrive:'Scan for Arrival', scM_contact:'Scan for Contact Customer', scM_recv:'Scan for Customer Received', scM_return:'Scan for Return', scM_dest:'Scan for Change Destination', scanChange:'Change scan type', popOk:'OK', callQ:'Did the customer pick up the call?', callYes:'Yes, picked up', callNo:'No, did not pick up', evCallOk:'Customer picked up the call', evCallNo:'Customer did not pick up the call', evDest:'Destination changed', destTitle:'Change destination', destNew:'New destination', destSave:'Save new destination', currency:'Currency',
  from:'From', to:'To', fromBranch:'From branch', toBranch:'To branch', senderName:'Sender name', senderPhone:'Sender phone', receiverName:'Receiver name', receiverPhone:'Receiver phone',
  goodsType:'Type of goods', gDoc:'Documents', gParcel:'Parcel', gFragile:'Fragile', gOther:'Other', goodsDesc:'Description', qty:'Pieces', kg:'Weight (kg)', price:'Price', cod:'Cash on delivery', note:'Note', optional:'optional',
  create:'Create shipment', creating:'Creating...', needAll:'Please fill the required fields.', needBranch:'Please choose the destination branch.', sameBranch:'From and To must be different.',
@@ -262,7 +290,7 @@ km: {
  errLogin:'ឈ្មោះអ្នកប្រើ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។', errNoAccess:'គណនីនេះមិនអាចប្រើទំព័រនេះបានទេ។', errOff:'គណនីនេះត្រូវបានបិទ។ សូមទាក់ទងរដ្ឋបាល។', errSetup:'ទំព័រនេះមិនទាន់ភ្ជាប់ទៅមូលដ្ឋានទិន្នន័យនៅឡើយទេ។', errNet:'បញ្ហាបណ្តាញ។ សូមព្យាយាមម្តងទៀត។',
  navHome:'ទំព័រដើម', navDash:'ផ្ទាំងគ្រប់គ្រង', navNew:'ដឹកជញ្ជូនថ្មី', navShip:'ការដឹកជញ្ជូន', navScan:'ស្កេន', navBranches:'សាខា', navStaff:'បុគ្គលិក',
  incoming:'ទំនិញចូលមកសាខាខ្ញុំ', waitLong:'រង់ចាំលើសពី ៣ ថ្ងៃ', total:'សរុប', recent:'ការដឹកជញ្ជូនថ្មីៗ', none:'មិនទាន់មានទិន្នន័យ។', all:'ទាំងអស់', search:'ស្វែងរកលេខ ឈ្មោះ ឬទូរស័ព្ទ', loadMore:'បង្ហាញបន្ថែម',
- sPosted:'ទទួលផ្ញើនៅ', sShipping:'ចេញដំណើរពី', sTransit:'ឆ្លងកាត់នៅ', sArrived:'មកដល់នៅ', sOut:'កំពុងដឹកជូន', sDelivered:'អតិថិជនបានទទួល', sProblem:'បញ្ហា / ត្រឡប់មកវិញ', sReturned:'ត្រឡប់ទំនិញវិញ', scanPick:'ជ្រើសរើសប្រភេទស្កេន', scanPickHint:'ចុចប៊ូតុងខាងលើ កាមេរ៉ាបើកភ្លាម។', scM_ship:'ស្កេនសម្រាប់ចេញដំណើរ', scM_transit:'ស្កេនសម្រាប់ឆ្លងកាត់', scM_arrive:'ស្កេនសម្រាប់មកដល់', scM_contact:'ស្កេនសម្រាប់ទាក់ទងអតិថិជន', scM_recv:'ស្កេនសម្រាប់អតិថិជនទទួលបាន', scM_return:'ស្កេនសម្រាប់ត្រឡប់ទំនិញ', scM_dest:'ស្កេនសម្រាប់ប្ដូរគោលដៅ', scanChange:'ប្ដូរប្រភេទស្កេន', popOk:'យល់ព្រម', callQ:'តើអតិថិជនបានលើកទូរស័ព្ទឬទេ?', callYes:'បានលើក', callNo:'មិនលើក', evCallOk:'អតិថិជនបានលើកទូរស័ព្ទ', evCallNo:'អតិថិជនមិនលើកទូរស័ព្ទ', evDest:'បានប្ដូរគោលដៅ', destTitle:'ប្ដូរគោលដៅ', destNew:'គោលដៅថ្មី', destSave:'រក្សាទុកគោលដៅថ្មី', currency:'រូបិយប័ណ្ណ',
+ sPosted:'ទទួលផ្ញើនៅ', sShipping:'ចេញដំណើរពី', sTransit:'ឆ្លងកាត់នៅ', sArrived:'មកដល់នៅ', sOut:'កំពុងដឹកជូន', sDelivered:'អតិថិជនបានទទួល', sProblem:'បញ្ហា / ត្រឡប់មកវិញ', groupLbl:'ក្រុម (ខេត្ត / ក្រុង)', otherGroup:'ផ្សេងៗ (វាយឈ្មោះ)', noGroup:'គ្មានក្រុម', mapSet:'បានកំណត់ផែនទី', mapSection:'ទីតាំងផែនទី (អតិថិជនអាចរកសាខានេះឃើញ)', useLoc:'ប្រើទីតាំងបច្ចុប្បន្នរបស់ខ្ញុំ', clearLoc:'លុបទីតាំង', lat:'រយៈទទឹង', lng:'រយៈបណ្តោយ', tapMap:'ចុចលើផែនទីដើម្បីដាក់ម្ជុល ឬអូសម្ជុល។', mapOffline:'មិនអាចបើកផែនទីបានទេ។ អ្នកនៅតែអាចវាយរយៈទទឹង និងរយៈបណ្តោយ។', branchNameUsed:'មានសាខាឈ្មោះនេះរួចហើយ។', nameUsed:'មានបុគ្គលិកឈ្មោះនេះរួចហើយ។', cantDelAdmin:'មិនអាចលុបគណនីអ្នកគ្រប់គ្រងបានទេ។', searchBranches:'ស្វែងរកសាខា...', locFail:'មិនអាចទទួលបានទីតាំងរបស់អ្នកទេ។', badLoc:'សូមបញ្ចូលរយៈទទឹង និងរយៈបណ្តោយឱ្យបានត្រឹមត្រូវ។', del:'លុប', deleted:'បានលុប', cantDelHO:'មិនអាចលុបការិយាល័យកណ្តាលបានទេ។', cantDelSelf:'អ្នកមិនអាចលុបគណនីខ្លួនឯងបានទេ។', branchHasShip:'សាខានេះមានការដឹកជញ្ជូន ដូច្នេះមិនអាចលុបបានទេ។ សូមបិទវាជំនួសវិញ។', branchHasStaff:'សាខានេះនៅមានគណនីបុគ្គលិក។ សូមលុប ឬប្តូរពួកគេជាមុន។', delBranchQ:'លុបសាខា {n}? មិនអាចត្រឡប់វិញបានទេ។', delStaffQ:'លុបគណនី {n}? បុគ្គលិកនេះនឹងមិនអាចចូលប្រើបានទៀតទេ។ មិនអាចត្រឡប់វិញបានទេ។', searchBranch:'ស្វែងរកឈ្មោះសាខា...', autoHint:'កូដ និងអក្សរខាងមុខលេខ ត្រូវបានបង្កើតដោយស្វ័យប្រវត្តិពីឈ្មោះ។ អ្នកអាចកែបាន។', phoneLines:'លេខទូរស័ព្ទ (រហូតដល់ ៦)', phoneN:'ទូរស័ព្ទ {n}', printBranchList:'បោះពុម្ពបញ្ជីសាខា', blHelp:'បោះពុម្ពសាខាទាំងអស់ជាមួយលេខទូរស័ព្ទ អាសយដ្ឋាន និងឈ្មោះគណនីភ្នាក់ងារ។', blNewPw:'បង្កើតពាក្យសម្ងាត់ថ្មីសម្រាប់ភ្នាក់ងារទាំងអស់ផង', blNewPwWarn:'ពាក្យសម្ងាត់ចាស់របស់ភ្នាក់ងារនឹងឈប់ប្រើបាន។ ពាក្យសម្ងាត់ថ្មីបោះពុម្ពតែម្តងនៅលើបញ្ជី។', blNoPw:'ពាក្យសម្ងាត់មិនត្រូវបានរក្សាទុកទេ សូមសរសេរដោយដៃ', blBranch:'សាខា', blPhone:'ទូរស័ព្ទ', working:'សូមរង់ចាំ...', cleaned:'បានលុបការដឹកជញ្ជូនដែលបានទទួលរួចលើសពី ៣០ថ្ងៃ ចំនួន {n}', sReturned:'ត្រឡប់ទំនិញវិញ', scanPick:'ជ្រើសរើសប្រភេទស្កេន', scanPickHint:'ចុចប៊ូតុងខាងលើ កាមេរ៉ាបើកភ្លាម។', scM_ship:'ស្កេនសម្រាប់ចេញដំណើរ', scM_transit:'ស្កេនសម្រាប់ឆ្លងកាត់', scM_arrive:'ស្កេនសម្រាប់មកដល់', scM_contact:'ស្កេនសម្រាប់ទាក់ទងអតិថិជន', scM_recv:'ស្កេនសម្រាប់អតិថិជនទទួលបាន', scM_return:'ស្កេនសម្រាប់ត្រឡប់ទំនិញ', scM_dest:'ស្កេនសម្រាប់ប្ដូរគោលដៅ', scanChange:'ប្ដូរប្រភេទស្កេន', popOk:'យល់ព្រម', callQ:'តើអតិថិជនបានលើកទូរស័ព្ទឬទេ?', callYes:'បានលើក', callNo:'មិនលើក', evCallOk:'អតិថិជនបានលើកទូរស័ព្ទ', evCallNo:'អតិថិជនមិនលើកទូរស័ព្ទ', evDest:'បានប្ដូរគោលដៅ', destTitle:'ប្ដូរគោលដៅ', destNew:'គោលដៅថ្មី', destSave:'រក្សាទុកគោលដៅថ្មី', currency:'រូបិយប័ណ្ណ',
  from:'ពី', to:'ទៅ', fromBranch:'ពីសាខា', toBranch:'ទៅសាខា', senderName:'ឈ្មោះអ្នកផ្ញើ', senderPhone:'ទូរស័ព្ទអ្នកផ្ញើ', receiverName:'ឈ្មោះអ្នកទទួល', receiverPhone:'ទូរស័ព្ទអ្នកទទួល',
  goodsType:'ប្រភេទទំនិញ', gDoc:'ឯកសារ', gParcel:'កញ្ចប់', gFragile:'ងាយបែក', gOther:'ផ្សេងៗ', goodsDesc:'ការពិពណ៌នា', qty:'ចំនួនកញ្ចប់', kg:'ទម្ងន់ (គីឡូ)', price:'តម្លៃ', cod:'ទូទាត់ពេលទទួល', note:'កំណត់ចំណាំ', optional:'ស្រេចចិត្ត',
  create:'បង្កើតការដឹកជញ្ជូន', creating:'កំពុងបង្កើត...', needAll:'សូមបំពេញព័ត៌មានដែលចាំបាច់។', needBranch:'សូមជ្រើសរើសសាខាទទួល។', sameBranch:'សាខាផ្ញើ និងទទួលត្រូវខុសគ្នា។',
@@ -283,7 +311,7 @@ zh: {
  errLogin:'用户名或密码错误。', errNoAccess:'此账号不能使用本页面。', errOff:'此账号已停用，请联系总部。', errSetup:'本页面尚未连接数据库。', errNet:'网络问题，请重试。',
  navHome:'主页', navDash:'数据看板', navNew:'新建运单', navShip:'运单', navScan:'扫码', navBranches:'网点', navStaff:'员工',
  incoming:'到达本网点', waitLong:'超过3天未完成', total:'总数', recent:'最近运单', none:'暂无数据。', all:'全部', search:'搜索单号、姓名或电话', loadMore:'显示更多',
- sPosted:'寄件网点收件', sShipping:'从此发出', sTransit:'中转经过', sArrived:'到达网点', sOut:'派送中', sDelivered:'客户已签收', sProblem:'异常 / 退回', sReturned:'已退回', scanPick:'选择扫描类型', scanPickHint:'点击上方按钮，相机会立即打开。', scM_ship:'扫描发出', scM_transit:'扫描中转', scM_arrive:'扫描到达', scM_contact:'扫描联系客户', scM_recv:'扫描客户签收', scM_return:'扫描退回', scM_dest:'扫描更改目的地', scanChange:'更换扫描类型', popOk:'确定', callQ:'客户接电话了吗？', callYes:'已接听', callNo:'未接听', evCallOk:'客户已接听电话', evCallNo:'客户未接电话', evDest:'已更改目的地', destTitle:'更改目的地', destNew:'新目的地', destSave:'保存新目的地', currency:'币种',
+ sPosted:'寄件网点收件', sShipping:'从此发出', sTransit:'中转经过', sArrived:'到达网点', sOut:'派送中', sDelivered:'客户已签收', sProblem:'异常 / 退回', groupLbl:'分组（省 / 市）', otherGroup:'其他（输入名称）', noGroup:'未分组', mapSet:'已设置地图', mapSection:'地图位置（客户可找到此网点）', useLoc:'使用我当前的位置', clearLoc:'清除位置', lat:'纬度', lng:'经度', tapMap:'点击地图放置图钉，或拖动图钉。', mapOffline:'地图无法加载，仍可手动输入经纬度。', branchNameUsed:'已存在同名网点。', nameUsed:'已存在同名员工。', cantDelAdmin:'管理员账号不能删除。', searchBranches:'搜索网点...', locFail:'无法获取你的位置。', badLoc:'请正确输入纬度和经度。', del:'删除', deleted:'已删除', cantDelHO:'总部不能删除。', cantDelSelf:'不能删除自己的账号。', branchHasShip:'此网点有运单，无法删除，请改为停用。', branchHasStaff:'此网点仍有员工账号，请先删除或调走。', delBranchQ:'删除网点 {n}？此操作无法撤销。', delStaffQ:'删除账号 {n}？该员工将无法再登录，此操作无法撤销。', searchBranch:'搜索网点名称...', autoHint:'代码和前缀会根据名称自动生成，可以修改。', phoneLines:'电话号码（最多6个）', phoneN:'电话 {n}', printBranchList:'打印网点列表', blHelp:'打印所有网点的电话、地址和代理账号。', blNewPw:'同时为所有代理生成新密码', blNewPwWarn:'代理的旧密码将失效。新密码只会在此列表上打印一次。', blNoPw:'密码不会被保存，请手写', blBranch:'网点', blPhone:'电话', working:'请稍候...', cleaned:'已删除 {n} 条超过30天的已签收运单', sReturned:'已退回', scanPick:'选择扫描类型', scanPickHint:'点击上方按钮，相机会立即打开。', scM_ship:'扫描发出', scM_transit:'扫描中转', scM_arrive:'扫描到达', scM_contact:'扫描联系客户', scM_recv:'扫描客户签收', scM_return:'扫描退回', scM_dest:'扫描更改目的地', scanChange:'更换扫描类型', popOk:'确定', callQ:'客户接电话了吗？', callYes:'已接听', callNo:'未接听', evCallOk:'客户已接听电话', evCallNo:'客户未接电话', evDest:'已更改目的地', destTitle:'更改目的地', destNew:'新目的地', destSave:'保存新目的地', currency:'币种',
  from:'发自', to:'寄往', fromBranch:'发出网点', toBranch:'到达网点', senderName:'寄件人', senderPhone:'寄件人电话', receiverName:'收件人', receiverPhone:'收件人电话',
  goodsType:'货物类型', gDoc:'文件', gParcel:'包裹', gFragile:'易碎品', gOther:'其他', goodsDesc:'说明', qty:'件数', kg:'重量(公斤)', price:'价格', cod:'货到付款', note:'备注', optional:'可选',
  create:'创建运单', creating:'创建中...', needAll:'请填写必填项。', needBranch:'请选择到达网点。', sameBranch:'发出和到达网点不能相同。',
@@ -303,6 +331,8 @@ var MAILD = 'express.cambodiainsight.net', TRACK_URL = 'https://cambodiainsight.
 var ST = ['posted', 'shipping', 'transit', 'arrived', 'out', 'delivered', 'returned', 'problem'];
 var SC = { posted: '#2563eb', shipping: '#4f46e5', transit: '#7c3aed', arrived: '#0d9488', out: '#d97706', delivered: '#16a34a', returned: '#be185d', problem: '#dc2626' };
 var SK = { posted: 'sPosted', shipping: 'sShipping', transit: 'sTransit', arrived: 'sArrived', out: 'sOut', delivered: 'sDelivered', returned: 'sReturned', problem: 'sProblem' };
+var SIC = { posted: '<path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/>', shipping: '<rect x="1" y="6" width="14" height="10" rx="1"/><path d="M15 9h4l3 3v4h-7"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>', transit: '<path d="M7 7h13l-3-3M17 17H4l3 3"/>', arrived: '<path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>', out: '<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17l4-8h4l4 8M10 9H7"/>', delivered: '<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>', returned: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>', problem: '<path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18h.01"/>' };
+function stIcon(s) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (SIC[s] || SIC.posted) + '</svg>'; }
 var EVK = { call_ok: 'evCallOk', call_no: 'evCallNo', dest: 'evDest' };
 function fmtMoney(v, cur) { var n = String(v == null ? '' : v).replace(/,/g, ''), x = parseFloat(n); if (isNaN(x)) return String(v); var s = cur === 'KHR' ? Math.round(x).toLocaleString('en-US') + ' \u17db' : x.toLocaleString('en-US', { minimumFractionDigits: (x % 1 ? 2 : 0), maximumFractionDigits: 2 }) + ' $'; return s; }
 var LANG = 'en'; try { LANG = localStorage.getItem('xpLang') || 'en'; } catch (e) {} if (!L[LANG]) LANG = 'en';
@@ -311,7 +341,7 @@ function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function
 function $(id) { return document.getElementById(id); }
 function fmtDT(ts) { if (!ts) return ''; try { return new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Phnom_Penh', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(ts)); } catch (e) { return new Date(ts).toISOString(); } }
 function ymd(ts) { var p = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Phnom_Penh', year: '2-digit', month: '2-digit', day: '2-digit' }).formatToParts(new Date(ts || Date.now())), o = {}; p.forEach(function (x) { o[x.type] = x.value; }); return o.year + o.month + o.day; }
-function stBadge(s) { return '<span class="st" style="background:' + (SC[s] || '#64748b') + '">' + esc(t(SK[s] || 'sPosted')) + '</span>'; }
+function stBadge(s) { return '<span class="st" style="background:' + (SC[s] || '#64748b') + '"><i class="si">' + stIcon(s) + '</i>' + esc(t(SK[s] || 'sPosted')) + '</span>'; }
 function toast(msg, ok) { var d = document.createElement('div'); d.className = 'toast ' + (ok === false ? 'bad' : 'ok'); d.textContent = msg; document.body.appendChild(d); setTimeout(function () { d.remove(); }, 2600); }
 function beep(good) { try { var A = window.AudioContext || window.webkitAudioContext, c = new A(), o = c.createOscillator(), g = c.createGain(); o.frequency.value = good ? 880 : 220; g.gain.value = .15; o.connect(g); g.connect(c.destination); o.start(); setTimeout(function () { o.stop(); c.close(); }, good ? 120 : 350); } catch (e) {} }
 /* in-page dialogs */
@@ -370,14 +400,32 @@ function boot() {
     }).catch(function () { auth.signOut(); $('lerr').textContent = t('errNoAccess'); });
   });
 }
+var cleaned = false;
+function cleanupOld() {
+  if (cleaned || !isAdmin() || !rows.length) return; cleaned = true;
+  var cut = Date.now() - 30 * 864e5, old = rows.filter(function (r) { return r.status === 'delivered' && (r.updated || r.created) < cut; }).slice(0, 60);
+  if (!old.length) return;
+  var codes0 = Object.keys(branches);
+  Promise.all(codes0.map(function (c) { return db.ref('inbox/' + c).once('value').then(function (x) { return [c, x.val() || {}]; }); })).then(function (arr) {
+    var ib = {}; arr.forEach(function (x) { ib[x[0]] = x[1]; });
+    var up = {}, codes = codes0;
+    old.forEach(function (r) {
+      up['shipments/' + r.no] = null; up['track/' + r.no] = null;
+      codes.forEach(function (c) { up['branchIdx/' + c + '/' + r.no] = null; });
+      Object.keys(ib).forEach(function (bc) { Object.keys(ib[bc] || {}).forEach(function (k) { if (k.indexOf(r.no + '-') === 0) up['inbox/' + bc + '/' + k] = null; }); });
+    });
+    return db.ref().update(up).then(function () { toast(t('cleaned', { n: old.length })); });
+  }).catch(function () {});
+}
 function startData() {
   listen(db.ref('branches'), function (s) {
     branches = s.val() || {};
     if (isAdmin() && !Object.keys(branches).length) { db.ref('branches/HO').set({ code: 'HO', prefix: 'HO', name: 'Head Office', address: '', phone: '', active: true, at: Date.now() }).then(function () { toast(t('hoCreated')); }); }
-    renderTop(); renderView();
+    reconcilePublic(); renderTop(); renderView();
   });
   if (isAdmin()) listen(db.ref('shipments').orderByChild('created').limitToLast(1500), function (s) {
     var o = s.val() || {}; rows = Object.keys(o).map(function (k) { var r = o[k]; return { no: k, from: r.from, to: r.to, fromName: r.fromName, toName: r.toName, status: r.status, created: r.created, updated: r.updated || r.created, rp: r.rcv && r.rcv.p, sp: r.sender && r.sender.p, gt: r.goods && r.goods.type }; }); rows.sort(function (a, b) { return b.created - a.created; }); renderView();
+    cleanupOld();
   });
   else listen(db.ref('branchIdx/' + me.branch), function (s) {
     var o = s.val() || {}; rows = Object.keys(o).map(function (k) { var r = o[k]; r.no = k; r.updated = r.updated || r.created; return r; }); rows.sort(function (a, b) { return b.created - a.created; }); renderView();
@@ -399,7 +447,7 @@ function tabsList() { var a = [['dash', 'navHome'], ['stats', 'navDash'], ['new'
 function renderTabs() {
   var l = tabsList();
   $('tabs').innerHTML = l.filter(function (x) { return x[0] !== 'scan'; }).map(function (x) { return '<button class="' + (tab === x[0] ? 'on' : '') + '" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('');
-  $('bnav').innerHTML = l.map(function (x) { return '<button class="' + (x[0] === 'scan' ? 'xtra ' : '') + (tab === x[0] ? 'on' : '') + '" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('');
+  $('bnav').innerHTML = l.map(function (x) { return '<button title="' + esc(t(x[1])) + '" aria-label="' + esc(t(x[1])) + '" class="' + (x[0] === 'scan' ? 'xtra ' : '') + (tab === x[0] ? 'on' : '') + '" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('');
 }
 function go(k) { if (tab === 'scan') { stopScan(); closePop(); } if (k === 'scan') { scanMode = null; var vv = $('view'); if (vv) vv.innerHTML = ''; } tab = k; renderTabs(); renderView(); window.scrollTo(0, 0); }
 function renderView() {
@@ -410,7 +458,7 @@ function renderView() {
   else if (tab === 'new') { if (!$('nfForm')) v.innerHTML = newHtml(); else return; }
   else if (tab === 'ship') { var keep = document.activeElement && document.activeElement.id === 'fq'; v.innerHTML = shipHtml(); if (keep) { var q = $('fq'); q.focus(); q.setSelectionRange(q.value.length, q.value.length); } }
   else if (tab === 'scan') { if (!$('scRoot')) v.innerHTML = scanHtml(); else return; }
-  else if (tab === 'branches') v.innerHTML = branchesHtml();
+  else if (tab === 'branches') { v.innerHTML = branchesHtml(); brRender(); }
   else if (tab === 'staff') { if (!$('stList')) v.innerHTML = '<div id="stList"></div>'; loadStaff(); }
 }
 
@@ -430,14 +478,14 @@ function dashHtml() {
   var cnt = {}; ST.forEach(function (s) { cnt[s] = 0; }); rows.forEach(function (r) { cnt[r.status] = (cnt[r.status] || 0) + 1; });
   var inc = rows.filter(myIncoming).length, old = rows.filter(function (r) { return r.status !== 'delivered' && Date.now() - r.created > 3 * 864e5; }).length;
   var h = '<div class="stats">' + '<div class="stat grad" onclick="gotoShip(\'\',\'in\')"><b>' + inc + '</b><span>' + esc(t('incoming')) + '</span></div>';
-  ST.forEach(function (s) { h += '<div class="stat" style="background:' + SC[s] + '" onclick="gotoShip(\'' + s + '\')"><b>' + cnt[s] + '</b><span>' + esc(t(SK[s])) + '</span></div>'; });
+  ST.forEach(function (s) { h += '<div class="stat" style="background:' + SC[s] + '" onclick="gotoShip(\'' + s + '\')"><i class="sti">' + stIcon(s) + '</i><b>' + cnt[s] + '</b><span>' + esc(t(SK[s])) + '</span></div>'; });
   h += '<div class="stat" style="background:#475569" onclick="gotoShip(\'\')"><b>' + rows.length + '</b><span>' + esc(t('total')) + '</span></div>';
   h += '<div class="stat" style="background:#b45309" onclick="gotoShip(\'old\')"><b>' + old + '</b><span>' + esc(t('waitLong')) + '</span></div></div>';
   h += '<div class="card"><h3>' + esc(t('recent')) + '</h3>' + (rows.length ? rows.slice(0, 8).map(rowHtml).join('') : '<div class="muted">' + esc(t('none')) + '</div>') + '</div>';
   return h;
 }
 function gotoShip(s, dir) { shipFilter = { q: '', s: (s === 'old' ? '' : s), b: '', dir: dir || '', old: s === 'old' }; shipLimit = 25; go('ship'); }
-function rowHtml(r) { return '<div class="row" onclick="openShip(\'' + esc(r.no) + '\')"><div class="main"><div class="no">' + esc(r.no) + '</div><div class="sub">' + esc(r.fromName || bName(r.from)) + ' → ' + esc(r.toName || bName(r.to)) + ' · ' + esc(r.rp || '') + '</div><div class="sub">' + esc(fmtDT(r.updated)) + '</div></div>' + stBadge(r.status) + '</div>'; }
+function rowHtml(r) { return '<div class="row" onclick="openShip(\'' + esc(r.no) + '\')"><div class="ric" style="background:' + (SC[r.status] || '#64748b') + '">' + stIcon(r.status) + '</div><div class="main"><div class="no">' + esc(r.no) + '</div><div class="sub">' + esc(r.fromName || bName(r.from)) + ' → ' + esc(r.toName || bName(r.to)) + ' · ' + esc(r.rp || '') + '</div><div class="sub">' + esc(fmtDT(r.updated)) + '</div></div>' + stBadge(r.status) + '</div>'; }
 
 /* ---------- shipments list ---------- */
 function filteredRows() {
@@ -513,12 +561,23 @@ function applyStatus(r, status, note) {
 }
 
 /* ---------- new shipment ---------- */
+var BP = {};
+function bpHtml(id, list) { BP[id] = list; return '<div class="bp"><input class="bpq" id="' + id + 'Q" placeholder="' + esc(t('searchBranch')) + '" autocomplete="off" oninput="bpFilter(\'' + id + '\')" onfocus="bpFilter(\'' + id + '\')"><input type="hidden" id="' + id + '" value=""><div class="bplist hide" id="' + id + 'L"></div></div>'; }
+function bpFilter(id) {
+  var q = ($(id + 'Q').value || '').toLowerCase().trim(), sel = $(id).value, nm = sel ? bName(sel) : '';
+  if (sel && $(id + 'Q').value !== nm) { $(id).value = ''; }
+  var l = (BP[id] || []).filter(function (b) { return !q || (b.name + ' ' + b.code + ' ' + (b.prefix || '') + ' ' + (b.address || '') + ' ' + (b.phone || '') + ' ' + (b.group || '') + ' ' + provName(b.group)).toLowerCase().indexOf(q) >= 0; }).slice(0, 40);
+  var el = $(id + 'L'); el.classList.remove('hide');
+  el.innerHTML = l.length ? l.map(function (b) { return '<div class="bpi" onclick="bpPick(\'' + id + '\',\'' + esc(b.code) + '\')"><b>' + esc(b.name) + '</b><span>' + esc(b.code) + (b.group ? ' · ' + esc(provName(b.group)) : '') + (b.address ? ' · ' + esc(b.address) : '') + '</span></div>'; }).join('') : '<div class="bpi"><span>' + esc(t('none')) + '</span></div>';
+}
+function bpPick(id, code) { $(id).value = code; $(id + 'Q').value = bName(code); $(id + 'L').classList.add('hide'); }
+function bpSet(id, list) { BP[id] = list; var v = $(id).value; if (v && !list.some(function (b) { return b.code === v; })) { $(id).value = ''; $(id + 'Q').value = ''; } }
 function branchOpts(sel, skip) { return activeBranches().filter(function (b) { return b.code !== skip; }).map(function (b) { return '<option value="' + esc(b.code) + '"' + (b.code === sel ? ' selected' : '') + '>' + esc(b.name) + '</option>'; }).join(''); }
 function newHtml() {
   var fromSel = isAdmin() ? (branches.HO ? 'HO' : (activeBranches()[0] || {}).code) : me.branch;
   var h = '<div class="card"><h2>' + esc(t('navNew')) + '</h2><form id="nfForm" onsubmit="return false">';
   h += '<div class="grid2"><div class="fg"><label>' + esc(t('fromBranch')) + '</label>' + (isAdmin() ? '<select id="nfFrom" onchange="nfFromChange()">' + branchOpts(fromSel) + '</select>' : '<select id="nfFrom" disabled><option value="' + esc(me.branch) + '">' + esc(bName(me.branch)) + '</option></select>') + '</div>';
-  h += '<div class="fg"><label>' + esc(t('toBranch')) + ' *</label><select id="nfTo"><option value="">--</option>' + branchOpts('', fromSel) + '</select></div></div>';
+  h += '<div class="fg"><label>' + esc(t('toBranch')) + ' *</label>' + bpHtml('nfTo', activeBranches().filter(function (b) { return b.code !== fromSel; })) + '</div></div>';
   h += '<div class="grid2"><div class="fg"><label>' + esc(t('senderPhone')) + ' *</label><input id="nfSp" type="tel" inputmode="tel"></div><div class="fg"><label>' + esc(t('receiverPhone')) + ' *</label><input id="nfRp" type="tel" inputmode="tel"></div></div>';
   h += '<div class="grid2"><div class="fg"><label>' + esc(t('goodsType')) + '</label><select id="nfGt"><option value="doc">' + esc(t('gDoc')) + '</option><option value="parcel">' + esc(t('gParcel')) + '</option><option value="fragile">' + esc(t('gFragile')) + '</option><option value="other">' + esc(t('gOther')) + '</option></select></div><div class="fg"><label>' + esc(t('goodsDesc')) + ' (' + esc(t('optional')) + ')</label><input id="nfGd"></div>';
   h += '<div class="fg"><label>' + esc(t('qty')) + '</label><input id="nfQ" type="number" inputmode="numeric" min="1" value="1"></div><div class="fg"><label>' + esc(t('kg')) + ' (' + esc(t('optional')) + ')</label><input id="nfKg" type="number" inputmode="decimal" min="0" step="0.1"></div>';
@@ -527,7 +586,7 @@ function newHtml() {
   h += '<div class="fg"><label>' + esc(t('note')) + ' (' + esc(t('optional')) + ')</label><textarea id="nfNote"></textarea></div><div class="err" id="nfErr"></div><button class="btn big" id="nfGo" style="width:100%">' + esc(t('create')) + '</button></form></div>';
   return h;
 }
-function nfFromChange() { var f = $('nfFrom').value, cur = $('nfTo').value; $('nfTo').innerHTML = '<option value="">--</option>' + branchOpts('', f); if (cur && cur !== f) $('nfTo').value = cur; }
+function nfFromChange() { var f = $('nfFrom').value; bpSet('nfTo', activeBranches().filter(function (b) { return b.code !== f; })); }
 document.addEventListener('click', function (e) { if (e.target && e.target.id === 'nfGo') createShipment(); });
 function genNo(from) {
   var pre = ((branches[from] || {}).prefix || from).toUpperCase(), key = pre + '-' + ymd();
@@ -655,8 +714,8 @@ function handleCode(txt) {
     if (d.warn) { beep(false); logScan('y', no + ' · ' + d.warn); pop('warn', d.warn, head); return; }
     if (d.s) return applyStatus(r, d.s, null).then(function () { beep(true); var m = t(SK[d.s]) + ' ' + bName(me.branch); logScan('g', no + ' · ' + m); pop('ok', m, head, null, 2200); });
     if (d.ev) { beep(true); window.__scr = r; pop('ask', t('callQ'), head + '<div class="muted" style="margin:6px 0">' + esc(t('receiver')) + ': <a href="tel:' + esc((r.rcv || {}).p) + '"><b>' + esc((r.rcv || {}).p) + '</b></a></div>', '<button class="btn green big" onclick="callRes(\'call_ok\')">' + esc(t('callYes')) + '</button><button class="btn red big" onclick="callRes(\'call_no\')">' + esc(t('callNo')) + '</button><button class="btn gray" onclick="closePop()">' + esc(t('cancel')) + '</button>'); return; }
-    if (d.dest) { beep(true); window.__scr = r; var opts = activeBranches().filter(function (x) { return x.code !== r.from && x.code !== r.to; }).map(function (x) { return '<option value="' + esc(x.code) + '">' + esc(x.name) + '</option>'; }).join('');
-      pop('ask', t('destTitle'), head + '<div class="fg" style="text-align:left;margin-top:10px"><label>' + esc(t('destNew')) + '</label><select id="pkDest"><option value="">--</option>' + opts + '</select></div>', '<button class="btn big" onclick="destSave()">' + esc(t('destSave')) + '</button><button class="btn gray" onclick="closePop()">' + esc(t('cancel')) + '</button>'); }
+    if (d.dest) { beep(true); window.__scr = r; var opts = activeBranches().filter(function (x) { return x.code !== r.from && x.code !== r.to; });
+      pop('ask', t('destTitle'), head + '<div class="fg" style="text-align:left;margin-top:10px"><label>' + esc(t('destNew')) + '</label>' + bpHtml('pkDest', opts) + '</div>', '<button class="btn big" onclick="destSave()">' + esc(t('destSave')) + '</button><button class="btn gray" onclick="closePop()">' + esc(t('cancel')) + '</button>'); }
   }).catch(function () { beep(false); pop('bad', t('failed'), ''); });
 }
 /* history-only events: they never change the status */
@@ -714,32 +773,154 @@ function userDlg() {
 }
 
 /* ---------- branches (admin) ---------- */
+var brOpen = {}, brQ = '';
+function brRow(b) {
+  return '<tr><td><b>' + esc(b.prefix || b.code) + '</b><div class="muted">' + esc(b.code) + '</div></td><td>' + esc(b.name) + (b.lat != null && b.lng != null ? ' <span class="pinok" title="' + esc(t('mapSet')) + '">&#128205;</span>' : '') + '<div class="muted">' + esc(branchPhones(b).join(' / ')) + ' ' + esc(b.address || '') + '</div>' + (b.active === false ? '<div class="muted" style="color:#b91c1c">' + esc(t('off')) + '</div>' : '') + '</td><td style="white-space:nowrap"><button class="btn small gray" onclick="branchDlg(\'' + esc(b.code) + '\')">' + esc(t('edit')) + '</button> <button class="btn small ' + (b.active === false ? 'green' : 'red') + '" onclick="branchToggle(\'' + esc(b.code) + '\')">' + esc(b.active === false ? t('turnOn') : t('turnOff')) + '</button> <button class="btn small red" onclick="branchDel(\'' + esc(b.code) + '\')">' + esc(t('del')) + '</button></td></tr>';
+}
 function branchesHtml() {
-  var l = Object.keys(branches).sort().map(function (c) { return branches[c]; });
-  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">' + esc(t('branches')) + '</h2><button class="btn small" onclick="branchDlg()">+ ' + esc(t('addBranch')) + '</button></div><table class="tb"><tr><th>' + esc(t('code')) + '</th><th>' + esc(t('name')) + '</th><th></th></tr>' + l.map(function (b) { return '<tr><td><b>' + esc(b.prefix || b.code) + '</b><div class="muted">' + esc(b.code) + '</div></td><td>' + esc(b.name) + '<div class="muted">' + esc(b.phone || '') + ' ' + esc(b.address || '') + '</div>' + (b.active === false ? '<div class="muted" style="color:#b91c1c">' + esc(t('off')) + '</div>' : '') + '</td><td style="white-space:nowrap"><button class="btn small gray" onclick="branchDlg(\'' + esc(b.code) + '\')">' + esc(t('edit')) + '</button> <button class="btn small ' + (b.active === false ? 'green' : 'red') + '" onclick="branchToggle(\'' + esc(b.code) + '\')">' + esc(b.active === false ? t('turnOn') : t('turnOff')) + '</button></td></tr>'; }).join('') + '</table></div>';
+  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap"><h2 style="margin:0">' + esc(t('branches')) + '</h2><div style="display:flex;gap:6px"><button class="btn small gray" onclick="branchListDlg()">' + esc(t('printBranchList')) + '</button><button class="btn small" onclick="branchDlg()">+ ' + esc(t('addBranch')) + '</button></div></div>' +
+    '<input id="brQ" placeholder="' + esc(t('searchBranches')) + '" value="' + esc(brQ) + '" oninput="brQ=this.value;brRender()" style="margin-bottom:10px"><div id="brList"></div></div>';
+}
+function brRender() {
+  var el = $('brList'); if (!el) return; var q = brQ.toLowerCase().trim(), gs = {};
+  Object.keys(branches).sort().forEach(function (c) {
+    var b = branches[c], hay = (b.name + ' ' + b.code + ' ' + (b.prefix || '') + ' ' + (b.address || '') + ' ' + branchPhones(b).join(' ') + ' ' + (b.group || '') + ' ' + provName(b.group)).toLowerCase();
+    if (q && hay.indexOf(q) < 0) return; var g = b.group || ''; (gs[g] = gs[g] || []).push(b);
+  });
+  var keys = Object.keys(gs).sort(function (x, y) { if (!x) return 1; if (!y) return -1; return provName(x).localeCompare(provName(y)); });
+  if (!keys.length) { el.innerHTML = '<div class="muted">' + esc(t('none')) + '</div>'; return; }
+  el.innerHTML = keys.map(function (g) {
+    var open = q || brOpen[g || '_'], key = esc(g || '_').replace(/'/g, '');
+    return '<div class="grp"><div class="grp-h" onclick="brToggle(\'' + key + '\')"><span class="gic">' + (open ? '&#9662;' : '&#9656;') + '</span><b>' + esc(g ? provName(g) : t('noGroup')) + '</b><span class="cnt">' + gs[g].length + '</span></div>' + (open ? '<table class="tb">' + gs[g].map(brRow).join('') + '</table>' : '') + '</div>';
+  }).join('');
+}
+function brToggle(g) { brOpen[g] = !brOpen[g]; brRender(); }
+var PROV = [['Banteay Meanchey','បន្ទាយមានជ័យ','班迭棉吉'],['Battambang','បាត់ដំបង','马德望'],['Kampong Cham','កំពង់ចាម','磅湛'],['Kampong Chhnang','កំពង់ឆ្នាំង','磅清扬'],['Kampong Speu','កំពង់ស្ពឺ','磅士卑'],['Kampong Thom','កំពង់ធំ','磅同'],['Kampot','កំពត','贡布'],['Kandal','កណ្តាល','干达'],['Kep','កែប','白马'],['Koh Kong','កោះកុង','戈公'],['Kratie','ក្រចេះ','桔井'],['Mondulkiri','មណ្ឌលគិរី','蒙多基里'],['Oddar Meanchey','ឧត្តរមានជ័យ','奥多棉吉'],['Pailin','ប៉ៃលិន','拜林'],['Phnom Penh','ភ្នំពេញ','金边'],['Preah Sihanouk','ព្រះសីហនុ','西哈努克'],['Preah Vihear','ព្រះវិហារ','柏威夏'],['Prey Veng','ព្រៃវែង','波萝勉'],['Pursat','ពោធិ៍សាត់','菩萨'],['Ratanakiri','រតនគិរី','腊塔纳基里'],['Siem Reap','សៀមរាប','暹粒'],['Stung Treng','ស្ទឹងត្រែង','上丁'],['Svay Rieng','ស្វាយរៀង','柴桢'],['Takeo','តាកែវ','茶胶'],['Tboung Khmum','ត្បូងឃ្មុំ','特本克蒙']];
+function provName(g) { var p = PROV.filter(function (x) { return x[0] === g; })[0]; if (!p) return g || ''; return LANG === 'km' ? p[1] : LANG === 'zh' ? p[2] : p[0]; }
+function normName(s) { return String(s || '').trim().replace(/\s+/g, ' ').toLowerCase(); }
+function pubRec(b) {
+  if (!b || b.active === false || b.lat == null || b.lng == null || !isFinite(b.lat) || !isFinite(b.lng)) return null;
+  return { code: b.code, name: b.name, group: b.group || '', address: b.address || '', phones: branchPhones(b), lat: +b.lat, lng: +b.lng };
+}
+var reconciled = false;
+function reconcilePublic() {
+  if (reconciled || !isAdmin() || !Object.keys(branches).length) return; reconciled = true;
+  var m = {}; Object.keys(branches).forEach(function (c) { var p = pubRec(branches[c]); if (p) m[c] = p; });
+  db.ref('publicBranches').set(Object.keys(m).length ? m : null).catch(function () {});
+}
+function branchPhones(b) { if (!b) return []; if (b.phones && b.phones.length) return b.phones.slice(0, 6); return String(b.phone || '').split(/\s*[\/,;]\s*/).filter(Boolean).slice(0, 6); }
+function genBranchCode(name, except) {
+  var s = String(name || '').replace(/[^A-Za-z0-9 ]/g, ' ').replace(/\b(branch|office|agency|agent|express|station|center|centre|hub)\b/ig, ' ').trim().replace(/\s+/g, ' ');
+  if (!s) s = 'BR'; var w = s.split(' '), c = (w.length >= 2 ? w.map(function (x) { return x[0]; }).join('').slice(0, 3) : w[0].slice(0, 3)).toUpperCase(); while (c.length < 2) c += 'X';
+  var used = function (x) { return Object.keys(branches).some(function (k) { return k !== except && (k === x || (branches[k].prefix || k) === x); }); }, base = c, n = 1;
+  while (used(c)) { n++; c = base.slice(0, 5 - String(n).length) + n; }
+  return c;
+}
+var bgEdited = false, bgXEd = false, bgMap = null, bgMark = null;
+function bgAuto() { if (bgEdited) return; var c = genBranchCode($('bgN').value); if ($('bgC')) $('bgC').value = c; $('bgX').value = c; }
+function bgGroupChange() { var o = $('bgG').value === '__other'; $('bgGT').classList.toggle('hide', !o); }
+function bgSetPt(la, ln, move) {
+  $('bgLat').value = la == null ? '' : (+la).toFixed(6); $('bgLng').value = ln == null ? '' : (+ln).toFixed(6);
+  if (!bgMap || !LEAF) return;
+  if (la == null) { if (bgMark) { bgMap.removeLayer(bgMark); bgMark = null; } return; }
+  if (!bgMark) { bgMark = LEAF.marker([la, ln], { draggable: true }).addTo(bgMap); bgMark.on('dragend', function () { var p = bgMark.getLatLng(); bgSetPt(p.lat, p.lng); }); } else bgMark.setLatLng([la, ln]);
+  if (move) bgMap.setView([la, ln], Math.max(bgMap.getZoom(), 15));
+}
+function bgTyped() { var la = parseFloat($('bgLat').value), ln = parseFloat($('bgLng').value); if (isFinite(la) && isFinite(ln) && Math.abs(la) <= 90 && Math.abs(ln) <= 180) { if (bgMap && LEAF) { if (!bgMark) { bgSetPt(la, ln, true); $('bgLat').value = String(la); $('bgLng').value = String(ln); } else { bgMark.setLatLng([la, ln]); bgMap.setView([la, ln], Math.max(bgMap.getZoom(), 15)); } } } }
+function bgLoc() { if (!navigator.geolocation) { $('bgE').textContent = t('locFail'); return; } navigator.geolocation.getCurrentPosition(function (p) { bgSetPt(p.coords.latitude, p.coords.longitude, true); }, function () { $('bgE').textContent = t('locFail'); }, { enableHighAccuracy: true, timeout: 15000 }); }
+function bgInitMap(b) {
+  bgMap = null; bgMark = null; var el = $('bgMap'); if (!el) return;
+  if (!LEAF) { el.innerHTML = '<div class="muted" style="padding:10px">' + esc(t('mapOffline')) + '</div>'; return; }
+  var has = b && b.lat != null && b.lng != null && isFinite(b.lat);
+  bgMap = LEAF.map('bgMap').setView(has ? [b.lat, b.lng] : [12.5657, 104.991], has ? 15 : 7);
+  LEAF.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(bgMap);
+  bgMap.on('click', function (e) { bgSetPt(e.latlng.lat, e.latlng.lng); });
+  if (has) bgSetPt(b.lat, b.lng);
+  setTimeout(function () { try { bgMap.invalidateSize(); } catch (e) {} }, 150);
 }
 function branchDlg(code) {
-  var b = code ? branches[code] : null;
-  dlg('<h2>' + esc(b ? t('editBranch') : t('addBranch')) + '</h2><div class="fg"><label>' + esc(t('name')) + '</label><input id="bgN" value="' + esc(b ? b.name : '') + '"></div>' +
-    (b ? '' : '<div class="fg"><label>' + esc(t('code')) + '</label><input id="bgC" maxlength="5" autocapitalize="characters" style="text-transform:uppercase"><div class="muted">' + esc(t('codeHint2')) + '</div></div>') +
-    '<div class="fg"><label>' + esc(t('prefix')) + '</label><input id="bgX" maxlength="5" autocapitalize="characters" style="text-transform:uppercase" value="' + esc(b ? b.prefix || b.code : '') + '"><div class="muted">' + esc(t('prefixHint')) + '</div></div><div class="fg"><label>' + esc(t('address')) + '</label><input id="bgA" value="' + esc(b ? b.address || '' : '') + '"></div><div class="fg"><label>' + esc(t('phone')) + '</label><input id="bgP" value="' + esc(b ? b.phone || '' : '') + '"></div><div class="err" id="bgE"></div><div class="acts"><button class="btn gray" onclick="closeDlg()">' + esc(t('cancel')) + '</button><button class="btn" id="bgGo">' + esc(t('save')) + '</button></div>');
+  var b = code ? branches[code] : null, ph = branchPhones(b); bgEdited = !!b; bgXEd = false;
+  var phs = ''; for (var k = 0; k < 6; k++) phs += '<input id="bgP' + k + '" type="tel" inputmode="tel" placeholder="' + esc(t('phoneN', { n: k + 1 })) + '" value="' + esc(ph[k] || '') + '">';
+  var g = b ? (b.group || '') : '', isPreset = PROV.some(function (x) { return x[0] === g; });
+  var gopts = '<option value="">--</option>' + PROV.map(function (x) { return '<option value="' + esc(x[0]) + '"' + (g === x[0] ? ' selected' : '') + '>' + esc(provName(x[0])) + '</option>'; }).join('') + '<option value="__other"' + (g && !isPreset ? ' selected' : '') + '>' + esc(t('otherGroup')) + '</option>';
+  dlg('<h2>' + esc(b ? t('editBranch') : t('addBranch')) + '</h2><div class="fg"><label>' + esc(t('name')) + '</label><input id="bgN" value="' + esc(b ? b.name : '') + '" oninput="bgAuto()"></div>' +
+    '<div class="fg"><label>' + esc(t('groupLbl')) + '</label><select id="bgG" onchange="bgGroupChange()">' + gopts + '</select><input id="bgGT" class="' + (g && !isPreset ? '' : 'hide') + '" style="margin-top:6px" placeholder="' + esc(t('otherGroup')) + '" value="' + esc(g && !isPreset ? g : '') + '"></div>' +
+    '<div class="grid2">' + (b ? '' : '<div class="fg"><label>' + esc(t('code')) + '</label><input id="bgC" maxlength="5" autocapitalize="characters" style="text-transform:uppercase" oninput="bgEdited=true;if(!bgXEd)$(\'bgX\').value=this.value.toUpperCase()"></div>') +
+    '<div class="fg"><label>' + esc(t('prefix')) + '</label><input id="bgX" maxlength="5" autocapitalize="characters" style="text-transform:uppercase" value="' + esc(b ? b.prefix || b.code : '') + '" oninput="bgEdited=true;bgXEd=true"></div></div><div class="muted" style="margin:-4px 0 8px">' + esc(t('autoHint')) + '</div>' +
+    '<div class="fg"><label>' + esc(t('address')) + '</label><input id="bgA" value="' + esc(b ? b.address || '' : '') + '"></div><div class="fg"><label>' + esc(t('phoneLines')) + '</label><div class="grid2">' + phs + '</div></div>' +
+    '<div class="fg"><label>' + esc(t('mapSection')) + '</label><div class="muted" style="margin-bottom:6px">' + esc(t('tapMap')) + '</div><div id="bgMap" class="mapbox"></div><div class="grid2" style="margin-top:6px"><input id="bgLat" inputmode="decimal" placeholder="' + esc(t('lat')) + '" value="' + esc(b && b.lat != null ? b.lat : '') + '" oninput="bgTyped()"><input id="bgLng" inputmode="decimal" placeholder="' + esc(t('lng')) + '" value="' + esc(b && b.lng != null ? b.lng : '') + '" oninput="bgTyped()"></div><div style="display:flex;gap:8px;margin-top:6px"><button class="btn small" type="button" onclick="bgLoc()">' + esc(t('useLoc')) + '</button><button class="btn small gray" type="button" onclick="bgSetPt(null,null)">' + esc(t('clearLoc')) + '</button></div></div><div class="err" id="bgE"></div>' +
+    '<div class="acts"><button class="btn gray" onclick="closeDlg()">' + esc(t('cancel')) + '</button><button class="btn" id="bgGo">' + esc(t('save')) + '</button></div>');
+  bgInitMap(b);
   $('bgGo').onclick = function () {
-    var c = (b ? b.code : $('bgC').value.trim().toUpperCase()), n = $('bgN').value.trim(), x = ($('bgX').value.trim().toUpperCase()) || c;
+    var c = (b ? b.code : $('bgC').value.trim().toUpperCase()), n = $('bgN').value.trim().replace(/\s+/g, ' '), x = ($('bgX').value.trim().toUpperCase()) || c;
     if (!/^[A-Z0-9]{2,5}$/.test(c) || !n) { $('bgE').textContent = t('needAll'); return; }
     if (!/^[A-Z0-9]{2,5}$/.test(x)) { $('bgE').textContent = t('prefixHint'); return; }
     if (!b && branches[c]) { $('bgE').textContent = t('codeUsed'); return; }
     if (Object.keys(branches).some(function (k) { return k !== c && ((branches[k].prefix || k) === x); })) { $('bgE').textContent = t('prefixUsed'); return; }
-    var rec = { code: c, prefix: x, name: n, address: $('bgA').value.trim(), phone: $('bgP').value.trim(), active: b ? b.active !== false : true, at: b ? b.at || Date.now() : Date.now() };
-    $('bgGo').disabled = true; db.ref('branches/' + c).set(rec).then(function () { closeDlg(); toast(t('saved')); }).catch(function () { $('bgGo').disabled = false; toast(t('failed'), false); });
+    if (Object.keys(branches).some(function (k) { return k !== c && normName(branches[k].name) === normName(n); })) { $('bgE').textContent = t('branchNameUsed'); return; }
+    var sel = $('bgG').value, grp = sel === '__other' ? $('bgGT').value.trim().replace(/\s+/g, ' ') : sel;
+    var la = $('bgLat').value.trim(), ln = $('bgLng').value.trim(), lat = null, lng = null;
+    if (la || ln) { lat = parseFloat(la); lng = parseFloat(ln); if (!isFinite(lat) || !isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) { $('bgE').textContent = t('badLoc'); return; } }
+    var phones = []; for (var q = 0; q < 6; q++) { var v = ($('bgP' + q).value || '').trim(); if (v) phones.push(v); }
+    var rec = { code: c, prefix: x, name: n, group: grp || '', address: $('bgA').value.trim(), phones: phones, phone: phones.join(' / '), lat: lat, lng: lng, active: b ? b.active !== false : true, at: b ? b.at || Date.now() : Date.now() };
+    var up = {}; up['branches/' + c] = rec; up['publicBranches/' + c] = pubRec(rec);
+    $('bgGo').disabled = true; db.ref().update(up).then(function () { closeDlg(); toast(t('saved')); }).catch(function () { $('bgGo').disabled = false; toast(t('failed'), false); });
   };
+  if (!b) setTimeout(function () { var e = $('bgN'); if (e) e.focus(); }, 50);
 }
-function branchToggle(c) { var b = branches[c]; db.ref('branches/' + c + '/active').set(b.active === false).catch(function () { toast(t('failed'), false); }); }
+function branchDel(c) {
+  if (c === 'HO') { toast(t('cantDelHO'), false); return; }
+  var b = branches[c]; if (!b) return;
+  if (rows.some(function (r) { return r.from === c || r.to === c; })) { toast(t('branchHasShip'), false); return; }
+  db.ref('staff').once('value').then(function (s) {
+    var st = s.val() || {};
+    if (Object.keys(st).some(function (k) { return st[k].branch === c; })) { toast(t('branchHasStaff'), false); return; }
+    ask(t('delBranchQ', { n: b.name }), function () {
+      var up = {}; up['branches/' + c] = null; up['branchIdx/' + c] = null; up['inbox/' + c] = null; up['publicBranches/' + c] = null;
+      db.ref().update(up).then(function () { toast(t('deleted')); }).catch(function () { toast(t('failed'), false); });
+    });
+  }).catch(function () { toast(t('failed'), false); });
+}
+function staffDel(uid) {
+  var x = staffCache && staffCache[uid]; if (!x) return;
+  if (x.role === 'admin') { toast(t('cantDelAdmin'), false); return; }
+  if (uid === me.uid) { toast(t('cantDelSelf'), false); return; }
+  ask(t('delStaffQ', { n: x.name + ' (' + x.username + ')' }), function () {
+    var up = {}; up['staff/' + uid] = null; up['login/' + x.username] = null;
+    db.ref().update(up).then(function () { toast(t('deleted')); loadStaff(); }).catch(function () { toast(t('failed'), false); });
+  });
+}
+function branchToggle(c) { var b = branches[c], up = {}; up['branches/' + c + '/active'] = (b.active === false); var nb = Object.assign({}, b, { active: b.active === false }); up['publicBranches/' + c] = pubRec(nb); db.ref().update(up).catch(function () { toast(t('failed'), false); }); }
 
 /* ---------- staff (admin) ---------- */
 function loadStaff() { db.ref('staff').once('value').then(function (s) { staffCache = s.val() || {}; var el = $('stList'); if (el && tab === 'staff') el.innerHTML = staffHtml(); }); }
 function staffHtml() {
   var l = Object.keys(staffCache).map(function (k) { var x = staffCache[k]; x.uid = k; return x; }).sort(function (a, b) { return (a.name || '').localeCompare(b.name || ''); });
-  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">' + esc(t('staff')) + '</h2><button class="btn small" onclick="staffDlg()">+ ' + esc(t('addStaff')) + '</button></div><table class="tb"><tr><th>' + esc(t('name')) + '</th><th>' + esc(t('role')) + '</th><th>' + esc(t('branch')) + '</th><th></th></tr>' + l.map(function (x) { return '<tr><td><b>' + esc(x.name) + '</b><div class="muted">' + esc(x.username) + '</div></td><td>' + esc(t(x.role === 'admin' ? 'admin' : 'agent')) + '</td><td>' + esc(bName(x.branch)) + '</td><td style="white-space:nowrap"><button class="btn small gray" onclick="staffEdit(\'' + x.uid + '\')">' + esc(t('edit')) + '</button> <button class="btn small gray" onclick="staffPw(\'' + x.uid + '\')">' + esc(t('resetPw')) + '</button> <button class="btn small ' + (x.active ? 'red' : 'green') + '" onclick="staffToggle(\'' + x.uid + '\')">' + esc(x.active ? t('turnOff') : t('turnOn')) + '</button></td></tr>'; }).join('') + '</table></div>';
+  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">' + esc(t('staff')) + '</h2><button class="btn small" onclick="staffDlg()">+ ' + esc(t('addStaff')) + '</button></div><table class="tb"><tr><th>' + esc(t('name')) + '</th><th>' + esc(t('role')) + '</th><th>' + esc(t('branch')) + '</th><th></th></tr>' + l.map(function (x) { return '<tr><td><b>' + esc(x.name) + '</b><div class="muted">' + esc(x.username) + '</div></td><td>' + esc(t(x.role === 'admin' ? 'admin' : 'agent')) + '</td><td>' + esc(bName(x.branch)) + '</td><td style="white-space:nowrap"><button class="btn small gray" onclick="staffEdit(\'' + x.uid + '\')">' + esc(t('edit')) + '</button> <button class="btn small gray" onclick="staffPw(\'' + x.uid + '\')">' + esc(t('resetPw')) + '</button> <button class="btn small ' + (x.active ? 'red' : 'green') + '" onclick="staffToggle(\'' + x.uid + '\')">' + esc(x.active ? t('turnOff') : t('turnOn')) + '</button> ' + (x.role === 'admin' ? '' : '<button class="btn small red" onclick="staffDel(\'' + x.uid + '\')">' + esc(t('del')) + '</button>') + '</td></tr>'; }).join('') + '</table></div>';
+}
+function rndPw() { var c = 'abcdefghjkmnpqrstuvwxyz23456789', s = ''; for (var i = 0; i < 8; i++) s += c[Math.floor(Math.random() * c.length)]; return s; }
+function resetPwFor(uid, x, p) { var email = x.username + '.' + Math.random().toString(36).slice(2, 7) + '@' + MAILD; return mkAuthUser(email, p).then(function (nu) { var up = {}, rec = Object.assign({}, x); delete rec.uid; up['staff/' + nu] = rec; up['staff/' + uid] = null; up['login/' + x.username] = { e: email }; return db.ref().update(up); }); }
+function branchListDlg() {
+  dlg('<h2>' + esc(t('printBranchList')) + '</h2><div class="muted" style="margin-bottom:10px">' + esc(t('blHelp')) + '</div><label class="chk"><input type="checkbox" id="blNew"> ' + esc(t('blNewPw')) + '</label><div class="muted" style="color:#b91c1c;margin:4px 0 10px">' + esc(t('blNewPwWarn')) + '</div><div class="err" id="blE"></div><div class="acts"><button class="btn gray" onclick="closeDlg()">' + esc(t('cancel')) + '</button><button class="btn green" id="blGo">' + esc(t('printLabel')) + '</button></div>');
+  $('blGo').onclick = function () {
+    var withNew = $('blNew').checked; $('blGo').disabled = true; $('blGo').textContent = t('working');
+    db.ref('staff').once('value').then(function (s) {
+      var st = s.val() || {}, list = Object.keys(st).map(function (k) { var x = st[k]; x.uid = k; return x; }).filter(function (x) { return x.active !== false && x.role !== 'admin'; }), pw = {};
+      var chain = Promise.resolve();
+      if (withNew) list.forEach(function (x) { chain = chain.then(function () { var p = rndPw(); return resetPwFor(x.uid, x, p).then(function () { pw[x.username] = p; }); }); });
+      return chain.then(function () { return { list: list, pw: pw }; });
+    }).then(function (d) {
+      var by = {}; d.list.forEach(function (x) { (by[x.branch] = by[x.branch] || []).push(x); });
+      var bl = Object.keys(branches).sort().map(function (c) { return branches[c]; }).filter(function (b) { return b.active !== false; }), rowsH = '';
+      bl.forEach(function (b) {
+        var us = by[b.code] || [{}], n = us.length;
+        us.forEach(function (x, i) { rowsH += '<tr>' + (i === 0 ? '<td rowspan="' + n + '"><b>' + esc(b.name) + '</b><br>' + esc(b.prefix || b.code) + (b.group ? ' · ' + esc(provName(b.group)) : '') + '</td><td rowspan="' + n + '">' + branchPhones(b).map(esc).join('<br>') + '</td><td rowspan="' + n + '">' + esc(b.address || '') + '</td>' : '') + '<td>' + esc(x.username || '') + '</td><td>' + (x.username ? (d.pw[x.username] ? '<b>' + esc(d.pw[x.username]) + '</b>' : '') : '') + '</td></tr>'; });
+      });
+      $('printArea').innerHTML = '<div class="blist"><h2>' + esc(COMPANY) + ' - ' + esc(t('printBranchList')) + '</h2><div class="muted">' + esc(fmtDT(Date.now())) + (withNew ? '' : ' · ' + esc(t('blNoPw'))) + '</div><table><tr><th>' + esc(t('blBranch')) + '</th><th>' + esc(t('blPhone')) + '</th><th>' + esc(t('address')) + '</th><th>' + esc(t('username')) + '</th><th>' + esc(t('password')) + '</th></tr>' + rowsH + '</table></div>';
+      closeDlg(); window.print();
+      if (withNew) toast(t('pwDone'));
+    }).catch(function () { $('blGo').disabled = false; $('blGo').textContent = t('printLabel'); $('blE').textContent = t('failed'); });
+  };
 }
 var secApp = null;
 function secAuth() { if (!secApp) secApp = firebase.initializeApp(FBCFG, 'sec'); return secApp.auth(); }
@@ -752,9 +933,14 @@ function staffDlg() {
     var n = $('sfN').value.trim(), u = $('sfU').value.trim().toLowerCase(), p = $('sfP').value, r = $('sfR').value, b = $('sfB').value;
     if (!n || !b) { $('sfE').textContent = t('needAll'); return; } if (!/^[a-z0-9_]{3,20}$/.test(u)) { $('sfE').textContent = t('userHint'); return; } if (p.length < 6) { $('sfE').textContent = t('pwHint'); return; }
     $('sfGo').disabled = true; var fail = function (m) { $('sfGo').disabled = false; $('sfE').textContent = m || t('failed'); };
-    db.ref('login/' + u).once('value').then(function (s) {
+    var dupFail = false;
+    db.ref('staff').once('value').then(function (ss) {
+      var st = ss.val() || {}; if (Object.keys(st).some(function (k) { return normName(st[k].name) === normName(n); })) { dupFail = true; fail(t('nameUsed')); return null; }
+      return db.ref('login/' + u).once('value');
+    }).then(function (s) {
+      if (dupFail) return;
       if (s.exists()) { fail(t('userUsed')); return; }
-      var email = u + '@' + MAILD;
+      var email = u + '.' + Math.random().toString(36).slice(2, 7) + '@' + MAILD;
       return mkAuthUser(email, p).then(function (uid) { var up = {}; up['staff/' + uid] = { name: n, username: u, role: r, branch: b, active: true, at: Date.now() }; up['login/' + u] = { e: email }; return db.ref().update(up); }).then(function () { closeDlg(); toast(t('staffAdded')); loadStaff(); });
     }).catch(function (e) { fail(e && e.code === 'auth/email-already-in-use' ? t('userUsed') : t('failed')); });
   };
@@ -762,7 +948,7 @@ function staffDlg() {
 function staffEdit(uid) {
   var x = staffCache[uid];
   dlg('<h2>' + esc(t('edit')) + '</h2><div class="fg"><label>' + esc(t('name')) + '</label><input id="seN" value="' + esc(x.name) + '"></div><div class="grid2"><div class="fg"><label>' + esc(t('role')) + '</label><select id="seR"><option value="agent"' + (x.role === 'agent' ? ' selected' : '') + '>' + esc(t('agent')) + '</option><option value="admin"' + (x.role === 'admin' ? ' selected' : '') + '>' + esc(t('admin')) + '</option></select></div><div class="fg"><label>' + esc(t('branch')) + '</label><select id="seB">' + branchOpts(x.branch) + '</select></div></div><div class="acts"><button class="btn gray" onclick="closeDlg()">' + esc(t('cancel')) + '</button><button class="btn" id="seGo">' + esc(t('save')) + '</button></div>');
-  $('seGo').onclick = function () { if (uid === me.uid && $('seR').value !== 'admin') { toast(t('cantSelf'), false); return; } var up = {}; up['staff/' + uid + '/name'] = $('seN').value.trim() || x.name; up['staff/' + uid + '/role'] = $('seR').value; up['staff/' + uid + '/branch'] = $('seB').value; db.ref().update(up).then(function () { closeDlg(); toast(t('saved')); loadStaff(); }).catch(function () { toast(t('failed'), false); }); };
+  $('seGo').onclick = function () { var nn = $('seN').value.trim(); if (nn && Object.keys(staffCache).some(function (k) { return k !== uid && normName(staffCache[k].name) === normName(nn); })) { toast(t('nameUsed'), false); return; } if (uid === me.uid && $('seR').value !== 'admin') { toast(t('cantSelf'), false); return; } var up = {}; up['staff/' + uid + '/name'] = $('seN').value.trim() || x.name; up['staff/' + uid + '/role'] = $('seR').value; up['staff/' + uid + '/branch'] = $('seB').value; db.ref().update(up).then(function () { closeDlg(); toast(t('saved')); loadStaff(); }).catch(function () { toast(t('failed'), false); }); };
 }
 function staffToggle(uid) { if (uid === me.uid) { toast(t('cantSelf'), false); return; } db.ref('staff/' + uid + '/active').set(!staffCache[uid].active).then(loadStaff).catch(function () { toast(t('failed'), false); }); }
 function staffPw(uid) {
