@@ -34,9 +34,9 @@ h3{margin:0 0 10px;font-size:15px}
 #login .role{text-align:center;color:#64748b;margin-bottom:18px;font-weight:600}
 .err{color:#dc2626;font-size:13px;margin:8px 0;min-height:18px}
 div.sticky{position:sticky;top:0;z-index:30}
-header.top{padding:10px 14px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
-header.top .hr{display:flex;gap:8px;align-items:center;justify-content:flex-end}
-header.top .ttl{font-weight:800;font-size:16px;min-width:0;text-align:center}
+header.top{padding:10px 14px;display:flex;align-items:center;gap:10px}
+header.top .hr{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex:0 0 auto}
+header.top .ttl{font-weight:800;font-size:16px;flex:1;min-width:0;text-align:left}
 header.top .ttl small{display:block;font-weight:500;opacity:.8;font-size:11px}
 header.top select{width:auto;padding:5px 8px;font-size:12px;border-radius:8px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35)}
 header.top select option{color:#0f172a}
@@ -46,15 +46,22 @@ nav.tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 14px;background:#fff;
 nav.tabs button{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;border:0;background:#e2e8f0;color:#334155;padding:10px 16px;border-radius:22px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}
 nav.tabs button svg{width:18px;height:18px}
 nav.tabs button.on{background:linear-gradient(135deg,#0b1d3a 0%,#24406e 100%);color:#fff}
-nav.bnav{display:none}
+nav.tabs{justify-content:flex-start}
+nav.tabs button:first-child{margin-left:auto}nav.tabs button:last-child{margin-right:auto}
+nav.bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fff;border-top:1px solid #e2e8f0;box-shadow:0 -2px 10px rgba(15,23,42,.1);padding:6px 4px calc(6px + env(safe-area-inset-bottom));justify-content:center}
+nav.bnav button{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:#64748b;font-size:12px;font-weight:700;padding:6px 18px;border-radius:10px;cursor:pointer}
+nav.bnav button svg{width:24px;height:24px}
+nav.bnav button.on{color:#0b1d3a;background:#e8eef8}
+nav.bnav button:not(.xtra){display:none}
+body{padding-bottom:78px}
 .quick{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
 .quick button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:84px;border:0;border-radius:14px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 12px rgba(15,23,42,.2)}
 .quick button svg{width:28px;height:28px}
 .btn.big{min-height:50px;font-size:16px;border-radius:12px}
 @media(max-width:760px){
  nav.tabs{display:none}
- nav.bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fff;border-top:1px solid #e2e8f0;box-shadow:0 -2px 10px rgba(15,23,42,.1);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
  nav.bnav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:#64748b;font-size:10px;font-weight:700;padding:6px 2px;border-radius:10px;cursor:pointer}
+ nav.bnav button:not(.xtra){display:flex}
  nav.bnav button svg{width:24px;height:24px}
  nav.bnav button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
  nav.bnav button.on{color:#0b1d3a;background:#e8eef8}
@@ -129,7 +136,6 @@ table.tb td{padding:8px;border-bottom:1px solid #eef2f7;vertical-align:middle}
 <div id="app" class="hide">
  <div class="sticky">
  <header class="top grad">
-  <div class="hl"></div>
   <div class="ttl"><span id="hTitle"></span><small id="hSub"></small></div>
   <div class="hr"><select id="hlang"><option value="en">EN</option><option value="km">ខ្មែរ</option><option value="zh">中文</option></select>
   <button class="ib" id="bellBtn" title="Notifications">&#128276;<span class="badge hide" id="bellN">0</span></button>
@@ -365,8 +371,8 @@ var ICON = {
 function tabsList() { var a = [['dash', 'navHome'], ['stats', 'navDash'], ['new', 'navNew'], ['ship', 'navShip'], ['scan', 'navScan']]; if (isAdmin()) a.push(['branches', 'navBranches'], ['staff', 'navStaff']); return a; }
 function renderTabs() {
   var l = tabsList();
-  $('tabs').innerHTML = l.map(function (x) { return '<button class="' + (tab === x[0] ? 'on' : '') + '" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('');
-  $('bnav').innerHTML = l.map(function (x) { return '<button class="' + (tab === x[0] ? 'on' : '') + '" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('');
+  $('tabs').innerHTML = l.filter(function (x) { return x[0] !== 'scan'; }).map(function (x) { return '<button class="' + (tab === x[0] ? 'on' : '') + '" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('');
+  $('bnav').innerHTML = l.map(function (x) { return '<button class="' + (x[0] === 'scan' ? 'xtra ' : '') + (tab === x[0] ? 'on' : '') + '" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('');
 }
 function go(k) { if (tab === 'scan' && k !== 'scan') stopScan(); tab = k; renderTabs(); renderView(); window.scrollTo(0, 0); }
 function renderView() {
