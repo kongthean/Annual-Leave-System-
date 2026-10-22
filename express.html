@@ -99,7 +99,8 @@ table.tb td{padding:8px;border-bottom:1px solid #eef2f7;vertical-align:middle}
 .sc-log{margin-top:10px}
 .sc-log div{padding:8px 10px;border-radius:8px;margin-bottom:6px;font-size:13px;font-weight:600}
 .sc-log .g{background:#dcfce7;color:#166534}.sc-log .r{background:#fee2e2;color:#991b1b}.sc-log .y{background:#fef9c3;color:#854d0e}
-#reader{width:100%;max-width:380px;margin:10px auto;border-radius:12px;overflow:hidden}
+#reader{width:100%;max-width:760px;min-height:320px;margin:10px auto;border-radius:12px;overflow:hidden;background:#0f172a}
+#reader video{width:100%!important;height:auto!important;min-height:320px;max-height:70vh;object-fit:cover}
 .nl{padding:10px;border-bottom:1px solid #eef2f7;cursor:pointer}.nl.un{background:#eff6ff}
 /* label (screen preview + print) */
 .lab{border:2px solid #000;border-radius:6px;padding:10px;width:100%;max-width:400px;margin:0 auto 12px;background:#fff;color:#000;font-size:12px}
@@ -110,8 +111,32 @@ table.tb td{padding:8px;border-bottom:1px solid #eef2f7;vertical-align:middle}
 .lab .rt{font-size:15px;font-weight:800;margin:4px 0}
 .lab table{width:100%;border-collapse:collapse;margin-top:6px}
 .lab td{padding:2px 0;vertical-align:top}
-.lab td:first-child{width:78px;font-weight:700}
+.lab td:first-child{font-weight:700}
 #printArea{display:none}
+
+.scgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
+.scgrid button{display:flex;align-items:center;gap:12px;min-height:72px;border:0;border-radius:14px;color:#fff;font-weight:800;font-size:16px;padding:12px 16px;text-align:left;cursor:pointer;box-shadow:0 4px 12px rgba(15,23,42,.2)}
+.scgrid button svg{width:30px;height:30px;flex:0 0 30px}
+.sc-top{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:6px}
+.sc-mode{color:#fff;font-weight:800;font-size:15px;padding:9px 14px;border-radius:10px;flex:1}
+.pk{text-align:center;border-top:10px solid #64748b;max-width:420px}
+.pk.ok{border-color:#16a34a}.pk.warn{border-color:#d97706}.pk.bad{border-color:#dc2626}.pk.ask{border-color:#2563eb}
+.pk-ic{width:64px;height:64px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;color:#fff;background:#64748b}
+.pk.ok .pk-ic{background:#16a34a}.pk.warn .pk-ic{background:#d97706}.pk.bad .pk-ic{background:#dc2626}.pk.ask .pk-ic{background:#2563eb}
+.pk h2{font-size:19px}.pk .no2{font-weight:900;font-size:20px;letter-spacing:.5px;margin:4px 0}
+.pk .acts{justify-content:center;flex-direction:column}.pk .acts .btn{width:100%}
+#popHost .ov{z-index:300}
+.lab{font-family:'Khmer OS Battambang','Noto Sans Khmer','Leelawadee UI','Khmer UI',Arial,sans-serif}
+.lab .co{font-size:15px;font-weight:900}.lab .cok{font-size:12px;font-weight:700}
+.lab .k{display:block;font-weight:700}.lab .e{display:block;font-size:9px;font-weight:500}
+.lab .lbl{width:24%;font-weight:700}
+.lab table.rcpt{border:1px solid #000;margin-top:6px}.lab table.rcpt td{border:1px solid #000;padding:3px 5px}
+.lab .qrw{align-items:flex-start}.lab .qrbox{text-align:center;flex:0 0 120px}.lab .qrbox .scan{font-size:9px;margin-top:2px}
+.lab .muted2 .k,.lab .muted2 .e{display:inline}.lab .muted2 .e{margin-left:4px}
+.lab .nos{flex:1}.lab .muted2{font-size:10px;margin-top:2px}
+.lab .brs{display:flex;gap:10px;margin-top:6px;font-size:10px}.lab .brs>div{flex:1}
+.lab .terms{margin-top:6px;border-top:1px dashed #000;padding-top:4px;font-size:9px}.lab .terms ol{margin:3px 0 0 14px;padding:0}.lab .terms li{margin-bottom:2px}
+.lab .trk{margin-top:4px;font-size:9px;text-align:center}
 @media print{
  body>*:not(#printArea){display:none!important}
  body{background:#fff}
@@ -212,11 +237,11 @@ if (typeof module !== 'undefined') module.exports = QRMAKE;
 var L = {
 en: {
  appName:'Cambodia Insight Express', roleExpress:'Administration', roleAgent:'Branch Agent', username:'Username', password:'Password', login:'Log in', logout:'Log out', loggingIn:'Logging in...',
- fee:'Fee', paid:'Paid', unpaid:'Pay at destination', staffLbl:'Staff', prefix:'Tracking prefix', prefixHint:'2-5 letters or numbers used at the start of tracking numbers, e.g. PP. You can change it any time.', prefixUsed:'This prefix is used by another branch.', codeHint2:'2-5 letters or numbers. You choose it now and cannot change it later.', scanAuto:'Automatic (recommended)', scanAutoHelp:'The system decides: Shipping from, Transit at or Arrival at, depending on your branch.', alreadyDest:'Already at the destination. Choose Out for delivery or Customer received.', alreadyShipped:'Already shipped from this branch', phoneOnly:'Phone number', changeUser:'Change my username', newUser:'New username', userDone:'Username changed.', menuHome:'Home', quick:'Quick actions', delivered2:'Delivered',
+ fee:'Fee', paid:'Paid', unpaid:'Pay at destination', staffLbl:'Staff', prefix:'Tracking prefix', prefixHint:'2-5 letters or numbers used at the start of tracking numbers, e.g. PP. You can change it any time.', prefixUsed:'This prefix is used by another branch.', codeHint2:'2-5 letters or numbers. You choose it now and cannot change it later.', scanAuto:'Automatic (recommended)', scanAutoHelp:'The system decides: Shipping from, Transit at or Arrival at, depending on your branch.', alreadyDest:'Already at the destination.', alreadyShipped:'Already shipped from this branch', phoneOnly:'Phone number', changeUser:'Change my username', newUser:'New username', userDone:'Username changed.', menuHome:'Home', quick:'Quick actions', delivered2:'Delivered',
  errLogin:'Wrong username or password.', errNoAccess:'This account cannot use this page.', errOff:'This account is turned off. Please contact Administration.', errSetup:'This page is not connected to its database yet.', errNet:'Network problem. Please try again.',
  navHome:'Home', navDash:'Dashboard', navNew:'New shipment', navShip:'Shipments', navScan:'Scan', navBranches:'Branches', navStaff:'Staff',
  incoming:'Incoming to my branch', waitLong:'Waiting more than 3 days', total:'Total', recent:'Recent shipments', none:'Nothing here yet.', all:'All', search:'Search number, name or phone', loadMore:'Show more',
- sPosted:'Posting at', sShipping:'Shipping from', sTransit:'Transit at', sArrived:'Arrival at', sOut:'Out for delivery', sDelivered:'Customer received', sProblem:'Problem / Returned',
+ sPosted:'Posting at', sShipping:'Shipping from', sTransit:'Transit at', sArrived:'Arrival at', sOut:'Out for delivery', sDelivered:'Customer received', sProblem:'Problem / Returned', sReturned:'Returned', scanPick:'Choose what you want to scan', scanPickHint:'Tap a button above. The camera opens right away.', scM_ship:'Scan for Shipping', scM_transit:'Scan for Transit', scM_arrive:'Scan for Arrival', scM_contact:'Scan for Contact Customer', scM_recv:'Scan for Customer Received', scM_return:'Scan for Return', scM_dest:'Scan for Change Destination', scanChange:'Change scan type', popOk:'OK', callQ:'Did the customer pick up the call?', callYes:'Yes, picked up', callNo:'No, did not pick up', evCallOk:'Customer picked up the call', evCallNo:'Customer did not pick up the call', evDest:'Destination changed', destTitle:'Change destination', destNew:'New destination', destSave:'Save new destination', currency:'Currency',
  from:'From', to:'To', fromBranch:'From branch', toBranch:'To branch', senderName:'Sender name', senderPhone:'Sender phone', receiverName:'Receiver name', receiverPhone:'Receiver phone',
  goodsType:'Type of goods', gDoc:'Documents', gParcel:'Parcel', gFragile:'Fragile', gOther:'Other', goodsDesc:'Description', qty:'Pieces', kg:'Weight (kg)', price:'Price', cod:'Cash on delivery', note:'Note', optional:'optional',
  create:'Create shipment', creating:'Creating...', needAll:'Please fill the required fields.', needBranch:'Please choose the destination branch.', sameBranch:'From and To must be different.',
@@ -233,11 +258,11 @@ en: {
 },
 km: {
  appName:'Cambodia Insight Express', roleExpress:'រដ្ឋបាល', roleAgent:'ភ្នាក់ងារសាខា', username:'ឈ្មោះអ្នកប្រើ', password:'ពាក្យសម្ងាត់', login:'ចូលប្រើ', logout:'ចាកចេញ', loggingIn:'កំពុងចូល...',
- fee:'ថ្លៃសេវា', paid:'បានបង់', unpaid:'បង់នៅទីដល់', staffLbl:'បុគ្គលិក', prefix:'អក្សរនាំមុខលេខតាមដាន', prefixHint:'អក្សរ ឬលេខ ២-៥ តួ ដាក់នៅដើមលេខតាមដាន ឧ. PP។ អាចប្តូរបានគ្រប់ពេល។', prefixUsed:'អក្សរនាំមុខនេះត្រូវបានប្រើដោយសាខាផ្សេង។', codeHint2:'អក្សរ ឬលេខ ២-៥ តួ។ អ្នកជ្រើសរើសឥឡូវ ហើយមិនអាចប្តូរក្រោយបានទេ។', scanAuto:'ស្វ័យប្រវត្តិ (ណែនាំ)', scanAutoHelp:'ប្រព័ន្ធសម្រេចចិត្ត៖ ចេញដំណើរពី ឆ្លងកាត់នៅ ឬមកដល់នៅ តាមសាខារបស់អ្នក។', alreadyDest:'នៅទីដល់រួចហើយ។ សូមជ្រើសរើស កំពុងដឹកជូន ឬ អតិថិជនបានទទួល។', alreadyShipped:'បានចេញពីសាខានេះរួចហើយ', phoneOnly:'លេខទូរស័ព្ទ', changeUser:'ប្តូរឈ្មោះអ្នកប្រើរបស់ខ្ញុំ', newUser:'ឈ្មោះអ្នកប្រើថ្មី', userDone:'បានប្តូរឈ្មោះអ្នកប្រើ។', menuHome:'ទំព័រដើម', quick:'សកម្មភាពរហ័ស', delivered2:'បានប្រគល់',
+ fee:'ថ្លៃសេវា', paid:'បានបង់', unpaid:'បង់នៅទីដល់', staffLbl:'បុគ្គលិក', prefix:'អក្សរនាំមុខលេខតាមដាន', prefixHint:'អក្សរ ឬលេខ ២-៥ តួ ដាក់នៅដើមលេខតាមដាន ឧ. PP។ អាចប្តូរបានគ្រប់ពេល។', prefixUsed:'អក្សរនាំមុខនេះត្រូវបានប្រើដោយសាខាផ្សេង។', codeHint2:'អក្សរ ឬលេខ ២-៥ តួ។ អ្នកជ្រើសរើសឥឡូវ ហើយមិនអាចប្តូរក្រោយបានទេ។', scanAuto:'ស្វ័យប្រវត្តិ (ណែនាំ)', scanAutoHelp:'ប្រព័ន្ធសម្រេចចិត្ត៖ ចេញដំណើរពី ឆ្លងកាត់នៅ ឬមកដល់នៅ តាមសាខារបស់អ្នក។', alreadyDest:'នៅទីដល់រួចហើយ។', alreadyShipped:'បានចេញពីសាខានេះរួចហើយ', phoneOnly:'លេខទូរស័ព្ទ', changeUser:'ប្តូរឈ្មោះអ្នកប្រើរបស់ខ្ញុំ', newUser:'ឈ្មោះអ្នកប្រើថ្មី', userDone:'បានប្តូរឈ្មោះអ្នកប្រើ។', menuHome:'ទំព័រដើម', quick:'សកម្មភាពរហ័ស', delivered2:'បានប្រគល់',
  errLogin:'ឈ្មោះអ្នកប្រើ ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។', errNoAccess:'គណនីនេះមិនអាចប្រើទំព័រនេះបានទេ។', errOff:'គណនីនេះត្រូវបានបិទ។ សូមទាក់ទងរដ្ឋបាល។', errSetup:'ទំព័រនេះមិនទាន់ភ្ជាប់ទៅមូលដ្ឋានទិន្នន័យនៅឡើយទេ។', errNet:'បញ្ហាបណ្តាញ។ សូមព្យាយាមម្តងទៀត។',
  navHome:'ទំព័រដើម', navDash:'ផ្ទាំងគ្រប់គ្រង', navNew:'ដឹកជញ្ជូនថ្មី', navShip:'ការដឹកជញ្ជូន', navScan:'ស្កេន', navBranches:'សាខា', navStaff:'បុគ្គលិក',
  incoming:'ទំនិញចូលមកសាខាខ្ញុំ', waitLong:'រង់ចាំលើសពី ៣ ថ្ងៃ', total:'សរុប', recent:'ការដឹកជញ្ជូនថ្មីៗ', none:'មិនទាន់មានទិន្នន័យ។', all:'ទាំងអស់', search:'ស្វែងរកលេខ ឈ្មោះ ឬទូរស័ព្ទ', loadMore:'បង្ហាញបន្ថែម',
- sPosted:'ទទួលផ្ញើនៅ', sShipping:'ចេញដំណើរពី', sTransit:'ឆ្លងកាត់នៅ', sArrived:'មកដល់នៅ', sOut:'កំពុងដឹកជូន', sDelivered:'អតិថិជនបានទទួល', sProblem:'បញ្ហា / ត្រឡប់មកវិញ',
+ sPosted:'ទទួលផ្ញើនៅ', sShipping:'ចេញដំណើរពី', sTransit:'ឆ្លងកាត់នៅ', sArrived:'មកដល់នៅ', sOut:'កំពុងដឹកជូន', sDelivered:'អតិថិជនបានទទួល', sProblem:'បញ្ហា / ត្រឡប់មកវិញ', sReturned:'ត្រឡប់ទំនិញវិញ', scanPick:'ជ្រើសរើសប្រភេទស្កេន', scanPickHint:'ចុចប៊ូតុងខាងលើ កាមេរ៉ាបើកភ្លាម។', scM_ship:'ស្កេនសម្រាប់ចេញដំណើរ', scM_transit:'ស្កេនសម្រាប់ឆ្លងកាត់', scM_arrive:'ស្កេនសម្រាប់មកដល់', scM_contact:'ស្កេនសម្រាប់ទាក់ទងអតិថិជន', scM_recv:'ស្កេនសម្រាប់អតិថិជនទទួលបាន', scM_return:'ស្កេនសម្រាប់ត្រឡប់ទំនិញ', scM_dest:'ស្កេនសម្រាប់ប្ដូរគោលដៅ', scanChange:'ប្ដូរប្រភេទស្កេន', popOk:'យល់ព្រម', callQ:'តើអតិថិជនបានលើកទូរស័ព្ទឬទេ?', callYes:'បានលើក', callNo:'មិនលើក', evCallOk:'អតិថិជនបានលើកទូរស័ព្ទ', evCallNo:'អតិថិជនមិនលើកទូរស័ព្ទ', evDest:'បានប្ដូរគោលដៅ', destTitle:'ប្ដូរគោលដៅ', destNew:'គោលដៅថ្មី', destSave:'រក្សាទុកគោលដៅថ្មី', currency:'រូបិយប័ណ្ណ',
  from:'ពី', to:'ទៅ', fromBranch:'ពីសាខា', toBranch:'ទៅសាខា', senderName:'ឈ្មោះអ្នកផ្ញើ', senderPhone:'ទូរស័ព្ទអ្នកផ្ញើ', receiverName:'ឈ្មោះអ្នកទទួល', receiverPhone:'ទូរស័ព្ទអ្នកទទួល',
  goodsType:'ប្រភេទទំនិញ', gDoc:'ឯកសារ', gParcel:'កញ្ចប់', gFragile:'ងាយបែក', gOther:'ផ្សេងៗ', goodsDesc:'ការពិពណ៌នា', qty:'ចំនួនកញ្ចប់', kg:'ទម្ងន់ (គីឡូ)', price:'តម្លៃ', cod:'ទូទាត់ពេលទទួល', note:'កំណត់ចំណាំ', optional:'ស្រេចចិត្ត',
  create:'បង្កើតការដឹកជញ្ជូន', creating:'កំពុងបង្កើត...', needAll:'សូមបំពេញព័ត៌មានដែលចាំបាច់។', needBranch:'សូមជ្រើសរើសសាខាទទួល។', sameBranch:'សាខាផ្ញើ និងទទួលត្រូវខុសគ្នា។',
@@ -254,11 +279,11 @@ km: {
 },
 zh: {
  appName:'Cambodia Insight Express', roleExpress:'总部管理', roleAgent:'分支网点', username:'用户名', password:'密码', login:'登录', logout:'退出', loggingIn:'登录中...',
- fee:'运费', paid:'已付', unpaid:'到付', staffLbl:'经办人', prefix:'单号前缀', prefixHint:'2-5位字母或数字，用于单号开头，例如 PP。可随时修改。', prefixUsed:'此前缀已被其他网点使用。', codeHint2:'2-5位字母或数字，现在设定，之后不能修改。', scanAuto:'自动(推荐)', scanAutoHelp:'系统根据你所在网点自动判断：从此发出、中转经过或到达网点。', alreadyDest:'已在目的网点。请选择派送中或客户已签收。', alreadyShipped:'已从本网点发出', phoneOnly:'电话号码', changeUser:'修改我的用户名', newUser:'新用户名', userDone:'用户名已修改。', menuHome:'首页', quick:'快捷操作', delivered2:'已签收',
+ fee:'运费', paid:'已付', unpaid:'到付', staffLbl:'经办人', prefix:'单号前缀', prefixHint:'2-5位字母或数字，用于单号开头，例如 PP。可随时修改。', prefixUsed:'此前缀已被其他网点使用。', codeHint2:'2-5位字母或数字，现在设定，之后不能修改。', scanAuto:'自动(推荐)', scanAutoHelp:'系统根据你所在网点自动判断：从此发出、中转经过或到达网点。', alreadyDest:'已在目的网点。', alreadyShipped:'已从本网点发出', phoneOnly:'电话号码', changeUser:'修改我的用户名', newUser:'新用户名', userDone:'用户名已修改。', menuHome:'首页', quick:'快捷操作', delivered2:'已签收',
  errLogin:'用户名或密码错误。', errNoAccess:'此账号不能使用本页面。', errOff:'此账号已停用，请联系总部。', errSetup:'本页面尚未连接数据库。', errNet:'网络问题，请重试。',
  navHome:'主页', navDash:'数据看板', navNew:'新建运单', navShip:'运单', navScan:'扫码', navBranches:'网点', navStaff:'员工',
  incoming:'到达本网点', waitLong:'超过3天未完成', total:'总数', recent:'最近运单', none:'暂无数据。', all:'全部', search:'搜索单号、姓名或电话', loadMore:'显示更多',
- sPosted:'寄件网点收件', sShipping:'从此发出', sTransit:'中转经过', sArrived:'到达网点', sOut:'派送中', sDelivered:'客户已签收', sProblem:'异常 / 退回',
+ sPosted:'寄件网点收件', sShipping:'从此发出', sTransit:'中转经过', sArrived:'到达网点', sOut:'派送中', sDelivered:'客户已签收', sProblem:'异常 / 退回', sReturned:'已退回', scanPick:'选择扫描类型', scanPickHint:'点击上方按钮，相机会立即打开。', scM_ship:'扫描发出', scM_transit:'扫描中转', scM_arrive:'扫描到达', scM_contact:'扫描联系客户', scM_recv:'扫描客户签收', scM_return:'扫描退回', scM_dest:'扫描更改目的地', scanChange:'更换扫描类型', popOk:'确定', callQ:'客户接电话了吗？', callYes:'已接听', callNo:'未接听', evCallOk:'客户已接听电话', evCallNo:'客户未接电话', evDest:'已更改目的地', destTitle:'更改目的地', destNew:'新目的地', destSave:'保存新目的地', currency:'币种',
  from:'发自', to:'寄往', fromBranch:'发出网点', toBranch:'到达网点', senderName:'寄件人', senderPhone:'寄件人电话', receiverName:'收件人', receiverPhone:'收件人电话',
  goodsType:'货物类型', gDoc:'文件', gParcel:'包裹', gFragile:'易碎品', gOther:'其他', goodsDesc:'说明', qty:'件数', kg:'重量(公斤)', price:'价格', cod:'货到付款', note:'备注', optional:'可选',
  create:'创建运单', creating:'创建中...', needAll:'请填写必填项。', needBranch:'请选择到达网点。', sameBranch:'发出和到达网点不能相同。',
@@ -275,9 +300,11 @@ zh: {
 }};
 
 var MAILD = 'express.cambodiainsight.net', TRACK_URL = 'https://cambodiainsight.net/tracking', COMPANY = 'Cambodia Insight Express';
-var ST = ['posted', 'shipping', 'transit', 'arrived', 'out', 'delivered', 'problem'];
-var SC = { posted: '#2563eb', shipping: '#4f46e5', transit: '#7c3aed', arrived: '#0d9488', out: '#d97706', delivered: '#16a34a', problem: '#dc2626' };
-var SK = { posted: 'sPosted', shipping: 'sShipping', transit: 'sTransit', arrived: 'sArrived', out: 'sOut', delivered: 'sDelivered', problem: 'sProblem' };
+var ST = ['posted', 'shipping', 'transit', 'arrived', 'out', 'delivered', 'returned', 'problem'];
+var SC = { posted: '#2563eb', shipping: '#4f46e5', transit: '#7c3aed', arrived: '#0d9488', out: '#d97706', delivered: '#16a34a', returned: '#be185d', problem: '#dc2626' };
+var SK = { posted: 'sPosted', shipping: 'sShipping', transit: 'sTransit', arrived: 'sArrived', out: 'sOut', delivered: 'sDelivered', returned: 'sReturned', problem: 'sProblem' };
+var EVK = { call_ok: 'evCallOk', call_no: 'evCallNo', dest: 'evDest' };
+function fmtMoney(v, cur) { var n = String(v == null ? '' : v).replace(/,/g, ''), x = parseFloat(n); if (isNaN(x)) return String(v); var s = cur === 'KHR' ? Math.round(x).toLocaleString('en-US') + ' \u17db' : x.toLocaleString('en-US', { minimumFractionDigits: (x % 1 ? 2 : 0), maximumFractionDigits: 2 }) + ' $'; return s; }
 var LANG = 'en'; try { LANG = localStorage.getItem('xpLang') || 'en'; } catch (e) {} if (!L[LANG]) LANG = 'en';
 function t(k, v) { var s = (L[LANG] && L[LANG][k]) || L.en[k] || k; if (v) for (var x in v) s = s.replace('{' + x + '}', v[x]); return s; }
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -322,7 +349,7 @@ function doLogin() {
     .catch(function (e) { fail(e && (e.code === 'auth/network-request-failed') ? t('errNet') : t('errLogin')); });
 }
 function logout() { stopAll(); if (auth) auth.signOut(); }
-function stopAll() { listeners.forEach(function (l) { try { l[0].off('value', l[1]); } catch (e) {} }); listeners = []; me = null; tab = 'dash'; scanLog = []; lastCode = ''; var vw = document.getElementById('view'); if (vw) vw.innerHTML = ''; rows = []; inbox = {}; branches = {}; staffCache = null; }
+function stopAll() { listeners.forEach(function (l) { try { l[0].off('value', l[1]); } catch (e) {} }); listeners = []; me = null; tab = 'dash'; scanLog = []; scanMode = null; scanBusy = false; lastCode = ''; var vw = document.getElementById('view'); if (vw) vw.innerHTML = ''; rows = []; inbox = {}; branches = {}; staffCache = null; }
 function listen(ref, fn) { var h = ref.on('value', fn, function () {}); listeners.push([ref, h]); }
 
 function boot() {
@@ -374,7 +401,7 @@ function renderTabs() {
   $('tabs').innerHTML = l.filter(function (x) { return x[0] !== 'scan'; }).map(function (x) { return '<button class="' + (tab === x[0] ? 'on' : '') + '" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('');
   $('bnav').innerHTML = l.map(function (x) { return '<button class="' + (x[0] === 'scan' ? 'xtra ' : '') + (tab === x[0] ? 'on' : '') + '" onclick="go(\'' + x[0] + '\')">' + ICON[x[0]] + '<span>' + esc(t(x[1])) + '</span></button>'; }).join('');
 }
-function go(k) { if (tab === 'scan' && k !== 'scan') stopScan(); tab = k; renderTabs(); renderView(); window.scrollTo(0, 0); }
+function go(k) { if (tab === 'scan') { stopScan(); closePop(); } if (k === 'scan') { scanMode = null; var vv = $('view'); if (vv) vv.innerHTML = ''; } tab = k; renderTabs(); renderView(); window.scrollTo(0, 0); }
 function renderView() {
   if (!me) return; renderTabs();
   var v = $('view');
@@ -382,7 +409,7 @@ function renderView() {
   else if (tab === 'stats') v.innerHTML = dashHtml();
   else if (tab === 'new') { if (!$('nfForm')) v.innerHTML = newHtml(); else return; }
   else if (tab === 'ship') { var keep = document.activeElement && document.activeElement.id === 'fq'; v.innerHTML = shipHtml(); if (keep) { var q = $('fq'); q.focus(); q.setSelectionRange(q.value.length, q.value.length); } }
-  else if (tab === 'scan') { if (!$('scAct')) v.innerHTML = scanHtml(); else return; }
+  else if (tab === 'scan') { if (!$('scRoot')) v.innerHTML = scanHtml(); else return; }
   else if (tab === 'branches') v.innerHTML = branchesHtml();
   else if (tab === 'staff') { if (!$('stList')) v.innerHTML = '<div id="stList"></div>'; loadStaff(); }
 }
@@ -448,9 +475,9 @@ function showShip(r) {
   h += '<div class="card" style="box-shadow:none;border:1px solid #e2e8f0;padding:12px"><div><b>' + esc(r.fromName) + ' → ' + esc(r.toName) + '</b></div>';
   h += '<div class="muted">' + esc(t('sender')) + ': ' + esc((r.sender || {}).p) + '</div><div class="muted">' + esc(t('receiver')) + ': ' + esc((r.rcv || {}).p) + '</div>';
   h += '<div class="muted">' + esc(t('goods')) + ': ' + esc(t({ doc: 'gDoc', parcel: 'gParcel', fragile: 'gFragile', other: 'gOther' }[g.type] || 'gOther')) + (g.desc ? ' - ' + esc(g.desc) : '') + ' · ' + esc(g.qty || 1) + (g.kg ? ' · ' + esc(g.kg) + ' kg' : '') + '</div>';
-  if (r.price) h += '<div class="muted">' + esc(t('fee')) + ': ' + esc(r.price) + ' (' + esc(r.paid ? t('paid') : t('unpaid')) + ')</div>'; if (r.cod) h += '<div class="muted">' + esc(t('cod')) + ': ' + esc(r.cod) + '</div>'; if (r.note) h += '<div class="muted">' + esc(t('note')) + ': ' + esc(r.note) + '</div>';
+  if (r.price) h += '<div class="muted">' + esc(t('fee')) + ': ' + esc(fmtMoney(r.price, r.cur)) + ' (' + esc(r.paid ? t('paid') : t('unpaid')) + ')</div>'; if (r.cod) h += '<div class="muted">' + esc(t('cod')) + ': ' + esc(fmtMoney(r.cod, r.codCur)) + '</div>'; if (r.note) h += '<div class="muted">' + esc(t('note')) + ': ' + esc(r.note) + '</div>';
   h += '<div class="muted">' + esc(t('created_by')) + ': ' + esc(r.createdByName || '') + ' · ' + esc(fmtDT(r.created)) + '</div></div>';
-  h += '<h3>' + esc(t('history')) + '</h3><div class="tl">' + hs.map(function (x) { return '<div class="it" style="--c:' + (SC[x.s] || '#64748b') + '"><b>' + esc(t(SK[x.s])) + (x.place ? ' ' + esc(x.place) : '') + '</b><div class="muted">' + esc(fmtDT(x.at)) + (x.byName ? ' · ' + esc(x.byName) : '') + '</div>' + (x.note ? '<div style="font-size:13px">' + esc(x.note) + '</div>' : '') + '</div>'; }).join('') + '</div>';
+  h += '<h3>' + esc(t('history')) + '</h3><div class="tl">' + hs.map(function (x) { return '<div class="it" style="--c:' + (x.ev ? '#64748b' : (SC[x.s] || '#64748b')) + '"><b>' + esc(x.ev ? t(EVK[x.ev] || 'evDest') : t(SK[x.s])) + (x.place ? ' ' + esc(x.place) : '') + '</b><div class="muted">' + esc(fmtDT(x.at)) + (x.byName ? ' · ' + esc(x.byName) : '') + '</div>' + (x.note ? '<div style="font-size:13px">' + esc(x.note) + '</div>' : '') + '</div>'; }).join('') + '</div>';
   window.__ship = r;
   h += '<div class="acts"><button class="btn" onclick="statusDlg()">' + esc(t('updateStatus')) + '</button><button class="btn green" onclick="labelDlg(window.__ship)">' + esc(t('printLabel')) + '</button><button class="btn gray" onclick="closeDlg()">' + esc(t('close')) + '</button></div>';
   dlg(h);
@@ -458,9 +485,9 @@ function showShip(r) {
 /* which statuses may this user set by hand (the dialog) */
 function allowedStatuses(r) {
   if (isAdmin()) return ST.slice();
-  if (me.branch === r.to) return ['arrived', 'out', 'delivered', 'problem'];
-  if (me.branch === r.from) return ['posted', 'shipping', 'problem'];
-  return ['transit', 'shipping', 'problem'];
+  if (me.branch === r.to) return ['arrived', 'out', 'delivered', 'returned', 'problem'];
+  if (me.branch === r.from) return ['posted', 'shipping', 'returned', 'problem'];
+  return ['transit', 'shipping', 'returned', 'problem'];
 }
 function nextOf(s) { var o = ['posted', 'shipping', 'arrived', 'out', 'delivered']; var i = o.indexOf(s); return i >= 0 && i < o.length - 1 ? o[i + 1] : s; }
 function statusDlg() {
@@ -495,8 +522,8 @@ function newHtml() {
   h += '<div class="grid2"><div class="fg"><label>' + esc(t('senderPhone')) + ' *</label><input id="nfSp" type="tel" inputmode="tel"></div><div class="fg"><label>' + esc(t('receiverPhone')) + ' *</label><input id="nfRp" type="tel" inputmode="tel"></div></div>';
   h += '<div class="grid2"><div class="fg"><label>' + esc(t('goodsType')) + '</label><select id="nfGt"><option value="doc">' + esc(t('gDoc')) + '</option><option value="parcel">' + esc(t('gParcel')) + '</option><option value="fragile">' + esc(t('gFragile')) + '</option><option value="other">' + esc(t('gOther')) + '</option></select></div><div class="fg"><label>' + esc(t('goodsDesc')) + ' (' + esc(t('optional')) + ')</label><input id="nfGd"></div>';
   h += '<div class="fg"><label>' + esc(t('qty')) + '</label><input id="nfQ" type="number" inputmode="numeric" min="1" value="1"></div><div class="fg"><label>' + esc(t('kg')) + ' (' + esc(t('optional')) + ')</label><input id="nfKg" type="number" inputmode="decimal" min="0" step="0.1"></div>';
-  h += '<div class="fg"><label>' + esc(t('fee')) + ' (' + esc(t('optional')) + ')</label><input id="nfPr" inputmode="decimal"></div><div class="fg"><label>&nbsp;</label><select id="nfPaid"><option value="1">' + esc(t('paid')) + '</option><option value="0">' + esc(t('unpaid')) + '</option></select></div>';
-  h += '<div class="fg"><label>' + esc(t('cod')) + ' (' + esc(t('optional')) + ')</label><input id="nfCod" inputmode="decimal"></div></div>';
+  h += '<div class="fg"><label>' + esc(t('fee')) + ' (' + esc(t('optional')) + ')</label><div style="display:flex;gap:6px"><input id="nfPr" inputmode="decimal" style="flex:1;min-width:0"><select id="nfCur" style="flex:0 0 74px"><option value="USD">$</option><option value="KHR">\u17db</option></select></div></div><div class="fg"><label>&nbsp;</label><select id="nfPaid"><option value="1">' + esc(t('paid')) + '</option><option value="0">' + esc(t('unpaid')) + '</option></select></div>';
+  h += '<div class="fg"><label>' + esc(t('cod')) + ' (' + esc(t('optional')) + ')</label><div style="display:flex;gap:6px"><input id="nfCod" inputmode="decimal" style="flex:1;min-width:0"><select id="nfCodCur" style="flex:0 0 74px"><option value="USD">$</option><option value="KHR">\u17db</option></select></div></div></div>';
   h += '<div class="fg"><label>' + esc(t('note')) + ' (' + esc(t('optional')) + ')</label><textarea id="nfNote"></textarea></div><div class="err" id="nfErr"></div><button class="btn big" id="nfGo" style="width:100%">' + esc(t('create')) + '</button></form></div>';
   return h;
 }
@@ -516,7 +543,7 @@ function createShipment() {
   genNo(from).then(function (no) {
     var hk = db.ref().push().key;
     var rec = { no: no, from: from, to: to, fromName: fromName, toName: toName, status: 'posted', created: now, updated: now, createdBy: me.uid, createdByName: me.name,
-      sender: { p: sp }, rcv: { p: rp }, goods: { type: g('nfGt'), desc: g('nfGd').trim() || null, qty: parseInt(g('nfQ'), 10) || 1, kg: g('nfKg') || null }, price: g('nfPr').trim() || null, paid: g('nfPaid') === '1', cod: g('nfCod').trim() || null, note: g('nfNote').trim() || null,
+      sender: { p: sp }, rcv: { p: rp }, goods: { type: g('nfGt'), desc: g('nfGd').trim() || null, qty: parseInt(g('nfQ'), 10) || 1, kg: g('nfKg') || null }, price: g('nfPr').trim() || null, cur: g('nfCur') || 'USD', paid: g('nfPaid') === '1', cod: g('nfCod').trim() || null, codCur: g('nfCodCur') || 'USD', note: g('nfNote').trim() || null,
       hist: {} };
     rec.hist[hk] = { s: 'posted', at: now, by: me.uid, byName: me.name, br: from, place: fromName };
     var idx = idxOf(rec, 'posted', now);
@@ -530,62 +557,126 @@ function createShipment() {
 }
 
 /* ---------- label ---------- */
-function labelHtml(r, copy) {
-  var url = TRACK_URL + '?no=' + encodeURIComponent(r.no), g = r.goods || {}, gl = t({ doc: 'gDoc', parcel: 'gParcel', fragile: 'gFragile', other: 'gOther' }[g.type] || 'gOther');
-  return '<div class="lab"><div class="h"><span>' + esc(COMPANY) + '</span><span class="c">' + esc(copy) + '</span></div><div class="qrw"><div style="flex:0 0 120px">' + QRMAKE.svg(url, 120) + '</div><div><div class="muted" style="color:#000">' + esc(t('tracking')) + '</div><div class="no">' + esc(r.no) + '</div><div class="muted" style="color:#000">' + esc(fmtDT(r.created)) + '</div></div></div>' +
-    '<div class="rt">' + esc(r.fromName) + ' → ' + esc(r.toName) + '</div><table><tr><td>' + esc(t('sender')) + '</td><td><b>' + esc((r.sender || {}).p) + '</b></td></tr><tr><td>' + esc(t('receiver')) + '</td><td><b>' + esc((r.rcv || {}).p) + '</b></td></tr><tr><td>' + esc(t('goods')) + '</td><td>' + esc(gl) + (g.desc ? ' - ' + esc(g.desc) : '') + ' · ' + esc(g.qty || 1) + (g.kg ? ' · ' + esc(g.kg) + ' kg' : '') + '</td></tr>' + (r.price ? '<tr><td>' + esc(t('fee')) + '</td><td><b>' + esc(r.price) + ' (' + esc(r.paid ? t('paid') : t('unpaid')) + ')</b></td></tr>' : '') + (r.cod ? '<tr><td>' + esc(t('cod')) + '</td><td><b>' + esc(r.cod) + '</b></td></tr>' : '') + '<tr><td>' + esc(t('staffLbl')) + '</td><td>' + esc(r.createdByName || '') + '</td></tr></table><div style="margin-top:6px;font-size:10px">' + esc(t('trackAt')) + ': ' + esc(TRACK_URL.replace('https://', '')) + '</div></div>';
+var GOODS_BI = { doc: ['ឯកសារ', 'Document'], parcel: ['កញ្ចប់', 'Parcel'], fragile: ['ងាយបែក', 'Fragile'], other: ['ផ្សេងៗ', 'Other'] };
+var TERMS_BI = [
+  ['សូមពិនិត្យទំនិញ និងបង្កាន់ដៃនេះ មុនចាកចេញពីបញ្ជរ។', 'Please check your goods and this receipt before leaving the counter.'],
+  ['ក្រុមហ៊ុនមិនទទួលខុសត្រូវចំពោះទំនិញហាមឃាត់ ខុសច្បាប់ ប្រាក់សុទ្ធ គ្រឿងអលង្ការ ឬទំនិញមានតម្លៃដែលមិនបានប្រកាស។', 'We are not responsible for prohibited or illegal goods, cash, jewellery or valuables that were not declared.'],
+  ['សំណងចំពោះការបាត់បង់ ឬខូចខាត មិនលើសពីថ្លៃសេវាដែលបានបង់ លើកលែងតែបានប្រកាសតម្លៃ និងធានារ៉ាប់រង។', 'Compensation for loss or damage is limited to the fee paid, unless the value was declared and insured.'],
+  ['ត្រូវបង្ហាញបង្កាន់ដៃនេះ ដើម្បីទទួលទំនិញ។ បណ្តឹងត្រូវធ្វើក្នុងរយៈពេល ៧ថ្ងៃ បន្ទាប់ពីទំនិញមកដល់។', 'Show this receipt to collect the goods. Claims must be made within 7 days after the goods arrive.'],
+  ['ការយឺតយ៉ាវដោយសារអាកាសធាតុ ផ្លូវ ឬហេតុការណ៍ក្រៅការគ្រប់គ្រង មិនមែនជាការទទួលខុសត្រូវរបស់យើងទេ។', 'We are not responsible for delays caused by weather, roads or events beyond our control.']
+];
+function bi(k, e) { return '<span class="k">' + esc(k) + '</span><span class="e">' + esc(e) + '</span>'; }
+function labelHtml(r, which) {
+  var url = TRACK_URL + '?no=' + encodeURIComponent(r.no), g = r.goods || {}, gb = GOODS_BI[g.type] || GOODS_BI.other, fb = branches[r.from] || {}, tb = branches[r.to] || {};
+  var copy = which === 'p' ? bi('ច្បាប់ឥវ៉ាន់', 'Parcel copy') : bi('ច្បាប់អតិថិជន', 'Customer copy');
+  function row(k, e, v) { return '<tr><td class="lbl">' + bi(k, e) + '</td><td>' + v + '</td></tr>'; }
+  function row2(k1, e1, v1, k2, e2, v2) { return '<tr><td class="lbl">' + bi(k1, e1) + '</td><td>' + v1 + '</td><td class="lbl">' + bi(k2, e2) + '</td><td>' + v2 + '</td></tr>'; }
+  var fee = r.price ? '<b>' + esc(fmtMoney(r.price, r.cur)) + '</b> (' + (r.paid ? 'បានបង់ / PAID' : 'បង់នៅទីដល់ / PAY AT DESTINATION') + ')' : '-';
+  var cod = r.cod ? '<b>' + esc(fmtMoney(r.cod, r.codCur)) + '</b>' : '-';
+  var goods = esc(gb[0] + ' / ' + gb[1]) + (g.desc ? ' - ' + esc(g.desc) : '') + ' · ' + esc(g.qty || 1) + (g.kg ? ' · ' + esc(g.kg) + ' kg' : '');
+  var h = '<div class="lab"><div class="h"><div><div class="co">' + esc(COMPANY) + '</div><div class="cok">ខេមបូឌា អ៊ិនសាយ អិចប្រេស</div></div><span class="c">' + copy + '</span></div>';
+  h += '<div class="qrw"><div class="qrbox">' + QRMAKE.svg(url, 118) + '<div class="scan">' + bi('ស្កេនដើម្បីតាមដាន', 'Scan to track') + '</div></div><div class="nos"><div class="muted2">' + bi('លេខតាមដាន', 'Tracking No') + '</div><div class="no">' + esc(r.no) + '</div><div class="muted2">' + bi('កាលបរិច្ឆេទ', 'Date') + ': ' + esc(fmtDT(r.created)) + '</div><div class="muted2">' + bi('បុគ្គលិក', 'Staff') + ': ' + esc(r.createdByName || '') + '</div></div></div>';
+  h += '<div class="rt">' + esc(r.fromName) + ' → ' + esc(r.toName) + '</div>';
+  h += '<table class="rcpt">' + row('ប្រភេទទំនិញ', 'Goods', goods).replace('<td>', '<td colspan="3">') +
+    row2('លេខអ្នកផ្ញើ', 'Sender phone', '<b>' + esc((r.sender || {}).p) + '</b>', 'លេខអ្នកទទួល', 'Receiver phone', '<b>' + esc((r.rcv || {}).p) + '</b>') +
+    row2('ពីសាខា', 'From', esc(r.fromName), 'ទៅសាខា', 'To', '<b>' + esc(r.toName) + '</b>') +
+    row('ថ្លៃសេវា', 'Fee', fee).replace('<td>', '<td colspan="3">') +
+    row('ប្រាក់ត្រូវទារ', 'COD', cod).replace('<td>', '<td colspan="3">') +
+    (r.note ? row('ចំណាំ', 'Note', esc(r.note)).replace('<td>', '<td colspan="3">') : '') + '</table>';
+  h += '<div class="brs"><div><b>' + esc(r.fromName) + '</b>' + (fb.phone ? '<br>' + esc(fb.phone) : '') + (fb.address ? '<br>' + esc(fb.address) : '') + '</div><div><b>' + bi('ភ្នាក់ងារ', 'Agency') + ' ' + esc(r.toName) + '</b>' + (tb.phone ? '<br>' + esc(tb.phone) : '') + (tb.address ? '<br>' + esc(tb.address) : '') + '</div></div>';
+  h += '<div class="terms"><b>' + bi('លក្ខខណ្ឌ', 'Terms & Conditions') + '</b><ol>' + TERMS_BI.map(function (x) { return '<li><span class="k">' + esc(x[0]) + '</span><span class="e">' + esc(x[1]) + '</span></li>'; }).join('') + '</ol></div>';
+  h += '<div class="trk">' + bi('តាមដានតាមអនឡាញ', 'Track online') + ': ' + esc(TRACK_URL.replace('https://', '')) + '</div></div>';
+  return h;
 }
 function labelDlg(r, created) {
   window.__ship = r;
-  var h = '<h2>' + esc(created ? t('created') : t('printLabel')) + '</h2>' + labelHtml(r, t('labelCustomer')) + '<div class="acts"><button class="btn green" id="lbPrint">' + esc(t('printLabel')) + '</button><button class="btn gray" onclick="closeDlg()">' + esc(t('close')) + '</button></div>';
-  dlg(h); $('lbPrint').onclick = function () { $('printArea').innerHTML = labelHtml(r, t('labelParcel')) + labelHtml(r, t('labelCustomer')); window.print(); };
+  var h = '<h2>' + esc(created ? t('created') : t('printLabel')) + '</h2>' + labelHtml(r, 'c') + '<div class="acts"><button class="btn green" id="lbPrint">' + esc(t('printLabel')) + '</button><button class="btn gray" onclick="closeDlg()">' + esc(t('close')) + '</button></div>';
+  dlg(h); $('lbPrint').onclick = function () { $('printArea').innerHTML = labelHtml(r, 'p') + labelHtml(r, 'c'); window.print(); };
 }
 
 /* ---------- scan ---------- */
-var scanner = null, scanLog = [], lastCode = '', lastAt = 0;
+var scanner = null, scanLog = [], lastCode = '', lastAt = 0, scanMode = null, scanBusy = false, popTimer = null;
+var SCM = [['ship', 'scM_ship', '#4f46e5'], ['transit', 'scM_transit', '#7c3aed'], ['arrive', 'scM_arrive', '#0d9488'], ['contact', 'scM_contact', '#d97706'], ['recv', 'scM_recv', '#16a34a'], ['return', 'scM_return', '#be185d'], ['dest', 'scM_dest', '#0b1d3a']];
 function scanHtml() {
-  var modes = ['auto', 'out', 'delivered', 'problem'];
-  return '<div class="card"><h2>' + esc(t('scanTitle')) + '</h2><div class="muted" style="margin-bottom:10px">' + esc(t('scanHelp')) + '</div><div class="fg"><label>' + esc(t('scanAction')) + '</label><select id="scAct">' + modes.map(function (s) { return '<option value="' + s + '">' + esc(s === 'auto' ? t('scanAuto') : t(SK[s])) + '</option>'; }).join('') + '</select><div class="muted" style="margin-top:4px">' + esc(t('scanAutoHelp')) + '</div></div>' +
-    '<button class="btn big" id="scBtn" onclick="toggleScan()" style="width:100%">' + esc(t('scanStart')) + '</button><div id="reader"></div><div class="fg" style="margin-top:12px"><label>' + esc(t('scanManual')) + '</label><div style="display:flex;gap:8px"><input id="scNo" placeholder="PP-261021-0001" autocapitalize="characters"><button class="btn" style="flex:0 0 auto" onclick="scanManual()">' + esc(t('add')) + '</button></div></div>' +
+  if (!scanMode) return '<div class="card" id="scRoot"><h2>' + esc(t('scanPick')) + '</h2><div class="scgrid">' + SCM.map(function (m) { return '<button style="background:' + m[2] + '" onclick="pickScan(\'' + m[0] + '\')">' + ICON.scan + '<span>' + esc(t(m[1])) + '</span></button>'; }).join('') + '</div><div class="muted" style="margin-top:14px">' + esc(t('scanPickHint')) + '</div></div>';
+  var m = SCM.filter(function (x) { return x[0] === scanMode; })[0];
+  return '<div class="card" id="scRoot"><div class="sc-top"><div class="sc-mode" style="background:' + m[2] + '">' + esc(t(m[1])) + '</div><button class="btn gray small" onclick="scanChange()">' + esc(t('scanChange')) + '</button></div>' +
+    '<div id="reader"></div><button class="btn big" id="scBtn" onclick="toggleScan()" style="width:100%">' + esc(t('scanStart')) + '</button>' +
+    '<div class="fg" style="margin-top:12px"><label>' + esc(t('scanManual')) + '</label><div style="display:flex;gap:8px"><input id="scNo" placeholder="PP-261021-0001" autocapitalize="characters"><button class="btn" style="flex:0 0 auto" onclick="scanManual()">' + esc(t('add')) + '</button></div></div>' +
     '<div class="sc-log" id="scLog">' + scanLogHtml() + '</div></div>';
 }
-function scanLogHtml() { return scanLog.slice(0, 40).map(function (l) { return '<div class="' + l.c + '">' + esc(l.m) + '</div>'; }).join(''); }
+function pickScan(m) { scanMode = m; $('view').innerHTML = scanHtml(); startScan(); }
+function scanChange() { stopScan(); scanMode = null; $('view').innerHTML = scanHtml(); }
+function scanLogHtml() { return scanLog.slice(0, 30).map(function (l) { return '<div class="' + l.c + '">' + esc(l.m) + '</div>'; }).join(''); }
 function logScan(c, m) { scanLog.unshift({ c: c, m: m }); var el = $('scLog'); if (el) el.innerHTML = scanLogHtml(); }
 function parseNo(s) { s = String(s || '').trim(); var m = s.match(/[?&]no=([A-Za-z0-9-]+)/); if (m) s = m[1]; s = s.toUpperCase(); return /^[A-Z0-9]{2,6}-\d{6}-\d{4,}$/.test(s) ? s : ''; }
 function scanManual() { var v = $('scNo').value; $('scNo').value = ''; handleCode(v); }
 function toggleScan() { if (scanner) { stopScan(); return; } startScan(); }
 function startScan() {
+  if (!$('reader')) return;
   if (!window.Html5Qrcode) { logScan('y', t('noCamera')); return; }
-  try { scanner = new Html5Qrcode('reader'); scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: 220 }, function (txt) { handleCode(txt); }, function () {}).then(function () { var b = $('scBtn'); if (b) b.textContent = t('scanStop'); }).catch(function () { scanner = null; logScan('y', t('noCamera')); });
+  try { scanner = new Html5Qrcode('reader'); scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: function (w, h) { var s = Math.floor(Math.min(w, h) * 0.8); return { width: s, height: s }; } }, function (txt) { handleCode(txt); }, function () {}).then(function () { var b = $('scBtn'); if (b) b.textContent = t('scanStop'); }).catch(function () { scanner = null; logScan('y', t('noCamera')); });
   } catch (e) { scanner = null; logScan('y', t('noCamera')); }
 }
 function stopScan() { if (!scanner) return; var s = scanner; scanner = null; try { s.stop().then(function () { s.clear(); }).catch(function () {}); } catch (e) {} var b = $('scBtn'); if (b) b.textContent = t('scanStart'); }
-/* what should this scan do? returns {s: newStatus} or {warn: text} */
+/* pop-up result (separate from normal dialogs so the camera keeps running) */
+function pop(kind, title, body, acts, auto) {
+  clearTimeout(popTimer); scanBusy = true; var ic = { ok: '✓', warn: '!', bad: '✕', ask: '?' }[kind] || '';
+  var host = $('popHost'); if (!host) { host = document.createElement('div'); host.id = 'popHost'; document.body.appendChild(host); }
+  host.innerHTML = '<div class="ov"><div class="dlg pk ' + kind + '"><div class="pk-ic">' + ic + '</div><h2>' + esc(title) + '</h2>' + (body || '') + '<div class="acts">' + (acts || '<button class="btn big" id="pkOk" onclick="closePop()">' + esc(t('popOk')) + '</button>') + '</div></div></div>';
+  if (auto) popTimer = setTimeout(closePop, auto);
+}
+function closePop() { clearTimeout(popTimer); var h = $('popHost'); if (h) h.innerHTML = ''; scanBusy = false; lastAt = Date.now(); }
+function lastHere(r) { return histList(r).filter(function (h) { return h.br === me.branch && !h.ev; })[0]; }
+function routeTxt(r) { return r.fromName + ' → ' + r.toName; }
+/* what should this scan do? {s: status} | {ev:'call'} | {dest:true} | {warn: text} */
 function decideScan(r, mode) {
-  var b = me.branch, st = r.status;
-  if (mode !== 'auto') {
-    if (st === mode) return { warn: t('sAlready') + ' (' + t(SK[mode]) + ')' };
-    if (!isAdmin() && allowedStatuses(r).indexOf(mode) < 0) return { warn: t('wrongBranch') + ' (' + r.fromName + ' → ' + r.toName + ')' };
-    return { s: mode };
-  }
-  if (st === 'delivered') return { warn: t('sAlready') + ' (' + t(SK.delivered) + ')' };
-  if (b === r.to) return (st === 'posted' || st === 'shipping' || st === 'transit' || st === 'problem') ? { s: 'arrived' } : { warn: t('alreadyDest') };
-  var last = histList(r).filter(function (h) { return h.br === b; })[0];
-  if (last && last.s === 'shipping' && st !== 'problem') return { warn: t('alreadyShipped') };
-  if (b === r.from) return { s: 'shipping' };
-  return (last && last.s === 'transit') ? { s: 'shipping' } : { s: 'transit' };
+  var b = me.branch, st = r.status, wrong = { warn: t('wrongBranch') + ' (' + routeTxt(r) + ')' };
+  if (st === 'delivered' || st === 'returned') return { warn: t('sAlready') + ' (' + t(SK[st]) + ')' };
+  var last = lastHere(r);
+  if (mode === 'ship') { if (b === r.to) return wrong; if (st === 'shipping' && last && last.s === 'shipping') return { warn: t('alreadyShipped') }; return { s: 'shipping' }; }
+  if (mode === 'transit') { if (b === r.from || b === r.to) return wrong; if (st === 'transit' && last && last.s === 'transit') return { warn: t('sAlready') + ' (' + t(SK.transit) + ')' }; return { s: 'transit' }; }
+  if (mode === 'arrive') { if (b !== r.to) return wrong; if (st === 'arrived' || st === 'out') return { warn: t('alreadyDest') }; return { s: 'arrived' }; }
+  if (mode === 'recv') { if (b !== r.to) return wrong; return { s: 'delivered' }; }
+  if (mode === 'return') return { s: 'returned' };
+  if (mode === 'contact') return { ev: 'call' };
+  if (mode === 'dest') { if (!isAdmin() && b !== r.from && b !== r.to) return wrong; return { dest: true }; }
+  return { warn: t('failed') };
 }
 function handleCode(txt) {
+  if (scanBusy || !scanMode) return;
   var no = parseNo(txt), now = Date.now();
-  if (!no) { beep(false); logScan('r', t('unknownCode') + ': ' + String(txt).slice(0, 30)); return; }
-  if (no === lastCode && now - lastAt < 4000) return; lastCode = no; lastAt = now;
-  var mode = ($('scAct') || {}).value || 'auto';
+  if (!no) { beep(false); pop('bad', t('unknownCode'), '<div class="muted">' + esc(String(txt).slice(0, 40)) + '</div>'); return; }
+  if (no === lastCode && now - lastAt < 3000) return; lastCode = no; lastAt = now;
+  scanBusy = true;
   db.ref('shipments/' + no).once('value').then(function (s) {
-    var r = s.val(); if (!r) { beep(false); logScan('r', no + ' · ' + t('notFound')); return; } r.no = no;
-    var d = decideScan(r, mode);
-    if (d.warn) { beep(false); logScan('y', no + ' · ' + d.warn); return; }
-    return applyStatus(r, d.s, null).then(function () { beep(true); logScan('g', no + ' · ' + t(SK[d.s]) + ' ' + bName(me.branch) + ' ✓ (' + r.fromName + ' → ' + r.toName + ')'); });
-  }).catch(function () { beep(false); logScan('r', no + ' · ' + t('notFound')); });
+    var r = s.val(); if (!r) { beep(false); pop('bad', t('notFound'), '<div class="no2">' + esc(no) + '</div>'); return; } r.no = no;
+    var d = decideScan(r, scanMode), head = '<div class="no2">' + esc(no) + '</div><div class="muted">' + esc(routeTxt(r)) + '</div>';
+    if (d.warn) { beep(false); logScan('y', no + ' · ' + d.warn); pop('warn', d.warn, head); return; }
+    if (d.s) return applyStatus(r, d.s, null).then(function () { beep(true); var m = t(SK[d.s]) + ' ' + bName(me.branch); logScan('g', no + ' · ' + m); pop('ok', m, head, null, 2200); });
+    if (d.ev) { beep(true); window.__scr = r; pop('ask', t('callQ'), head + '<div class="muted" style="margin:6px 0">' + esc(t('receiver')) + ': <a href="tel:' + esc((r.rcv || {}).p) + '"><b>' + esc((r.rcv || {}).p) + '</b></a></div>', '<button class="btn green big" onclick="callRes(\'call_ok\')">' + esc(t('callYes')) + '</button><button class="btn red big" onclick="callRes(\'call_no\')">' + esc(t('callNo')) + '</button><button class="btn gray" onclick="closePop()">' + esc(t('cancel')) + '</button>'); return; }
+    if (d.dest) { beep(true); window.__scr = r; var opts = activeBranches().filter(function (x) { return x.code !== r.from && x.code !== r.to; }).map(function (x) { return '<option value="' + esc(x.code) + '">' + esc(x.name) + '</option>'; }).join('');
+      pop('ask', t('destTitle'), head + '<div class="fg" style="text-align:left;margin-top:10px"><label>' + esc(t('destNew')) + '</label><select id="pkDest"><option value="">--</option>' + opts + '</select></div>', '<button class="btn big" onclick="destSave()">' + esc(t('destSave')) + '</button><button class="btn gray" onclick="closePop()">' + esc(t('cancel')) + '</button>'); }
+  }).catch(function () { beep(false); pop('bad', t('failed'), ''); });
+}
+/* history-only events: they never change the status */
+function applyEvent(r, ev, note, extra) {
+  var now = Date.now(), hk = db.ref().push().key, no = r.no, place = bName(me.branch), up = extra || {};
+  up['shipments/' + no + '/updated'] = now; up['track/' + no + '/updated'] = now;
+  up['shipments/' + no + '/hist/' + hk] = { s: r.status, at: now, by: me.uid, byName: me.name, br: me.branch, place: place, note: note || null, ev: ev };
+  up['track/' + no + '/hist/' + hk] = { s: r.status, at: now, place: place, note: note || null, ev: ev };
+  return db.ref().update(up);
+}
+function callRes(ev) { var r = window.__scr; pop('ask', '...', ''); applyEvent(r, ev, null).then(function () { var m = t(EVK[ev]); logScan('g', r.no + ' · ' + m); pop('ok', m, '<div class="no2">' + esc(r.no) + '</div>', null, 2200); }).catch(function () { pop('bad', t('failed'), ''); }); }
+function destSave() {
+  var r = window.__scr, nc = ($('pkDest') || {}).value; if (!nc) return; var nn = bName(nc), now = Date.now(), up = {}, old = r.toName;
+  up['shipments/' + r.no + '/to'] = nc; up['shipments/' + r.no + '/toName'] = nn; up['track/' + r.no + '/to'] = nn;
+  var r2 = JSON.parse(JSON.stringify(r)); r2.to = nc; r2.toName = nn; var idx = idxOf(r2, r.status, now);
+  if (r.to !== r.from) up['branchIdx/' + r.to + '/' + r.no] = null;
+  [r.from, nc, me.branch].filter(function (c, i, x) { return c && x.indexOf(c) === i; }).forEach(function (c) { up['branchIdx/' + c + '/' + r.no] = idx; });
+  up['inbox/' + nc + '/' + r.no + '-new'] = { k: 'new', no: r.no, s: r.status, from: r.fromName, to: nn, at: now, seen: false };
+  pop('ask', '...', '');
+  applyEvent(r, 'dest', old + ' → ' + nn, up).then(function () { var m = t('evDest') + ': ' + old + ' → ' + nn; logScan('g', r.no + ' · ' + m); pop('ok', t('evDest'), '<div class="no2">' + esc(r.no) + '</div><div class="muted">' + esc(old + ' → ' + nn) + '</div>', null, 2600); }).catch(function () { pop('bad', t('failed'), ''); });
 }
 
 /* ---------- bell ---------- */
